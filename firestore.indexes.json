@@ -1,0 +1,47 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "skis",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "locked",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dateAdded",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "skis",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "locked",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dateAdded",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "skis",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "locked",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "serialNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
