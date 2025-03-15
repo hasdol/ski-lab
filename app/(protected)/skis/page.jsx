@@ -120,7 +120,7 @@ const Skis = () => {
   };
 
   const handleEdit = (ski) => {
-    router.push(`/editSki/${ski.id}`);
+    router.push(`/editSki/${ski.id}`); 
   };
 
   const handleDelete = async (skiId) => {
