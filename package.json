@@ -9,8 +9,7 @@
     "build:live": "env-cmd -f .env.production next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy:live": "firebase use live && npm run build:live && firebase deploy",
-    "deploy:dev": "firebase use dev && npm run build:dev && firebase deploy"
+    "deploy": "vercel --prod"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
