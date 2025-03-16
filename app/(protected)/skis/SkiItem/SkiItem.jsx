@@ -88,14 +88,14 @@ const SkiItem = ({
 
           {/* Up/Down arrow, only if we're not forced open by "allExpanded" */}
           {!gloveMode && !allExpanded && (
-            <p className="mx-1">
+            <p className="mr-1">
               {showDetails ? <MdArrowDropUp size={20} /> : <MdArrowDropDown size={20} />}
             </p>
           )}
 
           {/* Archive or New icons */}
           {ski.archived && <RiHistoryLine />}
-          {isNew(ski) && !gloveMode && <p className="text-btn text-xs">{t('new')}</p>}
+          {isNew(ski) && !gloveMode && <p className="text-highlight text-xs">{t('new')}</p>}
         </div>
 
         {/* Edit Button */}

@@ -11,8 +11,9 @@ import SaveTestInput from './components/SaveTestInput';
 import { TournamentContext } from '@/context/TournamentContext';
 import { RiDeleteBinLine } from "react-icons/ri";
 import { addTestResult, updateTestArray } from '@/lib/firebase/firestoreFunctions';
+import LoadingButton from '@/components/common/LoadingButton/LoadingButton';
 
-// Helper function to update all test arrays (make sure updateTestArray is correctly imported)
+// Helper function to update all test arrays
 const updateAllTestArrays = async (userId, rankings, testId) => {
   for (const ranking of rankings) {
     await updateTestArray(userId, ranking.skiId, testId);
@@ -23,21 +24,18 @@ const TestSummaryPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
-  const {
-    selectedSkis,
-    calculateRankings,
-    resetTournament,
-  } = useContext(TournamentContext);
+  const { selectedSkis, calculateRankings, resetTournament } = useContext(TournamentContext);
 
   const [loading, setLoading] = useState(false);
   const [locationError, setLocationError] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
-  // Redirect if no skis are selected
+  // Redirect if no skis are selected (only if we haven't just submitted)
   useEffect(() => {
-    if (!selectedSkis || selectedSkis.length === 0) {
+    if (!hasSubmitted && (!selectedSkis || selectedSkis.length === 0)) {
       router.push('/skis');
     }
-  }, [selectedSkis, router]);
+  }, [selectedSkis, router, hasSubmitted]);
 
   const rankings = calculateRankings();
 
@@ -71,9 +69,9 @@ const TestSummaryPage = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'source' || name === 'grainType') {
-      setAdditionalData((prev) => ({
-        ...prev,
-        snowCondition: { ...prev.snowCondition, [name]: value },
+      setAdditionalData((prevData) => ({
+        ...prevData,
+        snowCondition: { ...prevData.snowCondition, [name]: value },
       }));
     } else {
       setAdditionalData({ ...additionalData, [name]: value });
@@ -100,6 +98,7 @@ const TestSummaryPage = () => {
       console.error('Error: ', error);
     } finally {
       setLoading(false);
+      setHasSubmitted(true);
       router.push('/results');
     }
   };
@@ -173,13 +172,21 @@ const TestSummaryPage = () => {
     }
   };
 
-  if (loading) return <Spinner />;
-
   return (
     <div className="py-4 px-2">
+      <Head>
+        <title>Ski-Lab: Results</title>
+        <meta name="description" content="Displaying your test results" />
+      </Head>
       <div className="space-y-5">
         <div>
-          <ResultList rankings={rankings} />
+          {loading ? (
+            <div className="flex justify-center items-center h-40">
+              <Spinner />
+            </div>
+          ) : (
+            <ResultList rankings={rankings} />
+          )}
         </div>
         <div>
           <form className="rounded flex flex-col text-black my-2" onSubmit={handleSaveResults}>
@@ -250,13 +257,14 @@ const TestSummaryPage = () => {
               />
             </div>
             <div className="flex sm:space-x-4 space-y-4 sm:space-y-0 my-4 justify-between">
-              <div className="space-x-2">
-                <button
+              <div className="flex space-x-2">
+                <LoadingButton
                   type="submit"
+                  isLoading={loading}
                   className="px-5 py-3 cursor-pointer bg-btn text-btntxt rounded w-fit hover:opacity-90"
                 >
                   {t('save')}
-                </button>
+                </LoadingButton>
                 <button
                   type="button"
                   className="px-5 py-3 cursor-pointer bg-sbtn text-text rounded w-fit hover:bg-hoverSbtn"
@@ -264,7 +272,6 @@ const TestSummaryPage = () => {
                 >
                   {t('back')}
                 </button>
-
               </div>
               <button
                 type="button"

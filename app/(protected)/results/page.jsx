@@ -235,8 +235,8 @@ const Results = () => {
 
                   {/* Additional details */}
                   <div className="my-5 px-4">
-                    <h3 className="font-semibold text-dominant mb-4 text-lg">{t('details')}</h3>
-                    <ul className="text-sm grid grid-cols-2 gap-2">
+                    <p className='border-t border-sbtn mb-4'></p>
+                    <ul className="text-sm grid grid-cols-2 gap-2 ">
                       <li className="flex flex-col">
                         {t('snow_type')}
                         <div className="font-semibold text-base">
