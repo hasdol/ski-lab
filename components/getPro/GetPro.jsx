@@ -59,7 +59,7 @@ const GetPro = () => {
     return (
       <button
         onClick={handleManageSubscription}
-        className='hover:underline'
+        className='hover:underline text-highlight'
         disabled={loading}
       >
         {loading ? t('loading') : t('manageSubscription')}

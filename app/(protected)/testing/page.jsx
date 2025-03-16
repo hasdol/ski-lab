@@ -237,23 +237,27 @@ const Testing = () => {
       >
         <div className="py-4 px-2">
           <div className="flex items-end justify-between">
-            <button
-              type="button"
-              className="p-3 w-fit shadow hover:text-btn bg-container rounded-full"
-              onClick={toggleHelpModal}
-            >
-              <RiQuestionLine />
-            </button>
             <h2 className="text-xl font-semibold">
               {t('round')} {roundNumber}/{totalRounds}
             </h2>
-            <button
-              type="button"
-              className="p-3 w-fit shadow hover:text-btn bg-container text-delete rounded-full"
-              onClick={handleResetTest}
-            >
-              <RiDeleteBinLine />
-            </button>
+            <div className='space-x-2'>
+              <button
+                type="button"
+                className="p-3 w-fit hover:opacity-90 bg-btn text-btntxt rounded"
+                onClick={toggleHelpModal}
+              >
+                <RiQuestionLine />
+              </button>
+
+              <button
+                type="button"
+                className="p-3 w-fit hover:opacity-90 bg-btn text-btntxt rounded"
+                onClick={handleResetTest}
+              >
+                <RiDeleteBinLine />
+              </button>
+            </div>
+
           </div>
           {currentRound.length > 0 && (
             <Droppable droppableId="round" type="match">
@@ -301,7 +305,7 @@ const Testing = () => {
             )}
             <div className="flex items-center space-x-2">
               <button
-                className="bg-btn cursor-pointer text-btntxt px-5 py-3 rounded shadow hover:opacity-90"
+                className="bg-btn cursor-pointer text-btntxt px-5 py-3 rounded hover:opacity-90"
                 onClick={handleSubmitRound}
               >
                 {t('submit_round')}

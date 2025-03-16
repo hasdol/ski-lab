@@ -1,10 +1,11 @@
-'use client'
+// pages/SignIn.js
+'use client';
 import React, { useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { loginWithEmailAndPassword } from '@/lib/firebase/authFunctions';
-import Spinner from '@/components/common/Spinner/Spinner';
+import LoadingButton from '@/components/common/LoadingButton/LoadingButton';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -20,7 +21,8 @@ const SignIn = () => {
     setError('');
     try {
       await loginWithEmailAndPassword(email, password);
-      router.push('/');
+      router.push('/'); // Navigation initiated
+      // No need to reset isLoading on success
     } catch (error) {
       switch (error.code) {
         case 'auth/invalid-login-credentials':
@@ -33,12 +35,9 @@ const SignIn = () => {
           setError('An error occurred. Please try again later.');
           break;
       }
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Reset loading state only on error.
     }
   };
-
-  if (isLoading) return <Spinner />;
 
   return (
     <>
@@ -65,12 +64,13 @@ const SignIn = () => {
             className="w-full px-4 py-2 border border-gray-300 rounded"
             required
           />
-          <button
+          <LoadingButton
             type="submit"
+            isLoading={isLoading}
             className="bg-btn hover:opacity-90 text-btntxt w-full px-4 py-2 rounded"
           >
             {t('signIn')}
-          </button>
+          </LoadingButton>
           {error && <div className="text-red-500">{error}</div>}
         </form>
         <div className="mt-6 text-sm flex flex-col space-y-2">

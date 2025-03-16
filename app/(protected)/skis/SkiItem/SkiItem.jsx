@@ -103,7 +103,7 @@ const SkiItem = ({
           <div className="flex p-2 rounded-full bg-background ">
             <button
               onClick={handleEditClick}
-              className='shadow bg-container text-btn hover:bg-btn hover:text-btntxt rounded-full p-2 cursor-pointer'
+              className='shadow bg-btn text-btntxt hover:opacity-90  rounded-full p-2 cursor-pointer'
             >
               <RiEditLine />
             </button>

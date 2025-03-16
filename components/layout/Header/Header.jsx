@@ -16,7 +16,7 @@ const Header = () => {
   const pageNames = {
     '/': '',
     '/skis': t('skipark'),
-    '/add-skis': t('add_ski_pair'),
+    '/addSki': t('add_ski_pair'),
     '/testing': t('testing'),
     '/testing/summary': t('test_summary'),
     '/results': t('results'),
@@ -29,12 +29,12 @@ const Header = () => {
   let pageName = pageNames[pathname] || '';
 
   // Håndter dynamiske URL-er for redigering av ski
-  if (pathname.startsWith('/edit-skis/')) {
+  if (pathname.startsWith('/editSki/')) {
     pageName = t('edit_ski_pair');
   }
 
   // Håndter dynamiske URL-er for redigering av resultater
-  if (pathname.startsWith('/edit-result/')) {
+  if (pathname.startsWith('/editResult/')) {
     pageName = t('edit_test');
   }
 
@@ -47,7 +47,7 @@ const Header = () => {
   };
 
   return (
-    <header className='flex flex-col md:grid grid-cols-3 items-center md:mx-4 space-y-1 p-4 relative z-30'>
+    <header className='flex flex-col md:grid grid-cols-3 items-center md:mx-4 space-y-1 p-4 relative z-10'>
       <div className='relative'>
         <span className='flex-1 md:text-2xl text-3xl rounded font-semibold italic'>
           <h1 className='w-fit cursor-pointer' onClick={handleLogoClick}>SKI-LAB</h1>
@@ -66,7 +66,7 @@ const Header = () => {
         user != null && (
           <button
             onClick={handleContinueTest}
-            className="flex-1 w-fit bg-container cursor-pointer text-btn border border-btn rounded shadow p-3 px-5 flex text-sm items-center justify-self-end hover:bg-btn hover:text-btntxt"
+            className="flex-1 w-fit bg-container cursor-pointer text-btn border border-btn rounded p-3 px-5 flex text-sm items-center justify-self-end hover:bg-btn hover:text-btntxt"
             title={t('continue_test')}
           >
             {t('continue_test')}

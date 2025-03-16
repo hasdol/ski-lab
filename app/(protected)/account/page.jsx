@@ -17,9 +17,6 @@ const Account = () => {
   const { isChangingImg, errorMessage, updateProfileImage } = useProfileActions(user);
   const { t } = useTranslation();
 
-  if (checkingStatus) {
-    return <Spinner />;
-  }
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -61,7 +58,7 @@ const Account = () => {
             </div>
             <Link
               href="/settings"
-              className="flex self-center py-3 px-5 bg-btn w-full rounded text-btntxt items-center justify-center hover:opacity-90"
+              className="flex self-center py-3 px-5 bg-btn text-btntxt rounded items-center justify-center hover:opacity-90"
             >
               {t('settings')}
             </Link>

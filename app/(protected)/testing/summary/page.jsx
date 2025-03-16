@@ -249,8 +249,14 @@ const TestSummaryPage = () => {
                 onChange={handleInputChange}
               />
             </div>
-            <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 my-4">
+            <div className="flex sm:space-x-4 space-y-4 sm:space-y-0 my-4 justify-between">
               <div className="space-x-2">
+                <button
+                  type="submit"
+                  className="px-5 py-3 cursor-pointer bg-btn text-btntxt rounded w-fit hover:opacity-90"
+                >
+                  {t('save')}
+                </button>
                 <button
                   type="button"
                   className="px-5 py-3 cursor-pointer bg-sbtn text-text rounded w-fit hover:bg-hoverSbtn"
@@ -258,16 +264,11 @@ const TestSummaryPage = () => {
                 >
                   {t('back')}
                 </button>
-                <button
-                  type="submit"
-                  className="px-5 py-3 cursor-pointer bg-btn text-btntxt rounded w-fit hover:opacity-90"
-                >
-                  {t('save')}
-                </button>
+
               </div>
               <button
                 type="button"
-                className="p-4 h-fit bg-container cursor-pointer text-delete rounded-full shadow w-fit"
+                className="p-4 h-fit bg-btn cursor-pointer text-btntxt rounded w-fit hover:opacity-90"
                 onClick={handleResetTest}
               >
                 <RiDeleteBinLine />

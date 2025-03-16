@@ -17,7 +17,7 @@ const ResultsSearch = ({ onSearchChange }) => {
                     onChange={e => onSearchChange(e.target.value)}
                     className="w-full bg-container p-4 outline-none"
                 />
-                <div className='text-text p-2 px-4 border-l'>
+                <div className='text-text p-2 px-4 border-gray-300 border-l '>
                     <RiSearchLine />
                 </div>
             </div>

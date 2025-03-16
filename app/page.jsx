@@ -45,7 +45,7 @@ const HomePage = () => {
         <meta name="description" content="Ski-Lab provides an intuitive way of organizing, testing, and analyzing skis." />
       </Head>
 
-      <div className='bg-container text-text relative flex flex-col items-center min-h-screen p-5 overflow-hidden'>
+      <div className=' text-text relative flex flex-col items-center min-h-screen p-5 overflow-hidden'>
         {preferencesLoaded && (
           <>
             <div
@@ -101,7 +101,7 @@ const HomePage = () => {
                   {currentRound && currentRound.length > 0 && (
                     <button
                       onClick={handleContinueTest}
-                      className="flex cursor-pointer mx-auto items-center bg-container shadow text-btn border border-btn hover:bg-btn hover:text-btntxt py-3 px-5 rounded"
+                      className="flex cursor-pointer mx-auto items-center bg-container text-btn border border-btn hover:bg-btn hover:text-btntxt py-3 px-5 rounded"
                       title={t('continue_test')}
                     >
                       {t('continue_test')}

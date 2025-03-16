@@ -4,7 +4,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { registerWithEmailAndPassword } from '@/lib/firebase/authFunctions';
-import Spinner from '@/components/common/Spinner/Spinner';
+import LoadingButton from '@/components/common/LoadingButton/LoadingButton';
 
 const SignUp = () => {
   const router = useRouter();
@@ -22,14 +22,12 @@ const SignUp = () => {
     try {
       await registerWithEmailAndPassword(email, password, username);
       router.push('/');
+      // No need to reset isLoading on success.
     } catch (error) {
       setError(error.message);
-    } finally {
       setIsLoading(false);
     }
   };
-
-  if (isLoading) return <Spinner />;
 
   return (
     <>
@@ -65,12 +63,13 @@ const SignUp = () => {
             className="w-full px-4 py-2 border border-gray-300 rounded"
             required
           />
-          <button
+          <LoadingButton
             type="submit"
-            className="bg-btn hover:opacity-90 text-btntxt w-full px-4 py-2 bg-button rounded"
+            isLoading={isLoading}
+            className="bg-btn hover:opacity-90 text-btntxt w-full px-4 py-2 rounded"
           >
             {t('signUp')}
-          </button>
+          </LoadingButton>
         </form>
         <p className="mt-4">
           Already have an account?{' '}

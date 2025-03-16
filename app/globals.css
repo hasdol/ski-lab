@@ -10,7 +10,8 @@
   --color-background: #f9f9f9;
   --color-container: #ffffff;
   --color-text: #505863;
-  --color-btn: #677dcd ; 
+  --color-btn: #353535 ; 
+  --color-highlight: #677dcd ; 
   --color-sbtn: #f3f3f3;
   --color-hoverSbtn: #ececec;
   --color-btntxt: #FCFFFD;
@@ -37,6 +38,7 @@
   --color-container: #253b4e  ;
   --color-text: #f1f1f1;
   --color-btn: #a9c3f1;
+  --color-highlight: #a9c3f1;
   --color-sbtn: #294155;
   --color-hoverSbtn: #273e52;
   --color-btntxt: #203547;
@@ -66,4 +68,8 @@
     -webkit-appearance: none;
     margin: 0;
   }
+}
+
+button {
+  cursor: pointer;
 }

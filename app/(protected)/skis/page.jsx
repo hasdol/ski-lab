@@ -76,7 +76,7 @@ const Skis = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    // Oppdater utvalgte ski for turneringen hver gang selection endres
+    // Update selected skis for tournament whenever selection changes
     getSelectedSkis();
   }, [selectedSkisMap, skis]);
 
@@ -120,7 +120,7 @@ const Skis = () => {
   };
 
   const handleEdit = (ski) => {
-    router.push(`/editSki/${ski.id}`); 
+    router.push(`/editSki/${ski.id}`);
   };
 
   const handleDelete = async (skiId) => {
@@ -160,7 +160,6 @@ const Skis = () => {
   const hasReachedLimit = skiCount >= skiLimit;
   const hasLockedSkis = lockedSkisCount > 0;
 
-  if (loading) return <Spinner />;
   if (error) return <div className="m-2">Error: {error.message}</div>;
 
   // 5) Filter skis based on archived, style, and skiType
@@ -192,8 +191,8 @@ const Skis = () => {
             </h3>
             <button
               onClick={handleStartNewTournament}
-              className={`flex  h-fit items-center justify-center bg-btn text-btntxt shadow py-3 px-5 text-center rounded w-full max-w-xs ${
-                getSelectedSkis().length < 2 ? "opacity-50 cursor-default" : "hover:opacity-90 cursor-pointer"
+              className={`flex h-fit items-center justify-center bg-btn text-btntxt shadow py-3 px-5 text-center rounded w-full max-w-xs ${
+                getSelectedSkis().length < 2 ? "opacity-30" : "hover:opacity-90"
               }`}
               disabled={getSelectedSkis().length < 2}
               title={getSelectedSkis().length < 2 ? t('select_at_least_two_skis') : ''}
@@ -212,7 +211,7 @@ const Skis = () => {
               <button
                 onClick={handleAddSki}
                 disabled={hasReachedLimit}
-                className={`bg-container flex items-center p-3 shadow rounded hover:bg-btn hover:text-btntxt ${
+                className={`bg-container flex items-center p-3 shadow rounded hover:bg-sbtn ${
                   hasReachedLimit ? 'opacity-50 text-delete cursor-not-allowed disabled:pointer-events-none' : 'cursor-pointer'
                 }`}
                 title={hasReachedLimit ? t('max_skis_reached') : ''}
@@ -228,7 +227,7 @@ const Skis = () => {
                   <label className="text-sm font-semibold mb-1">{t('filter')}</label>
                   <button
                     onClick={toggleFilterDrawer}
-                    className={`bg-container cursor-pointer flex items-center p-3 shadow rounded hover:bg-btn hover:text-btntxt ${isFilterActive && 'text-btn'}`}
+                    className={`bg-container cursor-pointer flex items-center p-3 shadow rounded hover:bg-sbtn ${isFilterActive && 'text-btn'}`}
                   >
                     {isFilterActive ? <RiFilter2Fill /> : <RiFilter2Line />}
                   </button>
@@ -311,38 +310,44 @@ const Skis = () => {
           </div>
         )}
 
-        {/* Render either Card view or Table view */}
-        {viewMode === 'card' ? (
-          <div className={`flex flex-col ${gloveMode ? 'grid grid-cols-2 gap-4' : 'space-y-2'} m-2`}>
-            {sortedAndFilteredSkis.map(ski => (
-              <SkiItem
-                key={ski.id}
-                ski={ski}
-                handleCheckboxChange={handleCheckboxChange}
-                handleEdit={() => handleEdit(ski)}
-                handleDelete={handleDelete}
-                handleArchive={handleArchive}
-                handleUnarchive={handleUnarchive}
-                selectedSkis={selectedSkisMap}
-                expandedSkiId={expandedSkiId}
-                toggleDetails={toggleDetails}
+        {/* Ski list section */}
+        <div className="m-2">
+          {loading ? (
+            <div className="flex justify-center items-center h-40">
+              <Spinner />
+            </div>
+          ) : (
+            viewMode === 'card' ? (
+              <div className={`flex flex-col ${gloveMode ? 'grid grid-cols-2 gap-4' : 'space-y-2'}`}>
+                {sortedAndFilteredSkis.map(ski => (
+                  <SkiItem
+                    key={ski.id}
+                    ski={ski}
+                    handleCheckboxChange={handleCheckboxChange}
+                    handleEdit={() => handleEdit(ski)}
+                    handleDelete={handleDelete}
+                    handleArchive={handleArchive}
+                    handleUnarchive={handleUnarchive}
+                    selectedSkis={selectedSkisMap}
+                    expandedSkiId={expandedSkiId}
+                    toggleDetails={toggleDetails}
+                  />
+                ))}
+              </div>
+            ) : (
+              <SkiTable
+                skis={sortedAndFilteredSkis}
+                sortField={sortField}
+                sortDirection={sortDirection}
+                onSort={handleSortChange}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onArchive={handleArchive}
+                onUnarchive={handleUnarchive}
               />
-            ))}
-          </div>
-        ) : (
-          <div className="m-2">
-            <SkiTable
-              skis={sortedAndFilteredSkis}
-              sortField={sortField}
-              sortDirection={sortDirection}
-              onSort={handleSortChange}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onArchive={handleArchive}
-              onUnarchive={handleUnarchive}
-            />
-          </div>
-        )}
+            )
+          )}
+        </div>
       </div>
     </>
   );

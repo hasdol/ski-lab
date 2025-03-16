@@ -3,21 +3,21 @@ import React, { useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { sendPasswordReset } from '@/lib/firebase/authFunctions';
+import LoadingButton from '@/components/common/LoadingButton/LoadingButton';
 
 const PasswordReset = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [resetError, setResetError] = useState(null);
   const [isResetting, setIsResetting] = useState(false);
-
   const router = useRouter();
 
   const handleResetPassword = async () => {
+    setIsResetting(true);
+    setResetError('');
     try {
-      setIsResetting(true);
-      setResetError('');
-      // Call the password reset function from Firebase
       await sendPasswordReset(resetEmail);
       console.log('Password reset email sent. Check your inbox.');
+      // Optionally, show a success message or redirect.
     } catch (error) {
       switch (error.code) {
         case 'auth/invalid-email':
@@ -48,14 +48,14 @@ const PasswordReset = () => {
           className="w-full px-4 py-2 border border-gray-300 rounded"
           required
         />
-        <button
+        <LoadingButton
           type="button"
           onClick={handleResetPassword}
+          isLoading={isResetting}
           className="bg-btn hover:opacity-90 text-btntxt my-2 px-4 py-2 rounded"
-          disabled={isResetting}
         >
-          {isResetting ? 'Sending...' : 'Reset Password'}
-        </button>
+          Reset Password
+        </LoadingButton>
         <button
           className="px-4 py-2 bg-sbtn text-text rounded"
           onClick={() => router.push('/signin')}

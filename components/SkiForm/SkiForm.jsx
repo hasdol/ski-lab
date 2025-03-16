@@ -241,7 +241,7 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
                                         <button
                                             type="button"
                                             onClick={() => handleDeleteGrind(index)}
-                                            className='shadow text-delete bg-container hover:bg-delete hover:text-white rounded-full p-3 cursor-pointer'
+                                            className='shadow text-btntxt bg-btn hover:opacity-90 hover:text-white rounded-full p-3 cursor-pointer'
                                         >
                                             <RiDeleteBinLine size={12}/>
                                         </button>
