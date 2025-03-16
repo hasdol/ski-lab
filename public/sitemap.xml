@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+		<!--	created with www.mysitemapgenerator.com	-->
+		<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url>
+	<loc>https://ski-lab.com/</loc>
+	<lastmod>2024-11-23T21:09:11+01:00</lastmod>
+	<priority>0.6</priority>
+</url>
+<url>
+	<loc>https://ski-lab.com/settings</loc>
+	<lastmod>2024-11-23T21:09:11+01:00</lastmod>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://ski-lab.com/signin</loc>
+	<lastmod>2024-11-23T21:09:11+01:00</lastmod>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://ski-lab.com/signup</loc>
+	<lastmod>2024-11-23T21:09:11+01:00</lastmod>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://ski-lab.com/reset-password</loc>
+	<lastmod>2024-11-23T21:09:11+01:00</lastmod>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://ski-lab.com/skis</loc>
+	<lastmod>2024-11-23T21:09:11+01:00</lastmod>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://ski-lab.com/manage-locked-skis</loc>
+	<lastmod>2024-11-23T21:09:11+01:00</lastmod>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://ski-lab.com/add-skis</loc>
+	<lastmod>2024-11-23T21:09:11+01:00</lastmod>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://ski-lab.com/testing</loc>
+	<lastmod>2024-11-23T21:09:11+01:00</lastmod>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://ski-lab.com/testing/summary</loc>
+	<lastmod>2024-11-23T21:09:11+01:00</lastmod>
+	<priority>0.8</priority>
+</url>
+<url>
+	<loc>https://ski-lab.com/results</loc>
+	<lastmod>2024-11-23T21:09:11+01:00</lastmod>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://ski-lab.com/account</loc>
+	<lastmod>2024-11-23T21:09:11+01:00</lastmod>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://ski-lab.com/contact</loc>
+	<lastmod>2024-11-23T21:09:11+01:00</lastmod>
+	<priority>1.0</priority>
+</url>
+</urlset>

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap plassering
+Sitemap: https://ski-lab.com/sitemap.xml
