@@ -323,22 +323,3 @@ exports.getCustomerPortalUrl = onCall({
     throw new HttpsError('internal', 'Unable to create customer portal session.');
   }
 });
-
-exports.deleteUserAccount = onCall(async (request) => {
-  // Ensure the request is authenticated.
-  if (!request.auth) {
-    throw new HttpsError("unauthenticated", "User must be authenticated.");
-  }
-  const uid = request.auth.uid;
-
-  try {
-    // Delete the Firestore user document (adjust collection name as needed)
-    await admin.firestore().collection("users").doc(uid).delete();
-    // Delete the Auth user
-    await admin.auth().deleteUser(uid);
-    return { message: "User account deleted successfully." };
-  } catch (error) {
-    console.error("Error deleting user account:", error);
-    throw new HttpsError("unknown", error.message, error);
-  }
-});

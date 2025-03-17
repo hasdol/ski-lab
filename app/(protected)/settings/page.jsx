@@ -2,7 +2,6 @@
 import React, { useState, useContext } from 'react';
 import Head from 'next/head';
 import { useAuth } from '@/context/AuthContext';
-import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useTranslation } from 'react-i18next';
 import Flag from 'react-flagkit';
 import { MdDarkMode, MdLightMode } from "react-icons/md";
@@ -16,8 +15,8 @@ import { useProfileActions } from '@/hooks/useProfileActions';
 
 
 const Settings = () => {
-  const { user } = useAuth();  
-  const { resetPassword, updateDisplayName } = useProfileActions(user);
+  const { user } = useAuth();
+  const { resetPassword, deleteAccount, updateDisplayName } = useProfileActions(user);
   const { t } = useTranslation();
   const { english, setEnglish, colormode, setColormode, gloveMode, setGloveMode } = useContext(UserPreferencesContext);
   const [newDisplayName, setNewDisplayName] = useState(user.displayName || '');
@@ -39,16 +38,13 @@ const Settings = () => {
     }
   };
 
-  const deleteUserAccount = async () => {
-    const functions = getFunctions();
-    const deleteUserAccountCallable = httpsCallable(functions, 'deleteUserAccount');
+  const handleDeleteAccount = async () => {
     try {
-      const result = await deleteUserAccountCallable();
-      console.log(result.data.message);
-      // Handle success (e.g., redirect or notify the user)
+      await deleteAccount();
+      // Optionally redirect or show a success message
     } catch (error) {
-      console.error('Error deleting account:', error.message);
-      // Display error to the user as needed
+      // Set status (or show a toast) with the error message
+      setStatus(error.message);
     }
   };
 
@@ -66,7 +62,7 @@ const Settings = () => {
         <title>Ski-Lab: Settings</title>
         <meta name="description" content="Settings for Ski-Lab" />
       </Head>
-      <div className="flex flex-col justify-center p-4 md:mt-10 mx-auto space-y-8 animate-fade-down animate-duration-300">
+      <div className="flex flex-col justify-center p-4 md:mt-10 mx-auto animate-fade-down animate-duration-300">
         {/* Username Section */}
         <div className="flex flex-col text-center">
           <h4 className="font-semibold text-lg mb-2">{t('username')}</h4>
@@ -105,11 +101,10 @@ const Settings = () => {
               </div>
             )}
           </div>
-          {status && <div className="mt-2 text-btn text-center">{status}</div>}
         </div>
 
         {/* Preferences Section */}
-        <div className="grid grid-cols-3 justify-center">
+        <div className="grid grid-cols-3 justify-center my-10">
           {!gloveMode && (
             <div className="flex flex-col items-center space-y-4">
               <h3 className="font-semibold text-lg">{t('language')}</h3>
@@ -179,14 +174,16 @@ const Settings = () => {
             </button>
             <button
               className="flex-1 bg-delete w-1/2 mx-auto text-white py-3 px-5 rounded hover:opacity-90"
-              onClick={deleteUserAccount}
+              onClick={handleDeleteAccount}
             >
               {t('delete_account')}
             </button>
           </div>
         )}
+                  {status && <div className="text-delete text-center">{status}</div>}
 
-        <div className="flex justify-center items-center">
+
+        <div className="flex justify-center items-center mt-5">
           <BackBtn />
         </div>
       </div>
