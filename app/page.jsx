@@ -62,11 +62,11 @@ const HomePage = () => {
         )}
 
         <div className='relative flex-grow text-center animate-fade animate-duration-500'>
-          <div className='text-center mt-2 md:mt-20 mb-4'>
+          <div className='text-center mt-2 md:mt-20'>
             <i className='text-lg'>{t('welcome_to')}</i>
-            <div className='relative flex justify-center items-center'>
+            <div className='relative flex mx-auto w-fit items-center'>
               <h1 className='text-4xl text-headerText font-bold italic mb-4'>SKI-LAB</h1>
-              <i className='absolute text-sm right-16 font-bold'>beta</i>
+              <i className='absolute text-sm -right-10 font-bold'>beta</i>
             </div>
           </div>
 
@@ -117,7 +117,7 @@ const HomePage = () => {
 
         <footer className='flex items-center space-x-2 relative text-btn text-xs md:self-end mt-auto mb-12 md:mb-0'>
           <p className='flex px-2 border-r border-btn'>
-            Built with Firebase <IoLogoFirebase className='mx-1' /> & Stripe <SiStripe className='mx-1' />
+            Built with <b className='mx-1'>Firebase</b> & <b className='mx-1'>Stripe</b>  
           </p>
           <span className='font-semibold'>&copy; Ski-Lab 2025</span>
         </footer>

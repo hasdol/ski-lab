@@ -193,13 +193,13 @@ const Results = () => {
                       </h3>
                       <i className="text-sm">{highlightSearchTerm(result.location)}</i>
                     </div>
-                    <div className="flex bg-background p-2 rounded-full items-center space-x-3">
+                    <div className="flex bg-sbtn p-2 rounded-full items-center space-x-3">
                       <div
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEdit(result.id);
                         }}
-                        className="shadow bg-btn text-btntxt hover:opacity-90 rounded-full p-3 cursor-pointer"
+                        className="bg-btn text-btntxt hover:opacity-90 rounded-full p-3 cursor-pointer"
                       >
                         <RiEditLine />
                       </div>
@@ -208,7 +208,7 @@ const Results = () => {
                           e.stopPropagation();
                           handleDelete(result.id);
                         }}
-                        className="shadow text-btntxt bg-btn hover:opacity-90 rounded-full p-3 cursor-pointer"
+                        className="text-btntxt bg-btn hover:opacity-90 rounded-full p-3 cursor-pointer"
                       >
                         <RiDeleteBinLine />
                       </div>

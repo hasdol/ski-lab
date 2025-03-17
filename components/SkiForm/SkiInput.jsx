@@ -41,7 +41,7 @@ const SkiInput = ({
             ) : isStyle ? (
                 <select
                     name={name}
-                    className='p-2 rounded bg-container text-inputtxt'
+                    className='p-2 rounded bg-container border text-text'
                     value={value}
                     onChange={onChange}
                     required={required}
@@ -58,7 +58,7 @@ const SkiInput = ({
                 <input
                     type={type}
                     name={name}
-                    className='p-2 rounded bg-container  text-inputtxt '
+                    className='p-2 rounded bg-container border text-text '
                     value={value}
                     onChange={onChange}
                     placeholder={placeholder}

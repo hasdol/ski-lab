@@ -425,7 +425,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
                   <div className="mb-4">
                     <label className="inline-flex items-center space-x-2">
                       <input
-                        className="h-5 w-5"
+                        className="h-5 w-5 accent-btn"
                         type="checkbox"
                         checked={showCurrentGrind}
                         onChange={(e) => setShowCurrentGrind(e.target.checked)}
@@ -437,7 +437,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
                 <div className="mb-4">
                   <label className="inline-flex items-center space-x-2">
                     <input
-                      className="h-5 w-5"
+                      className="h-5 w-5 accent-btn"
                       type="checkbox"
                       checked={showCurrentSeason}
                       onChange={(e) => setShowCurrentSeason(e.target.checked)}
@@ -465,12 +465,12 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
       <GrindHistory grindHistory={grindHistory} />
 
       {/* Action Buttons */}
-      <div className="flex p-4 w-full justify-center space-x-10 mt-10 rounded-b bg-background">
+      <div className="flex bg-sbtn py-5 mt-5 rounded items-center justify-center space-x-10 w-full ">
         {ski.archived ? (
           <div className="flex flex-col space-y-2 items-center justify-center">
             <button
               onClick={onUnarchive}
-              className="shadow text-green-500 bg-container hover:bg-green-500 hover:text-btntxt rounded-full p-3 cursor-pointer"
+              className="bg-btn text-btntxt hover:opacity-90 rounded-full p-3 cursor-pointer"
             >
               <RiInboxUnarchiveLine />
             </button>
@@ -480,7 +480,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
           <div className="flex flex-col space-y-2 items-center justify-center">
             <button
               onClick={onArchive}
-              className="shadow text-orange-500 bg-container hover:bg-orange-500 hover:text-btntxt rounded-full p-3 cursor-pointer"
+              className="bg-btn text-btntxt hover:opacity-90 rounded-full p-3 cursor-pointer"
             >
               <RiInboxArchiveLine />
             </button>
@@ -490,7 +490,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
         <div className="flex flex-col space-y-2 items-center justify-center">
           <button
             onClick={onDelete}
-            className="shadow text-delete bg-container hover:bg-delete hover:text-btntxt rounded-full p-3 cursor-pointer"
+            className="bg-btn text-btntxt hover:opacity-90 rounded-full p-3 cursor-pointer"
           >
             <RiDeleteBinLine />
           </button>

@@ -102,7 +102,7 @@ const CombinedConditionsHeatmap = ({
         <div className="flex space-x-2 mb-2">
           <button
             className={`px-4 py-2 rounded-t h-fit focus:outline-none ${
-              activeTab === 'natural' ? 'bg-selected text-btntxt' : 'bg-sbtn shadow'
+              activeTab === 'natural' ? 'bg-btn text-btntxt' : 'bg-sbtn shadow'
             }`}
             onClick={() => setActiveTab('natural')}
           >
@@ -114,7 +114,7 @@ const CombinedConditionsHeatmap = ({
           </button>
           <button
             className={`px-4 py-2 rounded-t h-fit focus:outline-none ${
-              activeTab === 'artificial' ? 'bg-selected text-btntxt' : 'bg-sbtn shadow'
+              activeTab === 'artificial' ? 'bg-btn text-btntxt' : 'bg-sbtn shadow'
             }`}
             onClick={() => setActiveTab('artificial')}
           >
@@ -125,7 +125,7 @@ const CombinedConditionsHeatmap = ({
           </button>
           <button
             className={`px-4 py-2 rounded-t h-fit focus:outline-none ${
-              activeTab === 'mix' ? 'bg-selected text-btntxt' : 'bg-sbtn shadow'
+              activeTab === 'mix' ? 'bg-btn text-btntxt' : 'bg-sbtn shadow'
             }`}
             onClick={() => setActiveTab('mix')}
           >

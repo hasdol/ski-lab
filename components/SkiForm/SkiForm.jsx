@@ -53,18 +53,20 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
   };
 
   const handleDeleteGrind = (index) => {
-    const updatedGrindHistory = formData.grindHistory.filter((_, i) => i !== index);
-    updatedGrindHistory.sort((a, b) => new Date(b.grindDate) - new Date(a.grindDate));
+    if (window.confirm("Are you sure you want to delete this grind?")) {
+      const updatedGrindHistory = formData.grindHistory.filter((_, i) => i !== index);
+      updatedGrindHistory.sort((a, b) => new Date(b.grindDate) - new Date(a.grindDate));
 
-    const newCurrentGrind = updatedGrindHistory[0]?.grind || '';
-    const newCurrentGrindDate = updatedGrindHistory[0]?.grindDate || '';
+      const newCurrentGrind = updatedGrindHistory[0]?.grind || '';
+      const newCurrentGrindDate = updatedGrindHistory[0]?.grindDate || '';
 
-    setFormData({
-      ...formData,
-      grindHistory: updatedGrindHistory,
-      grind: newCurrentGrind,
-      grindDate: newCurrentGrindDate
-    });
+      setFormData({
+        ...formData,
+        grindHistory: updatedGrindHistory,
+        grind: newCurrentGrind,
+        grindDate: newCurrentGrindDate
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -230,7 +232,7 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
                       onClick={() => handleDeleteGrind(index)}
                       className='shadow text-btntxt bg-btn hover:opacity-90 hover:text-white rounded-full p-3 cursor-pointer'
                     >
-                      <RiDeleteBinLine size={12}/>
+                      <RiDeleteBinLine size={12} />
                     </button>
                   </div>
                 </li>
@@ -288,7 +290,7 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
         <label className='font-medium'>{t('comment')}:</label>
         <textarea
           name="comment"
-          className='mt-1 text-black bg-container w-full p-2 rounded focus:ring-blue-500 focus:border-blue-500'
+          className='mt-1 text-text bg-container w-full p-2 rounded border'
           value={formData.comment}
           onChange={handleChange}
           placeholder={t('comment')}

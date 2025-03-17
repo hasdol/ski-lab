@@ -16,7 +16,7 @@ const SaveTestInput = ({ name, type, placeholder, onChange, required, value, opt
           {placeholder} {required && <span className="text-xl absolute text-red-500">*</span>}
         </label>
         <select
-          className={`w-full bg-container text-inputtxt ${gloveClasses} rounded`}
+          className={`w-full bg-container text-text border ${gloveClasses} rounded`}
           name={name}
           onChange={onChange}
           value={value}
@@ -67,7 +67,7 @@ const SaveTestInput = ({ name, type, placeholder, onChange, required, value, opt
         {placeholder} {required && <span className="text-xl absolute text-red-500">*</span>}
       </label>
       <input
-        className={`w-full bg-container text-inputtxt ${gloveClasses} rounded `}
+        className={`w-full bg-container text-text border ${gloveClasses} rounded `}
         type={type}
         name={name}
         placeholder={placeholder}

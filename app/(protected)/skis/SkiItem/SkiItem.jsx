@@ -29,7 +29,8 @@ const SkiItem = ({
   // Otherwise, show details only if the expanded ID matches this ski.
   const showDetails = allExpanded || (ski.id === expandedSkiId);
 
-  const handleEditClick = async () => {
+  const handleEditClick = async (e) => {
+    e.stopPropagation(); // Prevent toggling details when clicking edit
     await handleEdit(ski);
   };
 
@@ -86,11 +87,17 @@ const SkiItem = ({
             </div>
           )}
 
-          {/* Up/Down arrow, only if we're not forced open by "allExpanded" */}
+          {/* Toggle arrow with increased tap area */}
           {!gloveMode && !allExpanded && (
-            <p className="mr-1">
-              {showDetails ? <MdArrowDropUp size={20} /> : <MdArrowDropDown size={20} />}
-            </p>
+            <div
+              onClick={(e) => {
+                e.stopPropagation(); // so the tap specifically toggles details
+                toggleDetails(ski.id);
+              }}
+              className="p-1 rounded-full hover:bg-gray-200" // adjust the styling as needed
+            >
+              {showDetails ? <MdArrowDropUp size={24} /> : <MdArrowDropDown size={24} />}
+            </div>
           )}
 
           {/* Archive or New icons */}
@@ -100,10 +107,10 @@ const SkiItem = ({
 
         {/* Edit Button */}
         {!gloveMode &&
-          <div className="flex p-2 rounded-full bg-background ">
+          <div className="flex p-2 rounded-full bg-sbtn ">
             <button
               onClick={handleEditClick}
-              className='shadow bg-btn text-btntxt hover:opacity-90  rounded-full p-2 cursor-pointer'
+              className='shadow bg-btn text-btntxt hover:opacity-90 rounded-full p-2 cursor-pointer'
             >
               <RiEditLine />
             </button>

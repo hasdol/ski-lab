@@ -164,8 +164,8 @@ const SkiFilterDrawer = ({
           <Button
             sx={{
               flex: 1,
-              backgroundColor: 'var(--color-sbtn)',
-              color: 'var(--color-text)',
+              backgroundColor: 'var(--color-btn)',
+              color: 'var(--color-btntxt)',
               px: 4,
               py:1
             }}

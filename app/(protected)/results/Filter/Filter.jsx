@@ -86,8 +86,8 @@ const Filter = ({
                 <Box sx={{ mt: 4, textAlign: 'center', display: 'flex', justifyContent: 'space-between' }}>
                     <Button
                         sx={{
-                            backgroundColor: 'var(--color-sbtn)',
-                            color: 'var(--color-text)',
+                            backgroundColor: 'var(--color-btn)',
+                            color: 'var(--color-btntxt)',
                             padding: '0.6rem 1rem',
                             marginRight: '0.5rem'
                         }}
