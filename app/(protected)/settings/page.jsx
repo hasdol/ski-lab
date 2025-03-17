@@ -179,7 +179,7 @@ const Settings = () => {
             </button>
             <button
               className="flex-1 bg-delete w-1/2 mx-auto text-white py-3 px-5 rounded hover:opacity-90"
-              onClick={handleDeleteAccount}
+              onClick={deleteUserAccount}
             >
               {t('delete_account')}
             </button>
