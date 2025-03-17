@@ -8,7 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
 import Spinner from '@/components/common/Spinner/Spinner';
 import GetPro from '@/components/getPro/GetPro';
-import ProfileImage from '@/components/profileImage/ProfileImage';
+import ProfileImage from '@/app/(protected)/account/components/ProfileImage';
 
 const Account = () => {
   const { user, userData, checkingStatus } = useAuth();

@@ -78,7 +78,7 @@ const GetPro = () => {
       onClick={handleUpgrade}
       disabled={loading}
       className='flex cursor-pointer h-fit w-fit justify-center
-                    bg-gradient-to-r from-btn to-blue-400 text-btntxt shadow py-3 px-5 rounded '
+                    bg-gradient-to-r from-blue-600 to-sky-500 text-white shadow py-3 px-5 rounded '
     >
       {loading ? t('loading') : <span className='flex'>{t('getPro')} <RiLockUnlockLine className='ml-1'/></span>}
     </button>

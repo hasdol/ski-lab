@@ -67,15 +67,21 @@ export const useProfileActions = (user) => {
   const deleteAccount = async () => {
     if (window.confirm("Are you sure you want to delete your account?")) {
       try {
-        await deleteFirestoreData(user.uid, () => user.delete());
+        // Attempt to delete the auth user first (this may require recent login)
+        await user.delete();
+        // Only if auth deletion succeeds, delete Firestore data.
+        await deleteFirestoreData(user.uid);
         console.log('Account deletion successful.');
-        // Redirect to sign-in page eller vise suksessmelding
       } catch (error) {
         console.error('Error deleting account:', error.message);
-        // Vise feilmelding til bruker
+        // Set errorMessage so the UI can display it
+        setErrorMessage(error.message);
+        // Re-throw error so that calling components can also handle it if needed
+        throw error;
       }
     }
   };
+
 
   return {
     isChangingImg,

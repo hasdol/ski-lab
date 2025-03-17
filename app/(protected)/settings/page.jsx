@@ -2,6 +2,7 @@
 import React, { useState, useContext } from 'react';
 import Head from 'next/head';
 import { useAuth } from '@/context/AuthContext';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useTranslation } from 'react-i18next';
 import Flag from 'react-flagkit';
 import { MdDarkMode, MdLightMode } from "react-icons/md";
@@ -16,7 +17,7 @@ import { useProfileActions } from '@/hooks/useProfileActions';
 
 const Settings = () => {
   const { user } = useAuth();  
-  const { resetPassword, deleteAccount, updateDisplayName } = useProfileActions(user);
+  const { resetPassword, updateDisplayName } = useProfileActions(user);
   const { t } = useTranslation();
   const { english, setEnglish, colormode, setColormode, gloveMode, setGloveMode } = useContext(UserPreferencesContext);
   const [newDisplayName, setNewDisplayName] = useState(user.displayName || '');
@@ -38,16 +39,16 @@ const Settings = () => {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (window.confirm(t('confirm_delete_account'))) {
-      setIsLoading(true);
-      try {
-        await deleteAccount();
-      } catch (error) {
-        setStatus(error.message);
-      } finally {
-        setIsLoading(false);
-      }
+  const deleteUserAccount = async () => {
+    const functions = getFunctions();
+    const deleteUserAccountCallable = httpsCallable(functions, 'deleteUserAccount');
+    try {
+      const result = await deleteUserAccountCallable();
+      console.log(result.data.message);
+      // Handle success (e.g., redirect or notify the user)
+    } catch (error) {
+      console.error('Error deleting account:', error.message);
+      // Display error to the user as needed
     }
   };
 
