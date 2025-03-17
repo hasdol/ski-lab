@@ -3,57 +3,102 @@ import React, { useState, useContext } from 'react';
 import Head from 'next/head';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import Flag from 'react-flagkit';
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { GiWinterGloves } from "react-icons/gi";
 import { FaHandsClapping } from "react-icons/fa6";
-import { RiEditLine } from "react-icons/ri";
+import { RiEditLine, RiArrowUpLine, RiArrowLeftLine, RiArrowRightLine } from "react-icons/ri";
+import { useRouter } from 'next/navigation';
+
+
 import BackBtn from '@/components/common/BackBtn';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
+import GetPro from '@/components/getPro/GetPro';
 
 
 const Settings = () => {
-  const { user } = useAuth();
-  const { resetPassword, deleteAccount, updateDisplayName } = useProfileActions(user);
+  const { user, userData } = useAuth(); // assume userData holds Firestore doc data
+  const { resetPassword, updateDisplayName } = useProfileActions(user);
   const { t } = useTranslation();
   const { english, setEnglish, colormode, setColormode, gloveMode, setGloveMode } = useContext(UserPreferencesContext);
   const [newDisplayName, setNewDisplayName] = useState(user.displayName || '');
-  const [status, setStatus] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
 
   const handleDisplayNameUpdate = async () => {
     setIsLoading(true);
-    setStatus('');
+    setError('');
     try {
       await updateDisplayName(newDisplayName);
-      setStatus(t('success'));
+      setSuccess(t('success'));
       setIsEditingUsername(false);
-    } catch (error) {
-      setStatus(error.message);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDeleteAccount = async () => {
+  const deleteUserAccount = async () => {
+    // Detailed confirmation message
+    const confirmMsg = `
+Are you really sure you want to delete your account?
+    
+IMPORTANT:
+- If you have an active subscription, you MUST cancel your subscription manually via the Billing Portal.
+- Your account deletion will only be finalized once your subscription ends.
+    
+Do you wish to proceed?`;
+    if (!window.confirm(confirmMsg)) return;
+
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
     try {
-      await deleteAccount();
-      // Optionally redirect or show a success message
-    } catch (error) {
-      // Set status (or show a toast) with the error message
-      setStatus(error.message);
+      const functions = getFunctions();
+      const deleteUserAccountCallable = httpsCallable(functions, 'deleteUserAccount');
+      const result = await deleteUserAccountCallable();
+      setSuccess(result.data.message);
+    } catch (err) {
+      setError('Error deleting account: ' + err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const cancelDeletion = async () => {
+    // Confirm cancellation
+    if (!window.confirm(t("Are you sure you want to cancel the scheduled deletion?"))) return;
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
+    try {
+      const functions = getFunctions();
+      const cancelDeletionCallable = httpsCallable(functions, 'cancelUserDeletion');
+      const result = await cancelDeletionCallable();
+      setSuccess(result.data.message);
+      // You might want to trigger a refresh of userData here.
+    } catch (err) {
+      setError('Error cancelling account deletion: ' + err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   if (isLoading) return <Spinner />;
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-    return date.toLocaleDateString('nb-NO', options);
+  // Format deletionScheduledAt if available
+  const formatDate = (timestamp) => {
+    if (!timestamp) return '';
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return date.toLocaleDateString('nb-NO', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   return (
@@ -73,7 +118,7 @@ const Settings = () => {
                   type="text"
                   value={newDisplayName}
                   onChange={(e) => setNewDisplayName(e.target.value)}
-                  className="bg-container rounded text-text p-2 px-4 flex-1 outline-none"
+                  className="bg-container rounded text-text p-2 px-4 flex-1 w-2/3 outline-none"
                 />
                 <button
                   className="bg-btn text-btntxt px-4 py-2 rounded hover:opacity-90"
@@ -172,16 +217,44 @@ const Settings = () => {
             >
               {t('reset_password')}
             </button>
+            {userData?.scheduledDeletion ? <div className='flex mx-auto w-fit items-center'>
+              <RiArrowRightLine size={20} className='mr-1' /><GetPro /> <RiArrowLeftLine size={20} className='ml-1' /> </div> :
+              <button
+                className="flex-1 bg-delete w-1/2 mx-auto text-white py-3 px-5 rounded hover:opacity-90"
+                onClick={deleteUserAccount}
+              >
+                {t('delete_account')}
+              </button>
+
+            }
+
+          </div>
+        )}
+
+        {/* If account deletion is scheduled, show details and cancel option */}
+        {userData?.scheduledDeletion && (
+          <div className="border border-red-500 p-4 mt-5 rounded text-center w-fit mx-auto">
+            <h4 className="text-red-500 font-bold">{t('account_deletion_scheduled')}</h4>
+            <p className="flex mt-2">
+              {t('remember_to_cancel_subscription')}
+
+            </p>
             <button
-              className="flex-1 bg-delete w-1/2 mx-auto text-white py-3 px-5 rounded hover:opacity-90"
-              onClick={handleDeleteAccount}
+              onClick={cancelDeletion}
+              className="mt-5 bg-btn text-btntxt py-2 px-4 rounded hover:opacity-90"
             >
-              {t('delete_account')}
+              {t('cancel_account_deletion')}
             </button>
           </div>
         )}
-                  {status && <div className="text-delete text-center">{status}</div>}
 
+        {/* Status Messages */}
+        {error && <div className="text-delete text-center mt-2">{error}</div>}
+        {success && (
+          <div className="text-highlight text-center mt-2">
+            {success}
+          </div>
+        )}
 
         <div className="flex justify-center items-center mt-5">
           <BackBtn />

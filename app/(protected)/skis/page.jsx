@@ -191,9 +191,8 @@ const Skis = () => {
             </h3>
             <button
               onClick={handleStartNewTournament}
-              className={`flex h-fit items-center justify-center bg-btn text-btntxt shadow py-3 px-5 text-center rounded w-full max-w-xs ${
-                getSelectedSkis().length < 2 ? "opacity-30" : "hover:opacity-90"
-              }`}
+              className={`flex h-fit items-center justify-center bg-btn text-btntxt shadow py-3 px-5 text-center rounded w-full max-w-xs ${getSelectedSkis().length < 2 ? "opacity-30" : "hover:opacity-90"
+                }`}
               disabled={getSelectedSkis().length < 2}
               title={getSelectedSkis().length < 2 ? t('select_at_least_two_skis') : ''}
             >
@@ -211,9 +210,8 @@ const Skis = () => {
               <button
                 onClick={handleAddSki}
                 disabled={hasReachedLimit}
-                className={`bg-container flex items-center p-3 shadow rounded hover:bg-sbtn ${
-                  hasReachedLimit ? 'opacity-50 text-delete cursor-not-allowed disabled:pointer-events-none' : 'cursor-pointer'
-                }`}
+                className={`bg-container flex items-center p-3 shadow rounded hover:bg-sbtn ${hasReachedLimit ? 'opacity-50 text-delete cursor-not-allowed disabled:pointer-events-none' : 'cursor-pointer'
+                  }`}
                 title={hasReachedLimit ? t('max_skis_reached') : ''}
               >
                 {hasReachedLimit ? <RiLockLine /> : <RiAddLine />}
@@ -241,25 +239,25 @@ const Skis = () => {
         {(hasLockedSkis || (hasReachedLimit && !userData.isPro)) && (
           <div className="flex mx-2 my-4 space-x-4">
             {hasLockedSkis && (
-              <div className="flex flex-1 flex-col bg-container shadow py-4 rounded items-center justify-end text-center space-y-2">
+              <div className="flex flex-col border py-4 rounded items-center justify-end text-center space-y-2 w-full">
                 <div className="flex space-x-1">
                   <RiLockLine />
                   <h3 className="text-sm">{lockedSkisCount} {t('locked_ski(s)')}</h3>
                 </div>
-                <button
-                  onClick={() => router.push('/manage-locked-skis')}
-                  className="flex cursor-pointer h-fit w-fit justify-center bg-delete text-btntxt shadow py-3 px-5 rounded"
-                >
-                  {t('view_skis')}
-                </button>
+                <div className='flex space-x-5'>
+                  <button
+                    onClick={() => router.push('/lockedSkis')}
+                    className="flex cursor-pointer h-fit w-fit justify-center bg-btn text-btntxt py-3 px-5 rounded"
+                  >
+                    {t('view_skis')}
+                  </button>
+                  {hasReachedLimit && !userData.isPro && (<GetPro />)}
+                </div>
+
+
               </div>
             )}
-            {hasReachedLimit && !userData.isPro && (
-              <div className="flex flex-1 flex-col bg-container shadow py-4 rounded items-center justify-end text-center space-y-2">
-                <h3 className="text-sm">{t('upgrade_promt')}</h3>
-                <GetPro />
-              </div>
-            )}
+
           </div>
         )}
 

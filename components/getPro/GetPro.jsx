@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import getStripe from '../../helpers/stripe';
 import { RiLockUnlockLine } from "react-icons/ri";
-
+import Spinner from '../common/Spinner/Spinner';
 
 
 const GetPro = () => {
@@ -80,7 +80,7 @@ const GetPro = () => {
       className='flex cursor-pointer h-fit w-fit justify-center
                     bg-gradient-to-r from-blue-600 to-sky-500 text-white shadow py-3 px-5 rounded '
     >
-      {loading ? t('loading') : <span className='flex'>{t('getPro')} <RiLockUnlockLine className='ml-1'/></span>}
+      <span className='flex'>{t('getPro')} {loading ? <Spinner className='ml-1'/> : <RiLockUnlockLine className='ml-1'/>}</span>
     </button>
   );
 };

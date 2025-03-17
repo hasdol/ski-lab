@@ -191,6 +191,10 @@
   "guide_step_2": "Gain some speed side by side",
   "guide_step_3": "Hold on to each other, and release when you have the exact same speed",
   "guide_step_4": "Find a second mark where you see the difference between you and you partner",
-  "cookie_concent": "This website uses cookies to function. We use third-party services such as Firebase, Stripe, and OpenWeatherMap API. By continuing, you consent to the use of these cookies."  
+  "cookie_concent": "This website uses cookies to function. We use third-party services such as Firebase, Stripe, and OpenWeatherMap API. By continuing, you consent to the use of these cookies.",
+  "cancel_account_deletion": "Cancel account deletion",
+  "account_deletion_scheduled": "Account deletion scheduled",
+  "remember_to_cancel_subscription": "Cancel you subsciption to delete your account"
+    
 
 }

@@ -26,10 +26,10 @@ const LockedSkiItem = ({ ski, handleDelete }) => {
         <span className="font-semibold">{t('serial_number')}: </span>
         <span>{ski.serialNumber}</span>
       </div>
-      <div className='bg-background p-2 rounded-full '>
+      <div className='bg-sbtn p-2 rounded-full '>
         <button
           onClick={confirmDelete}
-          className="text-delete p-2 rounded-full shadow bg-container hover:bg-delete hover:text-btntxt focus:outline-none"
+          className="p-2 rounded-full shadow bg-btn text-btntxt hover:opacity-90 focus:outline-none"
           title={t('delete_ski')}
         >
           <RiDeleteBinLine />

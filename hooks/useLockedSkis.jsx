@@ -9,8 +9,8 @@ import {
     where,
     orderBy,
 } from 'firebase/firestore';
-import { db } from '../firebase/config';
-import { useAuth } from '../context/AuthContext';
+import { db } from '@/lib/firebase/config';
+import { useAuth } from '@/context/AuthContext';
 
 export const useLockedSkis = () => {
     const [lockedSkis, setLockedSkis] = useState([]);

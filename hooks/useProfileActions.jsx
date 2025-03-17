@@ -1,7 +1,8 @@
 // src/hooks/useProfileActions.js
 import { useState } from 'react';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '@/lib/firebase/config';
+import { db, storage } from '@/lib/firebase/config';
+import { doc, getDoc } from 'firebase/firestore';
 import { deleteAccount as deleteFirestoreData } from '@/lib/firebase/firestoreFunctions';
 import { updateProfileDetails, sendPasswordReset, signOutUser } from '@/lib/firebase/authFunctions';
 
@@ -65,18 +66,27 @@ export const useProfileActions = (user) => {
   };
 
   const deleteAccount = async () => {
+    // First, fetch the Firestore user document to check for an active subscription.
+    const userDocRef = doc(db, 'users', user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    if (userDocSnap.exists()) {
+      const userData = userDocSnap.data();
+      // Check if stripeSubscriptionId exists (indicating an active subscription)
+      if (userData.stripeSubscriptionId) {
+        throw new Error("You have an active subscription. Please cancel your subscription before deleting your account.");
+      }
+    }
+
     if (window.confirm("Are you sure you want to delete your account?")) {
       try {
-        // Attempt to delete the auth user first (this may require recent login)
+        // Delete the auth user first (this may require recent login)
         await user.delete();
-        // Only if auth deletion succeeds, delete Firestore data.
+        // Then delete the Firestore data for this user
         await deleteFirestoreData(user.uid);
         console.log('Account deletion successful.');
       } catch (error) {
         console.error('Error deleting account:', error.message);
-        // Set errorMessage so the UI can display it
         setErrorMessage(error.message);
-        // Re-throw error so that calling components can also handle it if needed
         throw error;
       }
     }

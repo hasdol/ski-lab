@@ -1,15 +1,14 @@
 // components/ManageLockedSkisPage.jsx
-
+'use client'
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
+import Head from 'next/head';
 import { useTranslation } from 'react-i18next';
-import LockedSkiItem from './LockedSkiItem'; // Adjust the path accordingly
-import { useLockedSkis } from '../../hooks/useLockedSkis';
-import Spinner from '../../components/common/Spinner';
-import BackBtn from '../../components/common/BackBtn';
+import Spinner from '@/components/common/Spinner/Spinner';
+import BackBtn from '@/components/common/BackBtn';
+import { useLockedSkis } from '@/hooks/useLockedSkis';
+import LockedSkiItem from './components/LockedSkiItem';
 
-
-const ManageLockedSkisPage = () => {
+const ManageLockedSkis = () => {
   const { lockedSkis, loading, error, deleteLockedSki } = useLockedSkis();
   const { t } = useTranslation();
 
@@ -24,24 +23,22 @@ const ManageLockedSkisPage = () => {
   };
 
   if (loading) return <Spinner />;
-  if (error) return <div className='m-2 text-red-500'>Error: {error.message}</div>;
+  if (error) return <div className="m-2 text-red-500">Error: {error.message}</div>;
 
   return (
     <>
-      <Helmet>
+      <Head>
         <title>Ski-Lab: Manage locked skis</title>
         <meta name="description" content="Displaying locked skis as a result of plan downgrade" />
-
-      </Helmet>
+      </Head>
       <div className="manage-locked-skis-page py-4 px-2 max-w-3xl mx-auto">
         {lockedSkis.length === 0 ? (
-          <div className='text-center'>
+          <div className="text-center">
             {t('no_locked_skis')}
-
           </div>
         ) : (
           <div className="space-y-2">
-            {lockedSkis.map(ski => (
+            {lockedSkis.map((ski) => (
               <LockedSkiItem
                 key={ski.id}
                 ski={ski}
@@ -59,4 +56,4 @@ const ManageLockedSkisPage = () => {
   );
 };
 
-export default ManageLockedSkisPage;
+export default ManageLockedSkis;

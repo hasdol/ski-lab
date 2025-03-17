@@ -14,7 +14,7 @@ function ProtectedRoute({ children, redirectTo = '/signin' }) {
     }
   }, [user, checkingStatus, router, redirectTo]);
 
-  if (checkingStatus || !user) return <Spinner />;
+  if (checkingStatus || !user) return <div className='w-fit mx-auto mt-10'><Spinner /></div> ;
   return children;
 }
 

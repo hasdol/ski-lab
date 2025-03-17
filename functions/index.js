@@ -5,8 +5,6 @@ admin.initializeApp();
 
 const db = admin.firestore();
 
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
-
 
 // ----------------------------------------------------------------
 // 1st Gen Functions (for basic Auth triggers)
@@ -152,9 +150,10 @@ async function handleSubscriptionDeleted(subscription) {
   const userId = subscription.metadata.userId;
   const userRef = db.collection('users').doc(userId);
   const skisRef = userRef.collection('skis');
-  const skiLimit = 12; // Free plan limit
+  const skiLimit = 12; // Free plan limit for the free tier
 
   try {
+    // 1) Downgrade the user to free and lock skis if they're over the free limit
     await db.runTransaction(async (transaction) => {
       const userDoc = await transaction.get(userRef);
       if (!userDoc.exists) {
@@ -175,12 +174,14 @@ async function handleSubscriptionDeleted(subscription) {
         skisToLockSnapshot = await transaction.get(skisToLockQuery);
       }
 
+      // Remove stripeSubscriptionId and set isPro = false
       const updateUserData = {
         isPro: false,
         stripeSubscriptionId: admin.firestore.FieldValue.delete(),
       };
       transaction.update(userRef, updateUserData);
 
+      // Lock skis if user is over the free plan limit
       if (skisToLockCount > 0 && skisToLockSnapshot) {
         skisToLockSnapshot.forEach((doc) => {
           transaction.update(doc.ref, { locked: true });
@@ -193,6 +194,18 @@ async function handleSubscriptionDeleted(subscription) {
         console.log(`User ${userId} downgraded to Free. No skis need to be locked.`);
       }
     });
+
+    // 2) After the transaction completes, check if the user scheduled a deletion
+    const newDocSnap = await userRef.get();
+    if (newDocSnap.exists) {
+      const newData = newDocSnap.data();
+      if (newData.scheduledDeletion) {
+        // Finalize the user’s deletion
+        await admin.auth().deleteUser(userId);
+        await userRef.delete();
+        console.log(`User ${userId} was scheduled for deletion, so we removed them entirely.`);
+      }
+    }
   } catch (error) {
     console.error(`Failed to handle subscription deletion for user ${userId}:`, error);
   }
@@ -321,5 +334,65 @@ exports.getCustomerPortalUrl = onCall({
   } catch (error) {
     console.error(`Failed to create customer portal session for user ${userId}:`, error);
     throw new HttpsError('internal', 'Unable to create customer portal session.');
+  }
+});
+
+
+exports.deleteUserAccount = onCall(async (request) => {
+  // Ensure the request is authenticated.
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated.");
+  }
+  
+  const uid = request.auth.uid;
+  const userDocRef = admin.firestore().collection("users").doc(uid);
+  
+  try {
+    const userDocSnap = await userDocRef.get();
+    if (!userDocSnap.exists) {
+      throw new HttpsError("not-found", "User document not found.");
+    }
+    const userData = userDocSnap.data();
+    
+    // Check for active Stripe subscription.
+    if (userData.stripeSubscriptionId) {
+      // Schedule deletion instead of immediate deletion.
+      await userDocRef.update({
+        scheduledDeletion: true,
+        deletionScheduledAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      return {
+        message:
+          "",
+      };
+    } else {
+      // No active subscription: delete the auth user and Firestore doc.
+      await admin.auth().deleteUser(uid);
+      await userDocRef.delete();
+      return { message: "User account deleted successfully." };
+    }
+  } catch (error) {
+    console.error("Error deleting user account:", error);
+    throw new HttpsError("unknown", error.message, error);
+  }
+});
+
+exports.cancelUserDeletion = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated.");
+  }
+  const uid = request.auth.uid;
+  const userDocRef = admin.firestore().collection("users").doc(uid);
+  
+  try {
+    // Remove the deletion schedule flags.
+    await userDocRef.update({
+      scheduledDeletion: admin.firestore.FieldValue.delete(),
+      deletionScheduledAt: admin.firestore.FieldValue.delete(),
+    });
+    return { message: "Account deletion has been cancelled." };
+  } catch (error) {
+    console.error("Error cancelling account deletion:", error);
+    throw new HttpsError("unknown", error.message, error);
   }
 });
