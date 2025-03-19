@@ -275,7 +275,7 @@ const TestSummaryPage = () => {
               </div>
               <button
                 type="button"
-                className="p-4 h-fit bg-btn cursor-pointer text-btntxt rounded w-fit hover:opacity-90"
+                className="p-4 h-fit bg-container cursor-pointer text-delete shadow rounded w-fit hover:bg-sbtn"
                 onClick={handleResetTest}
               >
                 <RiDeleteBinLine />

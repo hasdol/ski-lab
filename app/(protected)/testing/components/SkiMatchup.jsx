@@ -61,7 +61,7 @@ const SkiMatchup = ({ match, scores, onScoreChange, potentialSwapTarget }) => {
                       min="0"
                       onFocus={(e) => handleFocus(ski.id, e)}
                       onBlur={(e) => handleBlur(ski.id, e)}
-                      className={`text-inputtxt border flex rounded text-center p-2 w-1/3 ${gloveMode ? 'p-4' : ''}`}
+                      className={`text-text border flex rounded text-center p-2 w-1/3 ${gloveMode ? 'p-4' : ''}`}
                     />
                   )}
                   <div className="flex items-center justify-end space-x-2 w-1/3">

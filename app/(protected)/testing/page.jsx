@@ -243,7 +243,7 @@ const Testing = () => {
             <div className='space-x-2'>
               <button
                 type="button"
-                className="p-3 w-fit hover:opacity-90 bg-btn text-btntxt rounded"
+                className="p-3 w-fit hover:bg-sbtn bg-container shadow rounded"
                 onClick={toggleHelpModal}
               >
                 <RiQuestionLine />
@@ -251,7 +251,7 @@ const Testing = () => {
 
               <button
                 type="button"
-                className="p-3 w-fit hover:opacity-90 bg-btn text-btntxt rounded"
+                className="p-3 w-fit hover:bg-sbtn bg-container shadow text-delete rounded"
                 onClick={handleResetTest}
               >
                 <RiDeleteBinLine />
