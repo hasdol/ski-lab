@@ -187,7 +187,8 @@ const Skis = () => {
           {/* Left block: Selected skis and start new test */}
           <div className="flex flex-col items-center justify-end">
             <h3 className="text-sm font-semibold mb-1">
-              {getSelectedSkis().length} {t('skipairs_selected')}
+              {(getSelectedSkis().length > 1 ? getSelectedSkis().length + " " + t('skis_selected') : t('select') + " " + (getSelectedSkis().length == 1 ? 1 : 2) + " " + t('more_skis'))}
+
             </h3>
             <button
               onClick={handleStartNewTournament}

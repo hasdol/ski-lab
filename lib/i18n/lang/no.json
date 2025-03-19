@@ -57,7 +57,7 @@
   "ski_selection": "Velg Skipar",
   "you_have_no": "Du har ingen ",
   "start_test": "Start Test",
-  "skipairs_selected": "skipar valgt",
+  "skis_selected": "skipar valgt",
   "round": "Runde",
   "submit_round": "Neste Runde",
   "test_results": "Test Resultater",
@@ -195,7 +195,9 @@
   "cookie_concent": "Denne siden bruker cookies for å fungere. Vi benytter tredjepartstjenester som Firebase, Stripe og OpenWeatherMap API. Ved å fortsette samtykker du til bruken av disse cookies.",
   "cancel_account_deletion": "Avbryt sletting av bruker",
   "account_deletion_scheduled": "Bruker sletting planlagt",
-  "remember_to_cancel_subscription": "Slett abonnementet ditt for å fullføre"  
+  "remember_to_cancel_subscription": "Slett abonnementet ditt for å fullføre",
+  "select": "Velg",
+  "more_skis": "flere skipar"  
 
 
 

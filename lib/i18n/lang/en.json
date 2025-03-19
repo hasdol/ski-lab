@@ -57,7 +57,7 @@
   "ski_selection": "Ski Selection",
   "you_have_no": "You have no ",
   "start_test": "Start Test",
-  "skipairs_selected": "skipair(s) selected",
+  "skis_selected": "skipairs selected",
   "round": "Round",
   "submit_round": "Submit Round",
   "test_results": "Test Results",
@@ -194,7 +194,9 @@
   "cookie_concent": "This website uses cookies to function. We use third-party services such as Firebase, Stripe, and OpenWeatherMap API. By continuing, you consent to the use of these cookies.",
   "cancel_account_deletion": "Cancel account deletion",
   "account_deletion_scheduled": "Account deletion scheduled",
-  "remember_to_cancel_subscription": "Cancel you subsciption to delete your account"
+  "remember_to_cancel_subscription": "Cancel you subsciption to delete your account",
+  "select": "Select",
+  "more_skis": "more ski(s)"
     
 
 }
