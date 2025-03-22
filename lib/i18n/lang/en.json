@@ -195,8 +195,7 @@
   "cancel_account_deletion": "Cancel account deletion",
   "account_deletion_scheduled": "Account deletion scheduled",
   "remember_to_cancel_subscription": "Cancel you subsciption to delete your account",
-  "select": "Select",
-  "more_skis": "more ski(s)"
+  "select_at_least_2_skis": "Select at least 2 skis"
     
 
 }

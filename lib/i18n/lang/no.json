@@ -196,8 +196,7 @@
   "cancel_account_deletion": "Avbryt sletting av bruker",
   "account_deletion_scheduled": "Bruker sletting planlagt",
   "remember_to_cancel_subscription": "Slett abonnementet ditt for å fullføre",
-  "select": "Velg",
-  "more_skis": "flere skipar"  
+  "select_at_least_2_skis": "Velg minst 2 skipar"
 
 
 

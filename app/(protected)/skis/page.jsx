@@ -1,5 +1,5 @@
 'use client'
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -14,50 +14,54 @@ import { TournamentContext } from '@/context/TournamentContext';
 import { useAuth } from '@/context/AuthContext';
 import GetPro from '@/components/getPro/GetPro';
 import Spinner from '@/components/common/Spinner/Spinner';
+import TourOverlay from '@/components/common/TourOverlay/TourOverlay';
 
 const Skis = () => {
-  const { skis, loading, error, updateSkisList, deleteSki, updateSki, totalSkis, lockedSkisCount } = useSkis();
+  const { skis, loading, error, deleteSki, updateSki, lockedSkisCount } = useSkis();
   const { gloveMode } = useContext(UserPreferencesContext);
   const { userData } = useAuth();
   const { selectedSkis, setSelectedSkis, currentRound, resetTournament } = useContext(TournamentContext);
+  const router = useRouter();
+  const { t } = useTranslation();
 
   const [selectedSkisMap, setSelectedSkisMap] = useState({});
   const [sortField, setSortField] = useState('serialNumber');
   const [sortDirection, setSortDirection] = useState('asc');
   const [expandedSkiId, setExpandedSkiId] = useState(null);
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('viewMode') || 'card');
-
   // Filter states
   const [styleFilter, setStyleFilter] = useState(() => localStorage.getItem('styleFilter') || 'all');
   const [skiTypeFilter, setSkiTypeFilter] = useState(() => localStorage.getItem('skiTypeFilter') || 'all');
   const [archivedFilter, setArchivedFilter] = useState(() => localStorage.getItem('archivedFilter') || 'notArchived');
+  // Filter drawer
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // Sort function
-  const applySort = (list, field, direction) => {
-    return [...list].sort((a, b) => {
-      if (a[field] < b[field]) return direction === 'asc' ? -1 : 1;
-      if (a[field] > b[field]) return direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-  };
+  // === Tour / Guide state ===
+  // Initialize tourStep from localStorage (default to 1 if none is stored)
+  const [tourStep, setTourStep] = useState(() => {
+    const storedStep = localStorage.getItem('tourStep');
+    return storedStep ? parseInt(storedStep, 10) : 1;
+  });
+  const [showTour, setShowTour] = useState(true);
+
+  // Update LocalStorage whenever tourStep changes
+  useEffect(() => {
+    localStorage.setItem('tourStep', tourStep.toString());
+  }, [tourStep]);
+
+  // Create refs for elements to be highlighted in the tour
+  const startTestBtnRef = useRef(null);
+  const addSkiBtnRef = useRef(null);
+  const filterBtnRef = useRef(null);
+  const pageRef = useRef(null);
 
   useEffect(() => {
-    localStorage.setItem('styleFilter', styleFilter);
-    localStorage.setItem('skiTypeFilter', skiTypeFilter);
-    localStorage.setItem('archivedFilter', archivedFilter);
-    localStorage.setItem('viewMode', viewMode);
-  }, [styleFilter, skiTypeFilter, archivedFilter, viewMode]);
+    // Optionally, you could add logic here to only show the tour once per user.
+  }, []);
 
-  // MUI Drawer for filters
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const toggleFilterDrawer = () => {
-    setIsFilterOpen(prev => !prev);
+    setIsFilterOpen((prev) => !prev);
   };
-
-  const isFilterActive =
-    styleFilter !== 'all' ||
-    skiTypeFilter !== 'all' ||
-    archivedFilter !== 'notArchived';
 
   const resetFilter = () => {
     setStyleFilter('all');
@@ -72,14 +76,6 @@ const Skis = () => {
   const resetSkiType = () => setSkiTypeFilter('all');
   const resetArchive = () => setArchivedFilter('notArchived');
 
-  const router = useRouter();
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    // Update selected skis for tournament whenever selection changes
-    getSelectedSkis();
-  }, [selectedSkisMap, skis]);
-
   const toggleDetails = (skiId) => {
     setExpandedSkiId(expandedSkiId === skiId ? null : skiId);
   };
@@ -87,12 +83,12 @@ const Skis = () => {
   const getSelectedSkis = () =>
     Object.entries(selectedSkisMap)
       .filter(([_, isSelected]) => isSelected)
-      .map(([id]) => skis.find(ski => ski.id === id))
-      .filter(ski => ski);
+      .map(([id]) => skis.find((ski) => ski.id === id))
+      .filter((ski) => ski);
 
   const handleSortChange = (field) => {
     if (field === sortField) {
-      setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortField(field);
       setSortDirection('asc');
@@ -101,7 +97,7 @@ const Skis = () => {
 
   const handleArchive = async (skiId) => {
     if (window.confirm(t('archive_ski_promt'))) {
-      const skiToUpdate = skis.find(ski => ski.id === skiId);
+      const skiToUpdate = skis.find((ski) => ski.id === skiId);
       if (skiToUpdate) {
         await updateSki(skiId, { archived: true });
       }
@@ -109,7 +105,7 @@ const Skis = () => {
   };
 
   const handleUnarchive = async (skiId) => {
-    const skiToUpdate = skis.find(ski => ski.id === skiId);
+    const skiToUpdate = skis.find((ski) => ski.id === skiId);
     if (skiToUpdate) {
       await updateSki(skiId, { archived: false });
     }
@@ -132,7 +128,7 @@ const Skis = () => {
   };
 
   const handleCheckboxChange = (skiId) => {
-    setSelectedSkisMap(prev => ({ ...prev, [skiId]: !prev[skiId] }));
+    setSelectedSkisMap((prev) => ({ ...prev, [skiId]: !prev[skiId] }));
   };
 
   const handleStartNewTournament = () => {
@@ -154,7 +150,6 @@ const Skis = () => {
     }
   };
 
-  // Ski count and limit
   const skiCount = userData?.skiCount || 0;
   const skiLimit = userData?.isPro ? 48 : 12;
   const hasReachedLimit = skiCount >= skiLimit;
@@ -162,8 +157,8 @@ const Skis = () => {
 
   if (error) return <div className="m-2">Error: {error.message}</div>;
 
-  // 5) Filter skis based on archived, style, and skiType
-  const filteredSkis = skis.filter(ski => {
+  // 5) Filter skis
+  const filteredSkis = skis.filter((ski) => {
     if (archivedFilter === 'notArchived' && ski.archived) return false;
     if (archivedFilter === 'archived' && !ski.archived) return false;
     if (styleFilter !== 'all' && ski.style !== styleFilter) return false;
@@ -171,8 +166,62 @@ const Skis = () => {
     return true;
   });
 
-  // 6) Sort skis
+  // 6) Sort function
+  const applySort = (list, field, direction) => {
+    return [...list].sort((a, b) => {
+      if (a[field] < b[field]) return direction === 'asc' ? -1 : 1;
+      if (a[field] > b[field]) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  };
   const sortedAndFilteredSkis = applySort(filteredSkis, sortField, sortDirection);
+
+  // Define tour steps.
+  // Step 1: A centered welcome message (no targetRef).
+  // Step 2: Highlight the Start Test button.
+  // Step 3: Highlight the Add Ski button.
+  // Step 4: Highlight the Filter button.
+  const tourSteps = [
+    {
+      // No targetRef: a centered welcome popup.
+      message: (
+        <div className="p-4 text-center flex flex-col space-y-5">
+          <h2 className="text-2xl">Welcome to your skis!</h2>
+          <p>I'll guide you so you can perform your first test.</p>
+        </div>
+      ),
+    },
+    {
+      targetRef: startTestBtnRef,
+      message:
+        "This is where you start a test. You can't start a test without any skis, so let's add your first ski.",
+    },
+    {
+      targetRef: addSkiBtnRef,
+      message: "Click this and fill out the form!",
+    },
+    {
+      targetRef: filterBtnRef,
+      message: "Now, use the filter button to refine your list.",
+    },
+  ];
+
+  const currentStep = tourSteps[tourStep - 1];
+
+  const handleNextStep = () => {
+    if (tourStep < tourSteps.length) {
+      setTourStep(tourStep + 1);
+    } else {
+      setShowTour(false);
+      // Optionally mark the tour as completed
+      localStorage.setItem('tourStep', (tourSteps.length + 1).toString());
+    }
+  };
+
+  const handleCloseTour = () => {
+    setShowTour(false);
+    localStorage.setItem('tourStep', (tourSteps.length + 1).toString());
+  };
 
   return (
     <>
@@ -181,21 +230,30 @@ const Skis = () => {
         <meta name="description" content="List of your added skis" />
       </Head>
 
-      <div className="skis-page pb-2 px-2">
+      <div className="skis-page pb-2 px-2" ref={pageRef}>
         {/* Top row: "Selected skis" + "Add Ski" button, etc. */}
         <div className="flex items-end justify-between p-2">
           {/* Left block: Selected skis and start new test */}
           <div className="flex flex-col items-center justify-end">
             <h3 className="text-sm font-semibold mb-1">
-              {(getSelectedSkis().length > 1 ? getSelectedSkis().length + " " + t('skis_selected') : t('select') + " " + (getSelectedSkis().length == 1 ? 1 : 2) + " " + t('more_skis'))}
-
+              {getSelectedSkis().length > 1
+                ? `${getSelectedSkis().length} ${t('skis_selected')}`
+                : `${t('select')} ${
+                    getSelectedSkis().length === 1 ? 1 : 2
+                  } ${t('more_skis')}`}
             </h3>
             <button
+              ref={startTestBtnRef}
               onClick={handleStartNewTournament}
-              className={`flex h-fit items-center justify-center bg-btn text-btntxt shadow py-3 px-5 text-center rounded w-full max-w-xs ${getSelectedSkis().length < 2 ? "opacity-30" : "hover:opacity-90"
-                }`}
+              className={`flex h-fit items-center justify-center bg-btn text-btntxt shadow py-3 px-5 text-center rounded w-full max-w-xs ${
+                getSelectedSkis().length < 2 ? 'opacity-30' : 'hover:opacity-90'
+              }`}
               disabled={getSelectedSkis().length < 2}
-              title={getSelectedSkis().length < 2 ? t('select_at_least_two_skis') : ''}
+              title={
+                getSelectedSkis().length < 2
+                  ? t('select_at_least_two_skis')
+                  : ''
+              }
             >
               {t('new_test')}
               <SiRundeck className="ml-2" />
@@ -205,15 +263,25 @@ const Skis = () => {
           {/* Right block: Ski count and add ski button */}
           <div className="flex space-x-2 items-end">
             <div className="flex flex-col items-center w-fit">
-              <label className={`text-sm font-semibold mb-1 ${hasReachedLimit && 'text-delete'}`}>
+              <label
+                className={`text-sm font-semibold mb-1 ${
+                  hasReachedLimit && 'text-delete'
+                }`}
+              >
                 {skiCount}/{skiLimit}
               </label>
               <button
+                ref={addSkiBtnRef}
                 onClick={handleAddSki}
                 disabled={hasReachedLimit}
-                className={`bg-container flex items-center p-3 shadow rounded hover:bg-sbtn ${hasReachedLimit ? 'opacity-50 text-delete cursor-not-allowed disabled:pointer-events-none' : 'cursor-pointer'
-                  }`}
-                title={hasReachedLimit ? t('max_skis_reached') : ''}
+                className={`bg-container flex items-center p-3 shadow rounded hover:bg-sbtn ${
+                  hasReachedLimit
+                    ? 'opacity-50 text-delete cursor-not-allowed disabled:pointer-events-none'
+                    : 'cursor-pointer'
+                }`}
+                title={
+                  hasReachedLimit ? t('max_skis_reached') : ''
+                }
               >
                 {hasReachedLimit ? <RiLockLine /> : <RiAddLine />}
               </button>
@@ -225,10 +293,19 @@ const Skis = () => {
                 <div className="flex flex-col items-center w-fit">
                   <label className="text-sm font-semibold mb-1">{t('filter')}</label>
                   <button
+                    ref={filterBtnRef}
                     onClick={toggleFilterDrawer}
-                    className={`bg-container cursor-pointer flex items-center p-3 shadow rounded hover:bg-sbtn ${isFilterActive && 'text-btn'}`}
+                    className={`bg-container cursor-pointer flex items-center p-3 shadow rounded hover:bg-sbtn ${
+                      (styleFilter !== 'all' ||
+                        skiTypeFilter !== 'all' ||
+                        archivedFilter !== 'notArchived') && 'text-btn'
+                    }`}
                   >
-                    {isFilterActive ? <RiFilter2Fill /> : <RiFilter2Line />}
+                    {(styleFilter !== 'all' ||
+                      skiTypeFilter !== 'all' ||
+                      archivedFilter !== 'notArchived')
+                      ? <RiFilter2Fill />
+                      : <RiFilter2Line />}
                   </button>
                 </div>
               </div>
@@ -252,13 +329,10 @@ const Skis = () => {
                   >
                     {t('view_skis')}
                   </button>
-                  {hasReachedLimit && !userData.isPro && (<GetPro />)}
+                  {hasReachedLimit && !userData.isPro && <GetPro />}
                 </div>
-
-
               </div>
             )}
-
           </div>
         )}
 
@@ -285,17 +359,26 @@ const Skis = () => {
         {(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && (
           <div className="flex space-x-2 text-sm mx-2 mt-2">
             {styleFilter !== 'all' && (
-              <span className="flex items-center bg-container shadow rounded p-2 cursor-pointer hover:bg-background" onClick={resetStyle}>
+              <span
+                className="flex items-center bg-container shadow rounded p-2 cursor-pointer hover:bg-background"
+                onClick={resetStyle}
+              >
                 {t(styleFilter)} <RiCloseLine />
               </span>
             )}
             {skiTypeFilter !== 'all' && (
-              <span className="flex items-center bg-container shadow rounded p-2 cursor-pointer hover:bg-background" onClick={resetSkiType}>
+              <span
+                className="flex items-center bg-container shadow rounded p-2 cursor-pointer hover:bg-background"
+                onClick={resetSkiType}
+              >
                 {t(skiTypeFilter)} <RiCloseLine />
               </span>
             )}
             {archivedFilter !== 'notArchived' && (
-              <span className="flex items-center bg-container shadow rounded p-2 cursor-pointer hover:bg-background" onClick={resetArchive}>
+              <span
+                className="flex items-center bg-container shadow rounded p-2 cursor-pointer hover:bg-background"
+                onClick={resetArchive}
+              >
                 {t(archivedFilter)} <RiCloseLine />
               </span>
             )}
@@ -347,7 +430,20 @@ const Skis = () => {
             )
           )}
         </div>
+
+        {/* The overlay for the tour step (only if showTour is true and tourStep is 1) */}
+        {showTour && tourStep > 0 && tourStep <= tourSteps.length && (
+          <TourOverlay
+            isVisible={true}
+            targetRef={currentStep.targetRef} // may be undefined for welcome step
+            message={currentStep.message}
+            onNext={handleNextStep}
+            onClose={handleCloseTour}
+          />
+        )}
       </div>
+
+
     </>
   );
 };
