@@ -1,7 +1,6 @@
-'use client'
+// src/hooks/useSingleResult.js
 import { useState, useEffect } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getTournamentResult } from '@/lib/firebase/firestoreFunctions';
 import { useAuth } from '@/context/AuthContext';
 
 export const useSingleResult = (resultId) => {
@@ -16,14 +15,12 @@ export const useSingleResult = (resultId) => {
       setLoading(false);
       return;
     }
-
     const fetchResult = async () => {
       setLoading(true);
       try {
-        const resultDocRef = doc(db, `users/${user.uid}/testResults`, resultId);
-        const resultSnap = await getDoc(resultDocRef);
-        if (resultSnap.exists()) {
-          setResult({ id: resultSnap.id, ...resultSnap.data() });
+        const res = await getTournamentResult(user.uid, resultId);
+        if (res) {
+          setResult(res);
         } else {
           setError(new Error('Result not found'));
         }
@@ -33,7 +30,6 @@ export const useSingleResult = (resultId) => {
         setLoading(false);
       }
     };
-
     fetchResult();
   }, [user, resultId]);
 

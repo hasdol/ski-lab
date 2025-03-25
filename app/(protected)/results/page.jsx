@@ -174,7 +174,7 @@ const Results = () => {
         {/* Results section */}
         <div className="my-4">
           {loading ? (
-            <div className="flex justify-center items-center h-40">
+            <div className="flex justify-center">
               <Spinner />
             </div>
           ) : (
@@ -222,7 +222,11 @@ const Results = () => {
                         <span className="flex items-center w-1/3">
                           {highlightSearchTerm(ranking.skiId ? ranking.serialNumber : t('deleted'))}
                           {isNew(ranking) && (
-                            <p className="text-btn text-xs ml-1">- {t('new')}</p>
+                            <div className='flex items-center'>
+                              <span className='mx-2'>-</span>
+                              <p className="text-highlight text-xs"> {t('new')}</p>
+                            </div>
+
                           )}
                         </span>
                         <span className="w-1/3 text-center">

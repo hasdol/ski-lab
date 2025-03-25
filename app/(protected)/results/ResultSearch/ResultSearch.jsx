@@ -8,7 +8,7 @@ const ResultsSearch = ({ onSearchChange }) => {
     return (
         <div className='flex flex-col w-full mr-5'>
 
-            <div className='bg-container flex items-center rounded border border-sbtn overflow-hidden focus-within:border-none focus-within:ring-1 focus-within:ring-btn'>
+            <div className='bg-container flex items-center rounded border md:w-1/2 border-sbtn overflow-hidden focus-within:border-none focus-within:ring-1 focus-within:ring-btn'>
                 
                 <input
                     id="search-input"

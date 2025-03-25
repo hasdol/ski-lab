@@ -47,7 +47,7 @@ const Contact = () => {
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder={t('subject')}
-            className="bg-container text-inputtxt rounded p-2 mb-4"
+            className="bg-container text-inputtxt border rounded p-2 mb-4"
             maxLength={100}
             required
           />
@@ -60,7 +60,7 @@ const Contact = () => {
             onChange={(e) => setMessage(e.target.value)}
             rows="5"
             placeholder={t('message')}
-            className="bg-container text-inputtxt rounded p-2 mb-4"
+            className="bg-container text-inputtxt border rounded p-2 mb-4"
             maxLength={500}
             required
           ></textarea>

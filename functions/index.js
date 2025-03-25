@@ -1,107 +1,163 @@
-// index.js
-
 const admin = require('firebase-admin');
 admin.initializeApp();
-
 const db = admin.firestore();
 
-
-// ----------------------------------------------------------------
-// 1st Gen Functions (for basic Auth triggers)
-// ----------------------------------------------------------------
 const functionsV1 = require('firebase-functions/v1');
+const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https');
+const { onDocumentCreated, onDocumentDeleted } = require('firebase-functions/v2/firestore');
 
-// Basic Auth trigger (1st gen)
+// ----------------------------------------------------------------
+// Auth Trigger – Initialize user
+// ----------------------------------------------------------------
 exports.onUserCreate = functionsV1.auth.user().onCreate(async (user) => {
-  const userId = user.uid;
-  const userRef = db.collection('users').doc(userId);
-
+  const userRef = db.collection('users').doc(user.uid);
   const initialData = {
     preferences: {
       themePreference: 'light',
       languagePreference: 'en',
     },
-    isPro: false,
+    plan: 'free',
     skiCount: 0,
     lockedSkisCount: 0,
     stripeCustomerId: null,
     stripeSubscriptionId: null,
   };
-
   try {
     await userRef.set(initialData);
-    console.log(`Initialized user document for ${userId}`);
+    console.log(`Initialized user document for ${user.uid}`);
   } catch (error) {
-    console.error(`Error initializing user document for ${userId}:`, error);
+    console.error(`Error initializing user document for ${user.uid}:`, error);
   }
 });
 
 // ----------------------------------------------------------------
-// 2nd Gen Functions (for HTTPS and Firestore triggers)
+// Stripe Callable Functions
 // ----------------------------------------------------------------
-const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https');
-const { onDocumentCreated, onDocumentDeleted } = require('firebase-functions/v2/firestore');
+exports.getStripePlans = onCall({ secrets: ['STRIPE_SECRET'] }, async (event) => {
+  if (!event.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  const stripe = require('stripe')(process.env.STRIPE_SECRET);
 
-// HTTPS Callable Function: Create Checkout Session
-exports.createCheckoutSession = onCall({
-  secrets: ['STRIPE_SECRET', 'APP_URL', 'STRIPE_PRICE_ID', 'STRIPE_SIGNING_SECRET']
-}, async (event) => {
-  if (!event.auth) {
-    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  try {
+    const products = await stripe.products.list({ active: true });
+    const plans = await Promise.all(products.data.map(async (product) => {
+      const prices = await stripe.prices.list({ product: product.id, active: true });
+      if (prices.data.length === 0) return null;
+      const price = prices.data[0];
+      return {
+        productId: product.id,
+        name: product.name,
+        description: product.description,
+        priceId: price.id,
+        amount: price.unit_amount,
+        currency: price.currency,
+        interval: price.recurring?.interval,
+        plan: product.metadata.plan || 'unknown',
+      };
+    }));
+    return plans.filter(Boolean);
+  } catch (error) {
+    console.error('Error fetching Stripe plans:', error);
+    throw new HttpsError('internal', 'Unable to fetch plans.');
   }
-  const userId = event.auth.uid;
+});
+
+exports.createCheckoutSession = onCall({ secrets: ['STRIPE_SECRET', 'APP_URL'] }, async (event) => {
+  if (!event.auth)
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  
+  const { priceId } = event.data;
+  if (!priceId)
+    throw new HttpsError('invalid-argument', 'Price ID must be provided.');
+
   const stripe = require('stripe')(process.env.STRIPE_SECRET);
   const appUrl = process.env.APP_URL;
-  const stripePriceId = process.env.STRIPE_PRICE_ID;
+  const userId = event.auth.uid;
+  
+  // Fetch the user's Firestore document to check subscription details.
+  const userRef = db.collection('users').doc(userId);
+  const userDoc = await userRef.get();
+  const userData = userDoc.exists ? userDoc.data() : {};
 
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
-    mode: 'subscription',
-    allow_promotion_codes: true,
-    line_items: [{
-      price: stripePriceId,
-      quantity: 1,
-    }],
-    success_url: `${appUrl}/account?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${appUrl}/account`,
-    metadata: { userId },
-    subscription_data: { metadata: { userId } },
-  });
-
-  return { sessionId: session.id };
+  // If either a stripeSubscriptionId or stripeCustomerId exists, user is considered existing.
+  const alreadySubscribed = Boolean(userData.stripeSubscriptionId || userData.stripeCustomerId);
+  
+  try {
+    const price = await stripe.prices.retrieve(priceId);
+    const product = await stripe.products.retrieve(price.product);
+    const plan = product.metadata.plan || 'free';
+    
+    // Prepare subscription data.
+    const subscriptionData = { metadata: { userId, plan } };
+    
+    // Only add a 30-day trial for new users selecting the athlete plan.
+    if (plan === 'athlete' && !alreadySubscribed) {
+      subscriptionData.trial_period_days = 30;
+    }
+    
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'subscription',
+      allow_promotion_codes: true,
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${appUrl}/account?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl}/account`,
+      metadata: { userId, plan },
+      subscription_data: subscriptionData,
+    });
+    
+    return { sessionId: session.id };
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    throw new HttpsError('internal', 'Unable to create checkout session.');
+  }
 });
 
-// HTTPS Function: Stripe Webhook
+
+exports.getCustomerPortalUrl = onCall({ secrets: ['STRIPE_SECRET', 'APP_URL'] }, async (event) => {
+  if (!event.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  const userId = event.auth.uid;
+  const userRef = db.collection('users').doc(userId);
+  const userDoc = await userRef.get();
+
+  if (!userDoc.exists) throw new HttpsError('not-found', 'User not found.');
+  const stripeCustomerId = userDoc.data().stripeCustomerId;
+  if (!stripeCustomerId) throw new HttpsError('failed-precondition', 'Missing Stripe customer ID.');
+
+  const stripe = require('stripe')(process.env.STRIPE_SECRET);
+  const portalSession = await stripe.billingPortal.sessions.create({
+    customer: stripeCustomerId,
+    return_url: `${process.env.APP_URL}/account`,
+  });
+  return { url: portalSession.url };
+});
+
+// ----------------------------------------------------------------
+// Stripe Webhook
+// ----------------------------------------------------------------
 exports.stripeWebhook = onRequest({
   secrets: ['STRIPE_SECRET', 'STRIPE_SIGNING_SECRET']
 }, async (req, res) => {
   const stripe = require('stripe')(process.env.STRIPE_SECRET);
-  const stripeSigningSecret = process.env.STRIPE_SIGNING_SECRET;
   const sig = req.headers['stripe-signature'];
-  let event;
 
+  let event;
   try {
-    event = stripe.webhooks.constructEvent(req.rawBody, sig, stripeSigningSecret);
+    event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.STRIPE_SIGNING_SECRET);
   } catch (err) {
     console.error('Webhook signature verification failed.', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   switch (event.type) {
-    case 'checkout.session.completed': {
-      const session = event.data.object;
-      await handleCheckoutSession(session);
+    case 'checkout.session.completed':
+      await handleCheckoutSession(event.data.object);
       break;
-    }
-    case 'invoice.paid': {
-      // Handle successful invoice payment if needed
+    case 'customer.subscription.deleted':
+      await handleSubscriptionDeleted(event.data.object);
       break;
-    }
-    case 'customer.subscription.deleted': {
-      const subscription = event.data.object;
-      await handleSubscriptionDeleted(subscription);
+    case 'customer.subscription.updated':
+      await handleSubscriptionUpdated(event.data.object);
       break;
-    }
     default:
       console.log(`Unhandled event type ${event.type}`);
   }
@@ -109,290 +165,325 @@ exports.stripeWebhook = onRequest({
   res.status(200).json({ received: true });
 });
 
-// Helper: Handle Checkout Session Completion (Upgrade to Pro)
+// ----------------------------------------------------------------
+// Stripe Webhook Helpers
+// ----------------------------------------------------------------
 async function handleCheckoutSession(session) {
-  const userId = session.metadata.userId;
-  const subscriptionId = session.subscription;
-  const customerId = session.customer;
-  const userRef = db.collection('users').doc(userId);
+  const userRef = db.collection('users').doc(session.metadata.userId);
   const skisRef = userRef.collection('skis');
+  const plan = session.metadata.plan || 'free';
 
-  try {
-    await db.runTransaction(async (transaction) => {
-      const userDoc = await transaction.get(userRef);
-      if (!userDoc.exists) {
-        throw new Error(`User ${userId} does not exist.`);
-      }
-      const lockedSkisQuery = skisRef.where('locked', '==', true);
-      const lockedSkisSnapshot = await transaction.get(lockedSkisQuery);
+  await db.runTransaction(async (transaction) => {
+    const userDoc = await transaction.get(userRef);
+    if (!userDoc.exists) throw new Error(`User ${session.metadata.userId} does not exist.`);
+    const lockedSkisSnapshot = await transaction.get(skisRef.where('locked', '==', true));
 
-      const updateUserData = {
-        stripeCustomerId: customerId,
-        stripeSubscriptionId: subscriptionId,
-        isPro: true,
-        lockedSkisCount: 0,
-      };
-      transaction.update(userRef, updateUserData);
-
-      lockedSkisSnapshot.forEach((doc) => {
-        transaction.update(doc.ref, { locked: false });
-      });
-
-      console.log(`User ${userId} upgraded to Pro. All skis unlocked.`);
+    transaction.update(userRef, {
+      stripeCustomerId: session.customer,
+      stripeSubscriptionId: session.subscription,
+      plan,
+      lockedSkisCount: 0,
     });
-  } catch (error) {
-    console.error(`Failed to handle checkout session for user ${userId}:`, error);
-  }
+
+    lockedSkisSnapshot.forEach((doc) => {
+      transaction.update(doc.ref, { locked: false });
+    });
+  });
 }
 
-// Helper: Handle Subscription Deletion (Downgrade to Free)
 async function handleSubscriptionDeleted(subscription) {
   const userId = subscription.metadata.userId;
   const userRef = db.collection('users').doc(userId);
   const skisRef = userRef.collection('skis');
-  const skiLimit = 12; // Free plan limit for the free tier
+
+  await db.runTransaction(async (transaction) => {
+    const userDoc = await transaction.get(userRef);
+    if (!userDoc.exists) throw new Error(`User ${userId} does not exist.`);
+
+    const userData = userDoc.data();
+    const skiCount = userData.skiCount || 0;
+    const lockedSkisCount = userData.lockedSkisCount || 0;
+    const planLimits = { free: 12 };
+    const skiLimit = planLimits.free;
+    const unlockedSkisCount = skiCount - lockedSkisCount;
+    const skisToLockCount = Math.max(0, unlockedSkisCount - skiLimit);
+
+    let skisToLockSnapshot = null;
+    if (skisToLockCount > 0) {
+      skisToLockSnapshot = await transaction.get(
+        skisRef.where('locked', '==', false).orderBy('dateAdded', 'desc').limit(skisToLockCount)
+      );
+    }
+
+    transaction.update(userRef, {
+      plan: 'free',
+      stripeSubscriptionId: admin.firestore.FieldValue.delete(),
+    });
+
+    if (skisToLockSnapshot) {
+      skisToLockSnapshot.forEach((doc) => {
+        transaction.update(doc.ref, { locked: true });
+      });
+      transaction.update(userRef, {
+        lockedSkisCount: admin.firestore.FieldValue.increment(skisToLockCount),
+      });
+    }
+  });
+
+  const snap = await userRef.get();
+  if (snap.exists && snap.data().scheduledDeletion) {
+    await admin.auth().deleteUser(userId);
+    await userRef.delete();
+  }
+}
+
+async function handleSubscriptionUpdated(subscription) {
+  const stripe = require('stripe')(process.env.STRIPE_SECRET);
+  const userId = subscription.metadata.userId;
+  const userRef = db.collection('users').doc(userId);
+  const skisRef = userRef.collection('skis');
 
   try {
-    // 1) Downgrade the user to free and lock skis if they're over the free limit
+    const priceId = subscription.items.data[0]?.price.id;
+    const price = await stripe.prices.retrieve(priceId);
+    const product = await stripe.products.retrieve(price.product);
+    const newPlan = product.metadata.plan || 'free';
+
     await db.runTransaction(async (transaction) => {
       const userDoc = await transaction.get(userRef);
-      if (!userDoc.exists) {
-        throw new Error(`User ${userId} does not exist.`);
-      }
-      const userData = userDoc.data() || {};
+      if (!userDoc.exists) throw new Error(`User ${userId} does not exist.`);
+
+      const userData = userDoc.data();
       const skiCount = userData.skiCount || 0;
       const lockedSkisCount = userData.lockedSkisCount || 0;
       const unlockedSkisCount = skiCount - lockedSkisCount;
-      const skisToLockCount = unlockedSkisCount > skiLimit ? unlockedSkisCount - skiLimit : 0;
 
-      let skisToLockSnapshot = null;
-      if (skisToLockCount > 0) {
-        const skisToLockQuery = skisRef
-          .where('locked', '==', false)
-          .orderBy('dateAdded', 'desc')
-          .limit(skisToLockCount);
-        skisToLockSnapshot = await transaction.get(skisToLockQuery);
-      }
-
-      // Remove stripeSubscriptionId and set isPro = false
-      const updateUserData = {
-        isPro: false,
-        stripeSubscriptionId: admin.firestore.FieldValue.delete(),
+      const planLimits = {
+        free: 12,
+        athlete: 48,
+        coach: 200,
+        company: 5000,
       };
-      transaction.update(userRef, updateUserData);
+      const newLimit = planLimits[newPlan] || 12;
 
-      // Lock skis if user is over the free plan limit
-      if (skisToLockCount > 0 && skisToLockSnapshot) {
+      // Case: Too many unlocked skis → lock
+      const skisToLockCount = Math.max(0, unlockedSkisCount - newLimit);
+      if (skisToLockCount > 0) {
+        const skisToLockSnapshot = await transaction.get(
+          skisRef.where('locked', '==', false)
+                 .orderBy('dateAdded', 'desc')
+                 .limit(skisToLockCount)
+        );
         skisToLockSnapshot.forEach((doc) => {
           transaction.update(doc.ref, { locked: true });
         });
         transaction.update(userRef, {
           lockedSkisCount: admin.firestore.FieldValue.increment(skisToLockCount),
         });
-        console.log(`User ${userId} downgraded to Free. Locked ${skisToLockCount} skis.`);
-      } else {
-        console.log(`User ${userId} downgraded to Free. No skis need to be locked.`);
       }
+
+      // Case: Enough room for unlocking → unlock
+      const skisToUnlockCount = Math.max(0, newLimit - unlockedSkisCount);
+      if (skisToUnlockCount > 0 && lockedSkisCount > 0) {
+        const actualUnlockCount = Math.min(skisToUnlockCount, lockedSkisCount);
+
+        const skisToUnlockSnapshot = await transaction.get(
+          skisRef.where('locked', '==', true)
+                 .orderBy('dateAdded') // oldest locked skis first
+                 .limit(actualUnlockCount)
+        );
+        skisToUnlockSnapshot.forEach((doc) => {
+          transaction.update(doc.ref, { locked: false });
+        });
+        transaction.update(userRef, {
+          lockedSkisCount: admin.firestore.FieldValue.increment(-actualUnlockCount),
+        });
+      }
+
+      transaction.update(userRef, { plan: newPlan });
     });
 
-    // 2) After the transaction completes, check if the user scheduled a deletion
-    const newDocSnap = await userRef.get();
-    if (newDocSnap.exists) {
-      const newData = newDocSnap.data();
-      if (newData.scheduledDeletion) {
-        // Finalize the user’s deletion
-        await admin.auth().deleteUser(userId);
-        await userRef.delete();
-        console.log(`User ${userId} was scheduled for deletion, so we removed them entirely.`);
-      }
-    }
+    console.log(`Updated user ${userId} to plan ${newPlan}`);
   } catch (error) {
-    console.error(`Failed to handle subscription deletion for user ${userId}:`, error);
+    console.error(`Failed to update user plan:`, error);
   }
 }
 
-// Firestore Trigger: Ski Creation (2nd gen)
+
+
+
+// ----------------------------------------------------------------
+// Firestore Triggers
+// ----------------------------------------------------------------
 exports.onSkiCreated = onDocumentCreated('users/{userId}/skis/{skiId}', async (event) => {
   const { userId } = event.params;
   const userRef = db.collection('users').doc(userId);
   const skiData = event.data.data();
 
-  try {
-    await db.runTransaction(async (transaction) => {
-      const userDoc = await transaction.get(userRef);
-      if (!userDoc.exists) {
-        throw new Error(`User ${userId} does not exist.`);
-      }
-      const userData = userDoc.data() || {};
-      const isPro = userData.isPro || false;
-      const skiCount = userData.skiCount || 0;
-      const skiLimit = isPro ? 48 : 12;
-      const shouldLock = skiCount >= skiLimit;
-      const updateData = { skiCount: admin.firestore.FieldValue.increment(1) };
+  const userDoc = await userRef.get();
+  if (!userDoc.exists) return;
+  const userData = userDoc.data();
+  const planLimits = {
+    free: 12,
+    athlete: 48,
+    coach: 200,
+    company: 5000,
+  };
+  const skiLimit = planLimits[userData.plan || 'free'] || 12;
+  const skiCount = userData.skiCount || 0;
+  const shouldLock = skiCount >= skiLimit;
 
-      if (shouldLock) {
-        updateData.lockedSkisCount = admin.firestore.FieldValue.increment(1);
-      }
-
-      transaction.update(userRef, updateData);
-      transaction.update(event.data.ref, {
-        locked: shouldLock,
-        dateAdded: admin.firestore.FieldValue.serverTimestamp(),
-      });
-
-      console.log(`Ski ${event.data.id} ${shouldLock ? 'locked' : 'unlocked'} due to plan limitations.`);
+  await userRef.firestore.runTransaction(async (transaction) => {
+    transaction.update(userRef, {
+      skiCount: admin.firestore.FieldValue.increment(1),
+      ...(shouldLock && { lockedSkisCount: admin.firestore.FieldValue.increment(1) }),
     });
-  } catch (error) {
-    console.error(`Failed to handle ski creation for user ${userId}:`, error);
-  }
+    transaction.update(event.data.ref, {
+      locked: shouldLock,
+      dateAdded: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  });
 });
 
-// Firestore Trigger: Ski Deletion (2nd gen)
 exports.onSkiDeleted = onDocumentDeleted('users/{userId}/skis/{skiId}', async (event) => {
   const { userId } = event.params;
   const skiData = event.data.data();
   const userRef = db.collection('users').doc(userId);
   const skisRef = userRef.collection('skis');
 
-  try {
-    await db.runTransaction(async (transaction) => {
-      const userDoc = await transaction.get(userRef);
-      if (!userDoc.exists) {
-        throw new Error(`User ${userId} does not exist.`);
-      }
-      const userData = userDoc.data() || {};
-      const isPro = userData.isPro || false;
-      const skiCount = userData.skiCount || 0;
-      const lockedSkisCount = userData.lockedSkisCount || 0;
-      const unlockedSkisCount = skiCount - lockedSkisCount;
-      const skiLimit = isPro ? 48 : 12;
-      const newUnlockedSkisCount = skiData.locked ? unlockedSkisCount : unlockedSkisCount - 1;
-      const skisToUnlockCount =
-        (!isPro && newUnlockedSkisCount < skiLimit && lockedSkisCount > 0)
-          ? skiLimit - newUnlockedSkisCount
-          : 0;
+  const userDoc = await userRef.get();
+  if (!userDoc.exists) return;
+  const userData = userDoc.data();
 
-      let skisToUnlockSnapshot = null;
-      if (skisToUnlockCount > 0) {
-        const skisToUnlockQuery = skisRef.where('locked', '==', true)
-          .orderBy('dateAdded')
-          .limit(skisToUnlockCount);
-        skisToUnlockSnapshot = await transaction.get(skisToUnlockQuery);
-      }
+  const planLimits = {
+    free: 12,
+    athlete: 48,
+    coach: 200,
+    company: 5000,
+  };
+  const skiLimit = planLimits[userData.plan || 'free'] || 12;
+  const skiCount = userData.skiCount || 0;
+  const lockedSkisCount = userData.lockedSkisCount || 0;
+  const unlockedSkisCount = skiCount - lockedSkisCount;
+  const newUnlockedCount = skiData.locked ? unlockedSkisCount : unlockedSkisCount - 1;
+  const skisToUnlockCount = (newUnlockedCount < skiLimit && lockedSkisCount > 0)
+    ? skiLimit - newUnlockedCount
+    : 0;
 
-      const updateData = { skiCount: admin.firestore.FieldValue.increment(-1) };
-      if (skiData.locked) {
-        updateData.lockedSkisCount = admin.firestore.FieldValue.increment(-1);
-      }
-      transaction.update(userRef, updateData);
+  await db.runTransaction(async (transaction) => {
+    const update = {
+      skiCount: admin.firestore.FieldValue.increment(-1),
+    };
+    if (skiData.locked) update.lockedSkisCount = admin.firestore.FieldValue.increment(-1);
+    transaction.update(userRef, update);
 
-      if (skisToUnlockCount > 0 && skisToUnlockSnapshot) {
-        skisToUnlockSnapshot.forEach((doc) => {
-          transaction.update(doc.ref, { locked: false });
-        });
-        transaction.update(userRef, {
-          lockedSkisCount: admin.firestore.FieldValue.increment(-skisToUnlockCount),
-        });
-        console.log(`Unlocked ${skisToUnlockCount} ski(s) for user ${userId} as a slot became available.`);
-      } else {
-        console.log(`Ski ${event.data.id} deleted for user ${userId}. No skis needed to be unlocked.`);
-      }
-    });
-  } catch (error) {
-    console.error(`Failed to handle ski deletion for user ${userId}:`, error);
-  }
+    if (skisToUnlockCount > 0) {
+      const snapshot = await transaction.get(
+        skisRef.where('locked', '==', true).orderBy('dateAdded').limit(skisToUnlockCount)
+      );
+      snapshot.forEach((doc) => {
+        transaction.update(doc.ref, { locked: false });
+      });
+      transaction.update(userRef, {
+        lockedSkisCount: admin.firestore.FieldValue.increment(-skisToUnlockCount),
+      });
+    }
+  });
 });
 
-// HTTPS Callable Function: Get Customer Portal URL (2nd gen)
-exports.getCustomerPortalUrl = onCall({
-  secrets: ['STRIPE_SECRET', 'APP_URL']
-}, async (event) => {
-  if (!event.auth) {
-    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+// ----------------------------------------------------------------
+// Account Deletion Management
+// ----------------------------------------------------------------
+
+async function deleteProfilePicture(userId) {
+  const bucket = admin.storage().bucket(); // Uses the default bucket from your project
+  const file = bucket.file(`profilePictures/${userId}`);
+  try {
+    await file.delete();
+    console.log('Profile picture deleted successfully.');
+  } catch (error) {
+    // If the file is not found, error.code might be 404.
+    if (error.code === 404) {
+      console.log('No profile picture to delete.');
+    } else {
+      console.error('Error deleting profile picture:', error.message);
+      throw error;
+    }
   }
-  const userId = event.auth.uid;
-  const userRef = db.collection('users').doc(userId);
+}
+
+exports.deleteUserAccount = onCall({ secrets: ['STRIPE_SECRET'] }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated.");
+  }
+  const uid = request.auth.uid;
+  const userRef = db.collection("users").doc(uid);
   const userDoc = await userRef.get();
 
   if (!userDoc.exists) {
-    throw new HttpsError('not-found', 'User data not found.');
+    throw new HttpsError("not-found", "User document not found.");
   }
+  const userData = userDoc.data();
 
-  const stripeCustomerId = userDoc.data().stripeCustomerId;
-  if (!stripeCustomerId) {
-    throw new HttpsError('failed-precondition', 'Stripe customer ID not found.');
-  }
-
-  try {
+  // Check for an active subscription
+  if (userData.stripeSubscriptionId) {
+    const confirmDeleteSubscription = request.data.confirmDeleteSubscription;
+    if (!confirmDeleteSubscription) {
+      throw new HttpsError(
+        "failed-precondition",
+        "You must confirm that your active subscription will be cancelled in order to delete your account."
+      );
+    }
+    // Initialize Stripe with the secret from the environment
     const stripe = require('stripe')(process.env.STRIPE_SECRET);
-    const appUrl = process.env.APP_URL;
-    const portalSession = await stripe.billingPortal.sessions.create({
-      customer: stripeCustomerId,
-      return_url: `${appUrl}/account`,
-    });
-    return { url: portalSession.url };
-  } catch (error) {
-    console.error(`Failed to create customer portal session for user ${userId}:`, error);
-    throw new HttpsError('internal', 'Unable to create customer portal session.');
-  }
-});
-
-
-exports.deleteUserAccount = onCall(async (request) => {
-  // Ensure the request is authenticated.
-  if (!request.auth) {
-    throw new HttpsError("unauthenticated", "User must be authenticated.");
-  }
-  
-  const uid = request.auth.uid;
-  const userDocRef = admin.firestore().collection("users").doc(uid);
-  
-  try {
-    const userDocSnap = await userDocRef.get();
-    if (!userDocSnap.exists) {
-      throw new HttpsError("not-found", "User document not found.");
-    }
-    const userData = userDocSnap.data();
-    
-    // Check for active Stripe subscription.
-    if (userData.stripeSubscriptionId) {
-      // Schedule deletion instead of immediate deletion.
-      await userDocRef.update({
-        scheduledDeletion: true,
-        deletionScheduledAt: admin.firestore.FieldValue.serverTimestamp(),
+    try {
+      await stripe.subscriptions.cancel(userData.stripeSubscriptionId);
+      console.log(`Stripe subscription ${userData.stripeSubscriptionId} cancelled.`);
+      await userRef.update({
+        stripeSubscriptionId: admin.firestore.FieldValue.delete(),
+        stripeCustomerId: admin.firestore.FieldValue.delete(),
       });
-      return {
-        message:
-          "",
-      };
-    } else {
-      // No active subscription: delete the auth user and Firestore doc.
-      await admin.auth().deleteUser(uid);
-      await userDocRef.delete();
-      return { message: "User account deleted successfully." };
+    } catch (error) {
+      console.error("Error cancelling subscription:", error);
+      throw new HttpsError("internal", "Error cancelling subscription. Please try again later.");
     }
-  } catch (error) {
-    console.error("Error deleting user account:", error);
-    throw new HttpsError("unknown", error.message, error);
   }
+
+  // Delete the profile picture from Cloud Storage.
+  await deleteProfilePicture(uid);
+
+  // Delete subcollections (e.g., 'skis' and 'testResults').
+  const subcollections = ['skis', 'testResults'];
+  for (const sub of subcollections) {
+    const subColRef = userRef.collection(sub);
+    const snapshot = await subColRef.get();
+    const batch = db.batch();
+    snapshot.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+    await batch.commit();
+    console.log(`Subcollection '${sub}' deleted for user ${uid}.`);
+  }
+
+  // Delete the Firebase Auth user.
+  await admin.auth().deleteUser(uid);
+
+  // Delete the main Firestore user document.
+  await userRef.delete();
+
+  return { message: "User account and all related data deleted successfully." };
 });
+
+
+
 
 exports.cancelUserDeletion = onCall(async (request) => {
-  if (!request.auth) {
-    throw new HttpsError("unauthenticated", "User must be authenticated.");
-  }
+  if (!request.auth) throw new HttpsError("unauthenticated", "User must be authenticated.");
   const uid = request.auth.uid;
-  const userDocRef = admin.firestore().collection("users").doc(uid);
-  
-  try {
-    // Remove the deletion schedule flags.
-    await userDocRef.update({
-      scheduledDeletion: admin.firestore.FieldValue.delete(),
-      deletionScheduledAt: admin.firestore.FieldValue.delete(),
-    });
-    return { message: "Account deletion has been cancelled." };
-  } catch (error) {
-    console.error("Error cancelling account deletion:", error);
-    throw new HttpsError("unknown", error.message, error);
-  }
+  const userRef = db.collection("users").doc(uid);
+  await userRef.update({
+    scheduledDeletion: admin.firestore.FieldValue.delete(),
+    deletionScheduledAt: admin.firestore.FieldValue.delete(),
+  });
+  return { message: "Account deletion has been cancelled." };
 });

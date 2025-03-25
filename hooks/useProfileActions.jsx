@@ -1,9 +1,7 @@
 // src/hooks/useProfileActions.js
 import { useState } from 'react';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '@/lib/firebase/config';
-import { doc, getDoc } from 'firebase/firestore';
-import { deleteAccount as deleteFirestoreData } from '@/lib/firebase/firestoreFunctions';
+import { uploadProfilePicture } from '@/lib/firebase/storageFunctions';
+import { getUserDoc, deleteAccount as deleteFirestoreData } from '@/lib/firebase/firestoreFunctions';
 import { updateProfileDetails, sendPasswordReset, signOutUser } from '@/lib/firebase/authFunctions';
 
 export const useProfileActions = (user) => {
@@ -14,16 +12,10 @@ export const useProfileActions = (user) => {
     const file = e.target.files[0];
     if (file && user) {
       setIsChangingImg(true);
-      const imageRef = ref(storage, `profilePictures/${user.uid}`);
       try {
-        const snapshot = await uploadBytes(imageRef, file);
-        const newPhotoURL = await getDownloadURL(snapshot.ref);
-        
-        // Forbered updateData i hooken
+        const newPhotoURL = await uploadProfilePicture(user.uid, file);
         const updateData = { photoURL: newPhotoURL };
         await updateProfileDetails(user, updateData);
-
-        setIsChangingImg(false);
       } catch (error) {
         setErrorMessage('Error updating profile picture: ' + error.message);
       } finally {
@@ -34,10 +26,8 @@ export const useProfileActions = (user) => {
 
   const updateDisplayName = async (newDisplayName) => {
     try {
-      // Forbered updateData i hooken
       const updateData = { displayName: newDisplayName };
       await updateProfileDetails(user, updateData);
-      // alert('Display name updated successfully!');
     } catch (error) {
       alert('Error updating display name: ' + error.message);
     }
@@ -51,8 +41,6 @@ export const useProfileActions = (user) => {
       } catch (error) {
         alert('Error sending password reset email: ' + error.message);
       }
-    } else {
-      console.log('Password reset canceled');
     }
   };
 
@@ -66,23 +54,23 @@ export const useProfileActions = (user) => {
   };
 
   const deleteAccount = async () => {
-    // First, fetch the Firestore user document to check for an active subscription.
-    const userDocRef = doc(db, 'users', user.uid);
-    const userDocSnap = await getDoc(userDocRef);
-    if (userDocSnap.exists()) {
-      const userData = userDocSnap.data();
-      // Check if stripeSubscriptionId exists (indicating an active subscription)
-      if (userData.stripeSubscriptionId) {
-        throw new Error("You have an active subscription. Please cancel your subscription before deleting your account.");
+    try {
+      const userDocSnap = await getUserDoc(user.uid);
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        if (userData.stripeSubscriptionId) {
+          throw new Error("You have an active subscription. Please cancel your subscription before deleting your account.");
+        }
       }
+    } catch (error) {
+      setErrorMessage(error.message);
+      throw error;
     }
 
     if (window.confirm("Are you sure you want to delete your account?")) {
       try {
-        // Delete the auth user first (this may require recent login)
-        await user.delete();
-        // Then delete the Firestore data for this user
-        await deleteFirestoreData(user.uid);
+        // Pass the auth deletion function (user.delete) to the Firestore deletion helper.
+        await deleteFirestoreData(user.uid, () => user.delete());
         console.log('Account deletion successful.');
       } catch (error) {
         console.error('Error deleting account:', error.message);
@@ -91,7 +79,6 @@ export const useProfileActions = (user) => {
       }
     }
   };
-
 
   return {
     isChangingImg,

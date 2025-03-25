@@ -10,65 +10,75 @@ service cloud.firestore {
       allow update: if request.auth != null
         && request.auth.uid == userId
         && request.writeFields.hasOnly([
-      'preferences.languagePreference',
-      'preferences.themePreference',
-      'preferences.gloveModePreference'
-      ])
+          'preferences.languagePreference',
+          'preferences.themePreference',
+          'preferences.gloveModePreference'
+        ])
         && request.resource.data.preferences is map;
 
-      // Match skis subcollection
+      // Skis subcollection
       match /skis/{skiId} {
-        // Allow users to read all their skis
+        // Allow read if user owns the ski
         allow read: if request.auth != null 
           && request.auth.uid == userId;
 
-
-        // Allow create if user owns the ski and hasn't exceeded ski limit
+        // Allow create if:
+        // - user owns the ski
+        // - does not try to set 'locked' field manually
+        // - skiCount is within plan limits
         allow create: if request.auth != null
           && request.auth.uid == userId
+          && !('locked' in request.resource.data)
           && (
-        (get(/databases/$(database)/documents/users/$(userId)).data.isPro == true 
-          && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 48)
-          ||
-        (get(/databases/$(database)/documents/users/$(userId)).data.isPro == false 
-          && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 12)
-        );
+            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'athlete'
+              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 48)
+            ||
+            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'coach'
+              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 200)
+            ||
+            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'company'
+              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 5000)
+            ||
+            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'free'
+              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 12)
+          );
 
-        // Allow update if user owns the ski and does not modify 'locked' field
+        // Allow update if user owns the ski AND does not modify the 'locked' field
         allow update: if request.auth != null 
           && request.auth.uid == userId
           && (request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-        'serialNumber',
-        'style',
-        'brand',
-        'model',
-        'length',
-        'stiffness',
-        'base',
-        'construction',
-        'grind',
-        'grindDate',
-        'comment',
-        'grindHistory',
-        'dateAdded',
-        'newGrind',
-        'newGrindDate',
-        'testIds',
-        'archived',
-        'skiType'
-        ]))     
+            'serialNumber',
+            'style',
+            'brand',
+            'model',
+            'length',
+            'stiffness',
+            'base',
+            'construction',
+            'grind',
+            'grindDate',
+            'comment',
+            'grindHistory',
+            'dateAdded',
+            'newGrind',
+            'newGrindDate',
+            'testIds',
+            'archived',
+            'skiType'
+          ]));
 
         // Allow delete if user owns the ski
         allow delete: if request.auth != null 
           && request.auth.uid == userId;
       }
 
-      // Secure 'testResults' subcollection
+      // Secure testResults subcollection
       match /testResults/{testId} {
         allow read, write, delete: if request.auth.uid == userId;
       }
     }
-    // Secure 'contact' collection
+
+    // Secure contact collection
     match /contact/{contactId} {
       allow read, write: if request.auth != null;
     }

@@ -5,32 +5,28 @@ import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import Flag from 'react-flagkit';
-import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { GiWinterGloves } from "react-icons/gi";
 import { FaHandsClapping } from "react-icons/fa6";
-import { RiEditLine, RiArrowUpLine, RiArrowLeftLine, RiArrowRightLine } from "react-icons/ri";
+import { RiEditLine } from "react-icons/ri";
 import { useRouter } from 'next/navigation';
-
 
 import BackBtn from '@/components/common/BackBtn';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
-import GetPro from '@/components/getPro/GetPro';
-
+import ManageSubscription from '@/components/manageSubscription/ManageSubscription';
 
 const Settings = () => {
   const { user, userData } = useAuth(); // assume userData holds Firestore doc data
   const { resetPassword, updateDisplayName } = useProfileActions(user);
   const { t } = useTranslation();
-  const { english, setEnglish, colormode, setColormode, gloveMode, setGloveMode } = useContext(UserPreferencesContext);
+  const { english, setEnglish, gloveMode, setGloveMode } = useContext(UserPreferencesContext);
   const [newDisplayName, setNewDisplayName] = useState(user.displayName || '');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
 
   const handleDisplayNameUpdate = async () => {
     setIsLoading(true);
@@ -47,16 +43,23 @@ const Settings = () => {
   };
 
   const deleteUserAccount = async () => {
-    // Detailed confirmation message
-    const confirmMsg = `
-Are you really sure you want to delete your account?
-    
-IMPORTANT:
-- If you have an active subscription, you MUST cancel your subscription manually via the Billing Portal.
-- Your account deletion will only be finalized once your subscription ends.
-    
+    let confirmDeleteSubscription = false;
+    if (userData?.stripeSubscriptionId) {
+      // When an active subscription exists, inform the user that their subscription
+      // will be cancelled immediately.
+      const confirmMsg = `
+You have an active subscription.
+Deleting your account will cancel your subscription immediately.
 Do you wish to proceed?`;
-    if (!window.confirm(confirmMsg)) return;
+      if (!window.confirm(confirmMsg)) return;
+      confirmDeleteSubscription = true;
+    } else {
+      const confirmMsg = `
+Are you really sure you want to delete your account?
+      
+This action cannot be undone.`;
+      if (!window.confirm(confirmMsg)) return;
+    }
 
     setIsLoading(true);
     setError('');
@@ -64,7 +67,7 @@ Do you wish to proceed?`;
     try {
       const functions = getFunctions();
       const deleteUserAccountCallable = httpsCallable(functions, 'deleteUserAccount');
-      const result = await deleteUserAccountCallable();
+      const result = await deleteUserAccountCallable({ confirmDeleteSubscription });
       setSuccess(result.data.message);
     } catch (err) {
       setError('Error deleting account: ' + err.message);
@@ -73,33 +76,7 @@ Do you wish to proceed?`;
     }
   };
 
-  const cancelDeletion = async () => {
-    // Confirm cancellation
-    if (!window.confirm(t("Are you sure you want to cancel the scheduled deletion?"))) return;
-    setIsLoading(true);
-    setError('');
-    setSuccess('');
-    try {
-      const functions = getFunctions();
-      const cancelDeletionCallable = httpsCallable(functions, 'cancelUserDeletion');
-      const result = await cancelDeletionCallable();
-      setSuccess(result.data.message);
-      // You might want to trigger a refresh of userData here.
-    } catch (err) {
-      setError('Error cancelling account deletion: ' + err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (isLoading) return <Spinner />;
-
-  // Format deletionScheduledAt if available
-  const formatDate = (timestamp) => {
-    if (!timestamp) return '';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return date.toLocaleDateString('nb-NO', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  };
+  if (isLoading) return <div className='flex justify-center'><Spinner /></div> ;
 
   return (
     <>
@@ -149,28 +126,34 @@ Do you wish to proceed?`;
         </div>
 
         {/* Preferences Section */}
-        <div className="grid grid-cols-3 justify-center my-10">
-          {!gloveMode && (
-            <div className="flex flex-col items-center space-y-4">
-              <h3 className="font-semibold text-lg">{t('language')}</h3>
-              <label className="inline-flex relative items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  id="toggle-language"
-                  className="sr-only peer"
-                  checked={english}
-                  onChange={(e) => setEnglish(e.target.checked)}
-                />
-                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-gray-300 transition duration-300 ease-in-out peer-checked:bg-btn after:absolute after:top-0.5 after:left-[2px] after:bg-btntxt after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
-              </label>
-              <div className="flex items-center justify-center">
-                {english ? <Flag country="US" size={20} /> : <Flag country="NO" size={20} />}
-              </div>
-            </div>
-          )}
+        <div className="flex justify-center my-10 space-x-8">
+          {/* Language Toggle Container */}
+          <div className="flex flex-col items-center space-y-4 w-40">
+            {!gloveMode ? (
+              <>
+                <h3 className="font-semibold text-lg">{t('language')}</h3>
+                <label className="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="toggle-language"
+                    className="sr-only peer"
+                    checked={english}
+                    onChange={(e) => setEnglish(e.target.checked)}
+                  />
+                  <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-gray-300 transition duration-300 ease-in-out peer-checked:bg-btn after:absolute after:top-0.5 after:left-[2px] after:bg-btntxt after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                </label>
+                <div className="flex items-center justify-center">
+                  {english ? <Flag country="US" size={20} /> : <Flag country="NO" size={20} />}
+                </div>
+              </>
+            ) : (
+              // Render a placeholder of equal height to keep layout consistent.
+              <div style={{ height: '100px' }}></div>
+            )}
+          </div>
 
-          {/* Glove Mode Toggle */}
-          <div className={`${gloveMode && 'col-span-3'} flex flex-col items-center space-y-4`}>
+          {/* Glove Mode Toggle Container */}
+          <div className="flex flex-col items-center space-y-4 w-40">
             <h3 className="font-semibold text-lg">{t('glove_mode')}</h3>
             <label className="inline-flex relative items-center cursor-pointer">
               <input
@@ -186,26 +169,6 @@ Do you wish to proceed?`;
               {gloveMode ? <GiWinterGloves size={20} /> : <FaHandsClapping size={20} />}
             </div>
           </div>
-
-          {/* Theme Mode Toggle */}
-          {!gloveMode && (
-            <div className="flex flex-col items-center space-y-4">
-              <h3 className="font-semibold text-lg">{t('theme')}</h3>
-              <label className="inline-flex relative items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  id="toggle-theme"
-                  className="sr-only peer"
-                  checked={colormode === 'dark'}
-                  onChange={(e) => setColormode(e.target.checked ? 'dark' : 'light')}
-                />
-                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-gray-300 transition duration-300 ease-in-out peer-checked:bg-btn after:absolute after:top-0.5 after:left-[2px] after:bg-btntxt after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
-              </label>
-              <div className="flex items-center justify-center">
-                {colormode === 'dark' ? <MdDarkMode size={20} /> : <MdLightMode size={20} />}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Actions Section */}
@@ -217,33 +180,11 @@ Do you wish to proceed?`;
             >
               {t('reset_password')}
             </button>
-            {userData?.scheduledDeletion ? <div className='flex mx-auto w-fit items-center'>
-              <RiArrowRightLine size={20} className='mr-1' /><GetPro /> <RiArrowLeftLine size={20} className='ml-1' /> </div> :
-              <button
-                className="flex-1 bg-delete w-1/2 mx-auto text-white py-3 px-5 rounded hover:opacity-90"
-                onClick={deleteUserAccount}
-              >
-                {t('delete_account')}
-              </button>
-
-            }
-
-          </div>
-        )}
-
-        {/* If account deletion is scheduled, show details and cancel option */}
-        {userData?.scheduledDeletion && (
-          <div className="border border-red-500 p-4 mt-5 rounded text-center w-fit mx-auto">
-            <h4 className="text-red-500 font-bold">{t('account_deletion_scheduled')}</h4>
-            <p className="flex mt-2">
-              {t('remember_to_cancel_subscription')}
-
-            </p>
             <button
-              onClick={cancelDeletion}
-              className="mt-5 bg-btn text-btntxt py-2 px-4 rounded hover:opacity-90"
+              className="flex-1 bg-delete w-1/2 mx-auto text-white py-3 px-5 rounded hover:opacity-90"
+              onClick={deleteUserAccount}
             >
-              {t('cancel_account_deletion')}
+              {t('delete_account')}
             </button>
           </div>
         )}

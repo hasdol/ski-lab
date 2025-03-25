@@ -9,22 +9,14 @@ export const UserPreferencesContext = createContext();
 export const UserPreferencesProvider = ({ children }) => {
   const { user } = useAuth();
   const [english, setEnglish] = useState(true);
-  const [colormode, setColormode] = useState('light'); // Default to light mode
-  const [gloveMode, setGloveMode] = useState(false); // Initialize gloveMode
+  // Remove colormode state – always use light theme.
+  const colormode = 'light';
+  const [gloveMode, setGloveMode] = useState(false);
 
-  // Check for stored theme preference on load
+  // On load, ensure we use the light theme.
   useEffect(() => {
-    const storedTheme = localStorage.getItem('theme');
+    document.documentElement.classList.remove('dark');
     const storedGloveMode = localStorage.getItem('gloveMode');
-    if (storedTheme) {
-      setColormode(storedTheme);
-      document.documentElement.classList.toggle('dark', storedTheme === 'dark');
-    } else {
-      // If no user is logged in, apply light mode by default
-      document.documentElement.classList.remove('dark');
-      setColormode('light');
-    }
-
     if (storedGloveMode) {
       setGloveMode(storedGloveMode === 'true');
     }
@@ -37,29 +29,16 @@ export const UserPreferencesProvider = ({ children }) => {
       const unsubscribe = onSnapshot(userPreferencesRef, (doc) => {
         const data = doc.data();
         if (data && data.preferences) {
-          const { languagePreference, themePreference, gloveModePreference } = data.preferences;
+          const { languagePreference, gloveModePreference } = data.preferences;
           
           setEnglish(languagePreference === 'en');
           i18n.changeLanguage(languagePreference);
 
-          // Apply the theme preference from Firestore
-          const newTheme = themePreference || 'light';
-          setColormode(newTheme);
-          document.documentElement.classList.toggle('dark', newTheme === 'dark');
-
-          // Update localStorage if it doesn't match Firestore preference
-          const storedTheme = localStorage.getItem('theme');
-          if (storedTheme !== newTheme) {
-            localStorage.setItem('theme', newTheme); // Update localStorage
-          }
-
-          // Apply gloveMode preference from Firestore
           const newGloveMode = gloveModePreference || false;
           setGloveMode(newGloveMode);
-          localStorage.setItem('gloveMode', newGloveMode); // Update localStorage
+          localStorage.setItem('gloveMode', newGloveMode);
         }
       });
-
       return () => unsubscribe();
     }
   }, [user]);
@@ -68,7 +47,6 @@ export const UserPreferencesProvider = ({ children }) => {
     const newLanguage = english ? 'no' : 'en';
     setEnglish(!english);
     i18n.changeLanguage(newLanguage);
-
     if (user) {
       try {
         const userPreferencesRef = doc(db, 'users', user.uid);
@@ -84,40 +62,10 @@ export const UserPreferencesProvider = ({ children }) => {
     }
   };
 
-  const toggleColormode = async () => {
-    const newTheme = colormode === 'light' ? 'dark' : 'light';
-    setColormode(newTheme);
-    
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  
-    localStorage.setItem('theme', newTheme); // Store preference locally
-  
-    if (user) {
-      try {
-        const userPreferencesRef = doc(db, 'users', user.uid);
-        await setDoc(userPreferencesRef, {
-          preferences: {
-            themePreference: newTheme
-          }
-        }, { merge: true });
-      } catch (error) {
-        console.error("Error setting theme preference: ", error);
-        // Display a user-friendly message
-        alert("Failed to update theme preference. Please try again.");
-      }
-    }
-  };
-  
-
   const toggleGloveMode = async () => {
     const newGloveMode = !gloveMode;
     setGloveMode(newGloveMode);
     localStorage.setItem('gloveMode', newGloveMode);
-
     if (user) {
       try {
         const userPreferencesRef = doc(db, 'users', user.uid);
@@ -137,8 +85,7 @@ export const UserPreferencesProvider = ({ children }) => {
     <UserPreferencesContext.Provider value={{ 
       english, 
       setEnglish: toggleEnglish, 
-      colormode, 
-      setColormode: toggleColormode,
+      colormode, // Always light.
       gloveMode,
       setGloveMode: toggleGloveMode
     }}>

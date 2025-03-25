@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
               <Navigation />
               <main className={`mb-auto ${!isHomePage ? 'pb-12' : ''} md:flex md:flex-col md:pb-0 md:w-full`}>
                 {!isHomePage && <Header />}
-                <div className={`${isHomePage ? 'w-full' : 'md:w-1/2 mx-auto'}`}>
+                <div className={`${isHomePage ? 'w-full' : 'md:w-3/5 mx-auto'}`}>
                   {children}
                   <CookieConsent />
                 </div>

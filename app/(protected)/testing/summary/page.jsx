@@ -106,6 +106,7 @@ const TestSummaryPage = () => {
   const styleOptions = [
     { label: t('classic'), value: 'classic' },
     { label: t('skate'), value: 'skate' },
+    { label: 'DP', value: 'dp' },
   ];
 
   const snowSourceOptions = [

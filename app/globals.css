@@ -33,35 +33,6 @@
   --color-headerText: #383838;
 }
 
-.dark {
-  --color-background: #203547;
-  --color-container: #253b4e  ;
-  --color-text: #f1f1f1;
-  --color-btn: #a9c3f1;
-  --color-highlight: #a9c3f1;
-  --color-sbtn: #294155;
-  --color-hoverSbtn: #273e52;
-  --color-btntxt: #203547;
-  --color-inputtxt: #203547;
-  --color-selected: #a9c3f1;
-  --color-line: #4DB6FF;
-  --color-reference: #FFD700;
-  --color-edit: #E6D7B7 ;
-  --color-delete: #FF4C4C;
-  --color-gold: #FFD700;
-  --color-silver: #C0C0C0;
-  --color-bronze: #CD7F32;
-  --color-great: #5398ff;
-  --color-good: #5ebb68;
-  --color-average: #acc2b7;
-  --color-bad: #ea7704;
-  --color-verybad: #d7191c;
-  --color-buttonGradient: #a9c3f1;
-  --color-headerText: #ffffff;
-
-
-}
-
 @layer base {
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
@@ -6,17 +6,13 @@ import { useTranslation } from 'react-i18next';
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { useAuth } from '@/context/AuthContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
-import Spinner from '@/components/common/Spinner/Spinner';
-import GetPro from '@/components/getPro/GetPro';
+import ManageSubscription from '@/components/manageSubscription/ManageSubscription';
 import ProfileImage from '@/app/(protected)/account/components/ProfileImage';
 
 const Account = () => {
-  const { user, userData, checkingStatus } = useAuth();
-  console.log(user);
-  
+  const { user, userData } = useAuth();
   const { isChangingImg, errorMessage, updateProfileImage } = useProfileActions(user);
   const { t } = useTranslation();
-
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -41,20 +37,28 @@ const Account = () => {
           {errorMessage && <div className="error-message text-red-500">{errorMessage}</div>}
           {userData && (
             <div className="text-sm font-semibold mb-4">
-              {userData.isPro ? (
-                <p className="flex text-btn justify-center">
-                  {t('proUser')} <RiVerifiedBadgeFill />
-                </p>
-              ) : (
+              {userData.plan === 'free' ? (
                 <p className="flex justify-center items-center">
                   {t('freeUser')}
                 </p>
-              )}
+              ) : userData.plan === 'athlete' ? (
+                <p className="flex text-btn justify-center">
+                  {t('athleteUser')} <RiVerifiedBadgeFill className='ml-1'/>
+                </p>
+              ) : userData.plan === 'coach' ? (
+                <p className="flex text-btn justify-center">
+                  {t('coachUser')} <RiVerifiedBadgeFill className='ml-1'/>
+                </p>
+              ) : userData.plan === 'company' ? (
+                <p className="flex text-btn justify-center">
+                  {t('companyUser')} <RiVerifiedBadgeFill className='ml-1'/>
+                </p>
+              ) : null}
             </div>
           )}
           <div className="flex flex-col space-y-4 my-4 w-2/3 m-auto md:w-full">
             <div className="flex space-x-1 justify-center text-btn">
-              <GetPro />
+              <ManageSubscription />
             </div>
             <Link
               href="/settings"

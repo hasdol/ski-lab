@@ -131,7 +131,10 @@
   "rank": "Plass",
   "glove_mode": "Hanskemodus",
   "proUser": "Pro Bruker",
-  "freeUser": "Gratis Bruker",
+  "freeUser": "Gratis",
+  "athleteUser": "Utøver",
+  "coachUser": "Trener",
+  "companyUser": "Bedrift",
   "manageSubscription": "Endre abonnementet",
   "getPro": "Få Pro",
   "manage_locked_skis": "Låste skipar",
@@ -196,8 +199,10 @@
   "cancel_account_deletion": "Avbryt sletting av bruker",
   "account_deletion_scheduled": "Bruker sletting planlagt",
   "remember_to_cancel_subscription": "Slett abonnementet ditt for å fullføre",
-  "select_at_least_2_skis": "Velg minst 2 skipar"
-
+  "select_at_least_2_skis": "Velg minst 2 skipar",
+  "dp": "DP",
+  "select_skis_to_test": "Velg skipar for å teste",
+  "upgrade_your_account_to_add_more_skis": "Oppgrader planen din for å legg til flere skipar"
 
 
 

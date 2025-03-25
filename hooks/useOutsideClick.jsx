@@ -1,4 +1,4 @@
-// hooks/useOutsideClick.js
+// src/hooks/useOutsideClick.js
 import { useEffect } from 'react';
 
 const useOutsideClick = (ref, callback) => {
@@ -9,14 +9,9 @@ const useOutsideClick = (ref, callback) => {
   };
 
   useEffect(() => {
-    const handleOutsideClick = (e) => {
-      handleClick(e);
-    };
-
-    document.addEventListener('mousedown', handleOutsideClick);
-
+    document.addEventListener('mousedown', handleClick);
     return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('mousedown', handleClick);
     };
   }, [ref, callback]);
 };

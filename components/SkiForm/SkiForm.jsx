@@ -152,7 +152,8 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
         required
         options={[
           { label: t('classic'), value: 'classic' },
-          { label: t('skate'), value: 'skate' }
+          { label: t('skate'), value: 'skate' },
+          { label: 'DP', value: 'dp' }
         ]}
       />
       <SkiInput
