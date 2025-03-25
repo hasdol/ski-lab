@@ -19,12 +19,18 @@ jobs:
 
       - name: Choose Firebase environment
         run: |
-          # Sjekker hvilken branch vi er på
           if [ "${{ github.ref }}" == "refs/heads/dev" ]; then
             echo "ENV=dev" >> $GITHUB_ENV
+            echo "SA_CREDS=${{ secrets.GCP_SERVICE_ACCOUNT_DEV }}" >> $GITHUB_ENV
           else
             echo "ENV=live" >> $GITHUB_ENV
+            echo "SA_CREDS=${{ secrets.GCP_SERVICE_ACCOUNT_PROD }}" >> $GITHUB_ENV
           fi
+
+      - name: Set up service account
+        run: |
+          echo "$SA_CREDS" > service-account.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$PWD/service-account.json" >> $GITHUB_ENV
 
       - name: Install Functions dependencies
         run: |
@@ -32,8 +38,8 @@ jobs:
           npm install
 
       - name: Deploy to Firebase
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
         run: |
           firebase use $ENV
           firebase deploy --only functions,firestore:rules
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
