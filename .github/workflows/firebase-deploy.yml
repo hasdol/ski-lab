@@ -9,6 +9,7 @@ on:
 jobs:
   deploy-firebase:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out code
         uses: actions/checkout@v2
@@ -16,19 +17,23 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
-      - name: Set Firebase environment alias
+      - name: Choose Firebase environment
         run: |
-          # Sjekker hvilken branch som ble pushet til:
+          # Sjekker hvilken branch vi er på
           if [ "${{ github.ref }}" == "refs/heads/dev" ]; then
             echo "ENV=dev" >> $GITHUB_ENV
           else
             echo "ENV=live" >> $GITHUB_ENV
           fi
 
+      - name: Install Functions dependencies
+        run: |
+          cd functions
+          npm install
+
       - name: Deploy to Firebase
         run: |
           firebase use $ENV
-          # Deploy både functions + Firestore-rules (legg ev. til 'storage:rules' hvis du vil)
           firebase deploy --only functions,firestore:rules
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
