@@ -20,7 +20,7 @@ jobs:
       - name: Choose environment & create service account file
         shell: bash
         run: |
-          # Hvis vi er på dev-branch, bruk dev-service-konto. g
+          # Hvis vi er på dev-branch, bruk dev-service-konto. 
           if [ "${{ github.ref }}" == "refs/heads/dev" ]; then
             echo "ENV=dev" >> $GITHUB_ENV
             # Skriv ut innholdet av GCP_SERVICE_ACCOUNT_DEV til en .json-fil
