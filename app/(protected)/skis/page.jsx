@@ -34,6 +34,23 @@ const Skis = () => {
   // Filter drawer
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+  // persist to localStorage
+  useEffect(() => {
+    localStorage.setItem('styleFilter', styleFilter);
+  }, [styleFilter]);
+
+  useEffect(() => {
+    localStorage.setItem('skiTypeFilter', skiTypeFilter);
+  }, [skiTypeFilter]);
+
+  useEffect(() => {
+    localStorage.setItem('archivedFilter', archivedFilter);
+  }, [archivedFilter]);
+
+  useEffect(() => {
+    localStorage.setItem('viewMode', viewMode);
+  }, [viewMode]);
+
   const toggleFilterDrawer = () => {
     setIsFilterOpen((prev) => !prev);
   };
@@ -92,9 +109,9 @@ const Skis = () => {
   if (plan === 'athlete') {
     skiLimit = 48;
   } else if (plan === 'coach') {
-    skiLimit = 200; 
+    skiLimit = 200;
   } else if (plan === 'company') {
-    skiLimit = 5000; 
+    skiLimit = 5000;
   } else {
     skiLimit = 12;
   }
@@ -204,11 +221,11 @@ const Skis = () => {
 
           {/* Right block: Ski count and add ski button */}
           <div className="flex space-x-2 items-end">
-              <div className="flex flex-col items-center w-fit">
-                <button onClick={handlePlanClick} className="bg-container flex items-center p-3 shadow rounded hover:bg-sbtn">
-                  <RiShoppingCartLine className="text-highlight" />
-                </button>
-              </div>
+            <div className="flex flex-col items-center w-fit">
+              <button onClick={handlePlanClick} className="bg-container flex items-center p-3 shadow rounded hover:bg-sbtn">
+                <RiShoppingCartLine className="text-highlight" />
+              </button>
+            </div>
             <div className="flex flex-col items-center w-fit">
               <label className={`text-sm font-semibold mb-1 ${hasReachedLimit && 'text-delete'}`}>
                 {skiCount}/{skiLimit}
@@ -229,7 +246,7 @@ const Skis = () => {
                   <label className="text-sm font-semibold mb-1">{t('filter')}</label>
                   <button
                     onClick={toggleFilterDrawer}
-                    className={`bg-container cursor-pointer flex items-center p-3 shadow rounded hover:bg-sbtn ${(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && 'text-btn'}`}
+                    className={`bg-container cursor-pointer flex items-center p-3 shadow rounded hover:bg-sbtn ${(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && 'text-highlight'}`}
                   >
                     {(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived')
                       ? <RiFilter2Fill />

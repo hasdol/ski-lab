@@ -160,7 +160,7 @@ const SkiTable = ({
               <td className="px-2 py-2 flex justify-center">
                 {/* Edit button */}
                 <button
-                  className="inline-block mx-1 p-2 rounded-full bg-container text-btn shadow hover:bg-btn hover:text-btntxt"
+                  className="inline-block mx-1 p-2 rounded bg-btn text-btntxt hover:opacity-90"
                   title={t('edit')}
                   onClick={() => onEdit?.(ski)}
                 >
@@ -170,7 +170,7 @@ const SkiTable = ({
                 {/* Archive / Unarchive */}
                 {ski.archived ? (
                   <button
-                    className="inline-block mx-1 p-2 rounded-full bg-container text-green-600 shadow hover:bg-green-600 hover:text-btntxt"
+                    className="inline-block mx-1 p-2 rounded bg-btn text-btntxt hover:opacity-90"
                     title={t('unarchive')}
                     onClick={() => onUnarchive?.(ski.id)}
                   >
@@ -178,7 +178,7 @@ const SkiTable = ({
                   </button>
                 ) : (
                   <button
-                    className="inline-block mx-1 p-2 rounded-full bg-container text-orange-500 shadow hover:bg-orange-500 hover:text-btntxt"
+                    className="inline-block mx-1 p-2 rounded bg-btn text-btntxt hover:opacity-90"
                     title={t('archive')}
                     onClick={() => onArchive?.(ski.id)}
                   >
@@ -188,7 +188,7 @@ const SkiTable = ({
 
                 {/* Delete button */}
                 <button
-                  className="inline-block mx-1 p-2 rounded-full bg-container text-delete shadow hover:bg-delete hover:text-btntxt"
+                  className="inline-block mx-1 p-2 rounded bg-container border border-delete text-delete hover:bg-sbtn"
                   title={t('delete')}
                   onClick={() => onDelete?.(ski.id)}
                 >
