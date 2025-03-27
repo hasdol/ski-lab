@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "postbuild": "next-sitemap",
     "build:dev": "env-cmd -f .env.development next build",
     "build:live": "env-cmd -f .env.production next build",
     "start": "next start",
@@ -22,6 +23,7 @@
     "firebase": "^9.23.0",
     "i18next": "^23.7.8",
     "next": "15.2.2",
+    "next-sitemap": "^4.2.3",
     "postcss": "^8.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
