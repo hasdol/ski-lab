@@ -10,7 +10,6 @@ module.exports = {
     '/account',
     '/plans',
     '/testing/summary',
-    '/resetPassword',
     '/testing',
     '/skis',],
 };
