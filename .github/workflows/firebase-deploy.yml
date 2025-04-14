@@ -44,4 +44,4 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
         run: |
           firebase use $ENV
-          firebase deploy --only functions,firestore:rules
+          firebase deploy --only functions,firestore:rules --force
