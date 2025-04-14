@@ -96,14 +96,13 @@ const CombinedConditionsHeatmap = ({
   };
 
   return (
-    <div className="relative overflow-x-auto overflow-y-hidden pb-4">
+    <div className="relative overflow-x-auto overflow-y-hidden pb-2">
       <div className='flex flex-col md:flex-row md:justify-between'>
         {/* Tabs with counts */}
         <div className="flex space-x-2 mb-2">
           <button
-            className={`px-4 py-2 rounded-t h-fit focus:outline-none ${
-              activeTab === 'natural' ? 'bg-btn text-btntxt' : 'bg-sbtn shadow'
-            }`}
+            className={`px-4 py-2 rounded-t h-fit focus:outline-none ${activeTab === 'natural' ? 'bg-btn text-btntxt' : 'bg-sbtn shadow'
+              }`}
             onClick={() => setActiveTab('natural')}
           >
             {/* Show “Natural” plus the count in parentheses */}
@@ -113,9 +112,8 @@ const CombinedConditionsHeatmap = ({
             )}
           </button>
           <button
-            className={`px-4 py-2 rounded-t h-fit focus:outline-none ${
-              activeTab === 'artificial' ? 'bg-btn text-btntxt' : 'bg-sbtn shadow'
-            }`}
+            className={`px-4 py-2 rounded-t h-fit focus:outline-none ${activeTab === 'artificial' ? 'bg-btn text-btntxt' : 'bg-sbtn shadow'
+              }`}
             onClick={() => setActiveTab('artificial')}
           >
             {t('artificial')}
@@ -124,9 +122,8 @@ const CombinedConditionsHeatmap = ({
             )}
           </button>
           <button
-            className={`px-4 py-2 rounded-t h-fit focus:outline-none ${
-              activeTab === 'mix' ? 'bg-btn text-btntxt' : 'bg-sbtn shadow'
-            }`}
+            className={`px-4 py-2 rounded-t h-fit focus:outline-none ${activeTab === 'mix' ? 'bg-btn text-btntxt' : 'bg-sbtn shadow'
+              }`}
             onClick={() => setActiveTab('mix')}
           >
             {t('mix')}
@@ -214,51 +211,48 @@ const CombinedConditionsHeatmap = ({
 
       {/* Popup with the tests that generated this cell */}
       {showPopup && popupData && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-          <div className="bg-container rounded p-4 w-full max-w-md mx-auto">
-            <h3 className="font-semibold text-lg mb-3">
-              {t('tests_on')}{' '}
-              {`${popupData.temp}°C, ${t(popupData.source)} – ${t(popupData.grainType)}`}
-            </h3>
-            {popupData.tests.length > 0 ? (
-              <ul className="space-y-2 max-h-64 overflow-auto">
-                {[...popupData.tests]
-                  .sort((a, b) => b.testDate - a.testDate)
-                  .map((test, idx) => (
-                    <li key={idx} className="border p-2 rounded">
-                      <div className="text-sm">
-                        <strong>{t('test_date')}:</strong>{' '}
-                        {new Date(test.testDate).toLocaleDateString()}
-                      </div>
-                      <div className="text-sm">
-                        <strong>{t('rank')}:</strong> {test.rank}/{test.total}
-                      </div>
-                      <div className="text-sm">
-                        <strong>{t('location')}:</strong> {test.location}
-                      </div>
-                      <div className="text-sm">
-                        <strong>{t('temperature')}:</strong> {test.temp}°C
-                      </div>
-                      <div className="text-sm">
-                        <strong>{t('snow_source')}:</strong> {t(test.snowSource)}
-                      </div>
-                      <div className="text-sm">
-                        <strong>{t('snow_type')}:</strong> {t(test.snowType)}
-                      </div>
-                    </li>
-                  ))}
-              </ul>
-            ) : (
-              <p>{t('no_tests_for_this_condition')}</p>
-            )}
-            <div className="text-right mt-4">
-              <button
-                className="px-4 py-2 bg-sbtn text-text rounded hover:opacity-90"
-                onClick={() => setShowPopup(false)}
-              >
-                {t('close')}
-              </button>
-            </div>
+        <div className="flex flex-col  animate-fade animate-duration-300 p-4 mt-4 border border-gray-300 rounded">
+          <h3 className="font-semibold text-lg mb-2 text-center">
+            {`${popupData.temp}°C, ${t(popupData.source)} – ${t(popupData.grainType)}`}
+          </h3>
+          {popupData.tests.length > 0 ? (
+            <ul className="grid grid-cols-1 gap-3 md:grid-cols-2 max-h-64 overflow-auto py-2">
+              {[...popupData.tests]
+                .sort((a, b) => b.testDate - a.testDate)
+                .map((test, idx) => (
+                  <li key={idx} className="bg-background border border-gray-300 p-4 space-y-1 rounded">
+                    <div className="text-sm">
+                      <strong>{t('test_date')}:</strong>{' '}
+                      {new Date(test.testDate).toLocaleDateString()}
+                    </div>
+                    <div className="text-sm">
+                      <strong>{t('rank')}:</strong> {test.rank}/{test.total}
+                    </div>
+                    <div className="text-sm">
+                      <strong>{t('location')}:</strong> {test.location}
+                    </div>
+                    <div className="text-sm">
+                      <strong>{t('temperature')}:</strong> {test.temp}°C
+                    </div>
+                    <div className="text-sm">
+                      <strong>{t('snow_source')}:</strong> {t(test.snowSource)}
+                    </div>
+                    <div className="text-sm">
+                      <strong>{t('snow_type')}:</strong> {t(test.snowType)}
+                    </div>
+                  </li>
+                ))}
+            </ul>
+          ) : (
+            <p>{t('no_tests_for_this_condition')}</p>
+          )}
+          <div className="text-right mt-4">
+            <button
+              className="px-4 py-2 bg-sbtn text-text rounded hover:opacity-90"
+              onClick={() => setShowPopup(false)}
+            >
+              {t('close')}
+            </button>
           </div>
         </div>
       )}
