@@ -59,16 +59,19 @@ const Account = () => {
               ) : null}
             </div>
           )}
-          <div className="flex flex-col space-y-4 my-4 w-2/3 m-auto">
-            <div className="flex space-x-1 justify-center text-btn">
+          <div className="flex space-x-3 my-4 justify-center">
+            <div>
               <ManageSubscription />
             </div>
-            <Button
-              onClick={() => router.push('/settings')}
-              variant="primary"
-            >
-              {t('settings')}
-            </Button>
+            <div>
+              <Button
+                onClick={() => router.push('/settings')}
+                variant="primary"
+              >
+                {t('settings')}
+              </Button>
+            </div>
+
           </div>
           <div>
             <p className="text-sm">

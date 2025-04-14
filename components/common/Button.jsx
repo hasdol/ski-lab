@@ -30,6 +30,9 @@ const Button = ({
     case 'danger':
       variantStyles = 'bg-red-500 text-white hover:bg-red-600';
       break;
+    case 'upgrade':
+      variantStyles = 'bg-blue-500 text-white hover:bg-blue-600';
+      break;
     default:
       variantStyles = 'bg-blue-500 text-white hover:bg-blue-600';
       break;

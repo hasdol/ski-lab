@@ -7,6 +7,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { RiLockUnlockLine } from "react-icons/ri";
 import Spinner from '@/components/common/Spinner/Spinner';
 import { useRouter } from 'next/navigation';
+import Button from '../common/Button';
 
 const ManageSubscription = () => {
   const { user, userData } = useAuth();
@@ -37,27 +38,24 @@ const ManageSubscription = () => {
   // Hvis brukeren ikke har free-plan, så antas de å ha et aktivt abonnement
   if (userData?.plan && userData.plan !== 'free') {
     return (
-      <button
+      <Button
         onClick={handleManageSubscription}
-        className="hover:underline text-highlight"
-        disabled={loading}
+        loading={loading}
+        variant='primary'
       >
-        {loading ? t('loading') : t('manageSubscription')}
-      </button>
+        {t('manageSubscription')}
+      </Button>
     );
   }
 
   return (
-    <button
+    <Button
       onClick={handleUpgrade}
-      disabled={loading}
-      className="flex cursor-pointer h-fit w-fit justify-center bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow py-3 px-5 rounded hover:opacity-90"
+      loading={loading}
+      variant="upgrade"
     >
-      <span className="flex items-center">
-        {t('upgrade')}
-        {loading ? <Spinner className="ml-1" /> : <RiLockUnlockLine className="ml-1" />}
-      </span>
-    </button>
+      {t('upgrade')}
+    </Button>
   );
 };
 
