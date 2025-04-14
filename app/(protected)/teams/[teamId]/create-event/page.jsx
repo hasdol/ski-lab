@@ -42,12 +42,16 @@ export default function CreateEventPage() {
         finalImageURL = await uploadEventImage(teamId, user.uid, file);
       }
 
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999); // ⬅️ ensure end of day
+
       await createEvent(
         teamId,
         name,
         desc,
-        new Date(startDate),
-        new Date(endDate),
+        start,
+        end,
         finalImageURL,
         user.uid
       );

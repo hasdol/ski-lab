@@ -22,23 +22,18 @@ const ResultsList = ({ rankings }) => {
         };
     });
 
-    const getRankBadge = (rank) => {
-        if (rank === 1) return <span>1st</span>;
-
-        return <span className="">#{rank}</span>;
-    };
 
     return (
         <div className="space-y-4 mb-10">
             {/* Top Three Section */}
-            <ul className="space-y-4">
+            <ul className="space-y-3">
                 {rankedList.slice(0, 3).map((item, index) => (
 
                     <li
                         key={item.serialNumber}
-                        className={`flex items-center justify-between bg-container shadow rounded p-3 px-5 ${item.rank === 1 ? 'font-semibold' : ""
+                        className={`flex items-center justify-between bg-container shadow rounded p-3 px-5 ${item.rank === 1 ? 'font-semibold text-lg' : ""
                             }`}                    >
-                        <div className="flex-1 text-left">{getRankBadge(item.rank)}</div>
+                        <div className="flex-1 text-left"># {item.rank}</div>
                         <div className="flex-1 text-center">{item.serialNumber} </div>
                         <div className="flex-1 text-right">Diff: {item.cumulativeScore}</div>
                     </li>
@@ -46,13 +41,13 @@ const ResultsList = ({ rankings }) => {
             </ul>
 
             {/* Remaining Rankings */}
-            <ul className="space-y-4">
+            <ul className="space-y-3">
                 {rankedList.slice(3).map((item) => (
                     <li
                         key={item.serialNumber}
                         className="flex items-center justify-between bg-container shadow rounded p-3 px-5"
                     >
-                        <span className="flex-1 text-left">#{item.rank}</span>
+                        <span className="flex-1 text-left"># {item.rank}</span>
                         <span className="flex-1 text-center">{item.serialNumber}</span>
                         <span className="flex-1 text-right">Diff: {item.cumulativeScore}</span>
                     </li>

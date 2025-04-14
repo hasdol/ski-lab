@@ -13,7 +13,7 @@ import { addTestResult } from '@/lib/firebase/firestoreFunctions';
 import { shareTestResult } from '@/lib/firebase/teamFunctions';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
-import ShareWithEventSelector from '@/components/ShareWithEventSelector/ShareWithEventSelector';
+import ShareWithEventSelector from '@/app/(protected)/testing/summary/components/ShareWithEvents';
 
 const TestSummaryPage = () => {
   const { t } = useTranslation();
@@ -24,7 +24,6 @@ const TestSummaryPage = () => {
   const [loading, setLoading] = useState(false);
   const [locationError, setLocationError] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [shareWithEvent, setShareWithEvent] = useState(false);
   const [selectedEvents, setSelectedEvents] = useState([]); // Each element: { teamId, eventId }
 
   useEffect(() => {
@@ -83,14 +82,14 @@ const TestSummaryPage = () => {
       // Include the selected events as sharedIn if sharing is enabled
       const extendedData = {
         ...additionalData,
-        ...(shareWithEvent && selectedEvents.length > 0 ? { sharedIn: selectedEvents } : {})
+        ...(selectedEvents.length > 0 ? { sharedIn: selectedEvents } : {})
       };
 
       // Save the test result in the user's private collection.
       const testId = await addTestResult(user.uid, tournamentData, extendedData);
 
       // If sharing is enabled, share the test result to each event.
-      if (shareWithEvent && selectedEvents.length > 0) {
+      if (selectedEvents.length > 0) {
         const sharedData = { ...tournamentData, ...additionalData };
         await Promise.all(
           selectedEvents.map(({ teamId, eventId }) =>
@@ -182,7 +181,7 @@ const TestSummaryPage = () => {
             <ResultList rankings={rankings} />
           )}
         </div>
-        <form className="rounded flex flex-col text-black my-2" onSubmit={handleSaveResults}>
+        <form className="rounded flex flex-col text-black my-2 space-y-3" onSubmit={handleSaveResults}>
           <Input
             type="text"
             name="location"
@@ -248,20 +247,11 @@ const TestSummaryPage = () => {
             onChange={handleInputChange}
           />
 
-          <div className="mb-4">
-            <label className="inline-flex items-center space-x-2">
-              <input type="checkbox" checked={shareWithEvent} onChange={() => setShareWithEvent(!shareWithEvent)} />
-              <span>Share with live events?</span>
-            </label>
-          </div>
-
-          {shareWithEvent && (
-            <ShareWithEventSelector
-              userId={user.uid}
-              isVisible={true}
-              onSelect={(events) => setSelectedEvents(events)}
-            />
-          )}
+          <ShareWithEventSelector
+            userId={user.uid}
+            isVisible={true}
+            onSelect={(events) => setSelectedEvents(events)}
+          />
 
           <div className="flex sm:space-x-4 space-y-4 sm:space-y-0 my-4 justify-between">
             <div className="flex space-x-2">
