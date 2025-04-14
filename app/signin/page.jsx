@@ -5,7 +5,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { loginWithEmailAndPassword } from '@/lib/firebase/authFunctions';
-import LoadingButton from '@/components/common/LoadingButton/LoadingButton';
+import Button from '@/components/common/Button';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -47,7 +47,7 @@ const SignIn = () => {
       </Head>
       <div className="m-auto mt-32 w-2/3 md:w-1/2 animate-fade-down animate-duration-300">
         <h1 className="text-5xl mb-10 font-semibold">{t('signIn')}</h1>
-        <form onSubmit={handleSignIn} className="space-y-2 text-black">
+        <form onSubmit={handleSignIn} className="space-y-3 text-black">
           <input
             type="email"
             value={email}
@@ -64,13 +64,13 @@ const SignIn = () => {
             className="w-full px-4 py-2 border border-gray-300 rounded"
             required
           />
-          <LoadingButton
+          <Button
             type="submit"
-            isLoading={isLoading}
-            className="bg-btn hover:opacity-90 text-btntxt w-full px-4 py-2 rounded"
+            loading={isLoading}
+            variant="primary"
           >
             {t('signIn')}
-          </LoadingButton>
+          </Button>
           {error && <div className="text-red-500">{error}</div>}
         </form>
         <div className="mt-6 text-sm flex flex-col space-y-2">
@@ -78,7 +78,7 @@ const SignIn = () => {
             Don't have an account?{' '}
             <button
               onClick={() => router.push('/signup')}
-              className="text-dominant underline"
+              className="underline"
             >
               Sign up
             </button>
@@ -87,7 +87,7 @@ const SignIn = () => {
             Forgot your password?{' '}
             <button
               onClick={() => router.push('/resetPassword')}
-              className="text-dominant underline"
+              className="underline"
             >
               Reset Password
             </button>

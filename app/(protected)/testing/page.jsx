@@ -4,11 +4,12 @@ import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useTranslation } from 'react-i18next';
-import HelpModal from '@/components/common/HelpModal/HelpModal';
+import HelpModal from '@/components/HelpModal/HelpModal';
 import { TournamentContext } from '@/context/TournamentContext';
 import { RiDeleteBinLine, RiQuestionLine } from 'react-icons/ri';
 import { VscGrabber } from 'react-icons/vsc';
 import SkiMatchup from './components/SkiMatchup';
+import Button from '@/components/common/Button';
 
 const Testing = () => {
   const { t } = useTranslation();
@@ -241,21 +242,21 @@ const Testing = () => {
               {t('round')} {roundNumber}/{totalRounds}
             </h2>
             <div className='space-x-2'>
-              <button
+              <Button
                 type="button"
-                className="p-3 w-fit hover:bg-sbtn bg-container shadow rounded"
+                variant='primary'
                 onClick={toggleHelpModal}
               >
                 <RiQuestionLine />
-              </button>
+              </Button>
 
-              <button
+              <Button
                 type="button"
-                className="p-3 w-fit hover:bg-sbtn bg-container shadow text-delete rounded"
+                variant='danger'
                 onClick={handleResetTest}
               >
                 <RiDeleteBinLine />
-              </button>
+              </Button>
             </div>
 
           </div>
@@ -296,20 +297,20 @@ const Testing = () => {
           )}
           <div className="flex items-end justify-between my-4">
             {roundNumber > 1 && (
-              <button
-                className="px-5 py-3 bg-sbtn rounded"
+              <Button
+                variant='secondary'
                 onClick={goBackToPreviousRound}
               >
                 {t('go_back')}
-              </button>
+              </Button>
             )}
             <div className="flex items-center space-x-2">
-              <button
-                className="bg-btn cursor-pointer text-btntxt px-5 py-3 rounded hover:opacity-90"
+              <Button
+                variant='primary'
                 onClick={handleSubmitRound}
               >
                 {t('submit_round')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

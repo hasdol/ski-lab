@@ -1,56 +1,52 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
+import { RiFilter2Fill, RiFilter2Line, RiEditLine, RiDeleteBinLine } from 'react-icons/ri';
+
 import useTournamentResults from '@/hooks/useTournamentResults';
 import { useAuth } from '@/context/AuthContext';
-import { RiFilter2Fill, RiFilter2Line, RiEditLine, RiDeleteBinLine } from "react-icons/ri";
-import { useTranslation } from 'react-i18next';
-import Filter from './Filter/Filter'; // Adjust the path as needed
-import Spinner from '@/components/common/Spinner/Spinner';
 import { isNew } from '@/helpers/helpers';
+import Filter from './Filter/Filter';
+import Spinner from '@/components/common/Spinner/Spinner';
 import ResultsSearch from './ResultSearch/ResultSearch';
+import DeleteTestModal from '@/components/DeleteTestModal/DeleteTestModal';
+
+import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
+import Button from '@/components/common/Button';
 
 const Results = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [resultsToShow, setResultsToShow] = useState([]);
   const [sortOrder, setSortOrder] = useState('desc');
-
-  // Temperature Range
   const [tempRange, setTempRange] = useState([-30, 30]);
   const [defaultTempRange, setDefaultTempRange] = useState([-30, 30]);
-
-  // Style Filter
   const [styleFilter, setStyleFilter] = useState('all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const { results, loading, error, deleteResult } = useTournamentResults();
+  const { results, loading, error } = useTournamentResults();
   const { t } = useTranslation();
   const { user } = useAuth();
   const router = useRouter();
 
-  // State for Filter Drawer
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  // State for delete modal
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentTestId, setCurrentTestId] = useState(null);
 
-  // Initialize temperature range from results
+  // Set default temperature range based on loaded results
   useEffect(() => {
     if (results.length > 0) {
-      const temperatures = results.map((r) => r.temperature);
-      const min = Math.min(...temperatures);
-      const max = Math.max(...temperatures);
+      const temps = results.map((r) => r.temperature);
+      const min = Math.min(...temps);
+      const max = Math.max(...temps);
       setTempRange([min, max]);
       setDefaultTempRange([min, max]);
     }
   }, [results]);
 
-  const handleTempChange = (event, newValue) => {
-    setTempRange(newValue);
-  };
-
-  const toggleFilter = () => {
-    setIsFilterOpen(!isFilterOpen);
-  };
-
-  // Reset all filters
+  const handleTempChange = (_, newVal) => setTempRange(newVal);
+  const toggleFilter = () => setIsFilterOpen((prev) => !prev);
   const resetFilter = () => {
     setSortOrder('desc');
     setTempRange(defaultTempRange);
@@ -65,74 +61,65 @@ const Results = () => {
     tempRange[1] !== defaultTempRange[1] ||
     styleFilter !== 'all';
 
-  // Filter + sort results
+  // Apply filters to the results
   useEffect(() => {
-    const filteredSortedResults = results
+    const filtered = results
       .filter((result) => {
-        // Style filter
         if (styleFilter !== 'all' && result.style !== styleFilter) return false;
-
-        // Text search (style, location, snowCondition, or details from "rankings")
-        const styleEnglish = t(result.style, { lng: 'en' }).toLowerCase();
-        const styleNorwegian = t(result.style, { lng: 'no' }).toLowerCase();
-        const snowSourceEnglish = t(result.snowCondition?.source, { lng: 'en' }).toLowerCase();
-        const snowSourceNorwegian = t(result.snowCondition?.source, { lng: 'no' }).toLowerCase();
-        const snowTypeEnglish = t(result.snowCondition?.grainType, { lng: 'en' }).toLowerCase();
-        const snowTypeNorwegian = t(result.snowCondition?.grainType, { lng: 'no' }).toLowerCase();
-
-        const matchesSearchTerm =
-          styleEnglish.includes(searchTerm.toLowerCase()) ||
-          styleNorwegian.includes(searchTerm.toLowerCase()) ||
-          snowSourceEnglish.includes(searchTerm.toLowerCase()) ||
-          snowSourceNorwegian.includes(searchTerm.toLowerCase()) ||
-          snowTypeEnglish.includes(searchTerm.toLowerCase()) ||
-          snowTypeNorwegian.includes(searchTerm.toLowerCase()) ||
-          result.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          result.rankings.some((ranking) =>
-            ranking.serialNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            ranking.grind.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            ranking.brand.toLowerCase().includes(searchTerm.toLowerCase())
-          );
-
-        // Temperature range
-        const withinTempRange =
-          result.temperature >= tempRange[0] && result.temperature <= tempRange[1];
-
-        return matchesSearchTerm && withinTempRange;
+        const text = searchTerm.toLowerCase();
+        const match = (val) => val?.toLowerCase().includes(text);
+        return (
+          match(t(result.style, { lng: 'en' })) ||
+          match(t(result.style, { lng: 'no' })) ||
+          match(result.location) ||
+          match(t(result.snowCondition?.grainType, { lng: 'en' })) ||
+          match(t(result.snowCondition?.grainType, { lng: 'no' })) ||
+          match(t(result.snowCondition?.source, { lng: 'en' })) ||
+          match(t(result.snowCondition?.source, { lng: 'no' })) ||
+          result.rankings?.some((r) =>
+            match(r.serialNumber) || match(r.grind) || match(r.brand)
+          )
+        ) && result.temperature >= tempRange[0] && result.temperature <= tempRange[1];
       })
-      .sort((a, b) => {
-        const dateA = new Date(a.timestamp.seconds * 1000);
-        const dateB = new Date(b.timestamp.seconds * 1000);
-        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-      });
-
-    setResultsToShow(filteredSortedResults);
+      .sort((a, b) =>
+        sortOrder === 'asc'
+          ? a.timestamp.seconds - b.timestamp.seconds
+          : b.timestamp.seconds - a.timestamp.seconds
+      );
+    setResultsToShow(filtered);
   }, [results, searchTerm, sortOrder, tempRange, t, styleFilter]);
 
-  // Edit a result
-  const handleEdit = (resultId) => {
-    router.push(`/editResult/${resultId}`);
+  const handleEdit = (id) => router.push(`/editResult/${id}`);
+
+  // Simplified delete: just set the test id and open the modal.
+  const handleDelete = async (id) => {
+    if (!user?.uid) return;
+    setCurrentTestId(id);
+    setModalOpen(true);
   };
 
-  // Delete a result
-  const handleDelete = async (resultId) => {
-    if (window.confirm(t('are_you_sure_delete_result'))) {
-      try {
-        await deleteResult(user.uid, resultId);
-        const updated = resultsToShow.filter((r) => r.id !== resultId);
-        setResultsToShow(updated);
-      } catch (err) {
-        console.error(t('error_deleting_result'), err);
-      }
+  // Confirm deletion using our unified deletion function.
+  const handleModalConfirm = async () => {
+    try {
+      const response = await deleteTestResultEverywhere({
+        userId: user.uid,
+        testId: currentTestId
+      });
+      // Update local state to remove the deleted test.
+      setResultsToShow((prev) => prev.filter((r) => r.id !== currentTestId));
+      alert(response.message);
+    } catch (err) {
+      console.error('Error deleting test result:', err);
+      alert(t('error_deleting_result'));
     }
+    setModalOpen(false);
+    setCurrentTestId(null);
   };
 
-  // For highlighting search terms
   const highlightSearchTerm = (text) => {
-    if (!searchTerm.trim()) return text;
-    const parts = text.split(new RegExp(`(${searchTerm})`, 'gi'));
-    return parts.map((part, index) =>
-      part.toLowerCase() === searchTerm.toLowerCase() ? <mark key={index}>{part}</mark> : part
+    if (!searchTerm) return text;
+    return text.split(new RegExp(`(${searchTerm})`, 'gi')).map((part, i) =>
+      part.toLowerCase() === searchTerm.toLowerCase() ? <mark key={i}>{part}</mark> : part
     );
   };
 
@@ -158,7 +145,6 @@ const Results = () => {
           </div>
         </div>
 
-        {/* The filter drawer */}
         <Filter
           open={isFilterOpen}
           onClose={toggleFilter}
@@ -171,129 +157,116 @@ const Results = () => {
           setStyleFilter={setStyleFilter}
         />
 
-        {/* Results section */}
         <div className="my-4">
           {loading ? (
             <div className="flex justify-center">
               <Spinner />
             </div>
-          ) : (
-            resultsToShow.length > 0 ? (
-              resultsToShow.map((result) => (
-                <div
-                  key={result.id}
-                  className="bg-container shadow rounded mb-5 animate-fade-down animate-duration-300"
-                >
-                  {/* Header row with edit/delete */}
-                  <div className="flex justify-between p-4">
-                    <div>
-                      <h3 className="font-semibold text-xl">
-                        {highlightSearchTerm(t(result.style))} /{' '}
-                        {highlightSearchTerm(`${result.temperature}°C`)}
-                      </h3>
-                      <i className="text-sm">{highlightSearchTerm(result.location)}</i>
-                    </div>
-                    <div className="flex bg-sbtn p-2 rounded-full items-center space-x-3">
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(result.id);
-                        }}
-                        className="bg-btn text-btntxt hover:opacity-90 rounded-full p-3 cursor-pointer"
-                      >
-                        <RiEditLine />
-                      </div>
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(result.id);
-                        }}
-                        className="text-btntxt bg-btn hover:opacity-90 rounded-full p-3 cursor-pointer"
-                      >
-                        <RiDeleteBinLine />
-                      </div>
-                    </div>
+          ) : resultsToShow.length > 0 ? (
+            resultsToShow.map((result) => (
+              <div key={result.id} className="bg-container shadow rounded mb-5 animate-fade-down animate-duration-300">
+                <div className="flex justify-between p-4">
+                  <div>
+                    <h3 className="font-semibold text-xl">
+                      {highlightSearchTerm(t(result.style))} / {highlightSearchTerm(`${result.temperature}°C`)}
+                    </h3>
+                    <i className="text-sm">{highlightSearchTerm(result.location)}</i>
                   </div>
-
-                  {/* Rankings list */}
-                  <ul className="my-2 px-4 space-y-2">
-                    {result.rankings.map((ranking, index) => (
-                      <li key={index} className="flex py-1">
-                        <span className="flex items-center w-1/3">
-                          {highlightSearchTerm(ranking.skiId ? ranking.serialNumber : t('deleted'))}
-                          {isNew(ranking) && (
-                            <div className='flex items-center'>
-                              <span className='mx-2'>-</span>
-                              <p className="text-highlight text-xs"> {t('new')}</p>
-                            </div>
-
-                          )}
-                        </span>
-                        <span className="w-1/3 text-center">
-                          {highlightSearchTerm(ranking.grind)}
-                        </span>
-                        <span className="w-1/3 text-end">{ranking.score}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* Additional details */}
-                  <div className="my-5 px-4">
-                    <p className='border-t border-sbtn mb-4'></p>
-                    <ul className="text-sm grid grid-cols-2 gap-2 ">
-                      <li className="flex flex-col">
-                        {t('snow_type')}
-                        <div className="font-semibold text-base">
-                          {highlightSearchTerm(t(result.snowCondition?.grainType))}
-                        </div>
-                      </li>
-                      <li className="flex flex-col">
-                        {t('snow_source')}
-                        <div className="font-semibold text-base">
-                          {highlightSearchTerm(t(result.snowCondition?.source))}
-                        </div>
-                      </li>
-                      <li className="flex flex-col">
-                        {t('snow_temperature')}
-                        <div className="font-semibold text-base">
-                          {result?.snowTemperature || '--'}
-                        </div>
-                      </li>
-                      <li className="flex flex-col">
-                        {t('humidity')}
-                        <div className="font-semibold text-base">{result?.humidity || '--'}</div>
-                      </li>
-                      <li className="flex flex-col col-span-2">
-                        {t('comment')}
-                        <div className="font-semibold text-base">{result?.comment || '--'}</div>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Timestamp */}
-                  <div className="flex justify-end mt-2 p-4">
-                    <div className="flex items-center">
-                      <span className="px-2 border-r">
-                        {new Date(result.timestamp.seconds * 1000).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                      <span className="px-2">
-                        {new Date(result.timestamp.seconds * 1000).toLocaleDateString()}
-                      </span>
-                    </div>
+                  <div className="space-x-2">
+                    <Button
+                      onClick={() => handleEdit(result.id)}
+                      variant="primary"
+                    >
+                      <RiEditLine />
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(result.id)}
+                      variant="danger"
+                    >
+                      <RiDeleteBinLine />
+                    </Button>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="my-4">
-                <div className="italic">{t('no_test_results_available')}.</div>
+
+                <ul className="my-2 px-4 space-y-2">
+                  {result.rankings.map((ranking, index) => (
+                    <li key={index} className="flex py-1">
+                      <span className="flex items-center w-1/3">
+                        {highlightSearchTerm(ranking.skiId ? ranking.serialNumber : t('deleted'))}
+                        {isNew(ranking) && (
+                          <div className="flex items-center">
+                            <span className="mx-2">-</span>
+                            <p className="text-highlight text-xs"> {t('new')}</p>
+                          </div>
+                        )}
+                      </span>
+                      <span className="w-1/3 text-center">
+                        {highlightSearchTerm(ranking.grind)}
+                      </span>
+                      <span className="w-1/3 text-end">{ranking.score}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="my-5 px-4">
+                  <p className="border-t border-sbtn mb-4"></p>
+                  <ul className="text-sm grid grid-cols-2 gap-2">
+                    <li className="flex flex-col">
+                      {t('snow_type')}
+                      <div className="font-semibold text-base">
+                        {highlightSearchTerm(t(result.snowCondition?.grainType))}
+                      </div>
+                    </li>
+                    <li className="flex flex-col">
+                      {t('snow_source')}
+                      <div className="font-semibold text-base">
+                        {highlightSearchTerm(t(result.snowCondition?.source))}
+                      </div>
+                    </li>
+                    <li className="flex flex-col">
+                      {t('snow_temperature')}
+                      <div className="font-semibold text-base">
+                        {result?.snowTemperature || '--'}
+                      </div>
+                    </li>
+                    <li className="flex flex-col">
+                      {t('humidity')}
+                      <div className="font-semibold text-base">
+                        {result?.humidity || '--'}
+                      </div>
+                    </li>
+                    <li className="flex flex-col col-span-2">
+                      {t('comment')}
+                      <div className="font-semibold text-base">
+                        {result?.comment || '--'}
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="flex justify-end mt-2 p-4">
+                  <div className="flex items-center">
+                    <span className="px-2 border-r">
+                      {new Date(result.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    <span className="px-2">
+                      {new Date(result.timestamp.seconds * 1000).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
               </div>
-            )
+            ))
+          ) : (
+            <div className="my-4 italic">{t('no_test_results_available')}.</div>
           )}
         </div>
       </div>
+
+      <DeleteTestModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleModalConfirm}
+      />
     </>
   );
 };

@@ -2,85 +2,151 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // ----------------------------------------------------
+    // USERS Collection
+    // ----------------------------------------------------
     match /users/{userId} {
-      // Allow users to read, create, and delete their own user document
-      allow read, create, delete: if request.auth != null && request.auth.uid == userId;
+      // Allow the signed-in user to read/create/delete only his own doc
+      allow read, create, delete: if request.auth != null
+        && request.auth.uid == userId;
 
       // Allow update only for the 'preferences' field
       allow update: if request.auth != null
         && request.auth.uid == userId
         && request.writeFields.hasOnly([
-          'preferences.languagePreference',
-          'preferences.themePreference',
-          'preferences.gloveModePreference'
-        ])
+      'preferences.languagePreference',
+      'preferences.themePreference',
+      'preferences.gloveModePreference'
+      ])
         && request.resource.data.preferences is map;
 
+      // ---------------------------
       // Skis subcollection
+      // ---------------------------
       match /skis/{skiId} {
-        // Allow read if user owns the ski
-        allow read: if request.auth != null 
+        // Read if user owns the ski
+        allow read: if request.auth != null
           && request.auth.uid == userId;
 
-        // Allow create if:
-        // - user owns the ski
-        // - does not try to set 'locked' field manually
-        // - skiCount is within plan limits
+        // Create if user owns & plan-limits are satisfied
         allow create: if request.auth != null
           && request.auth.uid == userId
-          && !('locked' in request.resource.data)
+        // Plan & skiCount checks from your snippet:
           && (
-            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'athlete'
-              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 48)
-            ||
-            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'coach'
-              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 200)
-            ||
-            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'company'
-              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 5000)
-            ||
-            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'free'
-              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 12)
-          );
+        (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'athlete'
+          && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 48)
+          ||
+        (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'coach'
+          && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 200)
+          ||
+        (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'company'
+          && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 5000)
+          ||
+        (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'free'
+          && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 12)
+        )
+        // Do not try to set 'locked' manually
+          && !('locked' in request.resource.data);
 
-        // Allow update if user owns the ski AND does not modify the 'locked' field
-        allow update: if request.auth != null 
+        // Update if user owns the ski & does not modify 'locked'
+        allow update: if request.auth != null
           && request.auth.uid == userId
           && (request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'serialNumber',
-            'style',
-            'brand',
-            'model',
-            'length',
-            'stiffness',
-            'base',
-            'construction',
-            'grind',
-            'grindDate',
-            'comment',
-            'grindHistory',
-            'dateAdded',
-            'newGrind',
-            'newGrindDate',
-            'testIds',
-            'archived',
-            'skiType'
-          ]));
+        'serialNumber',
+        'style',
+        'brand',
+        'model',
+        'length',
+        'stiffness',
+        'base',
+        'construction',
+        'grind',
+        'grindDate',
+        'comment',
+        'grindHistory',
+        'dateAdded',
+        'newGrind',
+        'newGrindDate',
+        'testIds',
+        'archived',
+        'skiType'
+        ]));
 
-        // Allow delete if user owns the ski
-        allow delete: if request.auth != null 
+        // Delete if user owns the ski
+        allow delete: if request.auth != null
           && request.auth.uid == userId;
       }
 
-      // Secure testResults subcollection
+      // ---------------------------
+      // User-level testResults subcollection
+      // ---------------------------
       match /testResults/{testId} {
-        allow read, write, delete: if request.auth.uid == userId;
+        allow read, write, delete: if request.auth != null
+          && request.auth.uid == userId;
       }
     }
 
-    // Secure contact collection
+    // ----------------------------------------------------
+    // CONTACT Collection
+    // ----------------------------------------------------
     match /contact/{contactId} {
       allow read, write: if request.auth != null;
+    }
+
+
+    // ----------------------------------------------------
+    // TEAMS Collection
+    // ----------------------------------------------------
+    match /teams/{teamId} {
+
+      // Helper for checking if user is coach or company
+      function isCoachOrCompany() {
+        return request.auth != null
+          && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ['coach','company']);
+      }
+
+      // Because we are reading *this same doc*, we use resource.data to check membership:
+      allow create: if isCoachOrCompany();
+
+      // READ this team doc if user is in team’s members array
+      allow read: if request.auth != null
+        && (request.auth.uid in resource.data.members);
+
+      // UPDATE/DELETE: either the same “createdBy” or a coach/company who is in members
+      allow update, delete: if request.auth != null
+        && (
+      resource.data.createdBy == request.auth.uid
+        ||
+      (
+      isCoachOrCompany() &&
+      (request.auth.uid in resource.data.members)
+      )
+      );
+
+      // ------------------------------------------------
+      // Events subcollection
+      // ------------------------------------------------
+      match /events/{eventId} {
+      // We can use a function that does *get* on /teams/{teamId},
+        // because it’s a different doc than /teams/{teamId}/events/{eventId}.
+        // This avoids recursion issues:
+        function isTeamMember() {
+          return request.auth != null
+            && (request.auth.uid in get(/databases/$(database)/documents/teams/$(teamId)).data.members);
+        }
+
+        allow create: if isTeamMember() && isCoachOrCompany();
+
+        allow read: if isTeamMember();
+
+        allow update, delete: if isTeamMember() && isCoachOrCompany();
+
+        // testResults within an event
+        match /testResults/{testId} {
+          allow read, create, update, delete: if isTeamMember();
+        }
+      }
     }
   }
 }

@@ -202,11 +202,22 @@
   "select_at_least_2_skis": "Velg minst 2 skipar",
   "dp": "DP",
   "select_skis_to_test": "Velg skipar for å teste",
-  "upgrade_your_account_to_add_more_skis": "Oppgrader planen din for å legg til flere skipar"
-
-
-
-
-
-
+  "upgrade_your_account_to_add_more_skis": "Oppgrader planen din for å legg til flere skipar",
+  "teams": "Lag",
+  "create_event": "Opprett Arrangement",
+  "new_event": "Nytt Arrangement",
+  "start_date": "Start dato",
+  "end_date": "Slutt dato",
+  "create_team": "Opprett Lag",
+  "edit_event": "Rediger Arrangement",
+  "edit_team": "Rediger Lag",
+  "create": "Opprett",
+  "update": "Oppdater",
+  "enter_team_code": "Lag kode",
+  "team_name": "Lag navn",
+  "event_name": "Event name",
+  "description": "Beskrivelse",
+  "members": "Medlemmer",
+  "overview": "Oversikt",
+  "weather": "Værmelding"
 }

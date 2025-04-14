@@ -13,6 +13,7 @@ import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 import { TournamentContext } from '@/context/TournamentContext';
 import { useAuth } from '@/context/AuthContext';
 import Spinner from '@/components/common/Spinner/Spinner';
+import Button from '@/components/common/Button';
 
 const Skis = () => {
   const { skis, loading, error, deleteSki, updateSki, lockedSkisCount } = useSkis();
@@ -202,21 +203,22 @@ const Skis = () => {
         {/* Top row: "Selected skis" + "Add Ski" button, etc. */}
         <div className="flex items-end justify-between p-2">
           {/* Left block: Selected skis and start new test */}
-          <div className="flex flex-col items-center justify-end">
+          <div className="flex flex-col justify-end">
             <h3 className="text-sm font-semibold mb-1">
               {getSelectedSkis().length > 1
                 ? `${getSelectedSkis().length} ${t('skis_selected')}`
                 : `${t('select_skis_to_test')} `}
             </h3>
-            <button
-              onClick={handleStartNewTournament}
-              className={`flex h-fit items-center justify-center bg-btn text-btntxt shadow py-3 px-5 text-center rounded w-full max-w-xs ${getSelectedSkis().length < 2 ? 'opacity-30' : 'hover:opacity-90'}`}
-              disabled={getSelectedSkis().length < 2}
-              title={getSelectedSkis().length < 2 ? t('select_at_least_two_skis') : ''}
-            >
-              {t('new_test')}
-              <SiRundeck className="ml-2" />
-            </button>
+            <div>
+              <Button
+                onClick={handleStartNewTournament}
+                variant={'primary'}
+                disabled={getSelectedSkis().length < 2}
+              >
+                {t('new_test')}
+              </Button>
+            </div>
+
           </div>
 
           {/* Right block: Ski count and add ski button */}

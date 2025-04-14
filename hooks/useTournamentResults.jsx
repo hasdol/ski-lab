@@ -31,43 +31,7 @@ const useTournamentResults = () => {
     return () => unsubscribe();
   }, [user]);
 
-  const addTournamentResult = async (tournamentData, additionalData = {}) => {
-    if (!user) {
-      console.error('User not authenticated');
-      return;
-    }
-    try {
-      await addTestResult(user.uid, tournamentData, additionalData);
-    } catch (error) {
-      console.error("Error adding tournament result: ", error);
-      setError(error);
-    }
-  };
-
-  const deleteResult = async (resultId) => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      await deleteTournamentAndRelatedRankings(user.uid, resultId);
-    } catch (error) {
-      console.error("Error deleting tournament result:", error);
-      setError(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateResult = async (resultId, updatedData) => {
-    if (!user) return;
-    try {
-      await updateTournamentResult(user.uid, resultId, updatedData);
-    } catch (error) {
-      console.error("Error updating tournament result:", error);
-      setError(error);
-    }
-  };
-
-  return { results, loading, error, addTournamentResult, deleteResult, updateResult };
+  return { results, loading, error };
 };
 
 export default useTournamentResults;

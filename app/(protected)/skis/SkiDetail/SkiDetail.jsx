@@ -1,25 +1,20 @@
 'use client'
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-  useCallback
-} from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import CombinedConditionsHeatmap from './CombinedConditionsHeatmap/CombinedConditionsHeatmap';
 import PerformanceChart from './PerformanceChart/PerformanceChart';
 import SelectSeason from './PerformanceChart/SelectSeason';
-import { RiInboxArchiveLine, RiInboxUnarchiveLine, RiEditLine, RiDeleteBinLine, RiCloseLine } from "react-icons/ri";
-
-import { getSkiTests } from '@/lib/firebase/firestoreFunctions';
+import { RiInboxArchiveLine, RiInboxUnarchiveLine, RiDeleteBinLine } from "react-icons/ri";
 import { useAuth } from '@/context/AuthContext';
 import GrindHistory from '@/components/GrindHistory/GrindHistory';
 import { formatDate, getTimestamp, getSeason } from '@/helpers/helpers';
+import useSkiTests from '@/hooks/useSkiTests';
+import Button from '@/components/common/Button';
 
 const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { tests, loading: testsLoading, error: testsError } = useSkiTests(ski.id);
 
   // Chart data for THIS ski
   const [chartData, setChartData] = useState([]);
@@ -28,8 +23,6 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
   // For the performance chart's container width/scroll
   const [containerWidth, setContainerWidth] = useState('100%');
   const chartContainerRef = useRef(null);
-  // Cache for test results (key = testId)
-  const [testResultsCache, setTestResultsCache] = useState({});
   // Additional filters for performance chart
   const [selectedSnowType, setSelectedSnowType] = useState('');
   const [selectedTemperature, setSelectedTemperature] = useState('');
@@ -48,7 +41,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
     'sugary_snow'
   ];
 
-  // Bygg en liste med alle kombinasjoner av source og snowType
+  // Build list of all snow combos
   const allSnowCombos = useMemo(() => {
     const combos = [];
     allSources.forEach((source) => {
@@ -59,7 +52,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
     return combos;
   }, [allSources, allSnowTypes]);
 
-  // Konverterer et gjennomsnittlig score til en kategorietikett
+  // Convert average score to performance category
   const getPerformanceCategory = useCallback((avgScore) => {
     if (avgScore === null || avgScore === undefined) return 'Unknown';
     if (avgScore >= 0.85) return 'great';
@@ -69,7 +62,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
     return 'very_bad';
   }, []);
 
-  // Håndter sesongendring for performance chart
+  // Handle season change for performance chart
   const handleSeasonChange = useCallback((event) => {
     setSelectedSeason(event.target.value);
   }, []);
@@ -99,13 +92,13 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
     [t]
   );
 
-  // Hent unike temperaturer fra chartData
+  // Get unique temperatures from chartData
   const dynamicTemperatureList = useMemo(() => {
     const temps = [...new Set(chartData.map((data) => data.temp))];
     return temps.sort((a, b) => a - b);
   }, [chartData]);
 
-  // Filter chartData for performance chart basert på valgt sesong og ekstra filtre
+  // Filter chartData for performance chart based on selected season and additional filters
   const filteredChartData = useMemo(() => {
     return chartData.filter((data) => {
       const season = getSeason(data.testDate);
@@ -116,7 +109,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
     });
   }, [chartData, selectedSeason, selectedSnowType, selectedTemperature]);
 
-  // Filter for heatmap: Bruk current grind og current season
+  // Filter for heatmap: Use current grind and current season toggles
   const heatmapChartData = useMemo(() => {
     let filtered = chartData;
     if (showCurrentGrind) {
@@ -133,7 +126,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
     return filtered;
   }, [chartData, showCurrentGrind, showCurrentSeason, ski.grindDate]);
 
-  // Bygg samlet performance data for heatmap
+  // Build combined performance data for heatmap
   const combinedPerformanceData = useMemo(() => {
     const performanceMap = {};
     dynamicTemperatureList.forEach((temp) => {
@@ -187,7 +180,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
 
   const grindHistory = ski.grindHistory || [];
 
-  // Filter grind history etter valgt sesong
+  // Filter grind history by selected season
   const filteredGrindHistory = useMemo(() => {
     if (!selectedSeason) return grindHistory;
     return grindHistory.filter((entry) => {
@@ -198,7 +191,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
     });
   }, [selectedSeason, grindHistory]);
 
-  // Kombiner test- og grind-datoer
+  // Combine test and grind dates
   const allDates = useMemo(() => [
     ...chartData.map((d) => d.testDate),
     ...filteredGrindHistory.map((d) => getTimestamp(d.grindDate)).filter(Boolean)
@@ -208,44 +201,20 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
   const seasonMaxDate = useMemo(() => (allDates.length ? Math.max(...allDates) : null), [allDates]);
   const maxRank = useMemo(() => (chartData.length ? Math.max(...chartData.map((d) => d.rank)) : 1), [chartData]);
 
-  // Hent testdata fra Firestore
-  useEffect(() => {
-    const fetchTests = async () => {
-      if (!ski.testIds || ski.testIds.length === 0) return;
-      const uncached = ski.testIds.filter((id) => !testResultsCache[id]);
-      if (uncached.length === 0) return;
-      try {
-        const fetched = await getSkiTests(user.uid, uncached);
-        setTestResultsCache((prev) => {
-          const newCache = { ...prev };
-          fetched.forEach((test) => {
-            newCache[test.id] = test;
-          });
-          return newCache;
-        });
-      } catch (err) {
-        console.error('Error fetching ski tests:', err);
-      }
-    };
-    fetchTests();
-  }, [ski.testIds, testResultsCache, user.uid]);
-
-  // Prosesser testdata og bygg chartData
+  // Process test data and build chartData using the tests fetched by the hook
   useEffect(() => {
     const processData = () => {
-      if (!ski.testIds || ski.testIds.length === 0) {
+      if (!tests || tests.length === 0) {
         setChartData([]);
         return;
       }
-      const allAvailable = ski.testIds.every((id) => testResultsCache[id]);
-      if (!allAvailable) return;
-      const allTests = ski.testIds.map((id) => testResultsCache[id]).filter(Boolean);
       const allRankings = [];
-      allTests.forEach((test) => {
+      tests.forEach((test) => {
         const sorted = [...test.rankings].sort((a, b) => a.score - b.score);
         let currentRank = 1;
         let i = 0;
-        const computeRelativeScore = (rank, total) => total <= 1 ? 1 : 1 - (rank - 1) / (total - 1);
+        const computeRelativeScore = (rank, total) =>
+          total <= 1 ? 1 : 1 - (rank - 1) / (total - 1);
         while (i < sorted.length) {
           const currentScore = sorted[i].score;
           const tiedGroup = [sorted[i]];
@@ -293,9 +262,9 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
       }
     };
     processData();
-  }, [testResultsCache, ski.testIds, ski.id]);
+  }, [tests, testsLoading, ski.id]);
 
-  // Juster container-bredde for performance chart
+  // Adjust container width for performance chart
   useEffect(() => {
     const updateContainer = () => {
       if (!chartContainerRef.current) return;
@@ -315,7 +284,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
     return () => clearTimeout(timer);
   }, [chartData, selectedSeason]);
 
-  // Hent tilgjengelige sesonger fra chartData og grind history
+  // Get available seasons from chartData and grind history
   const availableSeasons = useMemo(() => {
     const seasons = new Set();
     chartData.forEach((d) => {
@@ -385,7 +354,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
       <div>
         <div className="flex justify-between items-center my-5">
           <h2 className="text-2xl font-semibold">{t('performance')}</h2>
-          {ski.testIds && ski.testIds.length > 0 && (
+          {tests && tests.length > 0 && (
             <SelectSeason
               selectedSeason={selectedSeason}
               handleSeasonChange={handleSeasonChange}
@@ -393,7 +362,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
             />
           )}
         </div>
-        {ski.testIds && ski.testIds.length > 0 ? (
+        {tests && tests.length > 0 ? (
           !chartData.length ? (
             <span>{t('test_to_see_performance')}</span>
           ) : (
@@ -417,7 +386,7 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
       {/* Recommended Conditions Section (Heatmap) */}
       <div>
         <h2 className="text-2xl my-4 font-semibold">{t('recommended_conditions')}</h2>
-        {ski.testIds && ski.testIds.length > 0 ? (
+        {tests && tests.length > 0 ? (
           combinedPerformanceData && combinedPerformanceData.length > 0 ? (
             <div className="flex flex-col">
               <div className="flex space-x-4">
@@ -468,32 +437,30 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
       <div className="flex bg-sbtn py-5 mt-5 rounded items-center justify-center space-x-10 w-full ">
         {ski.archived ? (
           <div className="flex flex-col space-y-2 items-center justify-center">
-            <button
+            <Button
               onClick={onUnarchive}
-              className="bg-btn text-btntxt hover:opacity-90 rounded-full p-3 cursor-pointer"
+              variant="primary"
             >
               <RiInboxUnarchiveLine />
-            </button>
+            </Button>
             <label className="text-sm" htmlFor="unarchive">{t('unarchive')}</label>
           </div>
         ) : (
           <div className="flex flex-col space-y-2 items-center justify-center">
-            <button
+            <Button
               onClick={onArchive}
-              className="bg-btn text-btntxt hover:opacity-90 rounded-full p-3 cursor-pointer"
-            >
+              variant="primary"            >
               <RiInboxArchiveLine />
-            </button>
+            </Button>
             <label className="text-sm" htmlFor="archive">{t('archive')}</label>
           </div>
         )}
         <div className="flex flex-col space-y-2 items-center justify-center">
-          <button
+          <Button
             onClick={onDelete}
-            className="bg-btn text-btntxt hover:opacity-90 rounded-full p-3 cursor-pointer"
-          >
+            variant="danger"          >
             <RiDeleteBinLine />
-          </button>
+          </Button>
           <label className="text-sm" htmlFor="delete">{t('delete')}</label>
         </div>
       </div>

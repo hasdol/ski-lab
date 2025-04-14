@@ -4,12 +4,10 @@ import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { MdLogin } from "react-icons/md";
-import { IoLogoFirebase } from "react-icons/io5";
-import { SiStripe } from "react-icons/si";
 import { UserPreferencesContext } from '../context/UserPreferencesContext';
 import { TournamentContext } from '../context/TournamentContext';
 import { TiFlowParallel } from "react-icons/ti";
+import Button from '@/components/common/Button';
 
 // Siden 'bg.jpg' ligger i public/ mappen, kan du referere til den med URL
 const bgUrl = '/bg.jpg';
@@ -70,42 +68,41 @@ const HomePage = () => {
             </div>
           </div>
 
-          <div className='flex items-center mt-12 mb-5 p-5 w-80 space-x-10'>
+          <div className='flex items-center mt-12 mb-2 p-5 w-80 space-x-10'>
             <p className='text-headerText text-5xl text-start font-bold'>Handle your skis like a pro.</p>
             <TiFlowParallel size={200} className='text-headerText' />
           </div>
 
-          <p className='text-lg mb-5 text-start px-5'>A modern platform built for athletes</p>
+          <p className='text text-start px-5 mb-10'>Built for athletes, coaches and brands</p>
 
           {!checkingStatus ? (
             !user ? (
               <div>
-                <button
-                  className='flex cursor-pointer items-center mx-auto justify-center bg-btn text-btntxt py-3 px-5 rounded hover:opacity-90 transition duration-300 mb-10'
+                <Button
+                  variant='primary'
                   onClick={() => handleNavigation('/signin')}
                 >
                   {t('getStarted')}
-                  <MdLogin size={18} className='ml-2' />
-                </button>
+                  
+                </Button>
               </div>
             ) : (
               <div className='mt-5'>
-                <div className='flex justify-between'>
-                  <button
-                    className='flex cursor-pointer mx-auto items-center bg-btn text-btntxt py-3 px-5 rounded hover:opacity-90'
+                <div className='flex space-x-4 justify-center'>
+                  <Button
                     onClick={() => handleNavigation('/skis')}
+                    variant='primary'
                   >
                     {t('your_skis')}
-                  </button>
+                  </Button>
 
                   {currentRound && currentRound.length > 0 && (
-                    <button
+                    <Button
                       onClick={handleContinueTest}
-                      className="flex cursor-pointer mx-auto items-center bg-container text-btn border border-btn hover:bg-btn hover:text-btntxt py-3 px-5 rounded"
-                      title={t('continue_test')}
+                      variant='primary'
                     >
                       {t('continue_test')}
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>

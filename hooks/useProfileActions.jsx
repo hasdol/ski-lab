@@ -1,7 +1,6 @@
 // src/hooks/useProfileActions.js
 import { useState } from 'react';
 import { uploadProfilePicture } from '@/lib/firebase/storageFunctions';
-import { getUserDoc, deleteAccount as deleteFirestoreData } from '@/lib/firebase/firestoreFunctions';
 import { updateProfileDetails, sendPasswordReset, signOutUser } from '@/lib/firebase/authFunctions';
 
 export const useProfileActions = (user) => {
@@ -26,7 +25,7 @@ export const useProfileActions = (user) => {
 
   const updateDisplayName = async (newDisplayName) => {
     try {
-      const updateData = { displayName: newDisplayName };
+      const updateData = { displayName: newDisplayName, photoURL: null };
       await updateProfileDetails(user, updateData);
     } catch (error) {
       alert('Error updating display name: ' + error.message);
@@ -53,40 +52,12 @@ export const useProfileActions = (user) => {
     }
   };
 
-  const deleteAccount = async () => {
-    try {
-      const userDocSnap = await getUserDoc(user.uid);
-      if (userDocSnap.exists()) {
-        const userData = userDocSnap.data();
-        if (userData.stripeSubscriptionId) {
-          throw new Error("You have an active subscription. Please cancel your subscription before deleting your account.");
-        }
-      }
-    } catch (error) {
-      setErrorMessage(error.message);
-      throw error;
-    }
-
-    if (window.confirm("Are you sure you want to delete your account?")) {
-      try {
-        // Pass the auth deletion function (user.delete) to the Firestore deletion helper.
-        await deleteFirestoreData(user.uid, () => user.delete());
-        console.log('Account deletion successful.');
-      } catch (error) {
-        console.error('Error deleting account:', error.message);
-        setErrorMessage(error.message);
-        throw error;
-      }
-    }
-  };
-
   return {
     isChangingImg,
     errorMessage,
     updateProfileImage,
     updateDisplayName,
     resetPassword,
-    signOut,
-    deleteAccount,
+    signOut
   };
 };

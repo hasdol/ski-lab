@@ -4,7 +4,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { registerWithEmailAndPassword } from '@/lib/firebase/authFunctions';
-import LoadingButton from '@/components/common/LoadingButton/LoadingButton';
+import Button from '@/components/common/Button';
 
 const SignUp = () => {
   const router = useRouter();
@@ -38,7 +38,7 @@ const SignUp = () => {
       <div className="m-auto mt-32 w-2/3 md:w-1/2 animate-fade-down animate-duration-300">
         <h1 className="text-dominant text-5xl mb-10 font-semibold">{t('signUp')}</h1>
         {error && <p className="bg-red-100 text-red-700 p-3 rounded">{error}</p>}
-        <form onSubmit={handleSignUp} className="space-y-2 text-black">
+        <form onSubmit={handleSignUp} className="space-y-3 text-black">
           <input
             type="text"
             value={username}
@@ -63,17 +63,17 @@ const SignUp = () => {
             className="w-full px-4 py-2 border border-gray-300 rounded"
             required
           />
-          <LoadingButton
+          <Button
             type="submit"
-            isLoading={isLoading}
-            className="bg-btn hover:opacity-90 text-btntxt w-full px-4 py-2 rounded"
+            loading={isLoading}
+            variant="primary"
           >
             {t('signUp')}
-          </LoadingButton>
+          </Button>
         </form>
         <p className="mt-4">
           Already have an account?{' '}
-          <button onClick={() => router.push('/signin')} className="text-dominant underline">
+          <button onClick={() => router.push('/signin')} className="underline">
             Sign in
           </button>
         </p>

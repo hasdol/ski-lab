@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { sendPasswordReset } from '@/lib/firebase/authFunctions';
-import LoadingButton from '@/components/common/LoadingButton/LoadingButton';
+import Button from '@/components/common/Button';
 
 const PasswordReset = () => {
   const [resetEmail, setResetEmail] = useState('');
@@ -38,7 +38,7 @@ const PasswordReset = () => {
         <title>Ski-Lab: Reset password</title>
         <meta name="description" content="Reset your password in Ski-Lab" />
       </Head>
-      <h1 className="text-dominant text-4xl mb-10 font-semibold">Reset password</h1>
+      <h1 className="text-dominant text-4xl mb-10 font-semibold">{t('reset_pasword')}</h1>
       <div className="flex flex-col space-y-2 text-black">
         <input
           type="email"
@@ -48,20 +48,20 @@ const PasswordReset = () => {
           className="w-full px-4 py-2 border border-gray-300 rounded"
           required
         />
-        <LoadingButton
+        <Button
           type="button"
           onClick={handleResetPassword}
-          isLoading={isResetting}
-          className="bg-btn hover:opacity-90 text-btntxt my-2 px-4 py-2 rounded"
+          loading={isResetting}
+          variant="primary"
         >
-          Reset Password
-        </LoadingButton>
-        <button
-          className="px-4 py-2 bg-sbtn text-text rounded"
+          {t('reset_pasword')}
+        </Button>
+        <Button
+          variant="secondary"
           onClick={() => router.push('/signin')}
         >
-          Back
-        </button>
+          {t('back')}
+        </Button>
         {resetError && (
           <div className="text-red-500 font-thin">{resetError}</div>
         )}

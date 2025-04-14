@@ -201,5 +201,22 @@
   "select_at_least_2_skis": "Select at least 2 skis",
   "dp": "DP",
   "select_skis_to_test": "Select skis to test",
-  "upgrade_your_account_to_add_more_skis": "Upgrade your account to add more skis"
+  "upgrade_your_account_to_add_more_skis": "Upgrade your account to add more skis",
+  "teams": "Teams",
+  "create_event": "Create Event",
+  "new_event": "New Event",
+  "start_date": "Start date",
+  "end_date": "End date",
+  "create_team": "Create Team",
+  "edit_event": "Edit Event",
+  "edit_team": "Edit Team",
+  "create": "Create",
+  "update": "Update",
+  "enter_team_code": "Team code",
+  "team_name": "Team name",
+  "event_name": "Event name",
+  "description": "Description",
+  "members": "Members",
+  "overview": "Overview",
+  "weather": "Weather"
 }

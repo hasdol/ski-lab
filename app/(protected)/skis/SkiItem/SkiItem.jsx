@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import SkiDetail from '../SkiDetail/SkiDetail';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 import { isNew } from '@/helpers/helpers';
+import Button from '@/components/common/Button';
 
 const SkiItem = ({
   ski,
@@ -107,13 +108,13 @@ const SkiItem = ({
 
         {/* Edit Button */}
         {!gloveMode &&
-          <div className="flex p-2 rounded-full bg-sbtn ">
-            <button
+          <div className="p-1">
+            <Button
               onClick={handleEditClick}
-              className='shadow bg-btn text-btntxt hover:opacity-90 rounded-full p-2 cursor-pointer'
+              variant='primary'
             >
               <RiEditLine />
-            </button>
+            </Button>
           </div>
         }
 

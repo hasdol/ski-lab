@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useProfileActions } from '@/hooks/useProfileActions';
@@ -9,9 +9,8 @@ import {
   RiSettings3Line, 
   RiMessage2Line, 
   RiLogoutCircleRLine, 
-  RiLoginCircleLine , 
-  RiUserAddLine,
-  RiTeamLine  
+  RiLoginCircleLine, 
+  RiUserAddLine 
 } from "react-icons/ri";
 
 const SubNavigation = ({ isVisible, onClose }) => {
@@ -28,12 +27,11 @@ const SubNavigation = ({ isVisible, onClose }) => {
   };
 
   return (
-    <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2/3 space-y-3 cursor-pointer font-semibold md:relative md:w-full md:transform-none animate-fade md:animate-fade-down animate-duration-300 md:animate-duration-200">
-      <h3 className="md:hidden font-semibold text-xl mb-5">{t('go_to')}...</h3>
+    <div className="bg-container md:bg-transparent px-5 py-10 md:p-0 rounded  md:shadow-none fixed left-1/2 bottom-16 md:bottom-auto transform -translate-x-1/2 w-86 space-y-3 cursor-pointer font-semibold md:relative md:w-full md:transform-none animate-fade-up md:animate-fade-down animate-duration-300 md:animate-duration-200">
       <ul className="space-y-3 cursor-pointer font-semibold md:static md:py-4 md:w-full animate-fade md:animate-fade-down animate-duration-300 md:animate-duration-200">
         {user && (
           <li 
-            className="bg-container shadow border-l-2 hover:bg-sbtn rounded-e flex justify-between items-center p-4 hover:opacity-90" 
+            className="bg-container border hover:bg-sbtn rounded flex justify-between items-center p-4 hover:opacity-90" 
             onClick={() => handleItemClick('/account')}
           >
             {t('account')} <RiUser6Line size={20} />
@@ -41,7 +39,7 @@ const SubNavigation = ({ isVisible, onClose }) => {
         )}
         {user && (
           <li 
-            className="bg-container shadow border-l-2 hover:bg-sbtn rounded-e flex justify-between items-center p-4 hover:opacity-90" 
+            className="bg-container border hover:bg-sbtn rounded flex justify-between items-center p-4 hover:opacity-90" 
             onClick={() => handleItemClick('/settings')}
           >
             {t('settings')} <RiSettings3Line size={20} />
@@ -49,7 +47,7 @@ const SubNavigation = ({ isVisible, onClose }) => {
         )}
         {user && (
           <li 
-            className="bg-container shadow border-l-2 hover:bg-sbtn rounded-e flex justify-between items-center p-4 hover:opacity-90" 
+            className="bg-container border hover:bg-sbtn rounded flex justify-between items-center p-4 hover:opacity-90" 
             onClick={() => handleItemClick('/contact')}
           >
             {t('contact')} <RiMessage2Line size={20} />
@@ -57,7 +55,7 @@ const SubNavigation = ({ isVisible, onClose }) => {
         )}
         {user && (
           <li 
-            className="bg-container shadow border-l-2 hover:bg-sbtn rounded-e flex justify-between items-center p-4 hover:opacity-90" 
+            className="bg-container border hover:bg-sbtn rounded flex justify-between items-center p-4 hover:opacity-90" 
             onClick={() => { signOut(router.push); onClose(); }}
           >
             {t('signOut')} <RiLogoutCircleRLine size={20} />
@@ -68,7 +66,7 @@ const SubNavigation = ({ isVisible, onClose }) => {
             className="bg-container shadow border-l-2 hover:bg-sbtn rounded-e flex justify-between items-center p-4 hover:opacity-90" 
             onClick={() => handleItemClick('/signin')}
           >
-            {t('signIn')} <RiLoginCircleLine size={20} />
+            {t('signIn')} <RiLoginCircleRLine size={20} />
           </li>
         )}
         {!user && (

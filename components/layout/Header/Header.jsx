@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { TournamentContext } from '../../../context/TournamentContext';
 import { useAuth } from '../../../context/AuthContext';
+import Button from '@/components/common/Button';
 
 const Header = () => {
   const pathname = usePathname();
@@ -64,13 +65,15 @@ const Header = () => {
         pathname !== '/testing/summary' &&
         pathname !== '/testing' &&
         user != null && (
-          <button
-            onClick={handleContinueTest}
-            className="flex-1 w-fit bg-container cursor-pointer text-btn border border-btn rounded p-3 px-5 flex text-sm items-center justify-self-end hover:bg-btn hover:text-btntxt"
-            title={t('continue_test')}
-          >
-            {t('continue_test')}
-          </button>
+          <div className='justify-self-end'>
+            <Button
+              onClick={handleContinueTest}
+              variant="primary"
+            >
+              {t('continue_test')}
+            </Button>
+          </div>
+
         )}
     </header>
   );

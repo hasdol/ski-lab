@@ -1,5 +1,3 @@
-import { formatISO, parseISO } from 'date-fns';
-
 
 export const mapRankingsToTournamentData = (rankings, selectedSkis) => {
     // Map each ranking to include the necessary ski data
@@ -65,31 +63,6 @@ export const formatDateForInputWithTime = (date) => {
     return localISOTime;
 };
 
-
-
-
-// helpers.js
-export const formatDateForInput = (date) => {
-    if (!date) return '';
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = `${d.getMonth() + 1}`.padStart(2, '0');
-    const day = `${d.getDate()}`.padStart(2, '0');
-    return `${year}-${month}-${day}`;
-};
-
-export const formatDateForDisplay = (date) => {
-    if (!date) return '';
-    return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        second: '2-digit',
-        timeZoneName: 'short'
-    }).format(date);
-};
 
 
 export const formatDate = (date) => {

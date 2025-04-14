@@ -5,6 +5,7 @@ import { FaTrash } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 import { RiLockLine, RiDeleteBinLine } from "react-icons/ri";
+import Button from '@/components/common/Button';
 
 const LockedSkiItem = ({ ski, handleDelete }) => {
   const { t } = useTranslation();
@@ -21,20 +22,17 @@ const LockedSkiItem = ({ ski, handleDelete }) => {
 
   return (
     <div className="flex items-center justify-between p-2 bg-container rounded">
-      <RiLockLine className='ml-2'/>
+      <RiLockLine className='ml-2' />
       <div className="flex items-center space-x-2">
         <span className="font-semibold">{t('serial_number')}: </span>
         <span>{ski.serialNumber}</span>
       </div>
-      <div className='bg-sbtn p-2 rounded-full '>
-        <button
-          onClick={confirmDelete}
-          className="p-2 rounded-full shadow bg-btn text-btntxt hover:opacity-90 focus:outline-none"
-          title={t('delete_ski')}
-        >
-          <RiDeleteBinLine />
-        </button>
-      </div>
+      <Button
+        onClick={confirmDelete}
+        variant="danger"
+      >
+        <RiDeleteBinLine />
+      </Button>
 
     </div>
   );

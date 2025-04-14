@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useState, useContext } from 'react';
 import Head from 'next/head';
 import { useAuth } from '@/context/AuthContext';
@@ -7,14 +7,14 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import Flag from 'react-flagkit';
 import { GiWinterGloves } from "react-icons/gi";
 import { FaHandsClapping } from "react-icons/fa6";
-import { RiEditLine } from "react-icons/ri";
+import { RiEditLine, RiUserLine } from "react-icons/ri";
 import { useRouter } from 'next/navigation';
 
-import BackBtn from '@/components/common/BackBtn';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
-import ManageSubscription from '@/components/manageSubscription/ManageSubscription';
+import Button from '@/components/common/Button';
+import Input from '@/components/common/Input'; // New unified Input
 
 const Settings = () => {
   const { user, userData } = useAuth(); // assume userData holds Firestore doc data
@@ -45,8 +45,6 @@ const Settings = () => {
   const deleteUserAccount = async () => {
     let confirmDeleteSubscription = false;
     if (userData?.stripeSubscriptionId) {
-      // When an active subscription exists, inform the user that their subscription
-      // will be cancelled immediately.
       const confirmMsg = `
 You have an active subscription.
 Deleting your account will cancel your subscription immediately.
@@ -76,7 +74,7 @@ This action cannot be undone.`;
     }
   };
 
-  if (isLoading) return <div className='flex justify-center'><Spinner /></div> ;
+  if (isLoading) return <div className='flex justify-center'><Spinner /></div>;
 
   return (
     <>
@@ -84,49 +82,52 @@ This action cannot be undone.`;
         <title>Ski-Lab: Settings</title>
         <meta name="description" content="Settings for Ski-Lab" />
       </Head>
-      <div className="flex flex-col justify-center p-4 md:mt-10 mx-auto animate-fade-down animate-duration-300">
+      <div className="flex flex-col items-center space-y-10 p-4 md:mt-10 animate-fade-down animate-duration-300">
         {/* Username Section */}
-        <div className="flex flex-col text-center">
+        <div className="">
           <h4 className="font-semibold text-lg mb-2">{t('username')}</h4>
-          <div className="flex items-center justify-center space-x-2">
-            {isEditingUsername ? (
-              <div className="bg-container rounded p-2 space-x-2 border border-sbtn flex items-center focus-within:ring-1 focus-within:ring-btn">
-                <input
-                  type="text"
-                  value={newDisplayName}
-                  onChange={(e) => setNewDisplayName(e.target.value)}
-                  className="bg-container rounded text-text p-2 px-4 flex-1 w-2/3 outline-none"
-                />
-                <button
-                  className="bg-btn text-btntxt px-4 py-2 rounded hover:opacity-90"
+          {isEditingUsername ? (
+            <div className="flex flex-col space-y-3">
+              <Input
+                type="text"
+                value={newDisplayName}
+                onChange={(e) => setNewDisplayName(e.target.value)}
+                placeholder={t('username')}
+                label="" // Empty label hides the default label if undesired
+                className="bg-container rounded text-text p-2 shadow"
+              />
+              <div className="space-x-3">
+                <Button
+                  variant="primary"
                   onClick={handleDisplayNameUpdate}
                   disabled={isLoading}
                 >
                   {t('save')}
-                </button>
-                <button
-                  className="cursor-pointer bg-sbtn px-4 py-2 rounded"
+                </Button>
+                <Button
+                  variant="secondary"
                   onClick={() => setIsEditingUsername(false)}
                 >
                   {t('close')}
-                </button>
+                </Button>
               </div>
-            ) : (
-              <div
-                className="flex items-center justify-between space-x-4 bg-sbtn rounded px-4 py-3 font-semibold cursor-pointer w-1/2"
-                onClick={() => setIsEditingUsername(true)}
-              >
-                <div className="text-text">{user.displayName || t('no_username')}</div>
-                <div className="p-2 rounded-full">
-                  <RiEditLine />
-                </div>
+            </div>
+          ) : (
+            <div
+              className="flex items-center justify-between space-x-4 bg-container shadow rounded px-3 py-2 cursor-pointer"
+              onClick={() => setIsEditingUsername(true)}
+            >
+              <RiUserLine />
+              <div className="text-text">{user.displayName || t('no_username')}</div>
+              <div className="p-2 rounded-full">
+                <RiEditLine />
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Preferences Section */}
-        <div className="flex justify-center my-10 space-x-8">
+        <div className="flex">
           {/* Language Toggle Container */}
           <div className="flex flex-col items-center space-y-4 w-40">
             {!gloveMode ? (
@@ -147,7 +148,6 @@ This action cannot be undone.`;
                 </div>
               </>
             ) : (
-              // Render a placeholder of equal height to keep layout consistent.
               <div style={{ height: '100px' }}></div>
             )}
           </div>
@@ -173,32 +173,23 @@ This action cannot be undone.`;
 
         {/* Actions Section */}
         {!gloveMode && (
-          <div className="flex flex-col justify-center gap-4 md:mx-24">
-            <button
-              className="flex-1 bg-btn w-1/2 mx-auto text-btntxt py-3 px-5 rounded hover:opacity-90"
-              onClick={resetPassword}
-            >
+          <div className="space-x-3">
+            <Button variant="danger" onClick={resetPassword}>
               {t('reset_password')}
-            </button>
-            <button
-              className="flex-1 bg-delete w-1/2 mx-auto text-white py-3 px-5 rounded hover:opacity-90"
-              onClick={deleteUserAccount}
-            >
+            </Button>
+            <Button variant="danger" onClick={deleteUserAccount}>
               {t('delete_account')}
-            </button>
+            </Button>
           </div>
         )}
 
         {/* Status Messages */}
         {error && <div className="text-delete text-center mt-2">{error}</div>}
-        {success && (
-          <div className="text-highlight text-center mt-2">
-            {success}
-          </div>
-        )}
-
-        <div className="flex justify-center items-center mt-5">
-          <BackBtn />
+        {success && <div className="text-highlight text-center mt-2">{success}</div>}
+        <div>
+          <Button variant="secondary" onClick={() => router.back()}>
+            {t('back')}
+          </Button>
         </div>
       </div>
     </>

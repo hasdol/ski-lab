@@ -487,3 +487,77 @@ exports.cancelUserDeletion = onCall(async (request) => {
   });
   return { message: "Account deletion has been cancelled." };
 });
+
+exports.joinTeamByCode = onCall(async (request) => {
+  // Must be signed in.
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const userId = request.auth.uid;
+  const code = request.data.code; // The code from the client
+  
+  if (!code) {
+    throw new HttpsError('invalid-argument', 'Missing team code.');
+  }
+
+  const teamsRef = db.collection('teams');
+  const snap = await teamsRef.where('joinCode', '==', code).limit(1).get();
+
+  if (snap.empty) {
+    throw new HttpsError('not-found', 'No team found with the given code.');
+  }
+
+  // We only take the first matching doc
+  const teamDoc = snap.docs[0];
+  const teamId = teamDoc.id;
+
+  // We can optionally check if user is already in the team.
+  const teamData = teamDoc.data() || {};
+  const members = teamData.members || [];
+
+  if (members.includes(userId)) {
+    // They’re already in the team – optional or you can allow no-op
+    throw new HttpsError('already-exists', 'You are already in this team.');
+  }
+
+  // Now add user to members
+  await teamDoc.ref.update({
+    members: admin.firestore.FieldValue.arrayUnion(userId),
+  });
+
+  return { teamId };
+});
+
+exports.leaveTeamById = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  }
+
+  const userId = request.auth.uid;
+  const teamId = request.data.teamId;
+
+  if (!teamId) {
+    throw new HttpsError('invalid-argument', 'Missing team ID.');
+  }
+
+  const teamRef = db.collection('teams').doc(teamId);
+  const teamSnap = await teamRef.get();
+
+  if (!teamSnap.exists) {
+    throw new HttpsError('not-found', 'Team not found.');
+  }
+
+  const teamData = teamSnap.data();
+
+  if (teamData.createdBy === userId) {
+    throw new HttpsError('failed-precondition', 'You cannot leave a team you created.');
+  }
+
+  // Remove the user from the members array
+  await teamRef.update({
+    members: admin.firestore.FieldValue.arrayRemove(userId),
+  });
+
+  return { message: 'Left the team successfully.' };
+});

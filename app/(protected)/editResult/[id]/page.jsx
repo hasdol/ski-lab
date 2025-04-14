@@ -4,19 +4,19 @@ import Head from 'next/head';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import BackBtn from '@/components/common/BackBtn/BackBtn';
 import { formatDateForInputWithTime } from '@/helpers/helpers';
 import { Timestamp } from 'firebase/firestore';
 import { useSingleResult } from '@/hooks/useSingleResult';
-import { updateTournamentResult } from '@/lib/firebase/firestoreFunctions';
-import SaveTestInput from '../../testing/summary/components/SaveTestInput';
+import Input from '@/components/common/Input'; // Updated: using the new generic Input component
+import { updateTestResultBothPlaces } from '@/lib/firebase/teamFunctions';
+import Button from '@/components/common/Button';
 
 const EditResultPage = () => {
   const { t } = useTranslation();
   const { id } = useParams();
   const router = useRouter();
   const { user } = useAuth();
-  
+
   // Fetch result data using our custom hook
   const { result, loading, error } = useSingleResult(id);
 
@@ -99,13 +99,19 @@ const EditResultPage = () => {
       });
 
       // Call your firestore update function
-      await updateTournamentResult(user.uid, resultId, {
-        ...resultData,
-        timestamp: Timestamp.fromDate(timestampToUse),
-        rankings: rankingsWithTimestamps,
-      });
+      await updateTestResultBothPlaces(
+        user.uid,
+        id, // testId
+        {
+          ...resultData,
+          timestamp: Timestamp.fromDate(timestampToUse),
+          rankings: rankingsWithTimestamps,
+        },
+        result.sharedIn // This should be an array: [{ teamId, eventId }, ...]
+      );
 
-      router.push('/results');
+      router.back();
+
     } catch (err) {
       console.error('Error updating result:', err);
     } finally {
@@ -126,11 +132,11 @@ const EditResultPage = () => {
       <div className="py-4 px-2">
         <form onSubmit={handleSubmit}>
           {resultData.rankings.map((ranking, index) => (
-            <div key={index} className="flex flex-col mb-2">
-              <label className="font-semibold">
+            <div key={index} className="flex flex-col my-4">
+              <label className="font-semibold mb-1">
                 {`${ranking.serialNumber || t('deleted')} - ${ranking.grind || ''}`}
               </label>
-              <SaveTestInput
+              <Input
                 type="number"
                 name={`score-${index}`}
                 onChange={handleInputChange}
@@ -141,8 +147,8 @@ const EditResultPage = () => {
           <h3 className="mt-5 mb-2 text-2xl font-semibold text-dominant">
             {t('test_details')}
           </h3>
-          <div className="space-y-2">
-            <SaveTestInput
+          <div className="space-y-4">
+            <Input
               type="text"
               name="location"
               placeholder={t('location')}
@@ -150,7 +156,7 @@ const EditResultPage = () => {
               value={resultData.location}
               required
             />
-            <SaveTestInput
+            <Input
               type="select"
               name="style"
               placeholder={t('style')}
@@ -162,14 +168,14 @@ const EditResultPage = () => {
                 { label: t('skate'), value: 'skate' },
               ]}
             />
-            <SaveTestInput
+            <Input
               type="number"
               name="temperature"
               placeholder={t('temperature')}
               onChange={handleInputChange}
               value={resultData.temperature}
             />
-            <SaveTestInput
+            <Input
               type="radio"
               name="source"
               placeholder={t('snow_source')}
@@ -182,7 +188,7 @@ const EditResultPage = () => {
               ]}
               required
             />
-            <SaveTestInput
+            <Input
               type="select"
               name="grainType"
               placeholder={t('snow_type')}
@@ -198,30 +204,28 @@ const EditResultPage = () => {
               ]}
               required
             />
-            <SaveTestInput
+            <Input
               type="number"
               name="snowTemperature"
               placeholder={t('snow_temperature')}
               onChange={handleInputChange}
               value={resultData.snowTemperature}
             />
-            <SaveTestInput
+            <Input
               type="number"
               name="humidity"
               placeholder={t('humidity')}
               onChange={handleInputChange}
               value={resultData.humidity}
             />
-            <div className="col-span-2">
-              <SaveTestInput
-                type="text"
-                name="comment"
-                placeholder={t('comment')}
-                onChange={handleInputChange}
-                value={resultData.comment}
-              />
-            </div>
-            <SaveTestInput
+            <Input
+              type="text"
+              name="comment"
+              placeholder={t('comment')}
+              onChange={handleInputChange}
+              value={resultData.comment}
+            />
+            <Input
               type="datetime-local"
               name="date"
               placeholder={t('date')}
@@ -231,14 +235,16 @@ const EditResultPage = () => {
             />
           </div>
           <div className="flex space-x-4 my-5">
-            <button
+            <Button
               type="submit"
-              className="bg-btn px-5 py-3 rounded w-fit text-btntxt hover:opacity-90"
-              disabled={isSubmitting}
+              variant="primary"
+              loading={isSubmitting}
             >
-              {isSubmitting ? t('loading') : t('save')}
-            </button>
-            <BackBtn />
+              {t('save')}
+            </Button>
+            <Button variant='secondary' onClick={() => router.back()}>
+              {t('back')}
+            </Button>
           </div>
         </form>
       </div>
