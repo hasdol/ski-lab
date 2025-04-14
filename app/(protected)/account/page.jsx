@@ -6,10 +6,10 @@ import { useTranslation } from 'react-i18next';
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { useAuth } from '@/context/AuthContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
-import ManageSubscription from '@/components/ManageSubscription/ManageSubscription';
 import ProfileImage from '@/app/(protected)/account/components/ProfileImage';
 import Button from '@/components/common/Button';
 import { useRouter } from 'next/navigation';
+import ManageSubscription from '@/components/ManageSubscription/ManageSubscription';
 
 const Account = () => {
   const { user, userData } = useAuth();

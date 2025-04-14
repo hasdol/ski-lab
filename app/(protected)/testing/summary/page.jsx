@@ -11,9 +11,9 @@ import { TournamentContext } from '@/context/TournamentContext';
 import { RiDeleteBinLine } from "react-icons/ri";
 import { addTestResult } from '@/lib/firebase/firestoreFunctions';
 import { shareTestResult } from '@/lib/firebase/teamFunctions';
-import ShareWithEventSelector from '@/components/shareWithEventSelector/ShareWithEventSelector';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
+import ShareWithEventSelector from '@/components/ShareWithEventSelector/ShareWithEventSelector';
 
 const TestSummaryPage = () => {
   const { t } = useTranslation();
