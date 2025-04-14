@@ -4,8 +4,6 @@ import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { RiLockUnlockLine } from "react-icons/ri";
-import Spinner from '@/components/common/Spinner/Spinner';
 import { useRouter } from 'next/navigation';
 import Button from '../common/Button';
 
