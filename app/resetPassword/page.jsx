@@ -4,8 +4,10 @@ import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { sendPasswordReset } from '@/lib/firebase/authFunctions';
 import Button from '@/components/common/Button';
+import { useTranslation } from 'react-i18next';
 
 const PasswordReset = () => {
+  const { t } = useTranslation();
   const [resetEmail, setResetEmail] = useState('');
   const [resetError, setResetError] = useState(null);
   const [isResetting, setIsResetting] = useState(false);
