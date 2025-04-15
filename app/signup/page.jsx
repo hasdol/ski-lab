@@ -10,7 +10,6 @@ const SignUp = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
@@ -20,7 +19,7 @@ const SignUp = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await registerWithEmailAndPassword(email, password, username);
+      await registerWithEmailAndPassword(email, password);
       router.push('/');
       // No need to reset isLoading on success.
     } catch (error) {
@@ -39,14 +38,6 @@ const SignUp = () => {
         <h1 className="text-dominant text-5xl mb-10 font-semibold">{t('signUp')}</h1>
         {error && <p className="bg-red-100 text-red-700 p-3 rounded">{error}</p>}
         <form onSubmit={handleSignUp} className="space-y-3 text-black">
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
-            className="w-full px-4 py-2 border border-gray-300 rounded"
-            required
-          />
           <input
             type="email"
             value={email}

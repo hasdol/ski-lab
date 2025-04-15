@@ -16,11 +16,15 @@ exports.onUserCreate = functionsV1.auth.user().onCreate(async (user) => {
       themePreference: 'light',
       languagePreference: 'en',
     },
+    displayName: '', 
+    photoURL: null,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
     plan: 'free',
     skiCount: 0,
     lockedSkisCount: 0,
     stripeCustomerId: null,
     stripeSubscriptionId: null,
+    photoURL: null,
   };
   try {
     await userRef.set(initialData);
@@ -397,7 +401,7 @@ exports.onSkiDeleted = onDocumentDeleted('users/{userId}/skis/{skiId}', async (e
 
 async function deleteProfilePicture(userId) {
   const bucket = admin.storage().bucket(); // Uses the default bucket from your project
-  const file = bucket.file(`profilePictures/${userId}`);
+  const file = bucket.file(`profilePictures/${userId}/profile.jpg`);
   try {
     await file.delete();
     console.log('Profile picture deleted successfully.');

@@ -47,6 +47,7 @@ const SignIn = () => {
       </Head>
       <div className="m-auto mt-32 w-2/3 md:w-1/2 animate-fade-down animate-duration-300">
         <h1 className="text-5xl mb-10 font-semibold">{t('signIn')}</h1>
+        {error && <p className="bg-red-100 text-red-700 p-3 rounded">{error}</p>}
         <form onSubmit={handleSignIn} className="space-y-3 text-black">
           <input
             type="email"
@@ -71,7 +72,6 @@ const SignIn = () => {
           >
             {t('signIn')}
           </Button>
-          {error && <div className="text-red-500">{error}</div>}
         </form>
         <div className="mt-6 text-sm flex flex-col space-y-2">
           <p>
