@@ -222,23 +222,24 @@ const Skis = () => {
           </div>
 
           {/* Right block: Ski count and add ski button */}
-          <div className="flex space-x-2 items-end">
+          <div className="flex space-x-3 items-end">
             <div className="flex flex-col items-center w-fit">
-              <button onClick={handlePlanClick} className="bg-container flex items-center p-3 shadow rounded hover:bg-sbtn">
+              <Button onClick={handlePlanClick} variant="secondary">
                 <RiShoppingCartLine className="text-highlight" />
-              </button>
+              </Button>
             </div>
             <div className="flex flex-col items-center w-fit">
               <label className={`text-sm font-semibold mb-1 ${hasReachedLimit && 'text-delete'}`}>
                 {skiCount}/{skiLimit}
               </label>
-              <button
+              <Button
                 onClick={handleAddSki}
-                className={`bg-container flex items-center p-3 shadow rounded ${hasReachedLimit ? 'opacity-50 text-delete' : 'hover:bg-sbtn'}`}
-                title={hasReachedLimit ? t('max_skis_reached') : ''}
+                variant='secondary'
+                disabled={hasReachedLimit}
+                className={`${hasReachedLimit && 'text-red-500' }`}
               >
                 {hasReachedLimit ? <RiLockLine /> : <RiAddLine />}
-              </button>
+              </Button>
             </div>
 
             {/* Sorting, Filter & View toggles */}
@@ -246,14 +247,15 @@ const Skis = () => {
               <div className="flex space-x-4 md:space-x-2">
                 <div className="flex flex-col items-center w-fit">
                   <label className="text-sm font-semibold mb-1">{t('filter')}</label>
-                  <button
+                  <Button
                     onClick={toggleFilterDrawer}
-                    className={`bg-container cursor-pointer flex items-center p-3 shadow rounded hover:bg-sbtn ${(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && 'text-highlight'}`}
+                    variant='secondary'
+                    className={`${(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && 'text-highlight'}`}
                   >
                     {(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived')
                       ? <RiFilter2Fill />
                       : <RiFilter2Line />}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -309,28 +311,29 @@ const Skis = () => {
         {(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && (
           <div className="flex space-x-2 text-sm mx-2 mt-2">
             {styleFilter !== 'all' && (
-              <span
-                className="flex items-center bg-container shadow rounded p-2 cursor-pointer hover:bg-background"
+              <Button
+                variant='secondary'
                 onClick={resetStyle}
               >
-                {t(styleFilter)} <RiCloseLine />
-              </span>
+                <span className='flex'>{t(styleFilter)} <RiCloseLine /></span>
+              </Button>
             )}
             {skiTypeFilter !== 'all' && (
-              <span
-                className="flex items-center bg-container shadow rounded p-2 cursor-pointer hover:bg-background"
+              <Button
+                variant='secondary'
                 onClick={resetSkiType}
               >
-                {t(skiTypeFilter)} <RiCloseLine />
-              </span>
+                <span className='flex'>{t(skiTypeFilter)} <RiCloseLine /></span>
+
+              </Button>
             )}
             {archivedFilter !== 'notArchived' && (
-              <span
-                className="flex items-center bg-container shadow rounded p-2 cursor-pointer hover:bg-background"
+              <Button
+                variant='secondary'
                 onClick={resetArchive}
               >
-                {t(archivedFilter)} <RiCloseLine />
-              </span>
+                <span className='flex'>{t(archivedFilter)} <RiCloseLine /></span>
+              </Button>
             )}
           </div>
         )}

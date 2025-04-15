@@ -1,6 +1,6 @@
 // src/hooks/useTournamentResults.js
 import { useState, useEffect } from 'react';
-import { subscribeToTournamentResults, addTestResult, updateTournamentResult, deleteTournamentAndRelatedRankings } from '@/lib/firebase/firestoreFunctions';
+import { subscribeToTournamentResults } from '@/lib/firebase/firestoreFunctions';
 import { useAuth } from '@/context/AuthContext';
 
 const useTournamentResults = () => {

@@ -175,7 +175,7 @@ const Results = () => {
                   <div className="space-x-2">
                     <Button
                       onClick={() => handleEdit(result.id)}
-                      variant="primary"
+                      variant="secondary"
                     >
                       <RiEditLine />
                     </Button>

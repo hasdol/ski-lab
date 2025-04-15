@@ -1,8 +1,9 @@
+// CreateTeamPage.jsx
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { createTeam } from '@/lib/firebase/teamFunctions';
+import { createTeam, updateTeamImage } from '@/lib/firebase/teamFunctions';
 import { uploadTeamImage } from '@/lib/firebase/storageFunctions';
 import { useTranslation } from 'react-i18next';
 import Button from '@/components/common/Button';
@@ -32,11 +33,16 @@ export default function CreateTeamPage() {
     try {
       setUploading(true);
 
+      // 1. Create team without an image
+      const teamId = await createTeam(user.uid, teamName);
+
+      // 2. If an image was selected and the user is allowed, upload it using the teamId as filename
       if (file && (userData?.plan === 'coach' || userData?.plan === 'company')) {
-        uploadedImageURL = await uploadTeamImage(user.uid, file);
+        uploadedImageURL = await uploadTeamImage(teamId, file, user.uid);
+        // Update the team document with the image URL
+        await updateTeamImage(teamId, uploadedImageURL);
       }
 
-      await createTeam(user.uid, teamName, uploadedImageURL);
       router.push('/teams');
     } catch (err) {
       console.error('Create team failed', err);

@@ -1,3 +1,4 @@
+import Button from '@/components/common/Button';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdInfoOutline } from "react-icons/md";
@@ -96,62 +97,43 @@ const CombinedConditionsHeatmap = ({
   };
 
   return (
-    <div className="relative overflow-x-auto overflow-y-hidden pb-2">
-      <div className='flex flex-col md:flex-row md:justify-between'>
+    <div className="relative bg-white rounded-md mt-5">
+      <div className='flex flex-col md:flex-row md:justify-between mb-4'>
         {/* Tabs with counts */}
-        <div className="flex space-x-2 mb-2">
-          <button
-            className={`px-4 py-2 rounded-t h-fit focus:outline-none ${activeTab === 'natural' ? 'bg-btn text-btntxt' : 'bg-sbtn shadow'
-              }`}
-            onClick={() => setActiveTab('natural')}
-          >
-            {/* Show “Natural” plus the count in parentheses */}
-            {t('natural')}
-            {!!categoryDotCounts.natural && (
-              <span className="ml-1">({categoryDotCounts.natural})</span>
-            )}
-          </button>
-          <button
-            className={`px-4 py-2 rounded-t h-fit focus:outline-none ${activeTab === 'artificial' ? 'bg-btn text-btntxt' : 'bg-sbtn shadow'
-              }`}
-            onClick={() => setActiveTab('artificial')}
-          >
-            {t('artificial')}
-            {!!categoryDotCounts.artificial && (
-              <span className="ml-1">({categoryDotCounts.artificial})</span>
-            )}
-          </button>
-          <button
-            className={`px-4 py-2 rounded-t h-fit focus:outline-none ${activeTab === 'mix' ? 'bg-btn text-btntxt' : 'bg-sbtn shadow'
-              }`}
-            onClick={() => setActiveTab('mix')}
-          >
-            {t('mix')}
-            {!!categoryDotCounts.mix && (
-              <span className="ml-1">({categoryDotCounts.mix})</span>
-            )}
-          </button>
+        <div className="flex space-x-2 mb-4 md:mb-0">
+          {['natural', 'artificial', 'mix'].map((tab) => (
+            <Button
+              key={tab}
+              variant={`${activeTab === tab ? 'primary' : 'secondary'}`}
+              onClick={() => setActiveTab(tab)}
+              className='text-xs'
+            >
+              {t(tab)}
+              {!!categoryDotCounts[tab] && (
+                <span className="ml-1 opacity-90">({categoryDotCounts[tab]})</span>
+              )}
+            </Button>
+          ))}
         </div>
 
-        {/* Info about small tests if any */}
+        {/* Info about small tests */}
         {chartData.some((d) => d.total < 4) && (
-          <div className="text-sm h-fit my-4 md:my-0 font-semibold flex md:w-fit">
-            <MdInfoOutline size={20} />
-            <span className='mx-1 font-semibold'>
-              {chartData.filter((d) => d.total < 4).length}
+          <div className="flex items-center bg-blue-50 text-blue-800 px-4 py-2 rounded-md text-sm">
+            <MdInfoOutline className="w-5 h-5 mr-2 flex-shrink-0" />
+            <span>
+              {chartData.filter((d) => d.total < 4).length} {t('small_tests_ignored_in_heatmap')}
             </span>
-            {t('small_tests_ignored_in_heatmap')}
           </div>
         )}
       </div>
 
       {/* The Heatmap */}
-      <table className="min-w-full table-auto border-collapse">
+      <table className="w-full border-collapse">
         <thead>
-          <tr>
-            <th className="text-left font-semibold">{t('snow_type')}</th>
+          <tr className="border-b border-gray-200">
+            <th className="text-left text-gray-600 font-medium pb-3">{t('snow_type')}</th>
             {temperatureList.map((temp, index) => (
-              <th key={index} className="text-center font-semibold">
+              <th key={index} className="text-center text-gray-600 font-medium pb-3 px-2">
                 {temp}°C
               </th>
             ))}
@@ -161,8 +143,8 @@ const CombinedConditionsHeatmap = ({
           {rows.map((row, rowIndex) => {
             const rowLabel = `${t(row.source)} – ${t(row.snowType)}`;
             return (
-              <tr key={rowIndex}>
-                <td className="text-sm">{rowLabel}</td>
+              <tr key={rowIndex} className="border-b border-gray-100 last:border-0">
+                <td className="text-sm text-gray-500 py-2 pr-4">{rowLabel}</td>
                 {temperatureList.map((temp, colIndex) => {
                   const perfKey = `${temp}___${row.source}___${row.snowType}`;
                   const item = performanceMap[perfKey];
@@ -173,7 +155,8 @@ const CombinedConditionsHeatmap = ({
                     <td key={colIndex} className="px-2 py-1 text-center">
                       {category !== 'unknown' ? (
                         <div
-                          className="w-5 h-5 mx-auto rounded-full cursor-pointer transition-all hover:scale-110"
+                          className="w-6 h-6 mx-auto rounded-full cursor-pointer transition-all 
+                            hover:scale-125 shadow-sm"
                           style={{ backgroundColor: bgColor }}
                           title={t(category)}
                           onClick={() =>
@@ -193,18 +176,18 @@ const CombinedConditionsHeatmap = ({
       </table>
 
       {/* Legend */}
-      <div className="grid grid-cols-3 mt-4 gap-y-2">
+      <div className="flex flex-wrap gap-4 mt-6">
         {Object.entries(categoryColors).map(([cat, color]) => (
-          <div key={cat} className="flex items-center space-x-1">
+          <div key={cat} className="flex items-center gap-2">
             {cat === 'unknown' ? (
-              <span className='w-4 h-4 flex items-center justify-center'>--</span>
+              <span className="w-5 h-5 flex items-center justify-center text-gray-400">--</span>
             ) : (
               <span
-                className="w-4 h-4 rounded-full"
+                className="w-5 h-5 rounded-full shadow-sm"
                 style={{ backgroundColor: color }}
               />
             )}
-            <span className="text-sm">{t(cat)}</span>
+            <span className="text-sm text-gray-600">{t(cat)}</span>
           </div>
         ))}
       </div>
@@ -247,12 +230,13 @@ const CombinedConditionsHeatmap = ({
             <p>{t('no_tests_for_this_condition')}</p>
           )}
           <div className="text-right mt-4">
-            <button
-              className="px-4 py-2 bg-sbtn text-text rounded hover:opacity-90"
+            <Button
               onClick={() => setShowPopup(false)}
+              variant='secondary'
+              className='text-xs'
             >
               {t('close')}
-            </button>
+            </Button>
           </div>
         </div>
       )}

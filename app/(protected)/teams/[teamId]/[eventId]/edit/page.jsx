@@ -3,16 +3,18 @@ import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { updateEvent, deleteEvent } from '@/lib/firebase/teamFunctions';
-import { uploadEventImage } from '@/lib/firebase/storageFunctions';
+import { deleteEventImage, uploadEventImage } from '@/lib/firebase/storageFunctions';
 import useEvent from '@/hooks/useEvent';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
 import UploadableImage from '@/components/common/UploadableImage';
+import { useAuth } from '@/context/AuthContext';
 
 export default function EditEventPage() {
   const { teamId, eventId } = useParams();
   const router = useRouter();
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   // ❗ 1) Call all Hooks up front, unconditionally:
   const { eventData, loading, error } = useEvent(teamId, eventId);
@@ -79,16 +81,16 @@ export default function EditEventPage() {
     try {
       setUploading(true);
       let finalImage = finalImageURL;
-  
+
       if (file) {
-        finalImage = await uploadEventImage(teamId, eventId, file);
+        finalImage = await uploadEventImage(teamId, eventId, file, user.uid);
         setImageURL(finalImage);
       }
-  
+
       const start = new Date(finalStartDate);
       const end = new Date(finalEndDate);
       end.setHours(23, 59, 59, 999); // ⬅️ Make sure the event stays live through the end date
-  
+
       const updatedData = {
         name: finalName,
         description: finalDesc,
@@ -96,7 +98,7 @@ export default function EditEventPage() {
         endDate: end,
         imageURL: finalImage,
       };
-  
+
       await updateEvent(teamId, eventId, updatedData);
       router.push(`/teams/${teamId}/${eventId}`);
     } catch (err) {
@@ -106,7 +108,7 @@ export default function EditEventPage() {
       setUploading(false);
     }
   };
-  
+
 
   const handleDelete = async () => {
     if (confirm('Are you sure you want to delete this event?')) {
@@ -117,6 +119,18 @@ export default function EditEventPage() {
         console.error('Error deleting event:', err);
         alert(err.message);
       }
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    try {
+      await deleteEventImage(teamId, eventId);
+      await updateEvent(teamId, eventId, { imageURL: '' });
+      setImageURL('');
+      alert(t('image_removed_success'));
+    } catch (error) {
+      console.error('Error removing event image:', error);
+      alert(t('remove_image_error') + ': ' + error.message);
     }
   };
 
@@ -160,6 +174,11 @@ export default function EditEventPage() {
           clickable={true}
           handleImageChange={handleFileSelect}
         />
+        {eventData.imageURL && (
+          <Button onClick={handleRemoveImage} variant="danger" className="mt-2">
+            {t('remove_image')}
+          </Button>
+        )}
       </div>
 
 

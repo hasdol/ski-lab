@@ -3,18 +3,34 @@ service firebase.storage {
   match /b/{bucket}/o {
 
     // Rule for profile pictures: Only the authenticated user can upload and read their profile picture
-    match /profilePictures/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    match /profilePictures/{userId}/profile.jpg {
+      allow read: if request.auth != null;
+      allow write, delete: if 
+      request.auth != null &&
+      request.auth.uid == userId &&
+      (request.resource == null || // For deletions
+      request.resource.metadata.createdBy == userId); // For uploads
     }
 
     // Rule for team images: Authenticated users can upload and read team images
-    match /teamImages/{teamId} {
-      allow read, write: if request.auth != null;
+    match /teams/{teamId}/team.jpg {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && (
+      // For uploads/updates
+      (request.resource != null && request.resource.metadata.createdBy == request.auth.uid) ||
+      // For deletions
+      (resource != null && resource.metadata.createdBy == request.auth.uid)
+      );
     }
 
-    // Rule for event images: Authenticated users can upload and read event images
-    match /eventImages/{teamId}/{eventId} {
-      allow read, write: if request.auth != null;
+    // Event images
+    match /teams/{teamId}/events/{eventId}/event.jpg {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && (
+      (request.resource != null && request.resource.metadata.createdBy == request.auth.uid) ||
+      (resource != null && resource.metadata.createdBy == request.auth.uid)
+      );
     }
+
   }
 }

@@ -36,7 +36,7 @@ const Input = ({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        className={`w-full bg-container text-text border rounded ${gloveClasses} ${className}`}
+        className={`w-full bg-container text-text border rounded-md ${gloveClasses} ${className}`}
         {...props}
       />
     );
@@ -49,7 +49,7 @@ const Input = ({
         onChange={onChange}
         required={required}
         disabled={disabled}
-        className={`w-full bg-container text-text border rounded ${gloveClasses} ${className}`}
+        className={`w-full bg-container text-text border rounded-md ${gloveClasses} ${className}`}
         {...props}
       >
         <option value="">{placeholder}</option>
@@ -91,7 +91,7 @@ const Input = ({
           onChange={onChange}
           required={required}
           disabled={disabled}
-          className={`w-full bg-container text-text border rounded ${gloveClasses} ${className}`}
+          className={`w-full bg-container text-text border rounded-md ${gloveClasses} ${className}`}
           {...props}
         />
         <span className="text-text mt-1">
@@ -111,7 +111,7 @@ const Input = ({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        className={`w-full bg-container text-text border rounded ${gloveClasses} ${className}`}
+        className={`w-full bg-container text-text border rounded-md ${gloveClasses} ${className}`}
         {...props}
       />
     );

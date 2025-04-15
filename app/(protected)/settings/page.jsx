@@ -21,7 +21,7 @@ const Settings = () => {
   const { resetPassword, updateDisplayName } = useProfileActions(user);
   const { t } = useTranslation();
   const { english, setEnglish, gloveMode, setGloveMode } = useContext(UserPreferencesContext);
-  const [newDisplayName, setNewDisplayName] = useState(user.displayName || '');
+  const [newDisplayName, setNewDisplayName] = useState(userData?.displayName || '');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isEditingUsername, setIsEditingUsername] = useState(false);
@@ -85,7 +85,6 @@ This action cannot be undone.`;
       <div className="flex flex-col items-center space-y-10 p-4 md:mt-10 animate-fade-down animate-duration-300">
         {/* Username Section */}
         <div className="">
-          <h4 className="font-semibold text-lg mb-2">{t('username')}</h4>
           {isEditingUsername ? (
             <div className="flex flex-col space-y-3">
               <Input
@@ -93,8 +92,7 @@ This action cannot be undone.`;
                 value={newDisplayName}
                 onChange={(e) => setNewDisplayName(e.target.value)}
                 placeholder={t('username')}
-                label="" // Empty label hides the default label if undesired
-                className="bg-container rounded text-text p-2 shadow"
+                label={t('username')} // Empty label hides the default label if undesired
               />
               <div className="space-x-3">
                 <Button
@@ -114,13 +112,13 @@ This action cannot be undone.`;
             </div>
           ) : (
             <div
-              className="flex items-center justify-between space-x-4 bg-container shadow rounded px-3 py-2 cursor-pointer"
+              className="flex items-center justify-between w-full max-w-md space-x-4 bg-white border border-gray-200 shadow-sm rounded-md px-4 py-2 cursor-pointer hover:bg-gray-50 transition"
               onClick={() => setIsEditingUsername(true)}
             >
-              <RiUserLine />
-              <div className="text-text">{user.displayName || t('no_username')}</div>
-              <div className="p-2 rounded-full">
-                <RiEditLine />
+              <RiUserLine className="text-gray-600" />
+              <div className="flex-1 text-left text-gray-800">{userData?.displayName || t('no_username')}</div>
+              <div className="p-2 rounded-full hover:bg-gray-200 transition">
+                <RiEditLine className="text-gray-600" />
               </div>
             </div>
           )}

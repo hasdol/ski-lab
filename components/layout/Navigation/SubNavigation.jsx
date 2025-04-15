@@ -12,6 +12,7 @@ import {
   RiLoginCircleLine, 
   RiUserAddLine 
 } from "react-icons/ri";
+import Button from '@/components/common/Button';
 
 const SubNavigation = ({ isVisible, onClose }) => {
   const router = useRouter();
@@ -26,58 +27,32 @@ const SubNavigation = ({ isVisible, onClose }) => {
     onClose();
   };
 
+  const navItems = [
+    user && { label: t('account'), icon: <RiUser6Line />, path: '/account' },
+    user && { label: t('settings'), icon: <RiSettings3Line />, path: '/settings' },
+    user && { label: t('contact'), icon: <RiMessage2Line />, path: '/contact' },
+    user && { label: t('signOut'), icon: <RiLogoutCircleRLine />, action: () => { signOut(router.push); onClose(); } },
+    !user && { label: t('signIn'), icon: <RiLoginCircleRLine />, path: '/signin' },
+    !user && { label: t('signUp'), icon: <RiUserAddLine />, path: '/signup' },
+  ].filter(Boolean);
+
   return (
-    <div className="bg-container md:bg-transparent px-5 py-10 md:p-0 rounded  md:shadow-none fixed left-1/2 bottom-16 md:bottom-auto transform -translate-x-1/2 w-86 space-y-3 cursor-pointer font-semibold md:relative md:w-full md:transform-none animate-fade-up md:animate-fade-down animate-duration-300 md:animate-duration-200">
-      <ul className="space-y-3 cursor-pointer font-semibold md:static md:py-4 md:w-full animate-fade md:animate-fade-down animate-duration-300 md:animate-duration-200">
-        {user && (
-          <li 
-            className="bg-container border hover:bg-sbtn rounded flex justify-between items-center p-4 hover:opacity-90" 
-            onClick={() => handleItemClick('/account')}
+    <div className="bg-white md:bg-transparent px-5 py-10 md:p-0 md:mt-2 rounded md:shadow-none fixed left-1/2 bottom-16 md:bottom-auto transform -translate-x-1/2 w-86 space-y-3 font-semibold md:relative md:w-full md:transform-none animate-fade-up md:animate-fade-down animate-duration-300 md:animate-duration-200">
+      <div className="space-y-3">
+        {navItems.map(({ label, icon, path, action }, idx) => (
+          <Button
+            key={idx}
+            variant="secondary"
+            className="w-full flex justify-between items-center p-4 text-left"
+            onClick={() => {
+              action ? action() : handleItemClick(path);
+            }}
           >
-            {t('account')} <RiUser6Line size={20} />
-          </li>
-        )}
-        {user && (
-          <li 
-            className="bg-container border hover:bg-sbtn rounded flex justify-between items-center p-4 hover:opacity-90" 
-            onClick={() => handleItemClick('/settings')}
-          >
-            {t('settings')} <RiSettings3Line size={20} />
-          </li>
-        )}
-        {user && (
-          <li 
-            className="bg-container border hover:bg-sbtn rounded flex justify-between items-center p-4 hover:opacity-90" 
-            onClick={() => handleItemClick('/contact')}
-          >
-            {t('contact')} <RiMessage2Line size={20} />
-          </li>
-        )}
-        {user && (
-          <li 
-            className="bg-container border hover:bg-sbtn rounded flex justify-between items-center p-4 hover:opacity-90" 
-            onClick={() => { signOut(router.push); onClose(); }}
-          >
-            {t('signOut')} <RiLogoutCircleRLine size={20} />
-          </li>
-        )}
-        {!user && (
-          <li 
-            className="bg-container shadow border-l-2 hover:bg-sbtn rounded-e flex justify-between items-center p-4 hover:opacity-90" 
-            onClick={() => handleItemClick('/signin')}
-          >
-            {t('signIn')} <RiLoginCircleRLine size={20} />
-          </li>
-        )}
-        {!user && (
-          <li 
-            className="bg-container shadow border-l-2 hover:bg-sbtn rounded-e flex justify-between items-center p-4 hover:opacity-90" 
-            onClick={() => handleItemClick('/signup')}
-          >
-            {t('signUp')} <RiUserAddLine size={20} />
-          </li>
-        )}
-      </ul>
+            <span>{label}</span>
+            {icon}
+          </Button>
+        ))}
+      </div>
     </div>
   );
 };

@@ -192,8 +192,8 @@
   "confirm_delete_account": "Ønsker du å slette kontoen din?",
   "test_guide": "Test veiledning",
   "guide_step_1": "Finn en nedoverbakke med et slipp-punkt og et måle-punkt",
-  "guide_step_2": "Hold fast og glid side om side med en partner og slip hverandre på 'slipp-punktet'",
-  "guide_step_3": "Glid til 'måle-punktet' og observer avstanden. Bytt ski og gjenta",
+  "guide_step_2": "Hold fast og gli side om side med en partner og slip hverandre på 'slipp-punktet'",
+  "guide_step_3": "Gli til 'måle-punktet' og observer avstanden. Bytt ski og gjenta",
   "guide_step_4": "Sammenlign testene og noter differensen. Fortsett med de to neste parene",
   "cookie_concent": "Denne siden bruker cookies for å fungere. Vi benytter tredjepartstjenester som Firebase, Stripe og OpenWeatherMap API. Ved å fortsette samtykker du til bruken av disse cookies.",
   "cancel_account_deletion": "Avbryt sletting av bruker",
@@ -219,5 +219,7 @@
   "description": "Beskrivelse",
   "members": "Medlemmer",
   "overview": "Oversikt",
-  "weather": "Værmelding"
+  "weather": "Værmelding",
+  "remove": "Fjern"
+
 }

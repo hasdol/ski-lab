@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { createEvent } from '@/lib/firebase/teamFunctions';
+import { createEvent, updateEvent } from '@/lib/firebase/teamFunctions';
 import { uploadEventImage } from '@/lib/firebase/storageFunctions';
 import { useTranslation } from 'react-i18next';
 import Button from '@/components/common/Button';
@@ -33,32 +33,36 @@ export default function CreateEventPage() {
 
   const handleCreate = async () => {
     if (!name || !startDate || !endDate) return;
-    let finalImageURL = '';
-
+    
     try {
       setUploading(true);
-
-      if (file) {
-        finalImageURL = await uploadEventImage(teamId, user.uid, file);
-      }
-
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999); // ⬅️ ensure end of day
-
-      await createEvent(
+      
+      // 1. First create the event without an image
+      const eventRef = await createEvent(
         teamId,
         name,
         desc,
-        start,
-        end,
-        finalImageURL,
+        new Date(startDate),
+        new Date(endDate),
+        '', // Start with empty imageURL
         user.uid
       );
-
+      
+      // 2. If image selected, upload using the new event ID
+      let finalImageURL = '';
+      if (file) {
+        finalImageURL = await uploadEventImage(teamId, eventRef.id, file, user.uid);
+        // 3. Update the event with the image URL
+        await updateEvent(teamId, eventRef.id, { imageURL: finalImageURL });
+      }
+  
       router.push(`/teams/${teamId}`);
     } catch (err) {
       console.error('Create event failed', err);
+      // Optional: Delete event if image upload fails
+      if (eventRef?.id) {
+        await deleteEvent(teamId, eventRef.id);
+      }
     } finally {
       setUploading(false);
     }

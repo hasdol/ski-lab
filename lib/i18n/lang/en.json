@@ -164,7 +164,7 @@
   "card_view": "Card view",
   "view": "View",
   "snow_source": "Snow Source",
-  "natural": "Natural snow",
+  "natural": "Natural",
   "icy_conditions": "Icy conditions",
   "sugary_snow": "Sugary snow",
   "both": "Both",
@@ -218,5 +218,6 @@
   "description": "Description",
   "members": "Members",
   "overview": "Overview",
-  "weather": "Weather"
+  "weather": "Weather",
+  "remove": "Remove"
 }

@@ -10,7 +10,7 @@ const GrindHistory = ({ grindHistory }) => {
     }
 
     return (
-        <div className="mt-4">
+        <div className="my-4">
             <h3 className="text-2xl font-semibold mb-2">{t('grind_history')}</h3>
             <ul className='space-y-2'>
                 {grindHistory.map((entry, index) => (

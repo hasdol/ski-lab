@@ -244,7 +244,7 @@ const Testing = () => {
             <div className='space-x-2'>
               <Button
                 type="button"
-                variant='primary'
+                variant='secondary'
                 onClick={toggleHelpModal}
               >
                 <RiQuestionLine />

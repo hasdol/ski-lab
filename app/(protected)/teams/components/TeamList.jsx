@@ -15,7 +15,8 @@ export default function TeamList({ teams }) {
   const router = useRouter();
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [loading, setIsLoading] = useState(false)
+  const [loadingTeamId, setLoadingTeamId] = useState(null);
+
 
 
   if (!teams || !teams.length) {
@@ -24,27 +25,25 @@ export default function TeamList({ teams }) {
 
   const handleLeaveTeam = async (teamId) => {
     const confirmLeave = window.confirm('Are you sure you want to leave this team?');
-    setIsLoading(true)
     if (!confirmLeave) return;
 
+    setLoadingTeamId(teamId);
     try {
       await leaveTeamCallable({ teamId });
-      // UI will auto-update due to your useTeams hook
     } catch (error) {
       alert(error.message || 'Failed to leave team.');
-    }
-    finally {
-      setIsLoading(false)
+    } finally {
+      setLoadingTeamId(null);
     }
   };
 
 
   return (
-    <div className="grid md:grid-cols-2 gap-4">
+    <div className="grid md:grid-cols-3 gap-4">
       {teams.map((team) => (
-        <div
+        <Button
           key={team.id}
-          className="grid grid-cols-2 justify-between shadow bg-container p-4 rounded cursor-pointer hover:bg-sbtn"
+          variant="secondary"
           onClick={() => router.push(`/teams/${team.id}`)}
         >
           <div>
@@ -54,12 +53,12 @@ export default function TeamList({ teams }) {
           <div className='self-center justify-self-end'>
             {user.uid !== team.createdBy && (
               <Button
-                variant='secondary'
+                variant="secondary"
+                loading={loadingTeamId === team.id}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleLeaveTeam(team.id);
                 }}
-                loading={loading}
               >
                 <IoExitOutline />
               </Button>
@@ -67,7 +66,7 @@ export default function TeamList({ teams }) {
 
 
           </div>
-        </div>
+        </Button>
       ))}
     </div>
   );

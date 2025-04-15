@@ -8,37 +8,36 @@ const Button = ({
   type = 'button',
   variant = 'primary',
   disabled = false,
-  loading = false,
+  loading = false, 
   className = '',
   ...props
 }) => {
   const isIconOnly = React.Children.count(children) === 1 && React.isValidElement(children);
 
-  // Styling
   const baseStyles = isIconOnly
-    ? 'p-2 rounded focus:outline-none transition duration-200'
-    : 'px-4 py-2 rounded focus:outline-none transition duration-200';
+    ? 'p-2.5 rounded-md focus:outline-none transition-all duration-200'
+    : 'px-5 py-2.5 rounded-md text-sm font-medium focus:outline-none transition-all duration-200';
 
   let variantStyles = '';
   switch (variant) {
     case 'primary':
-      variantStyles = 'bg-btn text-btntxt hover:bg-neutral-700';
+      variantStyles = 'bg-neutral-800 text-white hover:bg-neutral-700 active:scale-[0.98] focus:ring-2 focus:ring-black/30 shadow-sm';
       break;
     case 'secondary':
-      variantStyles = 'bg-gray-200 hover:bg-gray-300';
+      variantStyles = 'bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-300 shadow-sm';
       break;
     case 'danger':
-      variantStyles = 'bg-red-500 text-white hover:bg-red-600';
+      variantStyles = 'bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors active:scale-[0.98] focus:ring-2 focus:ring-red-300 shadow-sm';
       break;
     case 'upgrade':
-      variantStyles = 'bg-blue-500 text-white hover:bg-blue-600';
+      variantStyles = 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] focus:ring-2 focus:ring-blue-300 shadow-sm';
       break;
     default:
-      variantStyles = 'bg-blue-500 text-white hover:bg-blue-600';
+      variantStyles = 'bg-blue-500 text-white hover:bg-blue-600 active:scale-[0.98] focus:ring-2 focus:ring-blue-300 shadow-sm';
       break;
   }
 
-  const disabledStyles = disabled || loading ? ' opacity-60 cursor-not-allowed pointer-events-none' : '';
+  const disabledStyles = disabled || loading ? 'opacity-50 cursor-not-allowed pointer-events-none' : '';
 
   return (
     <button

@@ -55,7 +55,7 @@ const SkiItem = ({
     >
       {/* Main clickable row */}
       <div
-        className={`pl-3 p-1 cursor-pointer flex justify-between items-center ${gloveMode && 'py-2'}`}
+        className={`pl-3 p-2 cursor-pointer flex justify-between items-center ${gloveMode && 'py-2'}`}
         onClick={() => {
           // Only toggle details if allExpanded is *not* active
           // (otherwise user’s click might be confusing if everything is forced open).
@@ -106,30 +106,17 @@ const SkiItem = ({
           {isNew(ski) && !gloveMode && <p className="text-highlight text-xs">{t('new')}</p>}
         </div>
 
-        {/* Edit Button */}
-        {!gloveMode &&
-          <div className="p-1">
-            <Button
-              onClick={handleEditClick}
-              variant='primary'
-            >
-              <RiEditLine />
-            </Button>
-          </div>
-        }
-
       </div>
 
       {/* Detailed info if expanded */}
       {showDetails && !gloveMode && (
-        <div className="mt-2">
-          <SkiDetail
-            ski={ski}
-            onArchive={handleArchiveClick}
-            onUnarchive={handleUnarchiveClick}
-            onDelete={handleDeleteFinalClick}
-          />
-        </div>
+        <SkiDetail
+          ski={ski}
+          onEdit={handleEditClick}
+          onArchive={handleArchiveClick}
+          onUnarchive={handleUnarchiveClick}
+          onDelete={handleDeleteFinalClick}
+        />
       )}
     </div>
   );

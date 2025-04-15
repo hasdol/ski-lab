@@ -8,6 +8,7 @@ import Button from '@/components/common/Button';
 import UploadableImage from '@/components/common/UploadableImage';
 import { RiAddLargeLine } from 'react-icons/ri';
 
+
 export default function TeamDetailPage() {
   const { teamId } = useParams();
   const router = useRouter();
@@ -42,8 +43,12 @@ export default function TeamDetailPage() {
         <h1 className='font-semibold text-lg'>{team.name}</h1>
         <h5 className='text-sm'>{t('members')}: {team.members.length}</h5>
 
-        {canManage && <p>Join Code: {team.joinCode}</p>}
-        
+        {canManage && (
+          <div className="mt-2 px-3 py-2 bg-gray-100 rounded text-sm text-gray-800">
+            Join Code: <span className="font-mono">{team.joinCode}</span>
+          </div>
+        )}
+
 
         {canManage && (
           <div className="flex space-x-3 my-3">
@@ -67,24 +72,27 @@ export default function TeamDetailPage() {
         </div>
 
         {!events.length && <p>No events yet.</p>}
-        {events.map((evt) => {
-          const start = evt.startDate?.seconds ? new Date(evt.startDate.seconds * 1000) : null;
-          const end = evt.endDate?.seconds ? new Date(evt.endDate.seconds * 1000) : null;
-          const startDateFormatted = start?.toLocaleDateString();
-          const endDateFormatted = end?.toLocaleDateString();
+        <div className='grid md:grid-cols-3 gap-4'>
+          {events.map((evt) => {
+            const start = evt.startDate?.seconds ? new Date(evt.startDate.seconds * 1000) : null;
+            const end = evt.endDate?.seconds ? new Date(evt.endDate.seconds * 1000) : null;
+            const startDateFormatted = start?.toLocaleDateString();
+            const endDateFormatted = end?.toLocaleDateString();
 
-          return (
-            <div
-              key={evt.id}
-              onClick={() => router.push(`/teams/${team.id}/${evt.id}`)}
-              className="shadow bg-container p-4 mt-2 rounded cursor-pointer hover:bg-sbtn relative"
-            >
-              <h3 className="font-semibold">{evt.name}</h3>
-              <p>{evt.description}</p>
-              {start && end && <p>{startDateFormatted} - {endDateFormatted}</p>}
-            </div>
-          );
-        })}
+            return (
+              <Button
+                key={evt.id}
+                onClick={() => router.push(`/teams/${team.id}/${evt.id}`)}
+                variant="secondary"
+              >
+                <h3>{evt.name}</h3>
+                <p>{evt.description}</p>
+                {start && end && <p>{startDateFormatted} - {endDateFormatted}</p>}
+              </Button>
+            );
+          })}
+        </div>
+
       </div>
     </div>
   );

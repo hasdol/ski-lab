@@ -4,16 +4,14 @@ import { useTranslation } from 'react-i18next';
 import CombinedConditionsHeatmap from './CombinedConditionsHeatmap/CombinedConditionsHeatmap';
 import PerformanceChart from './PerformanceChart/PerformanceChart';
 import SelectSeason from './PerformanceChart/SelectSeason';
-import { RiInboxArchiveLine, RiInboxUnarchiveLine, RiDeleteBinLine } from "react-icons/ri";
 import { useAuth } from '@/context/AuthContext';
 import GrindHistory from '@/components/GrindHistory/GrindHistory';
 import { formatDate, getTimestamp, getSeason } from '@/helpers/helpers';
 import useSkiTests from '@/hooks/useSkiTests';
 import Button from '@/components/common/Button';
 
-const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
+const SkiDetail = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
   const { t } = useTranslation();
-  const { user } = useAuth();
   const { tests, loading: testsLoading, error: testsError } = useSkiTests(ski.id);
 
   // Chart data for THIS ski
@@ -313,156 +311,174 @@ const SkiDetail = ({ ski, onDelete, onArchive, onUnarchive }) => {
   }, [chartData, grindHistory]);
 
   return (
-    <div className="px-3 pb-4 animate-fade-down animate-duration-300">
-      {/* Ski Info */}
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="text-sm" htmlFor="brand">{t('brand')}</label>
-          <p className="font-semibold">{ski.brand || "--"}</p>
-        </div>
-        <div>
-          <label className="text-sm" htmlFor="model">{t('model')}</label>
-          <p className="font-semibold">{ski.model || "--"}</p>
-        </div>
-        <div>
-          <label className="text-sm" htmlFor="length">{t('length')}</label>
-          <p className="font-semibold">{ski.length || "--"}</p>
-        </div>
-        <div>
-          <label className="text-sm" htmlFor="stiffness">{t('stiffness')}</label>
-          <p className="font-semibold">{ski.stiffness || "--"}</p>
-        </div>
-        <div>
-          <label className="text-sm" htmlFor="base">Base</label>
-          <p className="font-semibold">{ski.base || "--"}</p>
-        </div>
-        <div>
-          <label className="text-sm" htmlFor="construction">{t('construction')}</label>
-          <p className="font-semibold">{ski.construction || "--"}</p>
-        </div>
-        <div>
-          <label className="text-sm" htmlFor="grind_date">{t('grind_date')}</label>
-          <p className="font-semibold">{formatDate(ski.grindDate)}</p>
-        </div>
-        <div>
-          <label className="text-sm" htmlFor="comment">{t('comment')}</label>
-          <p className="font-semibold">{ski.comment || "--"}</p>
-        </div>
-      </div>
+    <div className="max-w-4xl mx-auto pb-2 animate-fade-down animate-duration-300 relative">
+      <div className="bg-white rounded-md p-2 md:p-5">
+        {/* Ski Info Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8 border-b pb-6">
+          {/* Action Buttons - Now inside the grid */}
+          <div className="col-span-2 md:col-span-3 flex space-x-2 mb-2">
+            <Button
+              onClick={onEdit}
+              variant="secondary"
+              className='text-xs py-1 px-3'
+            >
+              {t('edit')}
+            </Button>
+            {ski.archived ? (
+              <Button
+                onClick={onUnarchive}
+                variant="primary"
+                className='text-xs py-1 px-3'
+              >
+                {t('unarchive')}
+              </Button>
+            ) : (
+              <Button
+                onClick={onArchive}
+                variant="primary"
+                className='text-xs py-1 px-3'
+              >
+                {t('archive')}
+              </Button>
+            )}
+            <Button
+              onClick={onDelete}
+              variant="danger"
+              className='text-xs py-1 px-3'
+            >
+              {t('delete')}
+            </Button>
+          </div>
 
-      {/* Performance Chart Section */}
-      <div>
-        <div className="flex justify-between items-center my-5">
-          <h2 className="text-2xl font-semibold">{t('performance')}</h2>
-          {tests && tests.length > 0 && (
-            <SelectSeason
-              selectedSeason={selectedSeason}
-              handleSeasonChange={handleSeasonChange}
-              availableSeasons={availableSeasons}
-            />
+          {/* Rest of the ski info items */}
+          <div className="space-y-1">
+            <label className="text-sm text-gray-500">{t('brand')}</label>
+            <p className="font-semibold text-gray-800">{ski.brand || "--"}</p>
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm text-gray-500">{t('model')}</label>
+            <p className="font-semibold text-gray-800">{ski.model || "--"}</p>
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm text-gray-500">{t('length')}</label>
+            <p className="font-semibold text-gray-800">{ski.length || "--"}</p>
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm text-gray-500">{t('stiffness')}</label>
+            <p className="font-semibold text-gray-800">{ski.stiffness || "--"}</p>
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm text-gray-500">Base</label>
+            <p className="font-semibold text-gray-800">{ski.base || "--"}</p>
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm text-gray-500">{t('construction')}</label>
+            <p className="font-semibold text-gray-800">{ski.construction || "--"}</p>
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm text-gray-500">{t('grind_date')}</label>
+            <p className="font-semibold text-gray-800">{formatDate(ski.grindDate)}</p>
+          </div>
+          <div className="space-y-1 col-span-2">
+            <label className="text-sm text-gray-500">{t('comment')}</label>
+            <p className="font-semibold text-gray-800">{ski.comment || "--"}</p>
+          </div>
+        </div>
+
+        {/* Performance Chart Section */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-800 mb-2 md:mb-0">
+              {t('performance')}
+            </h2>
+            {tests && tests.length > 0 && (
+              <SelectSeason
+                selectedSeason={selectedSeason}
+                handleSeasonChange={handleSeasonChange}
+                availableSeasons={availableSeasons}
+              />
+            )}
+          </div>
+
+          {tests && tests.length > 0 ? (
+            !chartData.length ? (
+              <div className="text-center text-gray-500 py-4">
+                {t('test_to_see_performance')}
+              </div>
+            ) : (
+              <PerformanceChart
+                ref={chartContainerRef}
+                data={filteredChartData}
+                filteredGrindHistory={filteredGrindHistory}
+                selectedSeason={selectedSeason}
+                minDate={seasonMinDate}
+                maxDate={seasonMaxDate}
+                maxRank={maxRank}
+                CustomTooltip={CustomTooltip}
+                containerWidth={containerWidth}
+              />
+            )
+          ) : (
+            <div className="text-center text-gray-500 py-4">
+              {t('no_tests')}
+            </div>
           )}
         </div>
-        {tests && tests.length > 0 ? (
-          !chartData.length ? (
-            <span>{t('test_to_see_performance')}</span>
-          ) : (
-            <PerformanceChart
-              ref={chartContainerRef}
-              data={filteredChartData}
-              filteredGrindHistory={filteredGrindHistory}
-              selectedSeason={selectedSeason}
-              minDate={seasonMinDate}
-              maxDate={seasonMaxDate}
-              maxRank={maxRank}
-              CustomTooltip={CustomTooltip}
-              containerWidth={containerWidth}
-            />
-          )
-        ) : (
-          <i>{t('no_tests')}</i>
-        )}
-      </div>
 
-      {/* Recommended Conditions Section (Heatmap) */}
-      <div>
-        <h2 className="text-2xl my-4 font-semibold">{t('recommended_conditions')}</h2>
-        {tests && tests.length > 0 ? (
-          combinedPerformanceData && combinedPerformanceData.length > 0 ? (
-            <div className="flex flex-col">
-              <div className="flex space-x-4">
-                {ski.grindDate && (
-                  <div className="mb-4">
-                    <label className="inline-flex items-center space-x-2">
-                      <input
-                        className="h-5 w-5 accent-btn"
-                        type="checkbox"
-                        checked={showCurrentGrind}
-                        onChange={(e) => setShowCurrentGrind(e.target.checked)}
-                      />
-                      <span>{t('current_grind')}</span>
-                    </label>
-                  </div>
-                )}
-                <div className="mb-4">
-                  <label className="inline-flex items-center space-x-2">
-                    <input
-                      className="h-5 w-5 accent-btn"
-                      type="checkbox"
-                      checked={showCurrentSeason}
-                      onChange={(e) => setShowCurrentSeason(e.target.checked)}
-                    />
-                    <span>{t('current_season')}</span>
-                  </label>
-                </div>
-              </div>
+        {/* Recommended Conditions Section */}
+        <div className="mb-8">
+          <div className="flex flex-col justify-between space-y-2">
+            <h2 className="text-xl font-semibold text-gray-800">
+              {t('recommended_conditions')}
+            </h2>
+            <div className="flex gap-4">
+              {ski.grindDate && (
+                <label className="flex items-center space-x-2">
+                  <input
+                    className="h-4 w-4 accent-blue-600"
+                    type="checkbox"
+                    checked={showCurrentGrind}
+                    onChange={(e) => setShowCurrentGrind(e.target.checked)}
+                  />
+                  <span className="text-sm">{t('current_grind')}</span>
+                </label>
+              )}
+              <label className="flex items-center space-x-2">
+                <input
+                  className="h-4 w-4 accent-blue-600"
+                  type="checkbox"
+                  checked={showCurrentSeason}
+                  onChange={(e) => setShowCurrentSeason(e.target.checked)}
+                />
+                <span className="text-sm">{t('current_season')}</span>
+              </label>
+            </div>
+          </div>
+
+          {tests && tests.length > 0 ? (
+            combinedPerformanceData?.length > 0 ? (
               <CombinedConditionsHeatmap
                 temperatureList={dynamicTemperatureList}
                 allSnowCombos={allSnowCombos}
                 combinedPerformanceData={combinedPerformanceData}
                 chartData={heatmapChartData}
               />
-            </div>
+            ) : (
+              <div className="text-center text-gray-500 py-4">
+                {t('no_tests')}
+              </div>
+            )
           ) : (
-            <i>{t('no_tests')}</i>
-          )
-        ) : (
-          <i>{t('no_tests')}</i>
-        )}
-      </div>
-
-      {/* Grind History Section */}
-      <GrindHistory grindHistory={grindHistory} />
-
-      {/* Action Buttons */}
-      <div className="flex bg-sbtn py-5 mt-5 rounded items-center justify-center space-x-10 w-full ">
-        {ski.archived ? (
-          <div className="flex flex-col space-y-2 items-center justify-center">
-            <Button
-              onClick={onUnarchive}
-              variant="primary"
-            >
-              <RiInboxUnarchiveLine />
-            </Button>
-            <label className="text-sm" htmlFor="unarchive">{t('unarchive')}</label>
-          </div>
-        ) : (
-          <div className="flex flex-col space-y-2 items-center justify-center">
-            <Button
-              onClick={onArchive}
-              variant="primary"            >
-              <RiInboxArchiveLine />
-            </Button>
-            <label className="text-sm" htmlFor="archive">{t('archive')}</label>
-          </div>
-        )}
-        <div className="flex flex-col space-y-2 items-center justify-center">
-          <Button
-            onClick={onDelete}
-            variant="danger"          >
-            <RiDeleteBinLine />
-          </Button>
-          <label className="text-sm" htmlFor="delete">{t('delete')}</label>
+            <div className="text-center text-gray-500 py-4">
+              {t('no_tests')}
+            </div>
+          )}
         </div>
+
+        {/* Grind History Section */}
+        <GrindHistory grindHistory={grindHistory} />
+
+
       </div>
     </div>
   );
