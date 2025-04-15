@@ -20,17 +20,13 @@ jobs:
       - name: Choose environment & create service account file
         shell: bash
         run: |
-          # Hvis vi er på dev-branch, bruk dev-service-konto.
           if [ "${{ github.ref }}" == "refs/heads/dev" ]; then
             echo "ENV=dev" >> $GITHUB_ENV
-            # Skriv ut innholdet av GCP_SERVICE_ACCOUNT_DEV til en .json-fil
             echo '${{ secrets.GCP_SERVICE_ACCOUNT_DEV }}' > service-account.json
           else
             echo "ENV=live" >> $GITHUB_ENV
-            # Skriv ut innholdet av GCP_SERVICE_ACCOUNT_PROD til en .json-fil
             echo '${{ secrets.GCP_SERVICE_ACCOUNT_PROD }}' > service-account.json
           fi
-          # Sett miljøvariabelen GOOGLE_APPLICATION_CREDENTIALS til pathen
           echo "GOOGLE_APPLICATION_CREDENTIALS=$PWD/service-account.json" >> $GITHUB_ENV
 
       - name: Install Functions dependencies
@@ -39,9 +35,8 @@ jobs:
           npm install
 
       - name: Deploy to Firebase
-        # Her leser vi inn GOOGLE_APPLICATION_CREDENTIALS fra $GITHUB_ENV
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
         run: |
           firebase use $ENV
-          firebase deploy --only functions,firestore:rules --force
+          firebase deploy --only functions,firestore:rules,storage --force
