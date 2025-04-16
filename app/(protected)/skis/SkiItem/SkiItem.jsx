@@ -1,7 +1,6 @@
 // ./components/SkiItem/SkiItem.jsx
 import React, { useContext } from 'react';
-import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
-import { RiEditLine, RiHistoryLine } from "react-icons/ri";
+import { RiHistoryLine, RiEyeLine, RiEyeOffLine   } from "react-icons/ri";
 import { useTranslation } from 'react-i18next';
 
 import SkiDetail from '../SkiDetail/SkiDetail';
@@ -19,19 +18,15 @@ const SkiItem = ({
   selectedSkis,
   expandedSkiId,
   toggleDetails,
-
-  // NEW: “Expand All” logic
-  allExpanded = false, // default to false if not passed
+  allExpanded = false,
 }) => {
   const { t } = useTranslation();
   const { gloveMode } = useContext(UserPreferencesContext);
 
-  // If "allExpanded" is true, always show details.
-  // Otherwise, show details only if the expanded ID matches this ski.
   const showDetails = allExpanded || (ski.id === expandedSkiId);
 
   const handleEditClick = async (e) => {
-    e.stopPropagation(); // Prevent toggling details when clicking edit
+    e.stopPropagation();
     await handleEdit(ski);
   };
 
@@ -48,38 +43,33 @@ const SkiItem = ({
   };
 
   return (
-    <div
-      className={`animate-fade-down animate-duration-300`}
-    >
-      {/* Main clickable row */}
+    <div className={`animate-fade-down animate-duration-300`}>
+      {/* Main clickable row - now controls checkbox */}
       <Button
         className={`w-full ${gloveMode && 'py-2'}`}
         variant='secondary'
-        onClick={() => {
-          // Only toggle details if allExpanded is *not* active
-          // (otherwise user’s click might be confusing if everything is forced open).
-          if (!allExpanded) {
-            toggleDetails(ski.id);
-          }
-        }}
+        onClick={() => handleCheckboxChange(ski.id)}
       >
         <div className={`flex items-center space-x-1 ${showDetails && 'font-semibold'}`}>
           <input
             type="checkbox"
             checked={selectedSkis[ski.id] || false}
-            onChange={() => handleCheckboxChange(ski.id)}
+            readOnly
             className={`mr-2 accent-btn ${gloveMode ? 'w-10 h-10' : 'w-4 h-4'}`}
-            onClick={(e) => e.stopPropagation()}
+            aria-label={t('selectSki')}
           />
 
           {!gloveMode ? (
-            <>
+            <div className='flex space-x-1 items-center'>
               <span>{ski.serialNumber}</span>
               <span>/</span>
               <span>{ski.grind}</span>
               <span>/</span>
               <span>{t(ski.style)}</span>
-            </>
+              {/* Archive or New indicators */}
+              {ski.archived && <RiHistoryLine />}
+              {isNew(ski) && !gloveMode && <p className="text-highlight text-xs"> - {t('new')}</p>}
+            </div>
           ) : (
             <div className="flex flex-col">
               <span className="text-lg font-bold">{ski.serialNumber}</span>
@@ -87,24 +77,24 @@ const SkiItem = ({
             </div>
           )}
 
-          {/* Toggle arrow with increased tap area */}
+
+
+          {/* Magnifying glass button for details */}
           {!gloveMode && !allExpanded && (
-            <div
+            <Button
               onClick={(e) => {
-                e.stopPropagation(); // so the tap specifically toggles details
+                e.stopPropagation();
                 toggleDetails(ski.id);
               }}
-              className="p-1 rounded-full hover:bg-gray-200" // adjust the styling as needed
+              variant='secondary'
+              className="ml-auto"
             >
-              {showDetails ? <MdArrowDropUp size={24} /> : <MdArrowDropDown size={24} />}
-            </div>
+              {showDetails?<RiEyeOffLine size={12} />:<RiEyeLine size={12}/>}
+              
+            </Button>
           )}
 
-          {/* Archive or New icons */}
-          {ski.archived && <RiHistoryLine />}
-          {isNew(ski) && !gloveMode && <p className="text-highlight text-xs">{t('new')}</p>}
         </div>
-
       </Button>
 
       {/* Detailed info if expanded */}
