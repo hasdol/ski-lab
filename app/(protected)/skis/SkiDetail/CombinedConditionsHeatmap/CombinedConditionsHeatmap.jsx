@@ -100,7 +100,7 @@ const CombinedConditionsHeatmap = ({
     <div className="relative bg-white rounded-md mt-5">
       <div className='flex flex-col md:flex-row md:justify-between mb-4'>
         {/* Tabs with counts */}
-        <div className="flex space-x-2 mb-4 md:mb-0">
+        <div className="flex space-x-2 overflow-x-auto pb-3 md:mb-0">
           {['natural', 'artificial', 'mix'].map((tab) => (
             <Button
               key={tab}
