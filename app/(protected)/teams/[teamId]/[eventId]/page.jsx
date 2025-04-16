@@ -44,7 +44,7 @@ export default function EventPage() {
         {t('back')}
       </Button>
 
-      <h1 className="text-3xl font-semibold text-center">{eventData.name}</h1>
+      <h1 className="text-3xl mt-2 font-semibold text-center">{eventData.name}</h1>
       <p className="text-center mb-4 font-semibold">
         {startDateFormatted} - {endDateFormatted}
       </p>

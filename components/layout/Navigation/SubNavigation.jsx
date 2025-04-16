@@ -37,7 +37,7 @@ const SubNavigation = ({ isVisible, onClose }) => {
   ].filter(Boolean);
 
   return (
-    <div className="bg-white md:bg-transparent px-5 py-10 md:p-0 md:mt-2 rounded md:shadow-none fixed left-1/2 bottom-16 md:bottom-auto transform -translate-x-1/2 w-86 space-y-3 font-semibold md:relative md:w-full md:transform-none animate-fade-up md:animate-fade-down animate-duration-300 md:animate-duration-200">
+    <div className="bg-container md:bg-transparent px-5 py-10 md:p-0 md:mt-2 shadow-md rounded-md md:shadow-none fixed left-1/2 bottom-16 md:bottom-auto transform -translate-x-1/2 w-80 space-y-3 font-semibold md:relative md:w-full md:transform-none animate-fade-up md:animate-fade-down animate-duration-300 md:animate-duration-200">
       <div className="space-y-3">
         {navItems.map(({ label, icon, path, action }, idx) => (
           <Button

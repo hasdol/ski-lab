@@ -108,23 +108,21 @@ export default function EventWeather({ eventData }) {
               variant='secondary'
               onClick={() => setSelectedDay(index)}
             >
-              <div>
-                {console.log(new Date(day.date).toLocaleDateString('en', { weekday: 'short' }))
-                }
-                {t(new Date(day.date).toLocaleDateString('en', { weekday: 'short' }))}
-              </div>
-              <div className="text-2xl my-2 flex justify-self-center">
-                {getWeatherIcon(day.symbol)}
-              </div>
-              <div className="text-sm">
-                <div className='flex justify-center'>
-                  <div className='text-blue-500'>{day.minTemp?.toFixed(0)}</div>
-                  <span className='mx-1'>-</span>
-                  <div className='text-delete'>{day.maxTemp?.toFixed(0)}°C</div>
-
+              <div className='grid grid-cols-5 md:grid-cols-1 items-center '>
+                <div>
+                  {t(new Date(day.date).toLocaleDateString('en', { weekday: 'short' }))}
                 </div>
-                <div>{day.totalPrecip.toFixed(1)} mm</div>
-                <div>{day.maxHumidity.toFixed(0)}%</div>
+                <div className="text-2xl my-2 flex justify-self-center">
+                  {getWeatherIcon(day.symbol)}
+                </div>
+                  <div className='flex justify-center'>
+                    <div className='text-blue-500'>{day.minTemp?.toFixed(0)}</div>
+                    <span className='mx-1'>-</span>
+                    <div className='text-delete'>{day.maxTemp?.toFixed(0)}°C</div>
+
+                  </div>
+                  <div className='text-sm'>{day.totalPrecip.toFixed(1)} mm</div>
+                  <div className='text-sm'>{day.maxHumidity.toFixed(0)}%</div>
               </div>
 
 
@@ -142,7 +140,7 @@ export default function EventWeather({ eventData }) {
               <span>{t(forecast[selectedDay].date.slice(0, 3))}</span>
               <span>-</span>
               <span>{forecast[selectedDay].date.slice(4)}</span>
-              
+
             </h3>
             <div className="max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-6 font-semibold text-gray-600 text-xs border-b pb-2 mb-2">

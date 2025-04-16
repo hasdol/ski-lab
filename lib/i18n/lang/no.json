@@ -230,6 +230,8 @@
   "Sat": "Lør",
   "Sun": "Søn",
   "Mon": "Man",
-  "Tue": "Tir"
-
+  "Tue": "Tir",
+  "live": "Pågående",
+  "upcoming": "Kommende",
+  "past": "Gamle"
 }

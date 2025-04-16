@@ -229,5 +229,8 @@
   "Sat": "Sat",
   "Sun": "Sun",
   "Mon": "Mon",
-  "Tue": "Tue"
+  "Tue": "Tue",
+  "live_events": "Live",
+  "upcoming_events": "Upcoming",
+  "past_events": "Past"
 }

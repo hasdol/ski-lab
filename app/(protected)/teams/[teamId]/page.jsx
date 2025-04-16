@@ -8,7 +8,6 @@ import Button from '@/components/common/Button';
 import UploadableImage from '@/components/common/UploadableImage';
 import { RiAddLargeLine } from 'react-icons/ri';
 
-
 export default function TeamDetailPage() {
   const { teamId } = useParams();
   const router = useRouter();
@@ -18,7 +17,6 @@ export default function TeamDetailPage() {
 
   const canManage = userData?.plan === 'coach' || userData?.plan === 'company';
 
-  // Instead of `router.back()`, navigate specifically or keep it as is:
   const handleBackClick = () => {
     router.push(`/teams`);
   };
@@ -26,6 +24,39 @@ export default function TeamDetailPage() {
   if (loading) return <div>Loading Team...</div>;
   if (error) return <div>Error loading team: {error.message}</div>;
   if (!team) return <div>No team found.</div>;
+
+  const now = new Date();
+
+  const categorizedEvents = {
+    live: [],
+    upcoming: [],
+    past: [],
+  };
+
+  events.forEach(evt => {
+    const start = evt.startDate?.seconds ? new Date(evt.startDate.seconds * 1000) : null;
+    const end = evt.endDate?.seconds ? new Date(evt.endDate.seconds * 1000) : null;
+
+    if (start && end) {
+      if (now >= start && now <= end) {
+        categorizedEvents.live.push(evt);
+      } else if (now < start) {
+        categorizedEvents.upcoming.push(evt);
+      } else if (now > end) {
+        categorizedEvents.past.push(evt);
+      }
+    }
+  });
+
+  categorizedEvents.live.sort((a, b) => a.startDate.seconds - b.startDate.seconds);
+  categorizedEvents.upcoming.sort((a, b) => a.startDate.seconds - b.startDate.seconds);
+  categorizedEvents.past.sort((a, b) => b.endDate.seconds - a.endDate.seconds);
+
+  const badgeStyles = {
+    live: { color: 'text-red-500', dot: 'bg-red-500', label: 'Live' },
+    upcoming: { color: 'text-yellow-500', dot: 'bg-yellow-400', label: 'Upcoming' },
+    past: { color: 'text-gray-500', dot: 'bg-gray-400', label: 'Past' }
+  };
 
   return (
     <div className="p-4">
@@ -49,50 +80,63 @@ export default function TeamDetailPage() {
           </div>
         )}
 
-
         {canManage && (
           <div className="flex space-x-3 my-3">
-            {/* Navigate to the new edit page instead of opening a modal */}
             <Button onClick={() => router.push(`/teams/${teamId}/edit`)} variant="secondary" className='text-xs'>
               {t('edit_team')}
+            </Button>
+            <Button onClick={() => router.push(`/teams/${teamId}/create-event`)} variant="secondary" className='text-xs'>
+            {t('create_event')}
             </Button>
           </div>
         )}
       </div>
 
-      <div className="mt-4 space-y-2">
-        <div className="flex justify-between items-end my-4">
-          <h2 className="text-xl font-semibold">Events</h2>
-          {canManage && (
-            <Button onClick={() => router.push(`/teams/${teamId}/create-event`)} variant="primary">
-              <RiAddLargeLine />
-            </Button>
-          )}
+      <div className="mt-2">
+        {events.length === 0 && <p>No events yet.</p>}
 
-        </div>
+        {['live', 'upcoming', 'past'].map(category => {
+          const labelMap = {
+            live: 'live_events',
+            upcoming: 'upcoming_events',
+            past: 'past_events'
+          };
 
-        {!events.length && <p>No events yet.</p>}
-        <div className='grid md:grid-cols-3 gap-4'>
-          {events.map((evt) => {
-            const start = evt.startDate?.seconds ? new Date(evt.startDate.seconds * 1000) : null;
-            const end = evt.endDate?.seconds ? new Date(evt.endDate.seconds * 1000) : null;
-            const startDateFormatted = start?.toLocaleDateString();
-            const endDateFormatted = end?.toLocaleDateString();
+          if (!categorizedEvents[category].length) return null;
 
-            return (
-              <Button
-                key={evt.id}
-                onClick={() => router.push(`/teams/${team.id}/${evt.id}`)}
-                variant="secondary"
-              >
-                <h3>{evt.name}</h3>
-                <p>{evt.description}</p>
-                {start && end && <p>{startDateFormatted} - {endDateFormatted}</p>}
-              </Button>
-            );
-          })}
-        </div>
+          return (
+            <div key={category} className="mb-6">
+              <h3 className="text-lg font-semibold mb-2">{t(labelMap[category])}</h3>
+              <div className="grid md:grid-cols-3 gap-4">
+                {categorizedEvents[category].map(evt => {
+                  const start = new Date(evt.startDate.seconds * 1000);
+                  const end = new Date(evt.endDate.seconds * 1000);
+                  const startDateFormatted = start.toLocaleDateString();
+                  const endDateFormatted = end.toLocaleDateString();
+                  const badge = badgeStyles[category];
 
+                  return (
+                    <Button
+                      key={evt.id}
+                      onClick={() => router.push(`/teams/${team.id}/${evt.id}`)}
+                      variant="secondary"
+                      className="relative text-left"
+                    >
+                      <div className="absolute top-2 right-2 flex items-center">
+                        <span className={`h-2 w-2 rounded-full mr-1 ${badge.dot} ${category === 'live' ? 'animate-pulse' : ''}`}></span>
+                        <span className={`text-xs font-bold uppercase tracking-wide ${badge.color}`}>{badge.label}</span>
+                      </div>
+
+                      <h3 className="font-semibold">{evt.name}</h3>
+                      <p>{evt.description}</p>
+                      <p className="text-sm opacity-80">{startDateFormatted} - {endDateFormatted}</p>
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

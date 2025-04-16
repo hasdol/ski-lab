@@ -43,10 +43,10 @@ const SkiItem = ({
   };
 
   return (
-    <div className={`animate-fade-down animate-duration-300`}>
+    <div className={`animate-fade-down animate-duration-300 `}>
       {/* Main clickable row - now controls checkbox */}
-      <Button
-        className={`w-full ${gloveMode && 'py-2'}`}
+      <div
+        className={`w-full bg-container border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-300 transition-all duration-200` }
         variant='secondary'
         onClick={() => handleCheckboxChange(ski.id)}
       >
@@ -62,9 +62,9 @@ const SkiItem = ({
           {!gloveMode ? (
             <div className='flex space-x-1 items-center'>
               <span>{ski.serialNumber}</span>
-              <span>/</span>
+              <span>•</span>
               <span>{ski.grind}</span>
-              <span>/</span>
+              <span>•</span>
               <span>{t(ski.style)}</span>
               {/* Archive or New indicators */}
               {ski.archived && <RiHistoryLine />}
@@ -95,7 +95,7 @@ const SkiItem = ({
           )}
 
         </div>
-      </Button>
+      </div>
 
       {/* Detailed info if expanded */}
       {showDetails && !gloveMode && (
