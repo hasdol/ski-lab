@@ -128,53 +128,54 @@ const CombinedConditionsHeatmap = ({
       </div>
 
       {/* The Heatmap */}
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="border-b border-gray-200">
-            <th className="text-left text-gray-600 font-medium pb-3">{t('snow_type')}</th>
-            {temperatureList.map((temp, index) => (
-              <th key={index} className="text-center text-gray-600 font-medium pb-3 px-2">
-                {temp}°C
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, rowIndex) => {
-            const rowLabel = `${t(row.source)} – ${t(row.snowType)}`;
-            return (
-              <tr key={rowIndex} className="border-b border-gray-100 last:border-0">
-                <td className="text-sm text-gray-500 py-2 pr-4">{rowLabel}</td>
-                {temperatureList.map((temp, colIndex) => {
-                  const perfKey = `${temp}___${row.source}___${row.snowType}`;
-                  const item = performanceMap[perfKey];
-                  const category = item?.category?.toLowerCase() || 'unknown';
-                  const bgColor = categoryColors[category] || '#FFFFFF';
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="border-b border-gray-200">
+              <th className="text-left text-gray-600 font-medium pb-3">{t('snow_type')}</th>
+              {temperatureList.map((temp, index) => (
+                <th key={index} className="text-center text-gray-600 font-medium pb-3 px-2">
+                  {temp}°C
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, rowIndex) => {
+              const rowLabel = `${t(row.source)} – ${t(row.snowType)}`;
+              return (
+                <tr key={rowIndex} className="border-b border-gray-100 last:border-0">
+                  <td className="text-sm text-gray-500 py-2 pr-4">{rowLabel}</td>
+                  {temperatureList.map((temp, colIndex) => {
+                    const perfKey = `${temp}___${row.source}___${row.snowType}`;
+                    const item = performanceMap[perfKey];
+                    const category = item?.category?.toLowerCase() || 'unknown';
+                    const bgColor = categoryColors[category] || '#FFFFFF';
 
-                  return (
-                    <td key={colIndex} className="px-2 py-1 text-center">
-                      {category !== 'unknown' ? (
-                        <div
-                          className="w-6 h-6 mx-auto rounded-full cursor-pointer transition-all 
+                    return (
+                      <td key={colIndex} className="px-2 py-1 text-center">
+                        {category !== 'unknown' ? (
+                          <div
+                            className="w-6 h-6 mx-auto rounded-full cursor-pointer transition-all 
                             hover:scale-125 shadow-sm"
-                          style={{ backgroundColor: bgColor }}
-                          title={t(category)}
-                          onClick={() =>
-                            handleCellClick(temp, row.source, row.snowType, category)
-                          }
-                        />
-                      ) : (
-                        <span className="text-sm">--</span>
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-
+                            style={{ backgroundColor: bgColor }}
+                            title={t(category)}
+                            onClick={() =>
+                              handleCellClick(temp, row.source, row.snowType, category)
+                            }
+                          />
+                        ) : (
+                          <span className="text-sm">--</span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
       {/* Legend */}
       <div className="flex flex-wrap gap-4 mt-6">
         {Object.entries(categoryColors).map(([cat, color]) => (
