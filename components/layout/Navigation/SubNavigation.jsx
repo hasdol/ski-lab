@@ -32,7 +32,7 @@ const SubNavigation = ({ isVisible, onClose }) => {
     user && { label: t('settings'), icon: <RiSettings3Line />, path: '/settings' },
     user && { label: t('contact'), icon: <RiMessage2Line />, path: '/contact' },
     user && { label: t('signOut'), icon: <RiLogoutCircleRLine />, action: () => { signOut(router.push); onClose(); } },
-    !user && { label: t('signIn'), icon: <RiLoginCircleRLine />, path: '/signin' },
+    !user && { label: t('signIn'), icon: <RiLoginCircleLine />, path: '/signin' },
     !user && { label: t('signUp'), icon: <RiUserAddLine />, path: '/signup' },
   ].filter(Boolean);
 
