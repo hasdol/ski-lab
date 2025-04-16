@@ -5,6 +5,7 @@ const db = admin.firestore();
 const functionsV1 = require('firebase-functions/v1');
 const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https');
 const { onDocumentCreated, onDocumentDeleted } = require('firebase-functions/v2/firestore');
+const { defineSecret } = require('firebase-functions/params');
 
 // ----------------------------------------------------------------
 // Auth Trigger – Initialize user
@@ -565,3 +566,63 @@ exports.leaveTeamById = onCall(async (request) => {
 
   return { message: 'Left the team successfully.' };
 });
+
+// Add this with other secret definitions (near STRIPE_SECRET)
+const metnoUserAgent = defineSecret('METNO_USER_AGENT');
+
+// Replace the existing weatherProxy function with this v2 version
+exports.weatherProxy = onRequest(
+  { 
+    secrets: [metnoUserAgent],
+    cors: ['https://your-vercel-app.vercel.app', 'http://localhost:3000'] // Specific allowed origins
+  }, 
+  async (req, res) => {
+    try {
+      // Validate authentication
+      if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const idToken = req.headers.authorization.split('Bearer ')[1];
+      await admin.auth().verifyIdToken(idToken);
+
+      // Validate and parse coordinates
+      const lat = parseFloat(req.query.lat);
+      const lon = parseFloat(req.query.lon);
+      
+      if (isNaN(lat) || isNaN(lon)) {
+        return res.status(400).json({ error: 'Invalid coordinates format' });
+      }
+      
+      // More precise coordinate validation
+      if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+        return res.status(400).json({ error: 'Coordinates out of valid range' });
+      }
+
+      // Fetch from MET API
+      const response = await fetch(
+        `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`,
+        {
+          headers: {
+            'User-Agent': metnoUserAgent.value(),
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
+      
+      const data = await response.json();
+      
+      // Cache response for 30 minutes
+      res.set('Cache-Control', 'public, max-age=1800, s-maxage=1800');
+      res.status(200).json(data);
+    } catch (error) {
+      console.error('Weather proxy error:', error);
+      const statusCode = error.code === 'auth/id-token-expired' ? 401 : 500;
+      res.status(statusCode).json({ 
+        error: 'Failed to fetch weather data',
+        details: error.message 
+      });
+    }
+  }
+);

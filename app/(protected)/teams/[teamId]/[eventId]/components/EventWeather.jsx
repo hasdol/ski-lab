@@ -17,15 +17,23 @@ export default function EventWeather({ eventData }) {
 
     const fetchForecast = async () => {
       try {
+        const idToken = await auth.currentUser?.getIdToken();
+        if (!idToken) throw new Error('User not authenticated');
+    
         const response = await fetch(
-          `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${eventData.location.lat}&lon=${eventData.location.lon}`,
+          `https://ski-lab.com/weatherProxy?` + 
+          new URLSearchParams({
+            lat: eventData.location.lat,
+            lon: eventData.location.lon
+          }),
           {
             headers: {
-              'User-Agent': 'Ski-Lab/1.0 (hasdol98@gmail.com)',
+              Authorization: `Bearer ${idToken}`,
             },
           }
         );
-
+    
+        if (!response.ok) throw new Error('Failed to fetch weather');
         const data = await response.json();
         const dailyData = processForecastData(data);
         setForecast(dailyData);

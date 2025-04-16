@@ -115,7 +115,7 @@ const HomePage = () => {
                 </div>
 
                 {hasLiveEvents && (
-                  <div className="w-80 mt-4 md:w-100">
+                  <div className="w-80 mt-8 md:w-100">
                     <div className="flex overflow-x-scroll space-x-4 pb-4 scrollbar-hide"> {/* Add scrollbar-hide class if you want to hide scrollbar */}
                       {teams.map((team) => (
                         teamEvents[team.id]?.length > 0 && (
