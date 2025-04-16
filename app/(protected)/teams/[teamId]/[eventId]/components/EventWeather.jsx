@@ -1,6 +1,7 @@
 // Updated EventWeather.jsx
 'use client';
 import Button from '@/components/common/Button';
+import { useAuth } from '@/context/AuthContext';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RiSunLine, RiCloudLine, RiRainyLine, RiSnowyLine } from "react-icons/ri";
@@ -10,7 +11,7 @@ export default function EventWeather({ eventData }) {
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState(null);
   const { t } = useTranslation();
-
+  const {user} = useAuth()
 
   useEffect(() => {
     if (!eventData?.location) return;
@@ -21,7 +22,7 @@ export default function EventWeather({ eventData }) {
         if (!idToken) throw new Error('User not authenticated');
     
         const response = await fetch(
-          `https://ski-lab.com/weatherProxy?` + 
+          `https://ski-lab-dev.firebaseapp.com /weatherProxy?` + 
           new URLSearchParams({
             lat: eventData.location.lat,
             lon: eventData.location.lon
