@@ -219,5 +219,15 @@
   "members": "Members",
   "overview": "Overview",
   "weather": "Weather",
-  "remove": "Remove"
+  "remove": "Remove",
+  "time": "Time",
+  "precip": "Precip",
+  "wind": "Wind",
+  "Wed": "Web",
+  "Thu": "Thu",
+  "Fri": "Fri",
+  "Sat": "Sat",
+  "Sun": "Sun",
+  "Mon": "Mon",
+  "Tue": "Tue"
 }

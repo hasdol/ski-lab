@@ -59,8 +59,9 @@ export default function EventPage() {
       {canManage && (
         <div className="flex justify-center mb-4">
           <Button
-            variant="primary"
+            variant="secondary"
             onClick={() => router.push(`/teams/${teamId}/${eventId}/edit`)}
+            className='text-xs'
           >
             {t('edit_event')}
           </Button>

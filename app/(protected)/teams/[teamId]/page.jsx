@@ -53,7 +53,7 @@ export default function TeamDetailPage() {
         {canManage && (
           <div className="flex space-x-3 my-3">
             {/* Navigate to the new edit page instead of opening a modal */}
-            <Button onClick={() => router.push(`/teams/${teamId}/edit`)} variant="primary">
+            <Button onClick={() => router.push(`/teams/${teamId}/edit`)} variant="secondary" className='text-xs'>
               {t('edit_team')}
             </Button>
           </div>

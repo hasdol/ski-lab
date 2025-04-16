@@ -315,40 +315,7 @@ const SkiDetail = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
       <div className="bg-white rounded-md p-2 md:p-5">
         {/* Ski Info Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8 border-b pb-6">
-          {/* Action Buttons - Now inside the grid */}
-          <div className="col-span-2 md:col-span-3 flex space-x-2 mb-2">
-            <Button
-              onClick={onEdit}
-              variant="secondary"
-              className='text-xs py-1 px-3'
-            >
-              {t('edit')}
-            </Button>
-            {ski.archived ? (
-              <Button
-                onClick={onUnarchive}
-                variant="primary"
-                className='text-xs py-1 px-3'
-              >
-                {t('unarchive')}
-              </Button>
-            ) : (
-              <Button
-                onClick={onArchive}
-                variant="primary"
-                className='text-xs py-1 px-3'
-              >
-                {t('archive')}
-              </Button>
-            )}
-            <Button
-              onClick={onDelete}
-              variant="danger"
-              className='text-xs py-1 px-3'
-            >
-              {t('delete')}
-            </Button>
-          </div>
+
 
           {/* Rest of the ski info items */}
           <div className="space-y-1">
@@ -477,7 +444,40 @@ const SkiDetail = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
 
         {/* Grind History Section */}
         <GrindHistory grindHistory={grindHistory} />
-
+        {/* Action Buttons - Now inside the grid */}
+        <div className="col-span-2 md:col-span-3 flex space-x-2 mb-2">
+          <Button
+            onClick={onEdit}
+            variant="secondary"
+            className='text-xs py-1 px-3'
+          >
+            {t('edit')}
+          </Button>
+          {ski.archived ? (
+            <Button
+              onClick={onUnarchive}
+              variant="primary"
+              className='text-xs py-1 px-3'
+            >
+              {t('unarchive')}
+            </Button>
+          ) : (
+            <Button
+              onClick={onArchive}
+              variant="primary"
+              className='text-xs py-1 px-3'
+            >
+              {t('archive')}
+            </Button>
+          )}
+          <Button
+            onClick={onDelete}
+            variant="danger"
+            className='text-xs py-1 px-3'
+          >
+            {t('delete')}
+          </Button>
+        </div>
 
       </div>
     </div>

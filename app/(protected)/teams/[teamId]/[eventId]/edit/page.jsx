@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { updateEvent, deleteEvent } from '@/lib/firebase/teamFunctions';
@@ -9,6 +9,7 @@ import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
 import UploadableImage from '@/components/common/UploadableImage';
 import { useAuth } from '@/context/AuthContext';
+import GeocodeInput from '@/components/GeocodeInput/GeocodeInput';
 
 export default function EditEventPage() {
   const { teamId, eventId } = useParams();
@@ -18,6 +19,7 @@ export default function EditEventPage() {
 
   // ❗ 1) Call all Hooks up front, unconditionally:
   const { eventData, loading, error } = useEvent(teamId, eventId);
+
 
   // Convert Firestore Timestamps after we have eventData
   const formatDate = (ts) =>
@@ -31,38 +33,33 @@ export default function EditEventPage() {
   const [imageURL, setImageURL] = useState('');
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [location, setLocation] = useState({ lat: null, lon: null, address: '' });
 
-  // ❗ 2) Then conditionally check data and fill in if not loading / error:
-  if (loading) {
-    return <div className="p-4">{t('loading')}...</div>;
-  }
-  if (error) {
-    return <div className="p-4">Error: {error.message}</div>;
-  }
-  if (!eventData) {
-    return <div className="p-4">No event found.</div>;
-  }
 
-  // ❗ 3) If we have eventData now, you can safely update local state:
-  //       But do so in an effect or set them once at the top. 
-  //       Alternatively, prefill them as soon as you know eventData is available.
 
-  // If you want to fill local state once from eventData, 
-  // do so in a useEffect that depends on [eventData], 
-  // so you don't cause repeated rerenders:
-  // e.g.
-  // useEffect(() => {
-  //   if (eventData) {
-  //     setName(eventData.name || '');
-  //     setDesc(eventData.description || '');
-  //     setStartDate(formatDate(eventData.startDate));
-  //     setEndDate(formatDate(eventData.endDate));
-  //     setImageURL(eventData.imageURL || '');
-  //   }
-  // }, [eventData]);
 
-  // For demonstration, let's just do it inline for now:
-  // But be aware this will reset on each render if eventData changes
+  useEffect(() => {
+    if (eventData) {
+      setName(eventData.name || '');
+      setDesc(eventData.description || '');
+      setStartDate(formatDate(eventData.startDate));
+      setEndDate(formatDate(eventData.endDate));
+      setImageURL(eventData.imageURL || '');
+      setLocation(eventData.location || null);
+    }
+  }, [eventData]);
+
+    // ❗ 2) Then conditionally check data and fill in if not loading / error:
+    if (loading) {
+      return <div className="p-4">{t('loading')}...</div>;
+    }
+    if (error) {
+      return <div className="p-4">Error: {error.message}</div>;
+    }
+    if (!eventData) {
+      return <div className="p-4">No event found.</div>;
+    }
+
   const finalName = name || eventData.name || '';
   const finalDesc = desc || eventData.description || '';
   const finalStartDate = startDate || formatDate(eventData.startDate);
@@ -86,7 +83,6 @@ export default function EditEventPage() {
         finalImage = await uploadEventImage(teamId, eventId, file, user.uid);
         setImageURL(finalImage);
       }
-
       const start = new Date(finalStartDate);
       const end = new Date(finalEndDate);
       end.setHours(23, 59, 59, 999); // ⬅️ Make sure the event stays live through the end date
@@ -97,6 +93,11 @@ export default function EditEventPage() {
         startDate: start,
         endDate: end,
         imageURL: finalImage,
+        location: { 
+          lat: location.lat,
+          lon: location.lon,
+          address: location.address
+        }
       };
 
       await updateEvent(teamId, eventId, updatedData);
@@ -133,6 +134,7 @@ export default function EditEventPage() {
       alert(t('remove_image_error') + ': ' + error.message);
     }
   };
+console.log(eventData?.location?.address);
 
   return (
     <div className="p-4 max-w-xl mx-auto">
@@ -165,7 +167,11 @@ export default function EditEventPage() {
           onChange={(e) => setEndDate(e.target.value)}
           required
         />
-
+        <GeocodeInput 
+          label="Event Location"
+          initialValue={eventData?.location?.address}
+          onLocationSelect={(lat, lon, address) => setLocation({ lat, lon, address })}
+        />
         <UploadableImage
           photoURL={finalImageURL}
           alt="Event Image"
@@ -175,10 +181,11 @@ export default function EditEventPage() {
           handleImageChange={handleFileSelect}
         />
         {eventData.imageURL && (
-          <Button onClick={handleRemoveImage} variant="danger" className="mt-2">
+          <Button onClick={handleRemoveImage} variant="danger" className="mt-2 text-xs flex justify-self-center mb-10">
             {t('remove_image')}
           </Button>
         )}
+
       </div>
 
 

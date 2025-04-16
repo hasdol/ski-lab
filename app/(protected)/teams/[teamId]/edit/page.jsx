@@ -109,7 +109,7 @@ export default function EditTeamPage() {
         handleImageChange={handleFileSelect}
       />
 
-      <Button onClick={handleRemoveImage} variant="danger">
+      <Button onClick={handleRemoveImage} variant="danger" className='text-xs flex justify-self-center mb-10'>
         {t('remove_image')}
       </Button>
 

@@ -220,6 +220,16 @@
   "members": "Medlemmer",
   "overview": "Oversikt",
   "weather": "Værmelding",
-  "remove": "Fjern"
+  "remove": "Fjern",
+  "time": "Klokkeslett",
+  "precip": "Nedbør",
+  "wind": "Vind",
+  "Wed": "Ons",
+  "Thu": "Tor",
+  "Fri": "Fre",
+  "Sat": "Lør",
+  "Sun": "Søn",
+  "Mon": "Man",
+  "Tue": "Tir"
 
 }

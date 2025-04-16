@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
 import UploadableImage from '@/components/common/UploadableImage';
+import GeocodeInput from '@/components/GeocodeInput/GeocodeInput';
 
 export default function CreateEventPage() {
   const { teamId } = useParams();
@@ -22,6 +23,8 @@ export default function CreateEventPage() {
   const [file, setFile] = useState(null);
   const [imageURL, setImageURL] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [location, setLocation] = useState({ lat: null, lon: null, address: '' });
+
 
   const handleFileChange = (e) => {
     if (e.target.files?.[0]) {
@@ -32,11 +35,11 @@ export default function CreateEventPage() {
   };
 
   const handleCreate = async () => {
-    if (!name || !startDate || !endDate) return;
-    
+    if (!name || !startDate || !endDate || !location.lat) return;
+
     try {
       setUploading(true);
-      
+
       // 1. First create the event without an image
       const eventRef = await createEvent(
         teamId,
@@ -44,10 +47,13 @@ export default function CreateEventPage() {
         desc,
         new Date(startDate),
         new Date(endDate),
-        '', // Start with empty imageURL
-        user.uid
+        '',
+        user.uid,
+        location.lat,
+        location.lon,
+        location.address
       );
-      
+
       // 2. If image selected, upload using the new event ID
       let finalImageURL = '';
       if (file) {
@@ -55,7 +61,7 @@ export default function CreateEventPage() {
         // 3. Update the event with the image URL
         await updateEvent(teamId, eventRef.id, { imageURL: finalImageURL });
       }
-  
+
       router.push(`/teams/${teamId}`);
     } catch (err) {
       console.error('Create event failed', err);
@@ -102,6 +108,11 @@ export default function CreateEventPage() {
         value={endDate}
         onChange={(e) => setEndDate(e.target.value)}
         required
+      />
+
+      <GeocodeInput
+        label="Event Location"
+        onLocationSelect={(lat, lon, address) => setLocation({ lat, lon, address })}
       />
 
       <UploadableImage
