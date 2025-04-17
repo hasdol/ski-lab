@@ -8,51 +8,51 @@ const { onDocumentCreated, onDocumentDeleted } = require('firebase-functions/v2/
 const { defineSecret } = require('firebase-functions/params');
 const fetch = (...a) => import('node-fetch').then(({ default: f }) => f(...a));
 
+// 🔐 1)  Declare the secret *once* and use the token everywhere
+const METNO_USER_AGENT = defineSecret('METNO_USER_AGENT');
 
-const metnoUserAgent = defineSecret('METNO_USER_AGENT');
-
+// ─────────── CORS helper ───────────
 function addCorsHeaders(res) {
+  const ALLOWED = process.env.ALLOWED_ORIGINS || '*'; // tighten in prod
   res.set({
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': ALLOWED,
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'GET,OPTIONS',
   });
 }
 
-/**
- * HTTPS GET  /weatherForecast?lat=..&lon=..
- * Caches result 15 min.  Runs in europe‑north1.
- */
+// ───────────────────────────────────
+//  weatherForecast   (gen‑2 HTTPS)
+//   GET /weatherForecast?lat=..&lon=..
+// ───────────────────────────────────
 exports.weatherForecast = onRequest(
   {
     region: 'europe-north1',
-    secrets: ['METNO_USER_AGENT'],
+    secrets: [METNO_USER_AGENT], // 👈 use the constant here
     timeoutSeconds: 15,
     memory: '256MiB',
   },
   async (req, res) => {
-    /* ───── pre‑flight ───── */
     addCorsHeaders(res);
     if (req.method === 'OPTIONS') return res.status(204).send('');
 
-    /* ───── validate ───── */
     const { lat, lon } = req.query;
     if (!lat || !lon) {
       return res.status(400).json({ error: 'lat and lon query params required' });
     }
 
-    /* ───── proxy YR ───── */
     try {
-      const yrRes = await fetch(
+      const upstream = await fetch(
         `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`,
-        { headers: { 'User-Agent': process.env.METNO_USER_AGENT } },
+        { headers: { 'User-Agent': METNO_USER_AGENT.value() } }, // ← read the secret
       );
 
-      if (!yrRes.ok) throw new Error(`yr.no responded ${yrRes.status}`);
+      if (!upstream.ok) throw new Error(`yr.no responded ${upstream.status}`);
 
-      addCorsHeaders(res);                               // make doubly sure
-      res.set('Cache-Control', 'public, max-age=900, s-maxage=900');
-      return res.json(await yrRes.json());
+      addCorsHeaders(res); // double‑sure
+      return res
+        .set('Cache-Control', 'public, max-age=900, s-maxage=900')
+        .json(await upstream.json());
     } catch (err) {
       console.error(err);
       addCorsHeaders(res);
