@@ -22,7 +22,7 @@ export default function EventWeather({ eventData }) {
         if (!idToken) throw new Error('User not authenticated');
 
         const response = await fetch(
-          `https://ski-lab-dev.firebaseapp.com/weatherProxy?` + 
+          `https://ski-lab-dev.firebaseapp.com/weatherProxy?` +
           new URLSearchParams({
             lat: eventData.location.lat,
             lon: eventData.location.lon
