@@ -572,54 +572,25 @@ const metnoUserAgent = defineSecret('METNO_USER_AGENT');
 
 // Replace the existing weatherProxy function with this v2 version
 exports.weatherProxy = onRequest(
-  { 
-    secrets: [metnoUserAgent],
-    cors: true,
-    region: 'europe-west1' // Choose region closest to your users
-  }, 
+  { secrets: [metnoUserAgent], cors: true },
   async (req, res) => {
     try {
-      // Verify authentication
-      if (!req.headers.authorization?.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-      
-      const idToken = req.headers.authorization.split('Bearer ')[1];
-      await admin.auth().verifyIdToken(idToken);
+      const lat = req.query.lat;
+      const lon = req.query.lon;
 
-      // Validate coordinates
-      const lat = parseFloat(req.query.lat);
-      const lon = parseFloat(req.query.lon);
-      
-      if (isNaN(lat) || isNaN(lon)) {
-        return res.status(400).json({ error: 'Invalid coordinates format' });
-      }
-      
-      if (Math.abs(lat) > 90 || Math.abs(lon) > 180) {
-        return res.status(400).json({ error: 'Coordinates out of range' });
+      if (!lat || !lon) {
+        return res.status(400).json({ error: 'Missing coordinates' });
       }
 
-      // Fetch from MET API
       const response = await fetch(
         `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`,
-        {
-          headers: {
-            'User-Agent': `${metnoUserAgent.value()} (${process.env.NODE_ENV})`,
-          },
-        }
+        { headers: { 'User-Agent': metnoUserAgent.value() } }
       );
 
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
-      
-      const data = await response.json();
-      
-      // Cache response for 30 minutes
-      res.set('Cache-Control', 'public, max-age=1800, s-maxage=1800');
-      res.status(200).json(data);
+      // ... rest of the function
     } catch (error) {
       console.error('Weather proxy error:', error);
-      const status = error.code === 'auth/id-token-expired' ? 401 : 500;
-      res.status(status).json({ 
+      res.status(500).json({ 
         error: 'Failed to fetch weather data',
         details: error.message 
       });

@@ -11,18 +11,18 @@ export default function EventWeather({ eventData }) {
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState(null);
   const { t } = useTranslation();
-  const {user} = useAuth()
+  const { user } = useAuth()
 
   useEffect(() => {
     if (!eventData?.location) return;
 
     const fetchForecast = async () => {
       try {
-        const idToken = await auth.currentUser?.getIdToken();
+        const idToken = await user?.getIdToken();
         if (!idToken) throw new Error('User not authenticated');
-    
+
         const response = await fetch(
-          `https://ski-lab-dev.firebaseapp.com /weatherProxy?` + 
+          `https://ski-lab-dev.firebaseapp.com/weatherProxy?` + 
           new URLSearchParams({
             lat: eventData.location.lat,
             lon: eventData.location.lon
@@ -33,7 +33,7 @@ export default function EventWeather({ eventData }) {
             },
           }
         );
-    
+
         if (!response.ok) throw new Error('Failed to fetch weather');
         const data = await response.json();
         const dailyData = processForecastData(data);
@@ -124,14 +124,14 @@ export default function EventWeather({ eventData }) {
                 <div className="text-2xl my-2 flex justify-self-center">
                   {getWeatherIcon(day.symbol)}
                 </div>
-                  <div className='flex justify-center'>
-                    <div className='text-blue-500'>{day.minTemp?.toFixed(0)}</div>
-                    <span className='mx-1'>-</span>
-                    <div className='text-delete'>{day.maxTemp?.toFixed(0)}°C</div>
+                <div className='flex justify-center'>
+                  <div className='text-blue-500'>{day.minTemp?.toFixed(0)}</div>
+                  <span className='mx-1'>-</span>
+                  <div className='text-delete'>{day.maxTemp?.toFixed(0)}°C</div>
 
-                  </div>
-                  <div className='text-sm'>{day.totalPrecip.toFixed(1)} mm</div>
-                  <div className='text-sm'>{day.maxHumidity.toFixed(0)}%</div>
+                </div>
+                <div className='text-sm'>{day.totalPrecip.toFixed(1)} mm</div>
+                <div className='text-sm'>{day.maxHumidity.toFixed(0)}%</div>
               </div>
 
 
