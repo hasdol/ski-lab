@@ -18,5 +18,11 @@
   ],
   "storage": {
     "rules": "storage.rules"
+  },
+  "hosting": {
+    "rewrites": [{
+      "source": "/weatherProxy",
+      "function": "weatherProxy"
+    }]
   }
 }

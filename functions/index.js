@@ -6,6 +6,61 @@ const functionsV1 = require('firebase-functions/v1');
 const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https');
 const { onDocumentCreated, onDocumentDeleted } = require('firebase-functions/v2/firestore');
 const { defineSecret } = require('firebase-functions/params');
+const fetch = (...a) => import('node-fetch').then(({ default: f }) => f(...a));
+
+
+const metnoUserAgent = defineSecret('METNO_USER_AGENT');
+
+function addCorsHeaders(res) {
+  res.set({
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET,OPTIONS',
+  });
+}
+
+/**
+ * HTTPS GET  /weatherForecast?lat=..&lon=..
+ * Caches result 15 min.  Runs in europe‑north1.
+ */
+exports.weatherForecast = onRequest(
+  {
+    region: 'europe-north1',
+    secrets: ['METNO_USER_AGENT'],
+    timeoutSeconds: 15,
+    memory: '256MiB',
+  },
+  async (req, res) => {
+    /* ───── pre‑flight ───── */
+    addCorsHeaders(res);
+    if (req.method === 'OPTIONS') return res.status(204).send('');
+
+    /* ───── validate ───── */
+    const { lat, lon } = req.query;
+    if (!lat || !lon) {
+      return res.status(400).json({ error: 'lat and lon query params required' });
+    }
+
+    /* ───── proxy YR ───── */
+    try {
+      const yrRes = await fetch(
+        `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`,
+        { headers: { 'User-Agent': process.env.METNO_USER_AGENT } },
+      );
+
+      if (!yrRes.ok) throw new Error(`yr.no responded ${yrRes.status}`);
+
+      addCorsHeaders(res);                               // make doubly sure
+      res.set('Cache-Control', 'public, max-age=900, s-maxage=900');
+      return res.json(await yrRes.json());
+    } catch (err) {
+      console.error(err);
+      addCorsHeaders(res);
+      return res.status(502).json({ error: 'Failed to contact yr.no' });
+    }
+  },
+);
+
 
 // ----------------------------------------------------------------
 // Auth Trigger – Initialize user
@@ -17,7 +72,7 @@ exports.onUserCreate = functionsV1.auth.user().onCreate(async (user) => {
       themePreference: 'light',
       languagePreference: 'en',
     },
-    displayName: '', 
+    displayName: '',
     photoURL: null,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     plan: 'free',
@@ -69,7 +124,7 @@ exports.getStripePlans = onCall({ secrets: ['STRIPE_SECRET'] }, async (event) =>
 exports.createCheckoutSession = onCall({ secrets: ['STRIPE_SECRET', 'APP_URL'] }, async (event) => {
   if (!event.auth)
     throw new HttpsError('unauthenticated', 'User must be authenticated.');
-  
+
   const { priceId } = event.data;
   if (!priceId)
     throw new HttpsError('invalid-argument', 'Price ID must be provided.');
@@ -77,7 +132,7 @@ exports.createCheckoutSession = onCall({ secrets: ['STRIPE_SECRET', 'APP_URL'] }
   const stripe = require('stripe')(process.env.STRIPE_SECRET);
   const appUrl = process.env.APP_URL;
   const userId = event.auth.uid;
-  
+
   // Fetch the user's Firestore document to check subscription details.
   const userRef = db.collection('users').doc(userId);
   const userDoc = await userRef.get();
@@ -85,20 +140,20 @@ exports.createCheckoutSession = onCall({ secrets: ['STRIPE_SECRET', 'APP_URL'] }
 
   // If either a stripeSubscriptionId or stripeCustomerId exists, user is considered existing.
   const alreadySubscribed = Boolean(userData.stripeSubscriptionId || userData.stripeCustomerId);
-  
+
   try {
     const price = await stripe.prices.retrieve(priceId);
     const product = await stripe.products.retrieve(price.product);
     const plan = product.metadata.plan || 'free';
-    
+
     // Prepare subscription data.
     const subscriptionData = { metadata: { userId, plan } };
-    
+
     // Only add a 30-day trial for new users selecting the athlete plan.
     if (plan === 'athlete' && !alreadySubscribed) {
       subscriptionData.trial_period_days = 30;
     }
-    
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'subscription',
@@ -109,7 +164,7 @@ exports.createCheckoutSession = onCall({ secrets: ['STRIPE_SECRET', 'APP_URL'] }
       metadata: { userId, plan },
       subscription_data: subscriptionData,
     });
-    
+
     return { sessionId: session.id };
   } catch (error) {
     console.error('Error creating checkout session:', error);
@@ -276,8 +331,8 @@ async function handleSubscriptionUpdated(subscription) {
       if (skisToLockCount > 0) {
         const skisToLockSnapshot = await transaction.get(
           skisRef.where('locked', '==', false)
-                 .orderBy('dateAdded', 'desc')
-                 .limit(skisToLockCount)
+            .orderBy('dateAdded', 'desc')
+            .limit(skisToLockCount)
         );
         skisToLockSnapshot.forEach((doc) => {
           transaction.update(doc.ref, { locked: true });
@@ -294,8 +349,8 @@ async function handleSubscriptionUpdated(subscription) {
 
         const skisToUnlockSnapshot = await transaction.get(
           skisRef.where('locked', '==', true)
-                 .orderBy('dateAdded') // oldest locked skis first
-                 .limit(actualUnlockCount)
+            .orderBy('dateAdded') // oldest locked skis first
+            .limit(actualUnlockCount)
         );
         skisToUnlockSnapshot.forEach((doc) => {
           transaction.update(doc.ref, { locked: false });
@@ -501,7 +556,7 @@ exports.joinTeamByCode = onCall(async (request) => {
 
   const userId = request.auth.uid;
   const code = request.data.code; // The code from the client
-  
+
   if (!code) {
     throw new HttpsError('invalid-argument', 'Missing team code.');
   }
@@ -566,34 +621,3 @@ exports.leaveTeamById = onCall(async (request) => {
 
   return { message: 'Left the team successfully.' };
 });
-
-// Add this with other secret definitions (near STRIPE_SECRET)
-const metnoUserAgent = defineSecret('METNO_USER_AGENT');
-
-// Replace the existing weatherProxy function with this v2 version
-exports.weatherProxy = onRequest(
-  { secrets: [metnoUserAgent], cors: true },
-  async (req, res) => {
-    try {
-      const lat = req.query.lat;
-      const lon = req.query.lon;
-
-      if (!lat || !lon) {
-        return res.status(400).json({ error: 'Missing coordinates' });
-      }
-
-      const response = await fetch(
-        `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`,
-        { headers: { 'User-Agent': metnoUserAgent.value() } }
-      );
-
-      // ... rest of the function
-    } catch (error) {
-      console.error('Weather proxy error:', error);
-      res.status(500).json({ 
-        error: 'Failed to fetch weather data',
-        details: error.message 
-      });
-    }
-  }
-);
