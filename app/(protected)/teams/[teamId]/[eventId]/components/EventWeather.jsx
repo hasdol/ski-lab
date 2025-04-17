@@ -103,7 +103,7 @@ export default function EventWeather({ eventData }) {
 
   if (!eventData?.location) return null;
 
-  /* ──────────────────────  RENDER  ────────────────────── */
+  /* ──────────────────────  RENDER  ──────────────────────- */
   return (
     <div className="mt-4">
       <h2 className="text-xl font-semibold mb-4">
