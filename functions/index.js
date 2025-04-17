@@ -9,12 +9,11 @@ const { defineSecret } = require('firebase-functions/params');
 const fetch = (...a) => import('node-fetch').then(({ default: f }) => f(...a));
 
 
-const METNO_USER_AGENT = defineSecret('METNO_USER_AGENT');
+const metnoUserAgent = defineSecret('METNO_USER_AGENT');
 
 function addCorsHeaders(res) {
-  const ALLOWED = process.env.ALLOWED_ORIGINS || '*'; // tighten in prod
   res.set({
-    'Access-Control-Allow-Origin': ALLOWED,
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'GET,OPTIONS',
   });
@@ -27,31 +26,33 @@ function addCorsHeaders(res) {
 exports.weatherForecast = onRequest(
   {
     region: 'europe-north1',
-    secrets: [METNO_USER_AGENT], // 👈 use the constant here
+    secrets: ['METNO_USER_AGENT'],
     timeoutSeconds: 15,
     memory: '256MiB',
   },
   async (req, res) => {
+    /* ───── pre‑flight ───── */
     addCorsHeaders(res);
     if (req.method === 'OPTIONS') return res.status(204).send('');
 
+    /* ───── validate ───── */
     const { lat, lon } = req.query;
     if (!lat || !lon) {
       return res.status(400).json({ error: 'lat and lon query params required' });
     }
 
+    /* ───── proxy YR ───── */
     try {
-      const upstream = await fetch(
+      const yrRes = await fetch(
         `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`,
-        { headers: { 'User-Agent': METNO_USER_AGENT.value() } }, // ← read the secret
+        { headers: { 'User-Agent': process.env.METNO_USER_AGENT } },
       );
 
-      if (!upstream.ok) throw new Error(`yr.no responded ${upstream.status}`);
+      if (!yrRes.ok) throw new Error(`yr.no responded ${yrRes.status}`);
 
-      addCorsHeaders(res); // double‑sure
-      return res
-        .set('Cache-Control', 'public, max-age=900, s-maxage=900')
-        .json(await upstream.json());
+      addCorsHeaders(res);                               // make doubly sure
+      res.set('Cache-Control', 'public, max-age=900, s-maxage=900');
+      return res.json(await yrRes.json());
     } catch (err) {
       console.error(err);
       addCorsHeaders(res);

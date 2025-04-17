@@ -1,32 +1,38 @@
+// EventWeather.jsx   (client component)
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useTranslation }               from 'react-i18next';
-import { RiSunLine, RiCloudLine, RiRainyLine, RiSnowyLine } from 'react-icons/ri';
+import { useTranslation } from 'react-i18next';
+import {
+  RiSunLine,
+  RiCloudLine,
+  RiRainyLine,
+  RiSnowyLine,
+} from 'react-icons/ri';
 import Button from '@/components/common/Button';
 
 /* ————— endpoint selection ————— */
 const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'ski-lab-dev';
 const REGION     = 'europe-north1';
 const CF_URL     = `https://${REGION}-${PROJECT_ID}.cloudfunctions.net/weatherForecast`;
-const RUN_URL    = process.env.NEXT_PUBLIC_WEATHER_PROXY_URL; // optional Cloud‑Run URL
+const RUN_URL    = process.env.NEXT_PUBLIC_WEATHER_PROXY_URL;        // optional
 const WEATHER_ENDPOINT = RUN_URL || CF_URL;
 
 export default function EventWeather({ eventData }) {
-  const [forecast, setForecast]     = useState(null);
-  const [loading,  setLoading]      = useState(true);
+  const [forecast, setForecast]   = useState(null);
+  const [loading, setLoading]     = useState(true);
   const [selectedDay, setSelectedDay] = useState(null);
   const { t } = useTranslation();
 
-  // ───────────── fetch & parse ─────────────
+  /* ─────────────────────────  FETCH  ───────────────────────── */
   useEffect(() => {
     if (!eventData?.location) return;
 
     (async () => {
       try {
         const url = `${WEATHER_ENDPOINT}?lat=${eventData.location.lat}&lon=${eventData.location.lon}`;
-        const raw = await (await fetch(url)).json();
-        setForecast(processForecastData(raw));
+        const data = await (await fetch(url)).json();
+        setForecast(processForecastData(data));
       } catch (err) {
         console.error('Weather fetch failed:', err);
       } finally {
@@ -35,33 +41,65 @@ export default function EventWeather({ eventData }) {
     })();
   }, [eventData]);
 
+  /* ───────────────────  DATA MASSAGE  ─────────────────── */
   const processForecastData = (data) => {
     const daily = {};
+
     data.properties.timeseries.forEach((entry) => {
-      const date   = new Date(entry.time).toDateString();
-      const time   = new Date(entry.time).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' });
-      const det    = entry.data.instant.details;
-      const next   = entry.data.next_1_hours?.details || {};
+      const date = new Date(entry.time).toDateString();
+      const time = new Date(entry.time).toLocaleTimeString('en', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      const instant = entry.data.instant.details;
+      const next1h = entry.data.next_1_hours?.details || {};
       const symbol = entry.data.next_1_hours?.summary?.symbol_code || 'clearsky';
 
-      const hour = { time, temp: det.air_temperature, wind: det.wind_speed, humidity: det.relative_humidity, precip: next.precipitation_amount || 0, symbol };
+      const hourObj = {
+        time,
+        temp: instant.air_temperature,
+        wind: instant.wind_speed,
+        humidity: instant.relative_humidity,
+        precip: next1h.precipitation_amount || 0,
+        symbol,
+      };
+
       if (!daily[date]) {
-        daily[date] = { date, minTemp: det.air_temperature, maxTemp: det.air_temperature, totalPrecip: hour.precip, maxWind: det.wind_speed, maxHumidity: det.relative_humidity, symbol, hourly: [hour] };
+        daily[date] = {
+          date,
+          minTemp: instant.air_temperature,
+          maxTemp: instant.air_temperature,
+          totalPrecip: hourObj.precip,
+          maxWind: instant.wind_speed,
+          maxHumidity: instant.relative_humidity,
+          symbol,
+          hourly: [hourObj],
+        };
       } else {
-        const d = daily[date];
-        d.minTemp = Math.min(d.minTemp, det.air_temperature);
-        d.maxTemp = Math.max(d.maxTemp, det.air_temperature);
-        d.totalPrecip += hour.precip;
-        d.maxWind = Math.max(d.maxWind, det.wind_speed);
-        d.maxHumidity = Math.max(d.maxHumidity, det.relative_humidity);
-        d.hourly.push(hour);
+        daily[date].minTemp = Math.min(daily[date].minTemp, instant.air_temperature);
+        daily[date].maxTemp = Math.max(daily[date].maxTemp, instant.air_temperature);
+        daily[date].totalPrecip += hourObj.precip;
+        daily[date].maxWind = Math.max(daily[date].maxWind, instant.wind_speed);
+        daily[date].maxHumidity = Math.max(daily[date].maxHumidity, instant.relative_humidity);
+        daily[date].hourly.push(hourObj);
       }
     });
+
     return Object.values(daily).slice(0, 7);
   };
 
-  const icons = { clearsky: <RiSunLine />, cloudy: <RiCloudLine />, rain: <RiRainyLine />, snow: <RiSnowyLine /> };
-  const iconFor = (sym) => icons[sym.split('_')[0]] || <RiCloudLine />;
+  /* ─────────────────────  ICON PICKER  ───────────────────── */
+  const getWeatherIcon = (symbol) => {
+    const base = symbol.split('_')[0];
+    const icons = {
+      clearsky: <RiSunLine />,
+      cloudy: <RiCloudLine />,
+      rain: <RiRainyLine />,
+      snow: <RiSnowyLine />,
+    };
+    return icons[base] || <RiCloudLine />;
+  };
 
   if (!eventData?.location) return null;
 
