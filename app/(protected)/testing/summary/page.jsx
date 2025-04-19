@@ -1,4 +1,5 @@
-'use client'
+'use client';
+
 import React, { useContext, useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
@@ -8,24 +9,27 @@ import ResultList from './components/ResultList';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { useTranslation } from 'react-i18next';
 import { TournamentContext } from '@/context/TournamentContext';
-import { RiDeleteBinLine } from "react-icons/ri";
+import { RiDeleteBinLine } from 'react-icons/ri';
 import { addTestResult } from '@/lib/firebase/firestoreFunctions';
 import { shareTestResult } from '@/lib/firebase/teamFunctions';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
 import ShareWithEventSelector from '@/app/(protected)/testing/summary/components/ShareWithEvents';
+import { WEATHER_ENDPOINT } from '@/lib/firebase/weatherEndpoint';
 
 const TestSummaryPage = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
-  const { selectedSkis, calculateRankings, resetTournament } = useContext(TournamentContext);
+  const { selectedSkis, calculateRankings, resetTournament } =
+    useContext(TournamentContext);
 
-  const [loading, setLoading] = useState(false);
-  const [locationError, setLocationError] = useState(false);
+  const [loading, setLoading]           = useState(false);
+  const [locationError, setLocationErr] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [selectedEvents, setSelectedEvents] = useState([]); // Each element: { teamId, eventId }
+  const [selectedEvents, setSelectedEvents] = useState([]); // { teamId, eventId }
 
+  /* ───────────── redirect if no skis ───────────── */
   useEffect(() => {
     if (!hasSubmitted && (!selectedSkis || selectedSkis.length === 0)) {
       router.push('/skis');
@@ -34,24 +38,22 @@ const TestSummaryPage = () => {
 
   const rankings = calculateRankings();
 
+  /* ───────────── form state ───────────── */
   const determineInitialStyle = () => {
-    const styles = [...new Set(selectedSkis.map((ski) => ski.style))];
+    const styles = [...new Set(selectedSkis.map((s) => s.style))];
     if (styles.length === 1) return styles[0];
     if (styles.length > 1) return 'classic';
     return '';
   };
 
   const [additionalData, setAdditionalData] = useState({
-    location: '',
-    style: determineInitialStyle(),
-    temperature: '',
-    humidity: '',
-    snowTemperature: '',
-    comment: '',
-    snowCondition: {
-      source: '',
-      grainType: '',
-    },
+    location        : '',
+    style           : determineInitialStyle(),
+    temperature     : '',
+    humidity        : '',
+    snowTemperature : '',
+    comment         : '',
+    snowCondition   : { source: '', grainType: '' },
   });
 
   const handleInputChange = (e) => {
@@ -62,10 +64,66 @@ const TestSummaryPage = () => {
         snowCondition: { ...prev.snowCondition, [name]: value },
       }));
     } else {
-      setAdditionalData({ ...additionalData, [name]: value });
+      setAdditionalData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
+  /* ───────────── GEO + MET weather ───────────── */
+  useEffect(() => {
+    /* tiny helper */
+    const getPos = () =>
+      new Promise((ok, err) => {
+        if (!navigator.geolocation) return err(new Error('no geo'));
+        navigator.geolocation.getCurrentPosition(ok, err);
+      });
+
+    /* fetch from your Cloud Function */
+    const fetchWeather = async (lat, lon) => {
+      try {
+        const res  = await fetch(`${WEATHER_ENDPOINT}?lat=${lat}&lon=${lon}`);
+        const data = await res.json();
+
+        const instant = data.properties.timeseries[0].data.instant.details;
+
+        console.log(data.properties.timeseries[0].data);
+        
+
+        /* Optional reverse‑geo for prettier place‑name */
+        let place = '';
+        try {
+          const rev = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+          ).then((r) => r.json());
+
+          place =
+            rev.address?.quarter ||
+            rev.address?.city ||
+            rev.address?.town ||
+            '';
+        } catch (_) {
+          /* ignore – coords are fine */
+        }
+
+        setAdditionalData((prev) => ({
+          ...prev,
+          location    : place,
+          temperature : Math.round(instant.air_temperature).toString(),
+          humidity    : Math.round(instant.relative_humidity).toString(),
+        }));
+      } catch (error) {
+        console.error('Weather error', error);
+      }
+    };
+
+    getPos()
+      .then((p) => fetchWeather(p.coords.latitude, p.coords.longitude))
+      .catch((err) => {
+        console.error('Location error', err);
+        setLocationErr(true);
+      });
+  }, []);
+
+  /* ───────────── save results ───────────── */
   const handleSaveResults = async (e) => {
     e.preventDefault();
     if (!user) return;
@@ -73,22 +131,18 @@ const TestSummaryPage = () => {
     try {
       setLoading(true);
 
-      // Map rankings to tournament data and add a new field "skiIds"
       const tournamentData = {
         ...mapRankingsToTournamentData(rankings, selectedSkis),
-        skiIds: selectedSkis.map((ski) => ski.id),
+        skiIds: selectedSkis.map((s) => s.id),
       };
 
-      // Include the selected events as sharedIn if sharing is enabled
-      const extendedData = {
-        ...additionalData,
-        ...(selectedEvents.length > 0 ? { sharedIn: selectedEvents } : {})
-      };
+      const extendedData =
+        selectedEvents.length > 0
+          ? { ...additionalData, sharedIn: selectedEvents }
+          : additionalData;
 
-      // Save the test result in the user's private collection.
       const testId = await addTestResult(user.uid, tournamentData, extendedData);
 
-      // If sharing is enabled, share the test result to each event.
       if (selectedEvents.length > 0) {
         const sharedData = { ...tournamentData, ...additionalData };
         await Promise.all(
@@ -98,7 +152,6 @@ const TestSummaryPage = () => {
         );
       }
 
-      // No longer updating ski documents individually since test result now holds the skiIds array.
       resetTournament();
     } catch (error) {
       console.error('Error saving test:', error);
@@ -107,6 +160,11 @@ const TestSummaryPage = () => {
       setHasSubmitted(true);
       router.push('/results');
     }
+  };
+
+  /* ───────────── misc helpers ───────────── */
+  const handleResetTest = () => {
+    if (window.confirm(t('reset_test_prompt'))) resetTournament();
   };
 
   const styleOptions = [
@@ -130,48 +188,16 @@ const TestSummaryPage = () => {
     { label: t('sugary_snow'), value: 'sugary_snow' },
   ];
 
-  useEffect(() => {
-    const getPosition = () =>
-      new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      });
-
-    const fetchWeather = async (lat, lon) => {
-      const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
-      if (!apiKey) return;
-
-      try {
-        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`);
-        const data = await res.json();
-        setAdditionalData((prev) => ({
-          ...prev,
-          location: data.name || '',
-          temperature: data.main?.temp ? Math.round(data.main.temp).toString() : '',
-        }));
-      } catch (err) {
-        console.error('Weather error', err);
-      }
-    };
-
-    getPosition()
-      .then((pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude))
-      .catch((err) => {
-        console.error('Location error', err);
-        setLocationError(true);
-      });
-  }, []);
-
-  const handleResetTest = () => {
-    if (window.confirm(t('reset_test_prompt'))) resetTournament();
-  };
-
+  /* ───────────── render ───────────── */
   return (
     <div className="py-4 px-2">
       <Head>
         <title>Ski-Lab: Results</title>
         <meta name="description" content="Displaying your test results" />
       </Head>
+
       <div className="space-y-5">
+        {/* results list */}
         <div>
           {loading ? (
             <div className="flex justify-center items-center h-40">
@@ -181,7 +207,12 @@ const TestSummaryPage = () => {
             <ResultList rankings={rankings} />
           )}
         </div>
-        <form className="rounded flex flex-col text-black my-2 space-y-3" onSubmit={handleSaveResults}>
+
+        {/* form */}
+        <form
+          className="rounded flex flex-col text-black my-2 space-y-3"
+          onSubmit={handleSaveResults}
+        >
           <Input
             type="text"
             name="location"
@@ -190,15 +221,17 @@ const TestSummaryPage = () => {
             value={additionalData.location}
             required
           />
+
           <Input
             type="select"
             name="style"
             placeholder={t('style')}
             onChange={handleInputChange}
             value={additionalData.style}
-            required
             options={styleOptions}
+            required
           />
+
           <Input
             type="number"
             name="temperature"
@@ -207,6 +240,7 @@ const TestSummaryPage = () => {
             onChange={handleInputChange}
             required
           />
+
           <Input
             type="radio"
             name="source"
@@ -216,6 +250,7 @@ const TestSummaryPage = () => {
             options={snowSourceOptions}
             required
           />
+
           <Input
             type="select"
             name="grainType"
@@ -225,6 +260,7 @@ const TestSummaryPage = () => {
             options={snowGrainOptions}
             required
           />
+
           <Input
             type="number"
             name="snowTemperature"
@@ -232,6 +268,7 @@ const TestSummaryPage = () => {
             value={additionalData.snowTemperature}
             onChange={handleInputChange}
           />
+
           <Input
             type="number"
             name="humidity"
@@ -239,6 +276,7 @@ const TestSummaryPage = () => {
             value={additionalData.humidity}
             onChange={handleInputChange}
           />
+
           <Input
             type="text"
             name="comment"
@@ -248,26 +286,41 @@ const TestSummaryPage = () => {
           />
 
           <ShareWithEventSelector
-            userId={user.uid}
+            userId={user?.uid}
             isVisible={true}
             onSelect={(events) => setSelectedEvents(events)}
           />
 
+          {/* buttons */}
           <div className="flex sm:space-x-4 space-y-4 sm:space-y-0 my-4 justify-between">
             <div className="flex space-x-2">
               <Button type="submit" loading={loading} variant="primary">
                 {t('save')}
               </Button>
-              <Button type="button" variant="secondary" onClick={() => router.push('/testing')}>
+
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => router.push('/testing')}
+              >
                 {t('back')}
               </Button>
-              <Button type="button" variant="danger" className='justify-self-end' onClick={handleResetTest}>
+
+              <Button
+                type="button"
+                variant="danger"
+                className="justify-self-end"
+                onClick={handleResetTest}
+              >
                 <RiDeleteBinLine />
               </Button>
             </div>
           </div>
         </form>
-        {locationError && <div className="text-red-500">{t('enable_location_services')}</div>}
+
+        {locationError && (
+          <div className="text-red-500">{t('enable_location_services')}</div>
+        )}
       </div>
     </div>
   );

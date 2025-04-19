@@ -134,11 +134,11 @@ export default function EventWeather({ eventData }) {
                 </div>
 
                 <div className="flex justify-center">
-                  <span className="text-blue-500">
+                  <span className={`${day.minTemp?.toFixed(0)<1?'text-blue-500':'text-delete'}`}>
                     {day.minTemp?.toFixed(0)}
                   </span>
-                  <span className="mx-1">-</span>
-                  <span className="text-delete">
+                  <span className="mx-1">/</span>
+                  <span className={`${day.maxTemp?.toFixed(0)<1?'text-blue-500':'text-delete'}`}>
                     {day.maxTemp?.toFixed(0)}°C
                   </span>
                 </div>
