@@ -143,7 +143,6 @@ const HomePage = () => {
 
                                     <div
                                       key={event.id}
-                                      className="flex-shrink-0 transform transition-transform hover:scale-105"
                                     >
                                       <Button
                                         variant="secondary"
