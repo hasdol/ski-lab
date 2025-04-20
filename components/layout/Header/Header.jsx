@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { TournamentContext } from '../../../context/TournamentContext';
 import { useAuth } from '../../../context/AuthContext';
 import Button from '@/components/common/Button';
+import { VscDebugContinue } from "react-icons/vsc";
+
 
 const Header = () => {
   const pathname = usePathname();
@@ -59,18 +61,18 @@ const Header = () => {
       <div className="flex-1 flex flex-col text-center text-3xl">
         {pageName && <span className='flex-1 hidden md:block'>{pageName}</span>}
       </div>
-
+      
       {currentRound.length === 0 && <Weather />}
       {currentRound.length > 0 &&
         pathname !== '/testing/summary' &&
         pathname !== '/testing' &&
         user != null && (
-          <div className='justify-self-end'>
+          <div className='justify-self-end absolute top-4 right-4'>
             <Button
               onClick={handleContinueTest}
               variant="primary"
             >
-              {t('continue_test')}
+              <VscDebugContinue />
             </Button>
           </div>
 

@@ -9,42 +9,52 @@ const useSingleTeam = (teamId) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (!teamId) return;
+// src/hooks/useSingleTeam.js
+useEffect(() => {
+  if (!teamId) return;
 
-    setLoading(true);
+  setLoading(true);
+  setError(null);
 
-    // Fetch team data once
-    const teamRef = doc(db, 'teams', teamId);
-    getDoc(teamRef)
-      .then((snap) => {
-        if (snap.exists()) {
-          setTeam({ id: snap.id, ...snap.data() });
-        }
-      })
-      .catch((err) => {
-        console.error('Error fetching team data:', err);
-        setError(err);
-      });
-
-    // Subscribe to events
-    const eventsRef = collection(db, 'teams', teamId, 'events');
-    const unsub = onSnapshot(
-      eventsRef,
-      (snapshot) => {
-        const evts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setEvents(evts);
-        setLoading(false);
-      },
-      (err) => {
-        console.error('Error fetching events:', err);
-        setError(err);
-        setLoading(false);
+  // Subscribe to team data
+  const teamRef = doc(db, 'teams', teamId);
+  const unsubTeam = onSnapshot(
+    teamRef,
+    (snap) => {
+      if (snap.exists()) {
+        setTeam({ id: snap.id, ...snap.data() });
+      } else {
+        setTeam(null);
       }
-    );
+    },
+    (err) => {
+      console.error('Error fetching team data:', err);
+      setError(err);
+      setLoading(false);
+    }
+  );
 
-    return () => unsub();
-  }, [teamId]);
+  // Subscribe to events
+  const eventsRef = collection(db, 'teams', teamId, 'events');
+  const unsubEvents = onSnapshot(
+    eventsRef,
+    (snapshot) => {
+      const evts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setEvents(evts);
+      setLoading(false);
+    },
+    (err) => {
+      console.error('Error fetching events:', err);
+      setError(err);
+      setLoading(false);
+    }
+  );
+
+  return () => {
+    unsubTeam();
+    unsubEvents();
+  };
+}, [teamId]);
 
   return { team, events, loading, error };
 };

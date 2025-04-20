@@ -33,7 +33,7 @@ const UploadableImage = ({
         {photoURL ? (
           <img src={photoURL} alt={alt} className={imageClasses} />
         ) : (
-          <RiImageAddLine size={60} className="mx-auto my-5 shadow p-5 rounded-full hover:bg-sbtn" />
+          <RiImageAddLine size={60} className="mx-auto my-5 shadow p-5 rounded-full bg-container hover:bg-sbtn" />
         )}
         <Input
           id="upload-image"

@@ -8,14 +8,14 @@ const ResultsSearch = ({ onSearchChange }) => {
     return (
         <div className='flex flex-col w-full mr-5'>
 
-            <div className='bg-container flex items-center rounded border md:w-1/2 border-sbtn overflow-hidden focus-within:border-none focus-within:ring-1 focus-within:ring-btn'>
+            <div className='bg-container flex items-center rounded border md:w-1/2 border-gray-300 overflow-hidden focus-within:border-none focus-within:ring-1 focus-within:ring-gray-400'>
                 
                 <input
                     id="search-input"
                     type="text"
                     placeholder={t('search')}
                     onChange={e => onSearchChange(e.target.value)}
-                    className="w-full bg-container p-4 outline-none"
+                    className="w-full bg-container px-4 py-3 outline-none"
                 />
                 <div className='text-text p-2 px-4 border-gray-300 border-l '>
                     <RiSearchLine />

@@ -233,5 +233,6 @@
   "Tue": "Tir",
   "live": "Pågående",
   "upcoming": "Kommende",
-  "past": "Gamle"
+  "past": "Gamle",
+    "remove_image": "Fjern bildet"
 }

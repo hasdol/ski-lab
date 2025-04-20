@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { db } from '@/lib/firebase/config';
 import { getUserTeamsWithLiveEvents } from '@/lib/firebase/firestoreFunctions';
+import Button from '@/components/common/Button';
 
 export default function ShareWithEventSelector({ userId, isVisible, onSelect }) {
   const [teams, setTeams] = useState([]);
@@ -14,10 +15,8 @@ export default function ShareWithEventSelector({ userId, isVisible, onSelect }) 
     onSelectRef.current = onSelect;
   }, [onSelect]);
 
-
   useEffect(() => {
     if (!userId) return;
-
     (async () => {
       try {
         const { teams, teamEvents } = await getUserTeamsWithLiveEvents(userId);
@@ -57,34 +56,40 @@ export default function ShareWithEventSelector({ userId, isVisible, onSelect }) 
   }
 
   return (
-    <div className="p-3 border rounded mb-4 bg-container text-text">
+    <div className="p-3 border border-gray-300 rounded mb-4 bg-container text-text">
       <h4 className="mb-2 font-semibold">Share with Live Events</h4>
       {teams.map((team) => (
         <div key={team.id} className="mb-4">
           <p className="font-semibold mb-2">{team.name || 'Unnamed Team'}</p>
           {teamEvents[team.id] && teamEvents[team.id].length > 0 ? (
-            <div className="space-y-1 border border-gray-300 p-2 rounded w-fit">
+            <div className="space-y-2 p-2 rounded w-fit">
               {teamEvents[team.id].map((event) => {
                 const start = event.startDate ? new Date(event.startDate) : null;
                 const end = event.endDate ? new Date(event.endDate) : null;
                 const startDateFormatted = start?.toLocaleDateString();
                 const endDateFormatted = end?.toLocaleDateString();
+                const isChecked = selectedEventsMap[team.id]?.includes(event.id) || false;
 
                 return (
-                  <label key={event.id} className="flex items-center space-x-2">
+                  <Button
+                    key={event.id}
+                    variant="secondary"
+                    className="flex items-center space-x-2"
+                    onClick={() => toggleEventSelection(team.id, event.id)}
+                  >
                     <input
                       type="checkbox"
-                      checked={selectedEventsMap[team.id]?.includes(event.id) || false}
-                      onChange={() => toggleEventSelection(team.id, event.id)}
+                      checked={isChecked}
+                      readOnly
+                      onClick={(e) => e.stopPropagation()}
                     />
                     <span>{event.name}</span>
                     <span className="text-sm">
                       ({startDateFormatted} - {endDateFormatted})
                     </span>
-                  </label>
+                  </Button>
                 );
               })}
-
             </div>
           ) : (
             <p className="text-sm text-gray-500 ml-2">No live events</p>

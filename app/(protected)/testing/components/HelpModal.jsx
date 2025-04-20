@@ -1,5 +1,8 @@
+import Button from '@/components/common/Button';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { RiCloseLine } from "react-icons/ri";
+
 
 const HelpModal = ({ isOpen, onClose, help }) => {
     const { t } = useTranslation();
@@ -25,14 +28,15 @@ const HelpModal = ({ isOpen, onClose, help }) => {
             >
                 <div className='mb-4'>
                     <div className='flex justify-between items-start'>
-                        <h2 className='text-3xl font-semibold mb-5'>{t('test_guide')}</h2>
-                        <button
+                        <h2 className='text-2xl font-semibold mb-8'>{t('test_guide')}</h2>
+                        <Button
                             onClick={onClose}
-                            className="text-3xl font-semibold focus:outline-none"
+                            className='text-xs'
+                            variant='secondary'
                             aria-label={t('close')}
                         >
-                            &times;
-                        </button>
+                            {t('close')}
+                        </Button>
                     </div>
 
                     <ol className='grid gap-5 list-decimal px-4 mb-5'>
@@ -43,10 +47,10 @@ const HelpModal = ({ isOpen, onClose, help }) => {
                     </ol>
                     <h2 className="text-xl font-semibold">Tips</h2>
                     <ul className='list-disc px-4'>
-                    {help.map((tip, index) => (
-                        <li key={index} className="my-2">{tip}</li>
-                    ))}
-                </ul>
+                        {help.map((tip, index) => (
+                            <li key={index} className="my-2">{tip}</li>
+                        ))}
+                    </ul>
                 </div>
 
 

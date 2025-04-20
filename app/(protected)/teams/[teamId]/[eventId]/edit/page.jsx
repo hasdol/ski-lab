@@ -17,15 +17,11 @@ export default function EditEventPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
 
-  // ❗ 1) Call all Hooks up front, unconditionally:
   const { eventData, loading, error } = useEvent(teamId, eventId);
 
-
-  // Convert Firestore Timestamps after we have eventData
   const formatDate = (ts) =>
     ts?.seconds ? new Date(ts.seconds * 1000).toISOString().slice(0, 10) : '';
 
-  // For local state, just initialize safely, even if eventData might be undefined initially
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -35,9 +31,6 @@ export default function EditEventPage() {
   const [uploading, setUploading] = useState(false);
   const [location, setLocation] = useState({ lat: null, lon: null, address: '' });
 
-
-
-
   useEffect(() => {
     if (eventData) {
       setName(eventData.name || '');
@@ -45,26 +38,13 @@ export default function EditEventPage() {
       setStartDate(formatDate(eventData.startDate));
       setEndDate(formatDate(eventData.endDate));
       setImageURL(eventData.imageURL || '');
-      setLocation(eventData.location || null);
+      setLocation(eventData.location || { lat: null, lon: null, address: '' });
     }
   }, [eventData]);
 
-    // ❗ 2) Then conditionally check data and fill in if not loading / error:
-    if (loading) {
-      return <div className="p-4">{t('loading')}...</div>;
-    }
-    if (error) {
-      return <div className="p-4">Error: {error.message}</div>;
-    }
-    if (!eventData) {
-      return <div className="p-4">No event found.</div>;
-    }
-
-  const finalName = name || eventData.name || '';
-  const finalDesc = desc || eventData.description || '';
-  const finalStartDate = startDate || formatDate(eventData.startDate);
-  const finalEndDate = endDate || formatDate(eventData.endDate);
-  const finalImageURL = imageURL || eventData.imageURL || '';
+  if (loading) return <div className="p-4">{t('loading')}...</div>;
+  if (error) return <div className="p-4">Error: {error.message}</div>;
+  if (!eventData) return <div className="p-4">No event found.</div>;
 
   const handleFileSelect = (e) => {
     if (e.target.files?.[0]) {
@@ -77,27 +57,28 @@ export default function EditEventPage() {
   const handleUpdate = async () => {
     try {
       setUploading(true);
-      let finalImage = finalImageURL;
+      let finalImage = imageURL;
 
       if (file) {
         finalImage = await uploadEventImage(teamId, eventId, file, user.uid);
         setImageURL(finalImage);
       }
-      const start = new Date(finalStartDate);
-      const end = new Date(finalEndDate);
-      end.setHours(23, 59, 59, 999); // ⬅️ Make sure the event stays live through the end date
+
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
 
       const updatedData = {
-        name: finalName,
-        description: finalDesc,
+        name,
+        description: desc,
         startDate: start,
         endDate: end,
         imageURL: finalImage,
-        location: { 
+        location: {
           lat: location.lat,
           lon: location.lon,
-          address: location.address
-        }
+          address: location.address,
+        },
       };
 
       await updateEvent(teamId, eventId, updatedData);
@@ -109,7 +90,6 @@ export default function EditEventPage() {
       setUploading(false);
     }
   };
-
 
   const handleDelete = async () => {
     if (confirm('Are you sure you want to delete this event?')) {
@@ -134,61 +114,63 @@ export default function EditEventPage() {
       alert(t('remove_image_error') + ': ' + error.message);
     }
   };
-console.log(eventData?.location?.address);
 
   return (
     <div className="p-4 max-w-xl mx-auto">
       <h1 className="text-3xl font-semibold mb-4">{t('edit_event')}</h1>
-      <div className='space-y-2'>
+      <div className="space-y-2">
         <Input
           type="text"
           placeholder={t('event_name')}
-          value={finalName}
+          value={name}
           onChange={(e) => setName(e.target.value)}
           required
         />
         <Input
           type="textarea"
           placeholder={t('description')}
-          value={finalDesc}
+          value={desc}
           onChange={(e) => setDesc(e.target.value)}
         />
         <Input
           type="date"
           label={t('start_date')}
-          value={finalStartDate}
+          value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
           required
         />
         <Input
           type="date"
           label={t('end_date')}
-          value={finalEndDate}
+          value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
           required
         />
-        <GeocodeInput 
+        <GeocodeInput
           label="Event Location"
           initialValue={eventData?.location?.address}
-          onLocationSelect={(lat, lon, address) => setLocation({ lat, lon, address })}
+          onLocationSelect={(lat, lon, address) =>
+            setLocation({ lat, lon, address })
+          }
         />
         <UploadableImage
-          photoURL={finalImageURL}
+          photoURL={imageURL}
           alt="Event Image"
           variant="event"
           isChangingImg={uploading}
-          clickable={true}
+          clickable
           handleImageChange={handleFileSelect}
         />
         {eventData.imageURL && (
-          <Button onClick={handleRemoveImage} variant="danger" className="mt-2 text-xs flex justify-self-center mb-10">
+          <Button
+            onClick={handleRemoveImage}
+            variant="danger"
+            className="mt-2 text-xs flex justify-self-center mb-10"
+          >
             {t('remove_image')}
           </Button>
         )}
-
       </div>
-
-
       <div className="flex space-x-3 mt-4">
         <Button onClick={handleUpdate} variant="primary" loading={uploading}>
           {t('update')}

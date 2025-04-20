@@ -4,7 +4,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useTranslation } from 'react-i18next';
-import HelpModal from '@/components/HelpModal/HelpModal';
+import HelpModal from '@/app/(protected)/testing/components/HelpModal';
 import { TournamentContext } from '@/context/TournamentContext';
 import { RiDeleteBinLine, RiQuestionLine } from 'react-icons/ri';
 import { VscGrabber } from 'react-icons/vsc';

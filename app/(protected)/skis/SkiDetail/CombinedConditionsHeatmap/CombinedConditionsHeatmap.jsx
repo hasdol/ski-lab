@@ -104,7 +104,7 @@ const CombinedConditionsHeatmap = ({
           {['natural', 'artificial', 'mix'].map((tab) => (
             <Button
               key={tab}
-              variant={`${activeTab === tab ? 'primary' : 'secondary'}`}
+              variant={`${activeTab === tab ? 'tab' : 'secondary'}`}
               onClick={() => setActiveTab(tab)}
               className='text-xs'
             >

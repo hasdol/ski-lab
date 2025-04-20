@@ -27,11 +27,11 @@ const ResultsList = ({ rankings }) => {
         <div className="space-y-4 mb-10">
             {/* Top Three Section */}
             <ul className="space-y-3">
-                {rankedList.slice(0, 3).map((item, index) => (
+                {rankedList.slice(0, 1).map((item, index) => (
 
                     <li
                         key={item.serialNumber}
-                        className={`flex items-center justify-between bg-container shadow rounded p-3 px-5 ${item.rank === 1 ? 'font-semibold text-lg' : ""
+                        className={`flex items-center justify-between bg-container text-black  shadow rounded-md p-3 px-4
                             }`}                    >
                         <div className="flex-1 text-left"># {item.rank}</div>
                         <div className="flex-1 text-center">{item.serialNumber} </div>
@@ -42,10 +42,10 @@ const ResultsList = ({ rankings }) => {
 
             {/* Remaining Rankings */}
             <ul className="space-y-3">
-                {rankedList.slice(3).map((item) => (
+                {rankedList.slice(1).map((item) => (
                     <li
                         key={item.serialNumber}
-                        className="flex items-center justify-between bg-container shadow rounded p-3 px-5"
+                        className="flex items-center justify-between bg-container shadow rounded-md p-3 px-4"
                     >
                         <span className="flex-1 text-left"># {item.rank}</span>
                         <span className="flex-1 text-center">{item.serialNumber}</span>

@@ -40,7 +40,7 @@ export default function EventPage() {
 
   return (
     <div className="p-4">
-      <Button onClick={handleBackClick} variant="secondary">
+      <Button onClick={handleBackClick} variant="secondary" className='text-xs'>
         {t('back')}
       </Button>
 

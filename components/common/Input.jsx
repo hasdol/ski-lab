@@ -36,7 +36,7 @@ const Input = ({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        className={`w-full bg-container text-text border rounded-md ${gloveClasses} ${className}`}
+        className={`w-full bg-container text-text border border-gray-300 rounded-md ${gloveClasses} ${className}`}
         {...props}
       />
     );
@@ -49,7 +49,7 @@ const Input = ({
         onChange={onChange}
         required={required}
         disabled={disabled}
-        className={`w-full bg-container text-text border rounded-md ${gloveClasses} ${className}`}
+        className={`w-full bg-container text-text border border-gray-300 rounded-md ${gloveClasses} ${className}`}
         {...props}
       >
         <option value="">{placeholder}</option>
@@ -73,7 +73,7 @@ const Input = ({
               onChange={onChange}
               required={required}
               disabled={disabled}
-              className={`${gloveClasses} accent-btn border-gray-300 h-5 w-5`}
+              className={`${gloveClasses} accent-btn border border-gray-300 h-5 w-5`}
             />
             <span>{option.label}</span>
           </label>
@@ -91,7 +91,7 @@ const Input = ({
           onChange={onChange}
           required={required}
           disabled={disabled}
-          className={`w-full bg-container text-text border rounded-md ${gloveClasses} ${className}`}
+          className={`w-full bg-container text-text border border-gray-300 rounded-md ${gloveClasses} ${className}`}
           {...props}
         />
         <span className="text-text mt-1">
@@ -111,7 +111,7 @@ const Input = ({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        className={`w-full bg-container text-text border rounded-md ${gloveClasses} ${className}`}
+        className={`w-full bg-container text-text border border-gray-300 rounded-md ${gloveClasses} ${className}`}
         {...props}
       />
     );

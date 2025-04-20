@@ -46,7 +46,7 @@ const SkiItem = ({
     <div className={`animate-fade-down animate-duration-300 `}>
       {/* Main clickable row - now controls checkbox */}
       <div
-        className={`w-full bg-container border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-300 transition-all duration-200` }
+        className={`w-full bg-container border border-gray-300 rounded-md p-2 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-300 transition-all duration-200` }
         variant='secondary'
         onClick={() => handleCheckboxChange(ski.id)}
       >

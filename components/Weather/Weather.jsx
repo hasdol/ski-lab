@@ -109,7 +109,7 @@ export default function Weather() {
   if (!wx)             return null;
 
   return (
-    <div className="flex text-xs space-x-2">
+    <div className="flex text-xs space-x-2 md:justify-self-end">
       <div className="flex space-x-1">
         <RiMapPin2Line size={15} />
         <span>{wx.location}</span>

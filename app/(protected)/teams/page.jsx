@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { RiAddLargeLine } from 'react-icons/ri';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/common/Button';
+import Spinner from '@/components/common/Spinner/Spinner';
 
 
 export default function TeamsPage() {
@@ -17,26 +18,22 @@ export default function TeamsPage() {
   const { t } = useTranslation();
   const router = useRouter();
 
-  if (loading) {
-    return <div>Loading teams...</div>;
-  }
 
   if (error) {
     return <div>Error loading teams: {error.message}</div>;
   }
 
   return (
-    <div className="p-4">
-      <h1 className="text-3xl font-semibold mb-5">{t('teams')}</h1>
-      <div className='flex justify-between items-end my-4'>
-        <JoinTeamForm />
-        {canCreateTeam && (
-          <Button onClick={() => router.push('/teams/create-team')} variant="primary">
-            <RiAddLargeLine />
-          </Button>
-        )}
-      </div>
+    <div className="p-4 space-y-4">
+      <h1 className="text-3xl font-semibold">{t('teams')}</h1>
+      {canCreateTeam && (
+        <Button onClick={() => router.push('/teams/create-team')} variant="primary" className='text-xs'>
+          {t('create_team')}
+        </Button>
+      )}
+      <JoinTeamForm />
 
+      {loading && <div className='flex justify-center'><Spinner /></div> }
       <TeamList teams={teams} />
     </div>
   );

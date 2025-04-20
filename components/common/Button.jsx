@@ -8,20 +8,20 @@ const Button = ({
   type = 'button',
   variant = 'primary',
   disabled = false,
-  loading = false, 
+  loading = false,
   className = '',
   ...props
 }) => {
   const isIconOnly = React.Children.count(children) === 1 && React.isValidElement(children);
 
   const baseStyles = isIconOnly
-    ? 'p-2.5 rounded-md focus:outline-none transition-all duration-200'
+    ? 'p-2.5 rounded-md text-sm font-medium focus:outline-none transition-all duration-200'
     : 'px-5 py-2.5 rounded-md text-sm font-medium focus:outline-none transition-all duration-200';
 
   let variantStyles = '';
   switch (variant) {
     case 'primary':
-      variantStyles = 'bg-neutral-800 text-white hover:bg-neutral-700 active:scale-[0.98] focus:ring-2 focus:ring-black/30 shadow-sm';
+      variantStyles = 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-[0.98] focus:ring-2 focus:ring-indigo-300/50 shadow-sm';
       break;
     case 'secondary':
       variantStyles = 'bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-300 shadow-sm';
@@ -31,6 +31,9 @@ const Button = ({
       break;
     case 'upgrade':
       variantStyles = 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] focus:ring-2 focus:ring-blue-300 shadow-sm';
+      break;
+    case 'tab':
+      variantStyles = 'bg-slate-200 text-gray-800 border border-gray-300 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-100';
       break;
     default:
       variantStyles = 'bg-blue-500 text-white hover:bg-blue-600 active:scale-[0.98] focus:ring-2 focus:ring-blue-300 shadow-sm';

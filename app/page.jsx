@@ -77,7 +77,7 @@ const HomePage = () => {
             </div>
           </div>
 
-          <div className='flex items-center mt-6 mb-2 p-5 w-80 space-x-10'>
+          <div className='flex items-center mt-6 p-5 w-80 space-x-10'>
             <p className='text-headerText text-5xl text-start font-bold'>Handle your skis like a pro.</p>
             <TiFlowParallel size={200} className='text-headerText' />
           </div>
@@ -95,7 +95,7 @@ const HomePage = () => {
                 </Button>
               </div>
             ) : (
-              <div className='mt-5'>
+              <div className='my-8'>
                 <div className='flex space-x-4 justify-center'>
                   <Button
                     onClick={() => handleNavigation('/skis')}
@@ -115,7 +115,7 @@ const HomePage = () => {
                 </div>
 
                 {hasLiveEvents && (
-                  <div className="w-80 mt-8 md:w-100">
+                  <div className="w-80 mt-8 px-5 md:w-100">
                     <div className="flex overflow-x-scroll space-x-4 pb-4 scrollbar-hide"> {/* Add scrollbar-hide class if you want to hide scrollbar */}
                       {teams.map((team) => (
                         teamEvents[team.id]?.length > 0 && (

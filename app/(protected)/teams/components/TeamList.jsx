@@ -37,18 +37,26 @@ export default function TeamList({ teams }) {
     }
   };
 
+  if (!teams?.length) {
+    return (
+      <div className="py-8 text-center text-gray-500">
+        {t('teams.noJoined')}
+      </div>
+    );
+  }
+
 
   return (
-    <div className="grid md:grid-cols-3 gap-4">
+    <div className="grid md:grid-cols-3 gap-3">
       {teams.map((team) => (
-        <Button
+        <div
           key={team.id}
-          variant="secondary"
+          className="flex justify-between bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-300 shadow-sm px-5 py-2.5 rounded-md text-sm font-medium focus:outline-none transition-all duration-200"
           onClick={() => router.push(`/teams/${team.id}`)}
         >
           <div>
             <h3 className="text-xl font-semibold">{team.name}</h3>
-            <p>{t('members')}: {team.members.length}</p>
+            <p className='font-normal'>{t('members')}: {team.members.length}</p>
           </div>
           <div className='self-center justify-self-end'>
             {user.uid !== team.createdBy && (
@@ -66,7 +74,7 @@ export default function TeamList({ teams }) {
 
 
           </div>
-        </Button>
+        </div>
       ))}
     </div>
   );

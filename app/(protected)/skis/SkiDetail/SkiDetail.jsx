@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import CombinedConditionsHeatmap from './CombinedConditionsHeatmap/CombinedConditionsHeatmap';
 import PerformanceChart from './PerformanceChart/PerformanceChart';
 import SelectSeason from './PerformanceChart/SelectSeason';
-import { useAuth } from '@/context/AuthContext';
 import GrindHistory from '@/components/GrindHistory/GrindHistory';
 import { formatDate, getTimestamp, getSeason } from '@/helpers/helpers';
 import useSkiTests from '@/hooks/useSkiTests';
@@ -314,7 +313,7 @@ const SkiDetail = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
     <div className="max-w-4xl mx-auto mt-2  border border-gray-300 rounded-md animate-fade-down animate-duration-300 relative">
       <div className="bg-container rounded-md p-4 md:p-5">
         {/* Ski Info Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8 border-b pb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5 border-b border-gray-300 pb-6">
 
 
           {/* Rest of the ski info items */}
@@ -353,9 +352,9 @@ const SkiDetail = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         </div>
 
         {/* Performance Chart Section */}
-        <div className="mb-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-800 mb-2 md:mb-0">
+        <div className="mb-5 border-b border-gray-300 pb-5">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <h2 className="text-2xl font-semibold mb-4 md:mb-0">
               {t('performance')}
             </h2>
             {tests && tests.length > 0 && (
@@ -393,9 +392,9 @@ const SkiDetail = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         </div>
 
         {/* Recommended Conditions Section */}
-        <div className="mb-8">
+        <div className="mb-5 border-b border-gray-300 pb-10">
           <div className="flex flex-col justify-between space-y-2">
-            <h2 className="text-xl font-semibold text-gray-800">
+            <h2 className="text-2xl font-semibold mb-4">
               {t('recommended_conditions')}
             </h2>
             <div className="flex gap-4">
@@ -445,11 +444,11 @@ const SkiDetail = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         {/* Grind History Section */}
         <GrindHistory grindHistory={grindHistory} />
         {/* Action Buttons - Now inside the grid */}
-        <div className="col-span-2 md:col-span-3 flex space-x-2 mb-2">
+        <div className="col-span-2 md:col-span-3 flex justify-center space-x-2 mb-2 border-t border-gray-300 pt-5">
           <Button
             onClick={onEdit}
             variant="secondary"
-            className='text-xs py-1 px-3'
+            className='text-xs'
           >
             {t('edit')}
           </Button>
@@ -457,7 +456,7 @@ const SkiDetail = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
             <Button
               onClick={onUnarchive}
               variant="primary"
-              className='text-xs py-1 px-3'
+              className='text-xs'
             >
               {t('unarchive')}
             </Button>
@@ -465,7 +464,7 @@ const SkiDetail = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
             <Button
               onClick={onArchive}
               variant="primary"
-              className='text-xs py-1 px-3'
+              className='text-xs'
             >
               {t('archive')}
             </Button>
@@ -473,7 +472,7 @@ const SkiDetail = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
           <Button
             onClick={onDelete}
             variant="danger"
-            className='text-xs py-1 px-3'
+            className='text-xs'
           >
             {t('delete')}
           </Button>

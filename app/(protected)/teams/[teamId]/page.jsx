@@ -1,12 +1,13 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import useSingleTeam from '@/hooks/useSingleTeam';
 import { useTranslation } from 'react-i18next';
 import Button from '@/components/common/Button';
 import UploadableImage from '@/components/common/UploadableImage';
-import { RiAddLargeLine } from 'react-icons/ri';
+import MemberListItem from './components/MemberListItem';
+import { removeTeamMember } from '@/lib/firebase/teamFunctions';
 
 export default function TeamDetailPage() {
   const { teamId } = useParams();
@@ -14,6 +15,8 @@ export default function TeamDetailPage() {
   const { userData } = useAuth();
   const { team, events, loading, error } = useSingleTeam(teamId);
   const { t } = useTranslation();
+
+  const [viewMembers, setViewMembers] = useState(false)
 
   const canManage = userData?.plan === 'coach' || userData?.plan === 'company';
 
@@ -58,9 +61,19 @@ export default function TeamDetailPage() {
     past: { color: 'text-gray-500', dot: 'bg-gray-400', label: 'Past' }
   };
 
+  const handleKickMember = async (memberId) => {
+    if (!confirm(t('confirm_kick_member'))) return;
+    try {
+      await removeTeamMember(team.id, memberId);
+    } catch (err) {
+      console.error(err);
+      alert(t('kick_failed'));
+    }
+  };
+
   return (
     <div className="p-4">
-      <Button onClick={handleBackClick} variant="secondary">
+      <Button onClick={handleBackClick} variant="secondary" className='text-xs'>
         {t('back')}
       </Button>
 
@@ -72,7 +85,36 @@ export default function TeamDetailPage() {
           clickable={false}
         />
         <h1 className='font-semibold text-lg'>{team.name}</h1>
-        <h5 className='text-sm'>{t('members')}: {team.members.length}</h5>
+        {canManage ? <Button variant={`${viewMembers?'tab':'secondary'}`} className='text-xs my-2' onClick={() => setViewMembers(prev => !prev)}>{t('members')}: {team.members.length}</Button> :
+          <span className='text-sm'>{t('members')}: {team.members.length}</span>
+        }
+
+        {canManage && viewMembers && (
+          <div className="my-4 w-full animate-fade-down animate-duration-300">
+            <h5 className="font-semibold text-sm mb-2">{t('teammembers')}</h5>
+            <ul className="space-y-2">
+              {team.members.map(memberId => (
+                <li
+                  key={memberId}
+                  className="flex items-center justify-between px-3 py-1 bg-gray-50 rounded"
+                >
+
+                  <MemberListItem userId={memberId} />
+                  {memberId !== userData.uid && (
+                    <Button
+                      onClick={() => handleKickMember(memberId)}
+                      variant="danger"
+                      className='text-xs'
+                    >
+                      {t('kick')}
+                    </Button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
 
         {canManage && (
           <div className="mt-2 px-3 py-2 bg-gray-100 rounded text-sm text-gray-800">
@@ -80,13 +122,15 @@ export default function TeamDetailPage() {
           </div>
         )}
 
+
+
         {canManage && (
           <div className="flex space-x-3 my-3">
             <Button onClick={() => router.push(`/teams/${teamId}/edit`)} variant="secondary" className='text-xs'>
               {t('edit_team')}
             </Button>
-            <Button onClick={() => router.push(`/teams/${teamId}/create-event`)} variant="secondary" className='text-xs'>
-            {t('create_event')}
+            <Button onClick={() => router.push(`/teams/${teamId}/create-event`)} variant="primary" className='text-xs'>
+              {t('create_event')}
             </Button>
           </div>
         )}
@@ -127,8 +171,7 @@ export default function TeamDetailPage() {
                         <span className={`text-xs font-bold uppercase tracking-wide ${badge.color}`}>{badge.label}</span>
                       </div>
 
-                      <h3 className="font-semibold">{evt.name}</h3>
-                      <p>{evt.description}</p>
+                      <h3 className="font-semibold text-base">{evt.name}</h3>
                       <p className="text-sm opacity-80">{startDateFormatted} - {endDateFormatted}</p>
                     </Button>
                   );
