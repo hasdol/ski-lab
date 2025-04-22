@@ -25,9 +25,8 @@ export default function TeamsPage() {
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-3xl font-semibold">{t('teams')}</h1>
       {canCreateTeam && (
-        <Button onClick={() => router.push('/teams/create-team')} variant="primary" className='text-xs'>
+        <Button onClick={() => router.push('/teams/create-team')} variant="primary">
           {t('create_team')}
         </Button>
       )}

@@ -149,8 +149,8 @@ exports.createCheckoutSession = onCall({ secrets: ['STRIPE_SECRET', 'APP_URL'] }
     // Prepare subscription data.
     const subscriptionData = { metadata: { userId, plan } };
 
-    // Only add a 30-day trial for new users selecting the athlete plan.
-    if (plan === 'athlete' && !alreadySubscribed) {
+    // Only add a 30-day trial for new users
+    if (!alreadySubscribed) {
       subscriptionData.trial_period_days = 30;
     }
 

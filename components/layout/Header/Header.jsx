@@ -27,6 +27,7 @@ const Header = () => {
     '/settings': t('settings'),
     '/contact': t('contact'),
     '/manage-locked-skis': t('manage_locked_skis'),
+    '/teams': t('teams'),
   };
 
   let pageName = pageNames[pathname] || '';

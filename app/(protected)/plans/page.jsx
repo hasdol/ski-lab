@@ -99,7 +99,7 @@ const PlansPage = () => {
 
   return (
     <div className="container mx-auto px-4">
-      <h1 className="my-5 mb-10 text-2xl font-semibold text-center">Pick a plan</h1>
+      <h1 className="my-5 mb-10 text-3xl font-semibold text-center">Pick a plan</h1>
       {plans.length === 0 && <p>No plans available at the moment.</p>}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {plans.map((plan) => {
@@ -111,17 +111,17 @@ const PlansPage = () => {
           return (
             <div
               key={plan.productId}
-              className="bg-gradient-to-b from-container to-slate-100 rounded shadow text-center relative flex flex-col"
+              className="bg-gradient-to-b from-container to-slate-100 rounded-md shadow-md text-center relative flex flex-col"
             >
               {isCurrentPlan && (
-                <div className="absolute top-0 right-0 bg-blue-500 text-white px-2 py-1 text-xs rounded-bl">
+                <div className="absolute top-0 right-0 bg-gradient-to-br from-blue-500 to-indigo-500 text-white px-2 py-1 text-xs rounded">
                   Current
                 </div>
               )}
 
-              <div className="bg-gradient-to-r from-slate-800 to-slate-600 p-4 rounded-t">
-                <h2 className="font-semibold text-xl text-btntxt">{plan.name}</h2>
-                <p className="text-sm mt-1 text-btntxt italic">
+              <div className="bg-slate-700 p-4 rounded-t text-white">
+                <h2 className="font-semibold text-xl ">{plan.name}</h2>
+                <p className="text-sm mt-1 italic">
                   {plan.name === "Company" && 'Industry Leader'}
                   {plan.name === "Coach" && '"Puppet-Master"'}
                   {plan.name === "Athlete" && 'Professional'}
@@ -139,13 +139,11 @@ const PlansPage = () => {
               <div className="mt-auto">
                 {plan.amount && (
                   <div className="my-5">
-                    {plan.plan === 'athlete' && (
-                      <div className="text-highlight mb-2">
-                        <p className="font-semibold">30 Days Free Trail</p>
-                        <p className="text-text text-xs">*only new users</p>
-                      </div>
-                    )}
-                    <p className="text-4xl mb-2">
+                    <div className="text-highlight mb-8">
+                      <p className="font-semibold">30 Days Free Trail</p>
+                      <p className="text-text text-xs">*only new users</p>
+                    </div>
+                    <p className="text-4xl mb-2 text-gray-800">
                       {(plan.amount / 100)} {plan.currency.toUpperCase()}
                     </p>
                     <p className="italic">per {plan.interval}</p>
@@ -163,11 +161,10 @@ const PlansPage = () => {
                       )
                     }
                     // You can either set variant via prop or inline via className
-                    className={`${
-                      plan.plan === currentPlan && currentPlan === 'free'
+                    className={`${plan.plan === currentPlan && currentPlan === 'free'
                         ? "bg-gray-500"
-                        : "bg-gradient-to-r from-slate-800 to-slate-600 hover:opacity-90"
-                    } text-btntxt px-4 py-2 rounded mt-4`}
+                        : "bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-[0.98] focus:ring-2 focus:ring-indigo-300/50 shadow-sm"
+                      } text-white px-4 py-2 rounded-md mt-4`}
                   >
                     {buttonText}
                   </Button>
