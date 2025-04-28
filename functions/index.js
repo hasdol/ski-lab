@@ -319,9 +319,10 @@ async function handleSubscriptionUpdated(subscription) {
       const unlockedSkisCount = skiCount - lockedSkisCount;
 
       const planLimits = {
-        free: 12,
-        athlete: 48,
-        coach: 200,
+        free: 6,
+        senior: 16,
+        senior_pluss: 40,
+        coach: 100,
         company: 5000,
       };
       const newLimit = planLimits[newPlan] || 12;
@@ -384,9 +385,10 @@ exports.onSkiCreated = onDocumentCreated('users/{userId}/skis/{skiId}', async (e
   if (!userDoc.exists) return;
   const userData = userDoc.data();
   const planLimits = {
-    free: 12,
-    athlete: 48,
-    coach: 200,
+    free: 6,
+    senior: 16,
+    senior_pluss: 40,
+    coach: 100,
     company: 5000,
   };
   const skiLimit = planLimits[userData.plan || 'free'] || 12;
@@ -416,11 +418,13 @@ exports.onSkiDeleted = onDocumentDeleted('users/{userId}/skis/{skiId}', async (e
   const userData = userDoc.data();
 
   const planLimits = {
-    free: 12,
-    athlete: 48,
-    coach: 200,
+    free: 6,
+    senior: 16,
+    senior_pluss: 40,
+    coach: 100,
     company: 5000,
   };
+
   const skiLimit = planLimits[userData.plan || 'free'] || 12;
   const skiCount = userData.skiCount || 0;
   const lockedSkisCount = userData.lockedSkisCount || 0;

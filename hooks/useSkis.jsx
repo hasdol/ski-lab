@@ -38,9 +38,10 @@ export const useSkis = () => {
     if (!user) return;
     try {
       const planLimits = {
-        free: 12,
-        athlete: 48,
-        coach: 200,
+        free: 6,
+        senior: 16,
+        senior_pluss: 40,
+        coach: 100,
         company: 5000,
       };
       const userPlan = userData?.plan || 'free';

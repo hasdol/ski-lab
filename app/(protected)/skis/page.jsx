@@ -107,14 +107,16 @@ const Skis = () => {
   const skiCount = userData?.skiCount || 0;
   const plan = userData?.plan || 'free';
   let skiLimit;
-  if (plan === 'athlete') {
-    skiLimit = 48;
+  if (plan === 'senior') {
+    skiLimit = 16;
+  } else if (plan === 'senior_pluss') {
+    skiLimit = 40;
   } else if (plan === 'coach') {
-    skiLimit = 200;
+    skiLimit = 100;
   } else if (plan === 'company') {
     skiLimit = 5000;
   } else {
-    skiLimit = 12;
+    skiLimit = 6;
   }
   const hasReachedLimit = skiCount >= skiLimit;
   const hasLockedSkis = lockedSkisCount > 0;

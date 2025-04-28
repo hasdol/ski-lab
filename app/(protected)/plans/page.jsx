@@ -98,10 +98,10 @@ const PlansPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4 mb-10">
       <h1 className="my-5 mb-10 text-3xl font-semibold text-center">Pick a plan</h1>
       {plans.length === 0 && <p>No plans available at the moment.</p>}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {plans.map((plan) => {
           const isCurrentPlan = plan.plan === currentPlan;
           const isUpgrade = planRank[plan.plan] > planRank[currentPlan];
@@ -124,7 +124,8 @@ const PlansPage = () => {
                 <p className="text-sm mt-1 italic">
                   {plan.name === "Company" && 'Industry Leader'}
                   {plan.name === "Coach" && '"Puppet-Master"'}
-                  {plan.name === "Athlete" && 'Professional'}
+                  {plan.name === "Senior Pluss" && 'Value pack'}
+                  {plan.name === "Senior" && 'Professional'}
                 </p>
               </div>
 
