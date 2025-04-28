@@ -80,7 +80,7 @@ const Account = () => {
                       <p className="inline-flex items-center justify-center gap-1.5
                                   bg-gradient-to-br from-blue-500 to-indigo-500 text-white
                                    px-4 py-1.5 rounded-full text-sm">
-                        {t(`${userData.plan}User`)}
+                        {t(`${userData.plan} plan`)}
                         <RiVerifiedBadgeFill className="w-4 h-4" />
                       </p>
                     )}
