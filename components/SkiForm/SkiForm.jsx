@@ -135,188 +135,191 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-2'>
-      <Input
-        label={t('serial_number')}
-        type="number"
-        name="serialNumber"
-        value={formData.serialNumber}
-        onChange={handleChange}
-        placeholder={t('serial_number')}
-        required
-      />
-      <Input
-        label={t('style')}
-        type="select"
-        name="style"
-        value={formData.style}
-        onChange={handleChange}
-        placeholder={t('style')}
-        required
-        options={[
-          { label: t('classic'), value: 'classic' },
-          { label: t('skate'), value: 'skate' },
-          { label: 'DP', value: 'dp' },
-        ]}
-      />
-      <Input
-        label={t('brand')}
-        type="text"
-        name="brand"
-        value={formData.brand}
-        onChange={handleChange}
-        placeholder={t('brand')}
-        required
-      />
-      <Input
-        label={t('model')}
-        type="text"
-        name="model"
-        value={formData.model}
-        onChange={handleChange}
-        placeholder={t('model')}
-      />
-      <div className={`${isEdit && 'bg-container shadow border border-sbtn rounded my-4 p-4'}`}>
-        {isEdit && (
-          <h3 className="self-start text-xl mb-4 font-semibold">{t('change_grind')}</h3>
-        )}
-        <div className="flex flex-col justify-between items-center">
-          <div className="w-full grid grid-cols-2 gap-2 items-center">
-            <Input
-              label={t('grind')}
-              type="text"
-              name="grind"
-              value={formData.grind}
-              onChange={handleChange}
-              placeholder={t('grind')}
-              required
-              disabled={isEdit}
-            />
-            <Input
-              label={t('grind_date')}
-              type="date"
-              name="grindDate"
-              value={formData.grindDate}
-              onChange={handleChange}
-              placeholder={t('grind_date')}
-              required
-              disabled={isEdit}
-            />
-          </div>
+    <div className='max-w-4xl mx-auto px-4 py-4 animate-fade-up animate-duration-300'>
+      <form onSubmit={handleSubmit} className="bg-white rounded-md shadow p-6 md:p-8 space-y-8">
+        <Input
+          label={t('serial_number')}
+          type="number"
+          name="serialNumber"
+          value={formData.serialNumber}
+          onChange={handleChange}
+          placeholder={t('serial_number')}
+          required
+        />
+        <Input
+          label={t('style')}
+          type="select"
+          name="style"
+          value={formData.style}
+          onChange={handleChange}
+          placeholder={t('style')}
+          required
+          options={[
+            { label: t('classic'), value: 'classic' },
+            { label: t('skate'), value: 'skate' },
+            { label: 'DP', value: 'dp' },
+          ]}
+        />
+        <Input
+          label={t('brand')}
+          type="text"
+          name="brand"
+          value={formData.brand}
+          onChange={handleChange}
+          placeholder={t('brand')}
+          required
+        />
+        <Input
+          label={t('model')}
+          type="text"
+          name="model"
+          value={formData.model}
+          onChange={handleChange}
+          placeholder={t('model')}
+        />
+        <div className={`${isEdit && 'bg-container border border-gray-300 rounded-md my-4 p-4'}`}>
           {isEdit && (
-            <div className="my-4">
-              <RiArrowDownDoubleLine size={30} />
-            </div>
+            <h3 className="self-start text-xl mb-4 font-semibold">{t('change_grind')}</h3>
           )}
-          {isEdit && (
+          <div className="flex flex-col justify-between items-center">
             <div className="w-full grid grid-cols-2 gap-2 items-center">
               <Input
-                label={t('new_grind')}
+                label={t('grind')}
                 type="text"
-                name="newGrind"
-                value={formData.newGrind || ''}
+                name="grind"
+                value={formData.grind}
                 onChange={handleChange}
-                placeholder={t('new_grind')}
+                placeholder={t('grind')}
+                required
+                disabled={isEdit}
               />
               <Input
                 label={t('grind_date')}
                 type="date"
-                name="newGrindDate"
-                value={formData.newGrindDate || ''}
+                name="grindDate"
+                value={formData.grindDate}
                 onChange={handleChange}
                 placeholder={t('grind_date')}
+                required
+                disabled={isEdit}
               />
+            </div>
+            {isEdit && (
+              <div className="my-4">
+                <RiArrowDownDoubleLine size={30} />
+              </div>
+            )}
+            {isEdit && (
+              <div className="w-full grid grid-cols-2 gap-2 items-center">
+                <Input
+                  label={t('new_grind')}
+                  type="text"
+                  name="newGrind"
+                  value={formData.newGrind || ''}
+                  onChange={handleChange}
+                  placeholder={t('new_grind')}
+                />
+                <Input
+                  label={t('grind_date')}
+                  type="date"
+                  name="newGrindDate"
+                  value={formData.newGrindDate || ''}
+                  onChange={handleChange}
+                  placeholder={t('grind_date')}
+                />
+              </div>
+            )}
+          </div>
+          {isEdit && formData.grindHistory.length > 0 && (
+            <div className="p-4 flex flex-col items-center">
+              <h3 className="text-xl font-semibold mb-4">{t('grind_history')}</h3>
+              <ul className="space-y-2">
+                {formData.grindHistory.map((entry, index) => (
+                  <li key={index} className="flex justify-between items-center space-x-2">
+                    <p>
+                      {entry.grind} - {new Date(entry.grindDate).toLocaleDateString()}
+                    </p>
+                    <Button
+                      type="button"
+                      onClick={() => handleDeleteGrind(index)}
+                      variant="danger"
+                    >
+                      <RiDeleteBinLine size={12} />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </div>
-        {isEdit && formData.grindHistory.length > 0 && (
-          <div className="p-4 flex flex-col items-center">
-            <h3 className="text-xl font-semibold mb-4">{t('grind_history')}</h3>
-            <ul className="space-y-2">
-              {formData.grindHistory.map((entry, index) => (
-                <li key={index} className="flex justify-between items-center space-x-2">
-                  <p>
-                    {entry.grind} - {new Date(entry.grindDate).toLocaleDateString()}
-                  </p>
-                  <Button
-                    type="button"
-                    onClick={() => handleDeleteGrind(index)}
-                    variant="danger"
-                  >
-                    <RiDeleteBinLine size={12} />
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-      <Input
-        label={t('ski_type')}
-        type="select"
-        name="skiType"
-        value={formData.skiType}
-        onChange={handleChange}
-        placeholder={t('ski_type')}
-        options={[
-          { label: t('cold'), value: 'cold' },
-          { label: t('universal'), value: 'universal' },
-          { label: t('warm'), value: 'warm' },
-        ]}
-      />
-      <Input
-        label={t('length')}
-        type="range"
-        name="length"
-        value={formData.length}
-        onChange={handleChange}
-        min={170}
-        max={220}
-        step={1}
-        placeholder={t('length')}
-        unit="cm"
-      />
-      <Input
-        label={t('stiffness')}
-        type="text"
-        name="stiffness"
-        value={formData.stiffness}
-        onChange={handleChange}
-        placeholder={t('stiffness')}
-      />
-      <Input
-        label="Base"
-        type="text"
-        name="base"
-        value={formData.base}
-        onChange={handleChange}
-        placeholder="Base"
-      />
-      <Input
-        label={t('construction')}
-        type="text"
-        name="construction"
-        value={formData.construction}
-        onChange={handleChange}
-        placeholder={t('construction')}
-      />
-      <Input
-        label={t('comment')}
-        type="textarea"
-        name="comment"
-        value={formData.comment}
-        onChange={handleChange}
-        placeholder={t('comment')}
-      />
-      <div className="flex space-x-2 my-4">
-        <Button type="submit" loading={isSubmitting} variant="primary">
-          {t('save')}
-        </Button>
-        <Button variant="secondary" onClick={() => router.back()}>
-          {t('back')}
-        </Button>
-      </div>
-    </form>
+        <Input
+          label={t('ski_type')}
+          type="select"
+          name="skiType"
+          value={formData.skiType}
+          onChange={handleChange}
+          placeholder={t('ski_type')}
+          options={[
+            { label: t('cold'), value: 'cold' },
+            { label: t('universal'), value: 'universal' },
+            { label: t('warm'), value: 'warm' },
+          ]}
+        />
+        <Input
+          label={t('length')}
+          type="range"
+          name="length"
+          value={formData.length}
+          onChange={handleChange}
+          min={170}
+          max={220}
+          step={1}
+          placeholder={t('length')}
+          unit="cm"
+        />
+        <Input
+          label={t('stiffness')}
+          type="text"
+          name="stiffness"
+          value={formData.stiffness}
+          onChange={handleChange}
+          placeholder={t('stiffness')}
+        />
+        <Input
+          label="Base"
+          type="text"
+          name="base"
+          value={formData.base}
+          onChange={handleChange}
+          placeholder="Base"
+        />
+        <Input
+          label={t('construction')}
+          type="text"
+          name="construction"
+          value={formData.construction}
+          onChange={handleChange}
+          placeholder={t('construction')}
+        />
+        <Input
+          label={t('comment')}
+          type="textarea"
+          name="comment"
+          value={formData.comment}
+          onChange={handleChange}
+          placeholder={t('comment')}
+        />
+        <div className="flex space-x-2 my-4">
+          <Button type="submit" loading={isSubmitting} variant="primary">
+            {t('save')}
+          </Button>
+          <Button variant="secondary" onClick={() => router.back()}>
+            {t('back')}
+          </Button>
+        </div>
+      </form>
+    </div>
+
   );
 };
 

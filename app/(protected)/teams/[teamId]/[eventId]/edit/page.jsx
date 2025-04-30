@@ -10,6 +10,7 @@ import Input from '@/components/common/Input';
 import UploadableImage from '@/components/common/UploadableImage';
 import { useAuth } from '@/context/AuthContext';
 import GeocodeInput from '@/components/GeocodeInput/GeocodeInput';
+import Spinner from '@/components/common/Spinner/Spinner';
 
 export default function EditEventPage() {
   const { teamId, eventId } = useParams();
@@ -42,49 +43,41 @@ export default function EditEventPage() {
     }
   }, [eventData]);
 
-  if (loading) return <div className="p-4">{t('loading')}...</div>;
-  if (error) return <div className="p-4">Error: {error.message}</div>;
-  if (!eventData) return <div className="p-4">No event found.</div>;
+  if (loading) return <Spinner />;
+  if (error) return <div className="text-red-700">{t('error')}: {error.message}</div>;
+  if (!eventData) return <div>{t('no_event_found')}</div>;
 
-  const handleFileSelect = (e) => {
-    if (e.target.files?.[0]) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-      setImageURL(URL.createObjectURL(selectedFile));
+  const handleFile = (e) => {
+    const selected = e.target.files?.[0];
+    if (selected) {
+      setFile(selected);
+      setImageURL(URL.createObjectURL(selected));
     }
   };
 
   const handleUpdate = async () => {
+    setUploading(true);
     try {
-      setUploading(true);
       let finalImage = imageURL;
-
       if (file) {
         finalImage = await uploadEventImage(teamId, eventId, file, user.uid);
         setImageURL(finalImage);
       }
-
       const start = new Date(startDate);
       const end = new Date(endDate);
       end.setHours(23, 59, 59, 999);
 
-      const updatedData = {
+      await updateEvent(teamId, eventId, {
         name,
         description: desc,
         startDate: start,
         endDate: end,
         imageURL: finalImage,
-        location: {
-          lat: location.lat,
-          lon: location.lon,
-          address: location.address,
-        },
-      };
-
-      await updateEvent(teamId, eventId, updatedData);
+        location,
+      });
       router.push(`/teams/${teamId}/${eventId}`);
     } catch (err) {
-      console.error('Error updating event:', err);
+      console.error(err);
       alert(err.message);
     } finally {
       setUploading(false);
@@ -92,14 +85,13 @@ export default function EditEventPage() {
   };
 
   const handleDelete = async () => {
-    if (confirm('Are you sure you want to delete this event?')) {
-      try {
-        await deleteEvent(teamId, eventId);
-        router.push(`/teams/${teamId}`);
-      } catch (err) {
-        console.error('Error deleting event:', err);
-        alert(err.message);
-      }
+    if (!confirm(t('confirm_delete_event'))) return;
+    try {
+      await deleteEvent(teamId, eventId);
+      router.push(`/teams/${teamId}`);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
     }
   };
 
@@ -109,78 +101,44 @@ export default function EditEventPage() {
       await updateEvent(teamId, eventId, { imageURL: '' });
       setImageURL('');
       alert(t('image_removed_success'));
-    } catch (error) {
-      console.error('Error removing event image:', error);
-      alert(t('remove_image_error') + ': ' + error.message);
+    } catch (err) {
+      console.error(err);
+      alert(t('remove_image_error') + err.message);
     }
   };
 
   return (
-    <div className="p-4 max-w-xl mx-auto">
-      <h1 className="text-3xl font-semibold mb-4">{t('edit_event')}</h1>
-      <div className="space-y-2">
-        <Input
-          type="text"
-          placeholder={t('event_name')}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <Input
-          type="textarea"
-          placeholder={t('description')}
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
-        />
-        <Input
-          type="date"
-          label={t('start_date')}
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          required
-        />
-        <Input
-          type="date"
-          label={t('end_date')}
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          required
-        />
-        <GeocodeInput
-          label="Event Location"
-          initialValue={eventData?.location?.address}
-          onLocationSelect={(lat, lon, address) =>
-            setLocation({ lat, lon, address })
-          }
-        />
-        <UploadableImage
-          photoURL={imageURL}
-          alt="Event Image"
-          variant="event"
-          isChangingImg={uploading}
-          clickable
-          handleImageChange={handleFileSelect}
-        />
-        {eventData.imageURL && (
-          <Button
-            onClick={handleRemoveImage}
-            variant="danger"
-            className="mt-2 text-xs flex justify-self-center mb-10"
-          >
-            {t('remove_image')}
+    <div className="max-w-xl mx-auto px-4 py-8">
+      <div className="bg-white rounded-md shadow p-6 space-y-6">
+        <h1 className="text-2xl font-semibold text-gray-800">{t('edit_event')}</h1>
+        <div className="space-y-4">
+          <Input value={name} onChange={e => setName(e.target.value)} placeholder={t('event_name')} />
+          <Input type="textarea" value={desc} onChange={e => setDesc(e.target.value)} placeholder={t('description')} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input type="date" label={t('start_date')} value={startDate} onChange={e => setStartDate(e.target.value)} />
+            <Input type="date" label={t('end_date')} value={endDate} onChange={e => setEndDate(e.target.value)} />
+          </div>
+          <GeocodeInput label={t('event_location')} initialValue={location.address} onLocationSelect={(lat, lon, addr) => setLocation({ lat, lon, address: addr })} />
+          <div className="w-32 h-32 overflow-hidden mx-auto">
+            <UploadableImage photoURL={imageURL} variant="event" alt={t('event_image')} clickable handleImageChange={handleFile} className="object-cover w-full h-full" />
+          </div>
+          {imageURL && (
+            <Button onClick={handleRemoveImage} variant="danger" className="text-xs w-full">
+              {t('remove_image')}
+            </Button>
+          )}
+        </div>
+        <div className="flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0">
+          <Button onClick={handleUpdate} variant="primary" loading={uploading} className="flex-1">
+            {t('update')}
           </Button>
-        )}
-      </div>
-      <div className="flex space-x-3 mt-4">
-        <Button onClick={handleUpdate} variant="primary" loading={uploading}>
-          {t('update')}
-        </Button>
-        <Button onClick={handleDelete} variant="danger">
-          {t('delete')}
-        </Button>
-        <Button onClick={() => router.push(`/teams/${teamId}/${eventId}`)} variant="secondary">
-          {t('cancel')}
-        </Button>
+          <Button onClick={handleDelete} variant="danger" className="flex-1 text-center">
+            {t('delete')}
+          </Button>
+          <Button onClick={() => router.push(`/teams/${teamId}/${eventId}`)} variant="secondary" className="flex-1">
+            {t('cancel')}
+          </Button>
+        </div>
       </div>
     </div>
   );

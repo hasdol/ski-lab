@@ -128,7 +128,7 @@ const HomePage = () => {
                                 return (
                                   <div key={event.id} className='flex flex-col'>
                                     <div className='flex justify-between'>
-                                      <h3 className="text-xs font-semibold text-left ml-2">
+                                      <h3 className="text-xs font-semibold text-left mx-2">
                                         {team.name || t('unnamed_team')}
                                       </h3>
                                       {/* Live Badge */}
@@ -147,7 +147,7 @@ const HomePage = () => {
                                       <Button
                                         variant="secondary"
                                         onClick={() => router.push(`/teams/${team.id}/${event.id}`)}
-                                        className="flex flex-col items-start"
+                                        className="flex flex-col items-start w-full"
                                       >
 
                                         <div className="">{event.name}</div>

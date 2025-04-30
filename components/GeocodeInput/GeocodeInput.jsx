@@ -1,67 +1,77 @@
-// components/common/GeocodeInput.jsx
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Input from '../common/Input';
 const GEOAPIFY_KEY = process.env.NEXT_PUBLIC_GEOAPIFY_KEY;
 
 export default function GeocodeInput({ label, initialValue = '', onLocationSelect }) {
-    const [query, setQuery] = useState(initialValue);
-    const [suggestions, setSuggestions] = useState([]);
-  
-    useEffect(() => {
-      if (initialValue) {
-        setQuery(initialValue);
-      }
-    }, [initialValue]);
-  
-    const handleSearch = async (searchText) => {
+  const [query, setQuery] = useState(initialValue);
+  const [suggestions, setSuggestions] = useState([]);
+  const [focused, setFocused] = useState(false);
+  const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    if (initialValue) setQuery(initialValue);
+  }, [initialValue]);
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
       try {
-        const response = await fetch(
-          `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(searchText)}&apiKey=${GEOAPIFY_KEY}`
+        const res = await fetch(
+          `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_KEY}`
         );
-        const data = await response.json();
+        const data = await res.json();
         setSuggestions(data.features || []);
-      } catch (error) {
-        console.error('Geocoding error:', error);
+      } catch (e) {
+        console.error('Geocoding error:', e);
       }
     };
-  
-    useEffect(() => {
-      if (query.length > 2) {
-        const debounceTimer = setTimeout(() => handleSearch(query), 500);
-        return () => clearTimeout(debounceTimer);
+
+    if (focused && query.length > 2) {
+      const timer = setTimeout(fetchSuggestions, 500);
+      return () => clearTimeout(timer);
+    }
+    return;
+  }, [query, focused]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setFocused(false);
       }
-    }, [query]);
-  
-    return (
-      <div className="mb-4 relative">
-        <Input
-          type="text"
-          label={label}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search for location..."
-        />
-        
-        {suggestions.length > 0 && (
-          <div className="absolute z-10 w-full bg-white border rounded shadow-lg mt-1 max-h-60 overflow-auto">
-            {suggestions.map((place, index) => (
-              <div
-                key={index}
-                className="p-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => {
-                  const [lon, lat] = place.geometry.coordinates;
-                  onLocationSelect(lat, lon, place.properties.formatted);
-                  setQuery(place.properties.formatted);
-                  setSuggestions([]);
-                }}
-              >
-                {place.properties.formatted}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-  
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={wrapperRef} className="mb-4 relative">
+      <Input
+        type="text"
+        label={label}
+        value={query}
+        onChange={e => setQuery(e.target.value)}
+        onFocus={() => setFocused(true)}
+        placeholder={label}
+      />
+      {focused && suggestions.length > 0 && (
+        <div className="absolute z-10 w-full bg-white border rounded shadow-lg mt-1 max-h-60 overflow-auto">
+          {suggestions.map((place, i) => (
+            <div
+              key={i}
+              className="p-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => {
+                const [lon, lat] = place.geometry.coordinates;
+                onLocationSelect(lat, lon, place.properties.formatted);
+                setQuery(place.properties.formatted);
+                setSuggestions([]);
+                setFocused(false);
+              }}
+            >
+              {place.properties.formatted}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

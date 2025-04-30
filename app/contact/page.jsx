@@ -26,11 +26,11 @@ const Contact = () => {
   return (
     <>
       <Head>
-        <title>Ski-Lab: Contact</title>
+        <title>Ski-Lab: Contact</title> 
         <meta name="description" content="Contact and get in touch with the website creator" />
       </Head>
-      <div className="p-4 animate-fade-down animate-duration-300">
-        <form className="flex flex-col space-y-4 mt-4" onSubmit={handleSubmit}>
+      <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-up animate-duration-300">
+        <form className="bg-white rounded-md shadow p-6 md:p-8 space-y-8" onSubmit={handleSubmit}>
           <Input
             type="text"
             name="subject"

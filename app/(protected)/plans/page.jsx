@@ -1,11 +1,11 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import getStripe from '@/helpers/stripe';
 import Spinner from '@/components/common/Spinner/Spinner';
 import Button from '@/components/common/Button';
-import { RiCheckFill } from "react-icons/ri";
+import { RiCheckFill } from 'react-icons/ri';
 
 const PlansPage = () => {
   const [plans, setPlans] = useState([]);
@@ -15,7 +15,7 @@ const PlansPage = () => {
   const { userData } = useAuth();
   const currentPlan = userData?.plan || 'free';
 
-  // Ranking of plans: free = 0, athlete = 1, coach = 2, company = 3
+  // Plan ranking for upgrade/downgrade logic
   const planRank = { free: 0, athlete: 1, coach: 2, company: 3 };
 
   useEffect(() => {
@@ -24,11 +24,10 @@ const PlansPage = () => {
       try {
         const getStripePlans = httpsCallable(functions, 'getStripePlans');
         const result = await getStripePlans();
-        // Sort plans by price amount low-high
-        const sortedPlans = result.data.sort((a, b) => a.amount - b.amount);
-        setPlans(sortedPlans);
-      } catch (error) {
-        console.error('Error fetching plans:', error);
+        const sorted = result.data.sort((a, b) => a.amount - b.amount);
+        setPlans(sorted);
+      } catch (err) {
+        console.error('Error fetching plans:', err);
       }
       setLoadingPlans(false);
     };
@@ -36,144 +35,142 @@ const PlansPage = () => {
     fetchPlans();
   }, [functions]);
 
-  const handlePlanSelect = async (priceId, newPlan, isDowngrade) => {
-    // For paid users, clicking any plan (including the current plan)
-    // should redirect to the Stripe portal.
+  const handlePlanSelect = async (priceId, planKey, isDowngrade) => {
     if (currentPlan !== 'free') {
       setLoadingCheckout(priceId);
       try {
         const getPortalUrl = httpsCallable(functions, 'getCustomerPortalUrl');
-        const result = await getPortalUrl();
-        window.location.href = result.data.url;
-      } catch (error) {
-        console.error('Error redirecting to customer portal:', error);
+        const { data } = await getPortalUrl();
+        window.location.href = data.url;
+      } catch (err) {
+        console.error(err);
       }
       setLoadingCheckout('');
       return;
     }
 
-    // For free users: if it's a downgrade, confirm with the user first.
     if (isDowngrade) {
-      const confirmDowngrade = window.confirm(
-        "Nedgradering kan medføre at enkelte funksjoner går tapt. Er du sikker?"
-      );
-      if (!confirmDowngrade) return;
+      if (!window.confirm('Nedgradering kan medføre at enkelte funksjoner går tapt. Er du sikker?')) return;
     }
+
     setLoadingCheckout(priceId);
     try {
-      const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
-      const result = await createCheckoutSession({ priceId });
+      const createSession = httpsCallable(functions, 'createCheckoutSession');
+      const { data } = await createSession({ priceId });
       const stripe = await getStripe();
-      const { error } = await stripe.redirectToCheckout({ sessionId: result.data.sessionId });
-      if (error) {
-        console.error('Error redirecting to checkout:', error);
-      }
-    } catch (error) {
-      console.error('Error creating checkout session:', error);
+      await stripe.redirectToCheckout({ sessionId: data.sessionId });
+    } catch (err) {
+      console.error(err);
     }
     setLoadingCheckout('');
   };
 
-  // Determine button text based on the plan and subscription state
-  const getButtonText = (plan, isCurrentPlan, isUpgrade, isDowngrade) => {
-    if (isCurrentPlan) {
-      // For the current plan, show "Current Plan" for free users and
-      // "Manage Subscription" for paid users.
-      return currentPlan === 'free' ? "Current Plan" : "Manage Subscription";
-    } else {
-      if (currentPlan === 'free') {
-        return "Choose Plan";
-      } else {
-        return isUpgrade ? `Upgrade to ${plan.name}` : `Downgrade to ${plan.name}`;
-      }
+  const getButtonText = (plan, isCurrent, isUpgrade) => {
+    if (isCurrent) {
+      return currentPlan === 'free' ? 'Current Plan' : 'Manage Subscription';
     }
+    if (currentPlan === 'free') {
+      return 'Choose Plan';
+    }
+    return isUpgrade ? `Upgrade to ${plan.name}` : `Downgrade to ${plan.name}`;
   };
 
   if (loadingPlans) {
     return (
-      <div className="flex justify-center">
+      <div className="flex justify-center py-16">
         <Spinner />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 mb-10">
-      <h1 className="my-5 mb-10 text-3xl font-semibold text-center">Pick a plan</h1>
-      {plans.length === 0 && <p>No plans available at the moment.</p>}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {plans.map((plan) => {
-          const isCurrentPlan = plan.plan === currentPlan;
-          const isUpgrade = planRank[plan.plan] > planRank[currentPlan];
-          const isDowngrade = planRank[plan.plan] < planRank[currentPlan];
-          const buttonText = getButtonText(plan, isCurrentPlan, isUpgrade, isDowngrade);
+    <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-up animate-duration-300">
+      <div className="bg-white rounded-md shadow p-6 md:p-8">
+        <h1 className="text-3xl font-semibold text-center text-gray-800 mb-8">
+          Pick a plan
+        </h1>
 
-          return (
-            <div
-              key={plan.productId}
-              className="bg-gradient-to-b from-container to-slate-100 rounded-md shadow-md text-center relative flex flex-col"
-            >
-              {isCurrentPlan && (
-                <div className="absolute top-0 right-0 bg-gradient-to-br from-blue-500 to-indigo-500 text-white px-2 py-1 text-xs rounded">
-                  Current
-                </div>
-              )}
+        {plans.length === 0 ? (
+          <p className="text-center text-gray-600">No plans available at the moment.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {plans.map((plan) => {
+              const isCurrent = plan.plan === currentPlan;
+              const isUpgrade = planRank[plan.plan] > planRank[currentPlan];
+              const isDowngrade = planRank[plan.plan] < planRank[currentPlan];
+              const buttonText = getButtonText(plan, isCurrent, isUpgrade);
 
-              <div className="bg-slate-700 p-4 rounded-t text-white">
-                <h2 className="font-semibold text-xl ">{plan.name}</h2>
-                <p className="text-sm mt-1 italic">
-                  {plan.name === "Company" && 'Industry Leader'}
-                  {plan.name === "Coach" && '"Puppet-Master"'}
-                  {plan.name === "Senior Pluss" && 'Value pack'}
-                  {plan.name === "Senior" && 'Professional'}
-                </p>
-              </div>
+              return (
+                <div
+                  key={plan.productId}
+                  className="bg-white rounded-md shadow-md overflow-hidden flex flex-col relative hover:shadow-lg transition border border-gray-300"
+                >
+                  {isCurrent && (
+                    <span className="absolute top-3 right-3 bg-gradient-to-br from-blue-500 to-indigo-500 text-white text-xs px-2 py-1 rounded">
+                      Current
+                    </span>
+                  )}
 
-              <div className="flex flex-col space-y-2 items-center mt-10 mb-5 font-semibold">
-                {plan.description.split(';').map((sentence, index) => (
-                  <div key={index} className="flex items-center space-x-1">
-                    <RiCheckFill className="text-blue-500" />
-                    <span>{sentence.trim()}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-auto">
-                {plan.amount && (
-                  <div className="my-5">
-                    <div className="text-highlight mb-8">
-                      <p className="font-semibold">30 Days Free Trail</p>
-                      <p className="text-text text-xs">*only new users</p>
-                    </div>
-                    <p className="text-4xl mb-2 text-gray-800">
-                      {(plan.amount / 100)} {plan.currency.toUpperCase()}
+                  <div className="px-6 pt-6">
+                    <h2 className="text-xl font-semibold text-gray-800">
+                      {plan.name}
+                    </h2>
+                    <p className="text-sm text-gray-500 italic mt-1">
+                      {plan.name === 'Company' && 'Industry Leader'}
+                      {plan.name === 'Coach' && '"Puppet-Master"'}
+                      {plan.name === 'Senior Pluss' && 'Value pack'}
+                      {plan.name === 'Senior' && 'Professional'}
                     </p>
-                    <p className="italic">per {plan.interval}</p>
                   </div>
-                )}
-                <div className="flex justify-center mx-5 my-5">
-                  <Button
-                    loading={loadingCheckout === plan.priceId}
-                    disabled={currentPlan === 'free' && plan.plan === currentPlan}
-                    onClick={() =>
-                      handlePlanSelect(
-                        plan.priceId,
-                        plan.plan,
-                        planRank[plan.plan] < planRank[currentPlan]
-                      )
-                    }
-                    // You can either set variant via prop or inline via className
-                    className={`${plan.plan === currentPlan && currentPlan === 'free'
-                        ? "bg-gray-500"
-                        : "bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-[0.98] focus:ring-2 focus:ring-indigo-300/50 shadow-sm"
-                      } text-white px-4 py-2 rounded-md mt-4`}
-                  >
-                    {buttonText}
-                  </Button>
+
+                  <div className="flex-1 px-6 pt-4 space-y-2">
+                    {plan.description.split(';').map((feat, idx) => (
+                      <div key={idx} className="flex items-center space-x-2">
+                        <RiCheckFill className="text-blue-500 w-5 h-5" />
+                        <span className="text-gray-700 font-medium">{feat.trim()}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {plan.amount && (
+                    <div className="px-6 pt-4">
+                      <p className="text-4xl font-bold text-gray-800">
+                        {(plan.amount / 100).toFixed(0)}{' '}
+                        <span className="text-lg font-medium text-gray-600">
+                          {plan.currency.toUpperCase()}
+                        </span>
+                      </p>
+                      <p className="text-sm text-gray-500 italic">
+                        per {plan.interval}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="px-6 py-6">
+                    <Button
+                      loading={loadingCheckout === plan.priceId}
+                      disabled={currentPlan === 'free' && isCurrent}
+                      onClick={() =>
+                        handlePlanSelect(
+                          plan.priceId,
+                          plan.plan,
+                          isDowngrade
+                        )
+                      }
+                      className={`${
+                        isCurrent && currentPlan === 'free'
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-95 focus:ring-2 focus:ring-indigo-300/50 shadow-sm'
+                      } w-full py-2 rounded-md text-sm`}
+                    >
+                      {buttonText}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
