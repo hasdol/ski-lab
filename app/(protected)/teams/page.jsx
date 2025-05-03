@@ -19,23 +19,29 @@ export default function TeamsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-up animate-duration-300">
+      <div className='flex items-end justify-between mb-6'>
+        <JoinTeamForm />
+        {canCreateTeam && (
+          
+          <Button
+            onClick={() => router.push('/teams/create-team')}
+            variant="primary"
+            className="flex h-fit items-center"
+          >
+            {t('create_team')}
+          </Button>
+        )}
+      </div>
+
       <div className="bg-white rounded-md shadow p-6 md:p-8 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <h1 className="text-2xl font-semibold text-gray-800">{t('teams')}</h1>
-          {canCreateTeam && (
-            <Button
-              onClick={() => router.push('/teams/create-team')}
-              variant="primary"
-              className="inline-flex items-center"
-            >
-              <RiAddLargeLine className="mr-1" /> {t('create_team')}
-            </Button>
-          )}
+
         </div>
 
         <div className="space-y-6">
           <div>
-            <JoinTeamForm />
+
           </div>
 
           {loading && (

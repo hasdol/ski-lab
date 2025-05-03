@@ -32,7 +32,7 @@ export default function RootLayout({ children }) {
 
                 </div>
                 <Navigation />
-                <div className={`${isHomePage ? 'w-full' : 'md:w-3/5 mx-auto'}`}>
+                <div className={`${isHomePage ? 'w-full' : 'md:w-3/5 mx-auto md:mt-5'}`}>
                   {children}
                   <CookieConsent />
                 </div>

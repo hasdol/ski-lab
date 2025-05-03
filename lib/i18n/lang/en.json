@@ -233,5 +233,7 @@
   "live_events": "Live",
   "upcoming_events": "Upcoming",
   "past_events": "Past",
-  "remove_image": "Remove image"
+  "remove_image": "Remove image",
+  "events": "Events",
+  "kick": "Kick"
 }

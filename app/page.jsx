@@ -12,14 +12,21 @@ import { getUserTeamsWithLiveEvents } from '@/lib/firebase/firestoreFunctions';
 const bgUrl = '/bg.jpg';
 
 const HomePage = () => {
-  const { user, checkingStatus } = useAuth();
-  const { t } = useTranslation();
-  const router = useRouter();
-  const { currentRound } = useContext(TournamentContext);
+  const { user, checkingStatus } = useAuth()
+  const { t } = useTranslation()
+  const router = useRouter()
+  const { currentRound } = useContext(TournamentContext)
 
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [teams, setTeams] = useState([]);
-  const [teamEvents, setTeamEvents] = useState({});
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const [teams, setTeams] = useState([])
+  const [teamEvents, setTeamEvents] = useState({})
+
+  // preload the background image
+  useEffect(() => {
+    const img = new window.Image()
+    img.src = bgUrl
+    img.onload = () => setImageLoaded(true)
+  }, [])
 
   useEffect(() => {
     if (!user) return;

@@ -164,7 +164,7 @@ const Results = () => {
             </div>
           ) : resultsToShow.length > 0 ? (
             resultsToShow.map((result) => (
-              <div key={result.id} className="bg-container border border-gray-300 rounded mb-5 animate-fade-down animate-duration-300">
+              <div key={result.id} className="bg-container border border-gray-300 rounded-md mb-5 animate-fade-down animate-duration-300">
                 <div className="flex justify-between p-4">
                   <div>
                     <h3 className="font-semibold text-xl">

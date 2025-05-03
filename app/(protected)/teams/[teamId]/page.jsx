@@ -129,7 +129,7 @@ export default function TeamDetailPage() {
                 <li key={id} className="flex items-center justify-between bg-gray-50 rounded px-3 py-2">
                   <MemberListItem userId={id} />
                   {id !== userData.uid && (
-                    <Button variant="danger" className="text-xs" onClick={() => handleKick(id)}>× {t('kick')}</Button>
+                    <Button variant="danger" className="text-xs" onClick={() => handleKick(id)}>{t('kick')}</Button>
                   )}
                 </li>
               ))}

@@ -268,7 +268,7 @@ const Skis = () => {
         {(hasLockedSkis || (hasReachedLimit && plan === 'free')) && (
           <div className="flex mx-2 my-4 space-x-4">
             {hasLockedSkis && (
-              <div className="flex space-x-5 border py-4 rounded items-center justify-center w-full">
+              <div className="flex space-x-5 border py-4 rounded-md items-center justify-center w-full">
                 <div className="space-y-1">
                   <h3 className="text-sm flex items-center"><RiLockLine /> {lockedSkisCount} {t('locked_ski(s)')}</h3>
                   <button
@@ -350,7 +350,7 @@ const Skis = () => {
         {/* Ski list section */}
         <div className="m-2">
           {loading ? (
-            <div className="flex justify-center items-center h-40">
+            <div className="flex justify-center items-center mt-10">
               <Spinner />
             </div>
           ) : (

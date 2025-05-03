@@ -14,7 +14,7 @@ function ProtectedRoute({ children, redirectTo = '/signin' }) {
     }
   }, [user, checkingStatus, router, redirectTo]);
 
-  if (checkingStatus || !user) return <div className='flex justify-center'><Spinner /></div> ;
+  if (checkingStatus || !user) return <div className='flex justify-center mt-10'><Spinner /></div> ;
   return children;
 }
 

@@ -51,12 +51,12 @@ export default function TeamList({ teams }) {
       {teams.map((team) => (
         <div
           key={team.id}
-          className="flex justify-between bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-300 shadow-sm px-5 py-2.5 rounded-md text-sm font-medium focus:outline-none transition-all duration-200"
+          className="flex justify-between bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-300 shadow-sm px-5 py-2.5 rounded-md focus:outline-none transition-all duration-200"
           onClick={() => router.push(`/teams/${team.id}`)}
         >
           <div>
-            <h3 className="text-xl font-semibold">{team.name}</h3>
-            <p className='font-normal'>{t('members')}: {team.members.length}</p>
+            <h3 className='font-semibold'>{team.name}</h3>
+            <p className='text-xs'>{t('members')}: {team.members.length}</p>
           </div>
           <div className='self-center justify-self-end'>
             {user.uid !== team.createdBy && (

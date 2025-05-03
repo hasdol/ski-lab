@@ -234,5 +234,7 @@
   "live": "Pågående",
   "upcoming": "Kommende",
   "past": "Gamle",
-    "remove_image": "Fjern bildet"
+  "remove_image": "Fjern bildet",
+  "events": "Arrangementer",
+  "kick": "Spark ut"
 }

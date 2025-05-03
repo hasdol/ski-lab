@@ -84,6 +84,12 @@ export default function SettingsPage() {
       </Head>
 
       <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-up animate-duration-300">
+        {/* Back Button */}
+        <div className="mb-6 ">
+          <Button variant="secondary" className='text-xs' onClick={() => router.back()}>
+            {t('back')}
+          </Button>
+        </div>
         <div className="bg-white rounded-md shadow p-6 md:p-8 space-y-8">
           {/* Username Section */}
           <div>
@@ -107,14 +113,18 @@ export default function SettingsPage() {
               </div>
             ) : (
               <div
-                className="flex items-center justify-between bg-white border border-gray-200 shadow-sm rounded-md px-4 py-3 cursor-pointer hover:bg-gray-50 transition"
+                className=""
                 onClick={() => setIsEditingUsername(true)}
               >
-                <RiUserLine className="text-gray-600 text-xl" />
-                <span className="flex-1 mx-4 text-gray-800">
-                  {userData?.displayName || t('no_username')}
-                </span>
-                <RiEditLine className="text-gray-600 text-xl" />
+                <label htmlFor="username" className=''>Username</label>
+                <div className='flex items-center justify-between bg-white border border-gray-200 shadow-sm rounded-md px-4 py-3 mt-1 cursor-pointer hover:bg-gray-50 transition'>
+                  <RiUserLine className="text-gray-600 text-xl" />
+                  <span className="flex-1 mx-4 text-gray-800">
+                    {userData?.displayName || t('no_username')}
+                  </span>
+                  <RiEditLine className="text-gray-600 text-xl" />
+                </div>
+
               </div>
             )}
             {error && <div className="bg-red-50 text-red-700 px-4 py-2 rounded-md mt-2">{error}</div>}
@@ -178,12 +188,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* Back Button */}
-          <div className="text-center">
-            <Button variant="secondary" onClick={() => router.back()}>
-              {t('back')}
-            </Button>
-          </div>
+
         </div>
       </div>
     </>
