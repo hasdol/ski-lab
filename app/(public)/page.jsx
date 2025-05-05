@@ -53,10 +53,6 @@ const HomePage = () => {
     router.push(path);
   };
 
-  const handleContinueTest = () => {
-    router.push('/testing/summary');
-  };
-
   return (
     <>
       <Head>
@@ -113,15 +109,6 @@ const HomePage = () => {
                       >
                         {t('start_test')}
                       </Button>
-
-                      {currentRound?.length > 0 && (
-                        <Button
-                          onClick={handleContinueTest}
-                          variant='primary'
-                        >
-                          {t('continue_test')}
-                        </Button>
-                      )}
                     </div>
 
                     {hasLiveEvents && (

@@ -71,9 +71,7 @@ export default function EventTests({ teamId, eventId }) {
 
             <div>
               <h3 className="flex font-semibold text-xl items-center">
-                {t(result.style)} / {result.temperature}°C - <p className="text-sm  ml-2 text-highlight">
-                  {result.displayName}
-                </p>
+                {t(result.style)} / {result.temperature}°C
               </h3>
               <i className="text-sm">{result.location}</i>
 
@@ -82,7 +80,7 @@ export default function EventTests({ teamId, eventId }) {
               <div className="flex items-center space-x-3">
                 <div className="flex space-x-3">
                   <Button
-                    variant="primary"
+                    variant="secondary"
                     onClick={() => router.push(`/results/${result.id}/edit`)}
                   >
                     <RiEditLine />
@@ -171,6 +169,9 @@ export default function EventTests({ teamId, eventId }) {
                 </div>
               </div>
             )}
+          <p className="text-xs font-bold text-highlight absolute bottom-0 left-0 p-4">
+            {result.displayName}
+          </p>
         </div>
       ))}
 

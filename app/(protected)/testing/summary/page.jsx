@@ -85,8 +85,6 @@ const TestSummaryPage = () => {
 
         const instant = data.properties.timeseries[0].data.instant.details;
 
-        console.log(data.properties.timeseries[0].data);
-
 
         /* Optional reverse‑geo for prettier place‑name */
         let place = '';
@@ -190,7 +188,7 @@ const TestSummaryPage = () => {
 
   /* ───────────── render ───────────── */
   return (
-    <div className="py-4 px-2">
+    <div className="">
       <Head>
         <title>Ski-Lab: Results</title>
         <meta name="description" content="Displaying your test results" />

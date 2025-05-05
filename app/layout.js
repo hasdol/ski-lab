@@ -21,7 +21,7 @@ export default function RootLayout({ children }) {
             <TournamentProvider>
               <main className={`mb-auto ${!isHomePage ? 'pb-12' : ''} md:flex md:flex-col md:pb-0 md:w-full`}>
                 <Navigation />
-                <div className={`${isHomePage ? 'w-full' : 'md:w-3/5 mx-auto md:mt-5'}`}>
+                <div className={`${isHomePage ? 'w-full' : 'p-4 md:w-3/5 mx-auto md:mt-5'}`}>
                   {children}
                   <CookieConsent />
                 </div>

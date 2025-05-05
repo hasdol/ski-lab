@@ -83,12 +83,19 @@ export default function SettingsPage() {
         <meta name="description" content="" />
       </Head>
 
-      <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-up animate-duration-300">
+      <div className="max-w-4xl mx-auto animate-fade-up animate-duration-300">
+
         {/* Back Button */}
-        <div className="mb-6 ">
-          <Button variant="secondary" className='text-xs' onClick={() => router.back()}>
-            {t('back')}
-          </Button>
+        <div className="flex justify-between mb-5">
+          <h1 className="text-3xl font-bold text-gray-900 md:mb-0">
+            {t('settings')}
+          </h1>
+          <div>
+            <Button variant="secondary" className='text-xs' onClick={() => router.back()}>
+              {t('back')}
+            </Button>
+          </div>
+
         </div>
         <div className="bg-white rounded-md p-6 md:p-8 space-y-8">
           {/* Username Section */}

@@ -241,5 +241,9 @@
   "current": "Nåverende",
   "Company":"Bedrift",
   "Coach": "Trener",
-  "share_with_live_events": "Del med pågående arrangementer"
+  "share_with_live_events": "Del med pågående arrangementer",
+  "add_skis": "Legg til skipar",
+  "edit_skis": "Rediger skipar",
+  "edit_result": "Rediger resultat"
+  
 }

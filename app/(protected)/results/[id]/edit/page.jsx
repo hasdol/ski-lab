@@ -143,11 +143,14 @@ const EditResultPage = () => {
         <title>SkiLab: {t('edit_result')}</title>
         <meta name="description" content="Edit result" />
       </Head>
-      <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-up animate-duration-300">
-        <form onSubmit={handleSubmit} className="bg-white rounded-md p-6 md:p-8 space-y-8">
+      <div className="max-w-4xl mx-auto animate-fade-up animate-duration-300">
+        <h1 className="text-3xl font-bold text-gray-900 mb-5">
+          {t('edit_result')}
+        </h1>
+        <form onSubmit={handleSubmit} className="bg-white rounded-md p-5 space-y-2">
           {/* Scores */}
           {resultData.rankings.map((r, i) => (
-            <div key={i} className="flex flex-col my-4">
+            <div key={i} className="flex flex-col">
               <label className="font-semibold mb-1">
                 {`${r.serialNumber || t('deleted')} - ${r.grind || ''}`}
               </label>

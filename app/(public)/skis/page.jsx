@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useSkis } from '@/hooks/useSkis';
 import SkiItem from './components/Item';
 import { RiFilter2Line, RiFilter2Fill, RiAddLine, RiLockLine, RiCloseLine, RiShoppingCartLine } from "react-icons/ri";
+import { MdFastForward } from "react-icons/md";
 import SkiTable from './components/Table';
 import SkiFilterDrawer from './components/FilterDrawer';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
@@ -213,6 +214,10 @@ const Skis = () => {
     router.push('/plans');
   }
 
+  const handleContinueTest = () => {
+    router.push('/testing/summary');
+  };
+
   return (
     <>
       <Head>
@@ -220,12 +225,12 @@ const Skis = () => {
         <meta name="description" content="List of your added skis" />
       </Head>
 
-      <div className="container mx-auto p-5 animate-fade-up animate-duration-300">
+      <div className="container mx-auto animate-fade-up animate-duration-300">
         <h1 className="text-3xl font-bold text-gray-900 mb-4 md:mb-5 mb-5">
           {t('skipark')}
         </h1>
         {/* Top row: "Selected skis" + "Add Ski" button, etc. */}
-        <div className="flex items-end justify-between">
+        <div className="flex items-end justify-between mb-4">
           {/* Left block: Selected skis and start new test */}
           <div className="flex flex-col justify-end">
             <h3 className="text-sm font-semibold mb-1">
@@ -233,7 +238,7 @@ const Skis = () => {
                 ? `${getSelectedSkis().length} ${t('skis_selected')}`
                 : `${t('select_skis_to_test')} `}
             </h3>
-            <div>
+            <div className='flex space-x-3 items-end'>
               <Button
                 onClick={handleStartNewTournament}
                 variant={'primary'}
@@ -241,6 +246,18 @@ const Skis = () => {
               >
                 {t('new_test')}
               </Button>
+
+              {currentRound?.length > 0 && (
+                <div>
+                  <Button
+                    onClick={handleContinueTest}
+                    variant='primary'
+                  >
+                    <MdFastForward />
+                  </Button>
+                </div>
+
+              )}
             </div>
 
           </div>

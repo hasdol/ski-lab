@@ -29,7 +29,10 @@ const Contact = () => {
         <title>Ski-Lab: Contact</title> 
         <meta name="description" content="Contact and get in touch with the website creator" />
       </Head>
-      <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-up animate-duration-300">
+      <div className="max-w-4xl mx-auto animate-fade-up animate-duration-300">
+      <h1 className="text-3xl font-bold text-gray-900 mb-5">
+          {t('contact')}
+        </h1>
         <form className="bg-white rounded-md p-6 md:p-8 space-y-8" onSubmit={handleSubmit}>
           <Input
             type="text"

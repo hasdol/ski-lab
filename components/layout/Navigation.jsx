@@ -16,7 +16,6 @@ import {
 } from 'react-icons/ri';
 import { TiFlowParallel } from 'react-icons/ti';
 import { BiChart } from 'react-icons/bi';
-import { VscDebugContinue } from 'react-icons/vsc';
 
 import { TournamentContext } from '@/context/TournamentContext';
 import { useAuth } from '@/context/AuthContext';
@@ -74,19 +73,8 @@ export default function Navigation() {
     !user && { key: 'signUp', labelKey: 'signUp', icon: <RiUserAddLine size={20} />, path: '/signup' },
   ].filter(Boolean);
 
-  const showContinue = user && currentRound.length > 0 && !['/testing', '/testing/summary'].includes(pathname);
-  const handleContinue = () => router.push('/testing/summary');
-
   return (
     <>
-      {pathname !== '/' && (
-        <div className="md:hidden flex mt-4 flex-col relative justify-self-center relative" onClick={() => router.push('/')}>
-          <h1 className="text-xl font-semibold ">Ski-Lab</h1>
-          <span className="absolute bottom -right-7 top-2 text-xs">beta</span>
-        </div>
-      )}
-
-
       {/* Mobile: bottom nav */}
       <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white shadow z-50">
         <ul className="grid grid-cols-5 items-center">
@@ -116,7 +104,7 @@ export default function Navigation() {
       {/* Mobile: backdrop + draggable drop-up subnav */}
       {isSubNavOpen && (
         <>
-          <div className="fixed inset-0 z-20 backdrop-blur" onClick={() => setIsSubNavOpen(false)} />
+          <div className="fixed inset-0 z-20 backdrop-blur bg-black/10" onClick={() => setIsSubNavOpen(false)} />
           <div
             className="md:hidden fixed inset-x-0 bottom-0 z-30 h-fit pb-20 bg-white rounded-t-lg shadow-lg"
             style={{ transform: `translateY(${dragOffset}px)`, transition: dragOffset === 0 ? 'transform 0.3s ease' : undefined, touchAction: 'none' }}
@@ -149,7 +137,9 @@ export default function Navigation() {
         <div className="flex-1 flex items-baseline cursor-pointer" onClick={() => router.push('/')}>
           <h1 className="text-2xl font-semibold">Ski-Lab</h1>
           <h5 className="ml-2 text-sm">beta</h5>
+
         </div>
+
         <nav className="flex-1">
           <ul className="grid grid-cols-4 gap-1">
             {navConfig.map(item => (
@@ -163,8 +153,6 @@ export default function Navigation() {
           </ul>
         </nav>
         <div className="flex-1 flex items-center justify-end justify-self-end relative">
-          {showContinue && <Button onClick={handleContinue} variant="primary" className='md:mr-2'><VscDebugContinue /></Button>}
-
           <Weather />
           <Button onClick={() => setIsSubNavOpen(o => !o)} variant='secondary' className="ml-4 p-2!">
             <RiSettings3Line size={16} />

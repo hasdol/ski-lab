@@ -236,11 +236,11 @@ const Testing = () => {
           else onDragEndNonMatch(result);
         }}
       >
-        <div className="py-4 px-2">
-          <div className="flex items-end justify-between">
-            <h2 className="text-xl font-semibold">
+        <div>
+          <div className="flex justify-between">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4 md:mb-5 mb-5">
               {t('round')} {roundNumber}/{totalRounds}
-            </h2>
+            </h1>
             <div className='space-x-2'>
               <Button
                 type="button"

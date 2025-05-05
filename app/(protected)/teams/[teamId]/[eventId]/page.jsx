@@ -35,7 +35,7 @@ export default function EventPage() {
   }
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
         <div className="bg-red-50 text-red-700 rounded-md p-6">
           {t('error')}: {error.message}
         </div>
@@ -44,7 +44,7 @@ export default function EventPage() {
   }
   if (!eventData) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
         <div className="bg-yellow-50 text-yellow-800 rounded-md p-6">
           {t('no_event_found')}
         </div>
@@ -59,7 +59,7 @@ export default function EventPage() {
   const endFmt = end?.toLocaleDateString();
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-up animate-duration-300">
+    <div className="max-w-4xl mx-auto animate-fade-up animate-duration-300">
       <div className="flex items-center justify-between mb-6">
         <Button onClick={handleBack} variant="secondary" className="text-xs">{t('back')}</Button>
         {canManage && (

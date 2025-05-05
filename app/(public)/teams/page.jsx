@@ -17,7 +17,7 @@ export default function TeamsPage() {
   const router = useRouter();
 
   return (
-    <div className="container mx-auto p-5 animate-fade-up animate-duration-300">
+    <div className="container mx-auto animate-fade-up animate-duration-300">
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4 md:mb-0">

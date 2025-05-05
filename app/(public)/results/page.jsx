@@ -120,7 +120,7 @@ const Results = () => {
         <meta name="description" content="Displaying your test results" />
       </Head>
 
-      <div className="container mx-auto p-5 animate-fade-up animate-duration-300">
+      <div className="container mx-auto animate-fade-up animate-duration-300">
         <h1 className="text-3xl font-bold text-gray-900 mb-4 md:mb-5 mb-5">
           {t('results')}
         </h1>

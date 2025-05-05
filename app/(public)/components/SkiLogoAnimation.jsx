@@ -11,9 +11,9 @@ export default function SkiLogoLoader() {
       >
         <circle cx="35" cy="40" r="12" fill="black" />
         <circle cx="35" cy="40" r="5" fill="white" />
-        <circle cx="35" cy="85" r="12" fill="black" />
-        <circle cx="35" cy="85" r="5" fill="white" />
-        <rect x="32" y="45" width="6" height="35" rx="3" fill="black" />
+        <circle cx="35" cy="90" r="12" fill="black" />
+        <circle cx="35" cy="90" r="5" fill="white" />
+        <rect x="32" y="45" width="6" height="40" rx="3" fill="black" />
       </motion.g>
 
       {/* Right ski */}
@@ -24,9 +24,9 @@ export default function SkiLogoLoader() {
       >
         <circle cx="75" cy="40" r="12" fill="black" />
         <circle cx="75" cy="40" r="5" fill="white" />
-        <circle cx="75" cy="85" r="12" fill="black" />
-        <circle cx="75" cy="85" r="5" fill="white" />
-        <rect x="72" y="45" width="6" height="35" rx="3" fill="black" />
+        <circle cx="75" cy="90" r="12" fill="black" />
+        <circle cx="75" cy="90" r="5" fill="white" />
+        <rect x="72" y="45" width="6" height="40" rx="3" fill="black" />
       </motion.g>
     </svg>
   );

@@ -26,11 +26,14 @@ const EditSkisPage = () => {
   if (!ski) return <div className="m-2">{t('ski_not_found')}</div>;
 
   return (
-    <div className="max-w-4xl mx-auto py-4 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+    <div className="max-w-4xl mx-auto">
       <Head>
         <title>Ski-Lab: Edit skis</title>
         <meta name="description" content="Edit skis" />
       </Head>
+      <h1 className="text-3xl font-bold text-gray-900 mb-5">
+        {t('edit_skis')}
+      </h1>
       <SkiForm initialData={ski} onSubmit={handleUpdateSki} isEdit={true} />
     </div>
   );

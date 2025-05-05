@@ -68,7 +68,7 @@ export default function TeamDetailPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-up animate-duration-300">
+    <div className="max-w-4xl mx-auto animate-fade-up animate-duration-300">
       {/* Back & Manage */}
       <div className="flex items-center justify-between mb-6">
         <Button onClick={handleBack} variant="secondary" className="text-xs">{t('back')}</Button>
