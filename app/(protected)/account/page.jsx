@@ -8,7 +8,7 @@ import { useProfileActions } from '@/hooks/useProfileActions';
 import ProfileImage from '@/app/(protected)/account/components/ProfileImage';
 import Button from '@/components/common/Button';
 import { useRouter } from 'next/navigation';
-import ManageSubscription from '@/components/ManageSubscription/ManageSubscription';
+import ManageSubscription from '@/app/(protected)/account/components/ManageSubscription';
 import Spinner from '@/components/common/Spinner/Spinner';
 
 const Account = () => {
@@ -36,7 +36,7 @@ const Account = () => {
         <title>Ski-Lab: {t('account')}</title>
       </Head>
       <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-up animate-duration-300">
-        <div className="bg-white rounded-md shadow p-6 md:p-8">
+        <div className="bg-white rounded-md p-6 md:p-8">
           <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
             <div className="relative text-center">
               <ProfileImage
@@ -97,7 +97,7 @@ const Account = () => {
               <div className="flex flex-col md:flex-row gap-4 justify-center md:justify-start">
                 <ManageSubscription />
                 <Button
-                  onClick={() => router.push('/settings')}
+                  onClick={() => router.push('/account/settings')}
                   variant="secondary"
                   className="w-full md:w-auto"
                 >

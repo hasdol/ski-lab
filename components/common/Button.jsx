@@ -21,13 +21,13 @@ const Button = ({
   let variantStyles = '';
   switch (variant) {
     case 'primary':
-      variantStyles = 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-[0.98] focus:ring-2 focus:ring-indigo-300/50 shadow-sm';
+      variantStyles = 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-[0.98] focus:ring-2 focus:ring-indigo-300/50';
       break;
     case 'secondary':
-      variantStyles = 'bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-300 shadow-sm';
+      variantStyles = 'bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-300';
       break;
     case 'danger':
-      variantStyles = 'bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors active:scale-[0.98] focus:ring-2 focus:ring-red-300 shadow-sm';
+      variantStyles = 'bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors active:scale-[0.98] focus:ring-2 focus:ring-red-300';
       break;
     case 'upgrade':
       variantStyles = 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] focus:ring-2 focus:ring-blue-300 shadow-sm';

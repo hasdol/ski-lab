@@ -36,7 +36,7 @@ const SkiMatchup = ({ match, scores, onScoreChange, potentialSwapTarget }) => {
         <div 
           {...provided.droppableProps} 
           ref={provided.innerRef} 
-          className="match-container mt-5 w-full"
+          className="match-white mt-5 w-full"
         >
           {match.skis.map((ski, index) => (
             <Draggable key={ski.id} draggableId={`ski-${match.id}-${ski.id}`} index={index}>
@@ -45,7 +45,7 @@ const SkiMatchup = ({ match, scores, onScoreChange, potentialSwapTarget }) => {
                   ref={provided.innerRef}
                   {...provided.draggableProps}
                   {...provided.dragHandleProps}
-                  className={`bg-container cursor-move relative py-2 px-4 rounded-md flex justify-between items-center 
+                  className={`bg-white cursor-move relative py-2 px-4 rounded-md flex justify-between items-center 
                     ${draggableSnapshot.isDragging ? 'border shadow' : ''} 
                     ${scores[ski.id] > 0 ? 'bg-sbtn opacity-50' : ''} 
                     ${ski.id === potentialSwapTarget?.id ? 'bg-sbtn' : ''} 

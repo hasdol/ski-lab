@@ -24,7 +24,7 @@ const TestSummaryPage = () => {
   const { selectedSkis, calculateRankings, resetTournament } =
     useContext(TournamentContext);
 
-  const [loading, setLoading]           = useState(false);
+  const [loading, setLoading] = useState(false);
   const [locationError, setLocationErr] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [selectedEvents, setSelectedEvents] = useState([]); // { teamId, eventId }
@@ -47,13 +47,13 @@ const TestSummaryPage = () => {
   };
 
   const [additionalData, setAdditionalData] = useState({
-    location        : '',
-    style           : determineInitialStyle(),
-    temperature     : '',
-    humidity        : '',
-    snowTemperature : '',
-    comment         : '',
-    snowCondition   : { source: '', grainType: '' },
+    location: '',
+    style: determineInitialStyle(),
+    temperature: '',
+    humidity: '',
+    snowTemperature: '',
+    comment: '',
+    snowCondition: { source: '', grainType: '' },
   });
 
   const handleInputChange = (e) => {
@@ -80,13 +80,13 @@ const TestSummaryPage = () => {
     /* fetch from your Cloud Function */
     const fetchWeather = async (lat, lon) => {
       try {
-        const res  = await fetch(`${WEATHER_ENDPOINT}?lat=${lat}&lon=${lon}`);
+        const res = await fetch(`${WEATHER_ENDPOINT}?lat=${lat}&lon=${lon}`);
         const data = await res.json();
 
         const instant = data.properties.timeseries[0].data.instant.details;
 
         console.log(data.properties.timeseries[0].data);
-        
+
 
         /* Optional reverse‑geo for prettier place‑name */
         let place = '';
@@ -106,9 +106,9 @@ const TestSummaryPage = () => {
 
         setAdditionalData((prev) => ({
           ...prev,
-          location    : place,
-          temperature : Math.round(instant.air_temperature).toString(),
-          humidity    : Math.round(instant.relative_humidity).toString(),
+          location: place,
+          temperature: Math.round(instant.air_temperature).toString(),
+          humidity: Math.round(instant.relative_humidity).toString(),
         }));
       } catch (error) {
         console.error('Weather error', error);
@@ -197,6 +197,9 @@ const TestSummaryPage = () => {
       </Head>
 
       <div className="space-y-5">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4 md:mb-5 mb-5">
+          {t('summary')}
+        </h1>
         {/* results list */}
         <div>
           {loading ? (
@@ -286,9 +289,10 @@ const TestSummaryPage = () => {
           />
 
           <ShareWithEventSelector
-            userId={user?.uid}
+            userId={user.uid}
             isVisible={true}
-            onSelect={(events) => setSelectedEvents(events)}
+            onSelect={setSelectedEvents}
+            includePast={false}
           />
 
           {/* buttons */}

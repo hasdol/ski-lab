@@ -29,7 +29,7 @@
   "submit": "Submit",
   "cancel": "Cancel",
   "home": "Home",
-  "skipark": "My Skis",
+  "skipark": "Skis",
   "skis": "skis",
   "tests": "Tests",
   "results": "Results",
@@ -235,5 +235,10 @@
   "past_events": "Past",
   "remove_image": "Remove image",
   "events": "Events",
-  "kick": "Kick"
+  "kick": "Kick",
+  "pick_a_plan":"Pick a plan",
+  "current": "Current",
+  "Company": "Company",
+  "Coach": "Coach",
+  "share_with_live_events": "Share with live events"
 }

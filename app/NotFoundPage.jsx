@@ -1,15 +1,14 @@
+import Head from 'next/head'
 import React from 'react'
-import { Helmet } from 'react-helmet-async'
-//test
 const NotFoundPage = () => {
   return (
     <>
-      <Helmet>
+      <Head>
         <title>Ski-Lab: Not found</title>
         <meta name="description" content="Site not found" />
 
 
-      </Helmet>
+      </Head>
       <div className='p-4'>Error: page not found</div>
 
     </>

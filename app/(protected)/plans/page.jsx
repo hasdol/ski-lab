@@ -6,8 +6,10 @@ import getStripe from '@/helpers/stripe';
 import Spinner from '@/components/common/Spinner/Spinner';
 import Button from '@/components/common/Button';
 import { RiCheckFill } from 'react-icons/ri';
+import { useTranslation } from 'react-i18next';
 
 const PlansPage = () => {
+  const { t } = useTranslation();
   const [plans, setPlans] = useState([]);
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [loadingCheckout, setLoadingCheckout] = useState('');
@@ -85,9 +87,9 @@ const PlansPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-up animate-duration-300">
-      <div className="bg-white rounded-md shadow p-6 md:p-8">
+      <div className="bg-white rounded-md p-6 md:p-8">
         <h1 className="text-3xl font-semibold text-center text-gray-800 mb-8">
-          Pick a plan
+          {t('pick_a_plan')}
         </h1>
 
         {plans.length === 0 ? (
@@ -103,17 +105,17 @@ const PlansPage = () => {
               return (
                 <div
                   key={plan.productId}
-                  className="bg-white rounded-md shadow-md overflow-hidden flex flex-col relative hover:shadow-lg transition border border-gray-300"
+                  className="bg-white rounded-md shadow-md overflow-hidden flex flex-col relative hover:shadow-lg transition"
                 >
                   {isCurrent && (
                     <span className="absolute top-3 right-3 bg-gradient-to-br from-blue-500 to-indigo-500 text-white text-xs px-2 py-1 rounded">
-                      Current
+                      {t('current')}
                     </span>
                   )}
 
                   <div className="px-6 pt-6">
                     <h2 className="text-xl font-semibold text-gray-800">
-                      {plan.name}
+                      {t(plan.name)}
                     </h2>
                     <p className="text-sm text-gray-500 italic mt-1">
                       {plan.name === 'Company' && 'Industry Leader'}
@@ -157,11 +159,10 @@ const PlansPage = () => {
                           isDowngrade
                         )
                       }
-                      className={`${
-                        isCurrent && currentPlan === 'free'
+                      className={`${isCurrent && currentPlan === 'free'
                           ? 'bg-gray-400 cursor-not-allowed'
                           : 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-95 focus:ring-2 focus:ring-indigo-300/50 shadow-sm'
-                      } w-full py-2 rounded-md text-sm`}
+                        } w-full py-2 rounded-md text-sm`}
                     >
                       {buttonText}
                     </Button>

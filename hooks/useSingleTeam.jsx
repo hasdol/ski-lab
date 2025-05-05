@@ -34,6 +34,7 @@ useEffect(() => {
     }
   );
 
+
   // Subscribe to events
   const eventsRef = collection(db, 'teams', teamId, 'events');
   const unsubEvents = onSnapshot(

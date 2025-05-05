@@ -36,7 +36,7 @@ const Input = ({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        className={`w-full bg-container text-text border border-gray-300 rounded-md ${gloveClasses} ${className}`}
+        className={`w-full bg-white text-text border border-gray-300 rounded-md ${gloveClasses} ${className}`}
         {...props}
       />
     );
@@ -91,7 +91,7 @@ const Input = ({
           onChange={onChange}
           required={required}
           disabled={disabled}
-          className={`w-full bg-container text-text border border-gray-300 rounded-md ${gloveClasses} ${className}`}
+          className={`w-full bg-white text-text border border-gray-300 rounded-md ${gloveClasses} ${className}`}
           {...props}
         />
         <span className="text-text mt-1">
@@ -111,7 +111,7 @@ const Input = ({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        className={`w-full bg-container text-text border border-gray-300 rounded-md ${gloveClasses} ${className} ${disabled && 'bg-gray-50'}`}
+        className={`w-full bg-white text-text border border-gray-300 rounded-md ${gloveClasses} ${className} ${disabled && 'bg-gray-50'}`}
         {...props}
       />
     );

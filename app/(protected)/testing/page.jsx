@@ -271,7 +271,7 @@ const Testing = () => {
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`bg-container shadow rounded ${draggableSnapshot.isDragging ? 'shadow-lg' : ''}`}
+                          className={`bg-white shadow rounded ${draggableSnapshot.isDragging ? 'shadow-lg' : ''}`}
                         >
                           <SkiMatchup
                             key={match.id}

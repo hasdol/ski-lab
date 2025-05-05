@@ -136,7 +136,7 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
 
   return (
     <div className='max-w-4xl mx-auto px-4 py-4 animate-fade-up animate-duration-300'>
-      <form onSubmit={handleSubmit} className="bg-white rounded-md shadow p-6 md:p-8 space-y-8">
+      <form onSubmit={handleSubmit} className="bg-white rounded-md p-6 md:p-8 space-y-2">
         <Input
           label={t('serial_number')}
           type="number"
@@ -177,7 +177,7 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
           onChange={handleChange}
           placeholder={t('model')}
         />
-        <div className={`${isEdit && 'bg-container border border-gray-300 rounded-md my-4 p-4'}`}>
+        <div className={`${isEdit && 'bg-white border border-gray-300 rounded-md my-4 p-4'}`}>
           {isEdit && (
             <h3 className="self-start text-xl mb-4 font-semibold">{t('change_grind')}</h3>
           )}

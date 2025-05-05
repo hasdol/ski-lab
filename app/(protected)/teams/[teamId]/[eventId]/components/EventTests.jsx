@@ -65,7 +65,7 @@ export default function EventTests({ teamId, eventId }) {
       {testResults.map((result) => (
         <div
           key={result.id}
-          className="bg-container shadow rounded mb-5 animate-fade-down animate-duration-300"
+          className="bg-white shadow rounded mb-5 animate-fade-down animate-duration-300"
         >
           <div className="flex justify-between p-4">
 
@@ -78,13 +78,12 @@ export default function EventTests({ teamId, eventId }) {
               <i className="text-sm">{result.location}</i>
 
             </div>
-
             {user?.uid === result.userId && (
               <div className="flex items-center space-x-3">
                 <div className="flex space-x-3">
                   <Button
                     variant="primary"
-                    onClick={() => router.push(`/editResult/${result.id}`)}
+                    onClick={() => router.push(`/results/${result.id}/edit`)}
                   >
                     <RiEditLine />
                   </Button>

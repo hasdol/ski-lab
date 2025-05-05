@@ -236,5 +236,10 @@
   "past": "Gamle",
   "remove_image": "Fjern bildet",
   "events": "Arrangementer",
-  "kick": "Spark ut"
+  "kick": "Spark ut",
+  "pick_a_plan":"Velg en plan",
+  "current": "Nåverende",
+  "Company":"Bedrift",
+  "Coach": "Trener",
+  "share_with_live_events": "Del med pågående arrangementer"
 }

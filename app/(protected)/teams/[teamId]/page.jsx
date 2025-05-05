@@ -80,7 +80,7 @@ export default function TeamDetailPage() {
         )}
       </div>
 
-      <div className="bg-white rounded-md shadow p-6 md:p-8">
+      <div className="bg-white rounded-md p-6 md:p-8">
         {/* Team Header */}
         <div className="flex flex-col items-center">
           <div className="w-1/2 h-auto md:w-1/2 md:h-auto overflow-hidden mb-4">
@@ -141,7 +141,7 @@ export default function TeamDetailPage() {
               {['live', 'upcoming', 'past'].map(cat => (
                 categorized[cat].length > 0 && (
                   <div key={cat}>
-                    <h2 className="text-lg font-semibold text-gray-800 mb-2">{t(`${cat}_events`)}</h2>
+                    <h2 className="text-lg font-semibold text-gray-800 mb-2">{t(`${cat}`)}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {categorized[cat].map(evt => {
                         const start = new Date(evt.startDate.seconds * 1000);
@@ -156,7 +156,7 @@ export default function TeamDetailPage() {
                           >
                             <div className="absolute top-2 right-2 flex items-center space-x-1">
                               <span className={`h-2 w-2 rounded-full ${b.dot} ${cat === 'live' ? 'animate-pulse' : ''}`}></span>
-                              <span className="text-xs font-bold uppercase tracking-wide text-gray-700">{b.label}</span>
+                              <span className="text-xs  text-gray-700">{b.label}</span>
                             </div>
                             <h3 className="font-semibold text-base text-gray-800 break-words">{evt.name}</h3>
                             <p className="text-sm text-gray-500 mt-1">{start.toLocaleDateString()} - {end.toLocaleDateString()}</p>
