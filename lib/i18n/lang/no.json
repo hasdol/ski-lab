@@ -195,7 +195,7 @@
   "guide_step_2": "Hold fast og gli side om side med en partner og slip hverandre på 'slipp-punktet'",
   "guide_step_3": "Gli til 'måle-punktet' og observer avstanden. Bytt ski og gjenta",
   "guide_step_4": "Sammenlign testene og noter differensen. Fortsett med de to neste parene",
-  "cookie_concent": "Denne siden bruker cookies for å fungere. Vi benytter tredjepartstjenester som Firebase, Stripe og OpenWeatherMap API. Ved å fortsette samtykker du til bruken av disse cookies.",
+  "cookie_concent": "Denne siden bruker cookies for å fungere. Vi benytter tredjepartstjenester som Firebase, Stripe og MET Weather API. Ved å fortsette samtykker du til bruken av disse cookies.",
   "cancel_account_deletion": "Avbryt sletting av bruker",
   "account_deletion_scheduled": "Bruker sletting planlagt",
   "remember_to_cancel_subscription": "Slett abonnementet ditt for å fullføre",
