@@ -7,30 +7,15 @@
 @theme {
   --font-display: "Assistant", "sans-serif";
 
-  --color-background: #f9f9f9;
-  --color-container: #ffffff;
   --color-text: #505863;
-  --color-btn: #353535 ; 
   --color-highlight: #677dcd ; 
-  --color-sbtn: #f3f3f3;
-  --color-hoverSbtn: #ececec;
-  --color-btntxt: #FCFFFD;
-  --color-inputtxt: #203547;
-  --color-selected: #677dcd;
   --color-line: #6781df ;
   --color-reference: #ffb300;
-  --color-edit: #6FCF97;
-  --color-delete: #ff4c4c;
-  --color-gold: #FFD700;
-  --color-silver: #C0C0C0;
-  --color-bronze: #CD7F32;
   --color-great: #677dcd;
   --color-good: #4bbd5c;
   --color-average: #acc2b7;
   --color-bad: #ea7704;
   --color-veryBad: #d7191c;
-  --color-buttonGradient: #3b82f6;
-  --color-headerText: #383838;
 }
 
 @layer base {

@@ -97,7 +97,7 @@ export default function SettingsPage() {
           </div>
 
         </div>
-        <div className="bg-white rounded-md p-6 md:p-8 space-y-8">
+        <div className="space-y-8">
           {/* Username Section */}
           <div>
             {isEditingUsername ? (

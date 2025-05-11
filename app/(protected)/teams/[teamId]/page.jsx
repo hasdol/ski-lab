@@ -80,7 +80,7 @@ export default function TeamDetailPage() {
         )}
       </div>
 
-      <div className="bg-white rounded-md p-6 md:p-8">
+      <div className="">
         {/* Team Header */}
         <div className="flex flex-col items-center">
           <div className="w-1/2 h-auto md:w-1/2 md:h-auto overflow-hidden mb-4">

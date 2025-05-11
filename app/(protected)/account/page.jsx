@@ -39,7 +39,7 @@ const Account = () => {
         <h1 className="text-3xl font-bold text-gray-900 mb-5">
           {t('account')}
         </h1>
-        <div className="bg-white rounded-md p-6 md:p-8">
+        <div className="">
           <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
             <div className="relative text-center">
               <ProfileImage

@@ -314,7 +314,7 @@ const TestSummaryPage = () => {
                 className="justify-self-end"
                 onClick={handleResetTest}
               >
-                <RiDeleteBinLine />
+                {t('delete')}
               </Button>
             </div>
           </div>

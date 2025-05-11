@@ -4,8 +4,6 @@ import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { TournamentContext } from '../../context/TournamentContext';
-import { TiFlowParallel } from "react-icons/ti";
 import Button from '@/components/common/Button';
 import { getUserTeamsWithLiveEvents } from '@/lib/firebase/firestoreFunctions';
 import { motion } from 'framer-motion';
@@ -17,7 +15,6 @@ const HomePage = () => {
   const { user, checkingStatus } = useAuth();
   const { t } = useTranslation();
   const router = useRouter();
-  const { currentRound } = useContext(TournamentContext);
 
   const [imageLoaded, setImageLoaded] = useState(false);
   const [teams, setTeams] = useState([]);
@@ -84,8 +81,8 @@ const HomePage = () => {
             <div className="flex flex-col items-center space-y-4">
 
 
-              <h1 className="text-5xl font-bold text-headerText tracking-wide">Ski-Lab</h1>
-              <h5 className="text-sm text-headerText -mt-2 font-semibold">beta</h5>
+              <h1 className="text-5xl font-bold text-gray-900 tracking-wide">Ski-Lab</h1>
+              <h5 className="text-sm text-gray-900 -mt-2 font-semibold">beta</h5>
 
 
               <p className="text-lg text-center max-w-xl">

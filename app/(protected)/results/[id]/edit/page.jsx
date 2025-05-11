@@ -147,7 +147,7 @@ const EditResultPage = () => {
         <h1 className="text-3xl font-bold text-gray-900 mb-5">
           {t('edit_result')}
         </h1>
-        <form onSubmit={handleSubmit} className="bg-white rounded-md p-5 space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-2">
           {/* Scores */}
           {resultData.rankings.map((r, i) => (
             <div key={i} className="flex flex-col">

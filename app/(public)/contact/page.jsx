@@ -33,7 +33,7 @@ const Contact = () => {
       <h1 className="text-3xl font-bold text-gray-900 mb-5">
           {t('contact')}
         </h1>
-        <form className="bg-white rounded-md p-6 md:p-8 space-y-8" onSubmit={handleSubmit}>
+        <form className="space-y-8" onSubmit={handleSubmit}>
           <Input
             type="text"
             name="subject"

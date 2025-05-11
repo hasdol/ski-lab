@@ -120,8 +120,8 @@ const Results = () => {
         <meta name="description" content="Displaying your test results" />
       </Head>
 
-      <div className="container mx-auto animate-fade-up animate-duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4 md:mb-5 mb-5">
+      <div className="animate-fade-up animate-duration-300">
+        <h1 className="text-3xl font-bold text-gray-900 mb-5">
           {t('results')}
         </h1>
 
@@ -178,8 +178,8 @@ const Results = () => {
             </div>
           ) : resultsToShow.length > 0 ? (
             resultsToShow.map((result) => (
-              <div key={result.id} className="bg-white rounded-md shadow mb-5 animate-fade-down animate-duration-300">
-                <div className="flex justify-between p-4">
+              <div key={result.id} className=" mb-5 animate-fade-down animate-duration-300 shadow rounded-md p-5">
+                <div className="flex justify-between">
                   <div>
                     <h3 className="font-semibold text-xl">
                       {highlightSearchTerm(t(result.style))} / {highlightSearchTerm(`${result.temperature}°C`)}
@@ -196,7 +196,7 @@ const Results = () => {
                   </div>
                 </div>
 
-                <ul className="my-2 px-4 space-y-2">
+                <ul className="my-2 space-y-2">
                   {result.rankings.map((ranking, index) => (
                     <li key={index} className="flex py-1">
                       <span className="flex items-center w-1/3">
@@ -214,8 +214,8 @@ const Results = () => {
                   ))}
                 </ul>
 
-                <div className="my-5 px-4">
-                  <p className="border-t border-sbtn mb-4"></p>
+                <div className="my-5">
+                  <p className="border-t border-gray-300 mb-4"></p>
                   <ul className="text-sm grid grid-cols-2 gap-2">
                     <li className="flex flex-col">
                       {t('snow_type')}
@@ -248,7 +248,7 @@ const Results = () => {
                 </div>
               </div>
             ))) : (
-            <div className="my-4 mx-2 italic">{t('no_test_results_available')}.</div>
+            <div className="my-4 italic">{t('no_test_results_available')}.</div>
           )}
         </div>
       </div>

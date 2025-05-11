@@ -34,7 +34,7 @@ const SignUp = () => {
         <title>Ski-Lab: Sign up</title>
         <meta name="description" content="Sign-up for Ski-Lab" />
       </Head>
-      <div className="mx-4 bg-white mt-20 p-10 md:w-1/2 md:mx-auto rounded-md animate-fade-down animate-duration-300">
+      <div className="mt-20 md:w-1/2 md:mx-auto animate-fade-down animate-duration-300">
         <h1 className="text-5xl mb-10 font-semibold">{t('signUp')}</h1>
         {error && <p className="bg-red-100 text-red-700 p-3 rounded">{error}</p>}
         <form onSubmit={handleSignUp} className="space-y-3 text-black">

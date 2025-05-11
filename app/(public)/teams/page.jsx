@@ -39,7 +39,7 @@ export default function TeamsPage() {
       </div>
 
       {/* Main Content */}
-      <section className="bg-white rounded-md p-5 space-y-6">
+      <section className="space-y-6">
         {/* Loading State */}
         {loading && (
           <div className="flex justify-center py-6">

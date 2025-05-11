@@ -15,7 +15,7 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en">
-      <body className="min-h-screen bg-background text-text font-page">
+      <body className="min-h-screen  text-text font-page">
         <AuthProvider>
           <UserPreferencesProvider>
             <TournamentProvider>

@@ -83,28 +83,31 @@ const Filter = ({
                 />
 
                 {/* Bottom Buttons */}
-                <Box sx={{ mt: 4, textAlign: 'center', display: 'flex', justifyContent: 'space-between' }}>
-                    <Button
-                        sx={{
-                            backgroundColor: 'var(--color-btn)',
-                            color: 'var(--color-btntxt)',
-                            padding: '0.6rem 1rem',
-                            marginRight: '0.5rem'
-                        }}
-                        onClick={resetFilter}
-                    >
-                        {t('reset')}
-                    </Button>
-                    <Button
-                        sx={{
-                            backgroundColor: 'var(--color-sbtn)',
-                            color: 'var(--color-text)',
-                            padding: '0.6rem 1rem'
-                        }}
-                        onClick={onClose}
-                    >
-                        {t('close')}
-                    </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                  <Button
+                    sx={{
+                      flex: 1,
+                      backgroundColor: 'oklch(37.1% 0 0)',
+                      color: 'white',
+                      px: 4,
+                      py:1
+                    }}
+                    onClick={resetFilter}
+                  >
+                    {t('reset')}
+                  </Button>
+                  <Button
+                    sx={{
+                      flex: 1,
+                      backgroundColor: 'oklch(92.2% 0 0)',
+                      color: 'black',
+                      px: 2,
+                      py:1
+                    }}
+                    onClick={onClose}
+                  >
+                    {t('close')}
+                  </Button>
                 </Box>
             </Box>
         </Drawer>

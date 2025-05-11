@@ -67,7 +67,7 @@ export default function EventPage() {
         )}
       </div>
 
-      <div className="bg-white rounded-md shadow p-6 md:p-8 space-y-4">
+      <div className="space-y-4">
         <div className="text-center">
           <div className="w-1/2 h-auto mx-auto overflow-hidden mb-4">
             <UploadableImage
