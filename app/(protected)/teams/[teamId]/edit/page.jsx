@@ -94,7 +94,7 @@ export default function EditTeamPage() {
   }
   if (error) {
     return (
-      <div className="max-w-md mx-auto px-4 py-8">
+      <div className="mx-auto">
         <div className="bg-red-50 text-red-700 rounded-md p-6">
           {t('error_loading_team')}: {error.message}
         </div>
@@ -103,13 +103,16 @@ export default function EditTeamPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto px-4 py-8 animate-fade-up animate-duration-300">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-gray-800">{t('edit_team')}</h1>
-        <div className="w-6" />
-      </div>
+    <div className="mx-auto animate-fade-up animate-duration-300 space-y-4">
+      <h1 className="text-2xl font-semibold text-gray-800">{t('edit_team')}</h1>
+      <Button
+        onClick={handleBack}
+        variant="secondary"
+      >
+        {t('back')}
+      </Button>
 
-      <div className="bg-white rounded-md shadow p-6 space-y-6">
+      <div className=" space-y-6">
         <Input
           type="text"
           label={t('team_name')}
@@ -141,12 +144,11 @@ export default function EditTeamPage() {
           )}
         </div>
 
-        <div className="flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0">
+        <div className="flex gap-2">
           <Button
             onClick={handleUpdate}
             variant="primary"
             loading={loadingAction}
-            className="flex-1"
           >
             {t('update')}
           </Button>
@@ -154,17 +156,10 @@ export default function EditTeamPage() {
             onClick={handleDelete}
             variant="danger"
             loading={loadingAction}
-            className="flex-1"
           >
             {t('delete')}
           </Button>
-          <Button
-            onClick={handleBack}
-            variant="secondary"
-            className="flex-1"
-          >
-            {t('cancel')}
-          </Button>
+
         </div>
       </div>
     </div>

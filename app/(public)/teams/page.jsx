@@ -19,18 +19,18 @@ export default function TeamsPage() {
   return (
     <div className="container mx-auto animate-fade-up animate-duration-300">
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4 md:mb-0">
+      <div className="flex flex-col items-start  justify-between mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">
           {t('teams')}
         </h1>
         
-        <div className="flex space-x-3">
+        <div className="flex space-x-3 items-end">
           <JoinTeamForm />
           {canCreateTeam && (
             <Button
               onClick={() => router.push('/teams/create-team')}
               variant="primary"
-              className="px-5 py-2"
+              className="h-fit"
             >
               {t('create_team')}
             </Button>

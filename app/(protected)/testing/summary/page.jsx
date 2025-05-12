@@ -195,9 +195,17 @@ const TestSummaryPage = () => {
       </Head>
 
       <div className="space-y-5">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4 md:mb-5 mb-5">
+        <h1 className="text-3xl font-bold text-gray-900 b-5">
           {t('summary')}
         </h1>
+
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => router.push('/testing')}
+        >
+          {t('back')}
+        </Button>
         {/* results list */}
         <div>
           {loading ? (
@@ -298,14 +306,6 @@ const TestSummaryPage = () => {
             <div className="flex space-x-2">
               <Button type="submit" loading={loading} variant="primary">
                 {t('save')}
-              </Button>
-
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => router.push('/testing')}
-              >
-                {t('back')}
               </Button>
 
               <Button

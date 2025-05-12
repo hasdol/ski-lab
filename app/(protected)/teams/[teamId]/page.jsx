@@ -71,11 +71,11 @@ export default function TeamDetailPage() {
     <div className="mx-auto animate-fade-up animate-duration-300">
       {/* Back & Manage */}
       <div className="flex items-center justify-between mb-6">
-        <Button onClick={handleBack} variant="secondary" className="text-xs">{t('back')}</Button>
+        <Button onClick={handleBack} variant="secondary" >{t('back')}</Button>
         {canManage && (
           <div className="flex space-x-2">
-            <Button onClick={() => router.push(`/teams/${teamId}/edit`)} variant="secondary" className="text-xs">{t('edit')}</Button>
-            <Button onClick={() => router.push(`/teams/${teamId}/create-event`)} variant="primary" className="text-xs">{t('create_event')}</Button>
+            <Button onClick={() => router.push(`/teams/${teamId}/edit`)} variant="secondary" >{t('edit')}</Button>
+            <Button onClick={() => router.push(`/teams/${teamId}/create-event`)} variant="primary">{t('create_event')}</Button>
           </div>
         )}
       </div>

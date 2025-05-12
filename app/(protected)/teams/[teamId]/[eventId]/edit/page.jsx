@@ -108,37 +108,37 @@ export default function EditEventPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-8">
-      <div className="bg-white rounded-md shadow p-6 space-y-6">
-        <h1 className="text-2xl font-semibold text-gray-800">{t('edit_event')}</h1>
-        <div className="space-y-4">
-          <Input value={name} onChange={e => setName(e.target.value)} placeholder={t('event_name')} />
-          <Input type="textarea" value={desc} onChange={e => setDesc(e.target.value)} placeholder={t('description')} />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input type="date" label={t('start_date')} value={startDate} onChange={e => setStartDate(e.target.value)} />
-            <Input type="date" label={t('end_date')} value={endDate} onChange={e => setEndDate(e.target.value)} />
-          </div>
-          <GeocodeInput label={t('event_location')} initialValue={location.address} onLocationSelect={(lat, lon, addr) => setLocation({ lat, lon, address: addr })} />
-          <div className="w-32 h-32 overflow-hidden mx-auto">
-            <UploadableImage photoURL={imageURL} variant="event" alt={t('event_image')} clickable handleImageChange={handleFile} className="object-cover w-full h-full" />
-          </div>
-          {imageURL && (
-            <Button onClick={handleRemoveImage} variant="danger" className="text-xs w-full">
-              {t('remove_image')}
-            </Button>
-          )}
+    <div className="mx-auto space-y-6">
+      <h1 className="text-2xl font-semibold text-gray-800">{t('edit_event')}</h1>
+      <Button onClick={() => router.push(`/teams/${teamId}/${eventId}`)} variant="secondary" >
+        {t('back')}
+      </Button>
+
+      <div className="space-y-4">
+        <Input value={name} onChange={e => setName(e.target.value)} placeholder={t('event_name')} />
+        <Input type="textarea" value={desc} onChange={e => setDesc(e.target.value)} placeholder={t('description')} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input type="date" label={t('start_date')} value={startDate} onChange={e => setStartDate(e.target.value)} />
+          <Input type="date" label={t('end_date')} value={endDate} onChange={e => setEndDate(e.target.value)} />
         </div>
-        <div className="flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0">
-          <Button onClick={handleUpdate} variant="primary" loading={uploading} className="flex-1">
-            {t('update')}
-          </Button>
-          <Button onClick={handleDelete} variant="danger" className="flex-1 text-center">
-            {t('delete')}
-          </Button>
-          <Button onClick={() => router.push(`/teams/${teamId}/${eventId}`)} variant="secondary" className="flex-1">
-            {t('cancel')}
-          </Button>
+        <GeocodeInput label={t('event_location')} initialValue={location.address} onLocationSelect={(lat, lon, addr) => setLocation({ lat, lon, address: addr })} />
+        <div className="w-32 h-32 overflow-hidden mx-auto">
+          <UploadableImage photoURL={imageURL} variant="event" alt={t('event_image')} clickable handleImageChange={handleFile} className="object-cover w-full h-full" />
         </div>
+        {imageURL && (
+          <Button onClick={handleRemoveImage} variant="danger" className="text-xs w-full">
+            {t('remove_image')}
+          </Button>
+        )}
+      </div>
+      <div className="flex gap-2">
+        <Button onClick={handleUpdate} variant="primary" loading={uploading}>
+          {t('update')}
+        </Button>
+        <Button onClick={handleDelete} variant="danger" >
+          {t('delete')}
+        </Button>
+
       </div>
     </div>
   );

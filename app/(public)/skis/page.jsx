@@ -226,7 +226,7 @@ const Skis = () => {
       </Head>
 
       <div className="container mx-auto animate-fade-up animate-duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4 md:mb-5 mb-5">
+        <h1 className="text-3xl font-bold text-gray-900 mb-5">
           {t('skipark')}
         </h1>
         {/* Top row: "Selected skis" + "Add Ski" button, etc. */}
@@ -413,9 +413,17 @@ const Skis = () => {
             ) : (
               <SkiTable
                 skis={sortedAndFilteredSkis}
+                /* selection */
+                selectedSkis={selectedSkisMap}
+                onToggleSelect={handleCheckboxChange}
+                /* details */
+                expandedSkiId={expandedSkiId}
+                onToggleDetails={toggleDetails}
+                /* sorting */
                 sortField={sortField}
                 sortDirection={sortDirection}
                 onSort={handleSortChange}
+                /* row actions */
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onArchive={handleArchive}

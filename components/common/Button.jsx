@@ -33,7 +33,7 @@ const Button = ({
       variantStyles = 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] focus:ring-2 focus:ring-blue-300 shadow-sm';
       break;
     case 'tab':
-      variantStyles = 'bg-slate-200 text-gray-800 border border-gray-300 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-100';
+      variantStyles = 'bg-gray-200 text-gray-800 border border-gray-300 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-100';
       break;
     default:
       variantStyles = 'bg-blue-500 text-white hover:bg-blue-600 active:scale-[0.98] focus:ring-2 focus:ring-blue-300 shadow-sm';

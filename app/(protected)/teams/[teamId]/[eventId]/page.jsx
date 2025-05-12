@@ -61,9 +61,9 @@ export default function EventPage() {
   return (
     <div className="mx-auto animate-fade-up animate-duration-300">
       <div className="flex items-center justify-between mb-6">
-        <Button onClick={handleBack} variant="secondary" className="text-xs">{t('back')}</Button>
+        <Button onClick={handleBack} variant="secondary" >{t('back')}</Button>
         {canManage && (
-          <Button onClick={handleEdit} variant="secondary" className="text-xs">{t('edit_event')}</Button>
+          <Button onClick={handleEdit} variant="secondary">{t('edit_event')}</Button>
         )}
       </div>
 
