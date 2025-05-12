@@ -130,13 +130,13 @@ const Skis = () => {
   if (plan === 'senior') {
     skiLimit = 16;
   } else if (plan === 'senior_pluss') {
-    skiLimit = 40;
+    skiLimit = 32;
   } else if (plan === 'coach') {
-    skiLimit = 100;
+    skiLimit = 64;
   } else if (plan === 'company') {
     skiLimit = 5000;
   } else {
-    skiLimit = 6;
+    skiLimit = 8;
   }
   const hasReachedLimit = skiCount >= skiLimit;
   const hasLockedSkis = lockedSkisCount > 0;
@@ -305,24 +305,24 @@ const Skis = () => {
 
         {/* Locked skis and upgrade prompt */}
         {(hasLockedSkis || (hasReachedLimit && plan === 'free')) && (
-          <div className="flex mx-2 my-4 space-x-4">
+          <div className="flex my-4 space-x-4">
             {hasLockedSkis && (
-              <div className="flex space-x-5 border py-4 rounded-md items-center justify-center w-full">
+              <div className="flex space-x-5 border border-gray-300 py-4 rounded-md items-center justify-center w-full">
                 <div className="space-y-1">
                   <h3 className="text-sm flex items-center"><RiLockLine /> {lockedSkisCount} {t('locked_ski(s)')}</h3>
-                  <button
+                  <Button
                     onClick={() => router.push('/skis/locked')}
-                    className="flex cursor-pointer h-fit w-fit justify-center bg-btn text-btntxt py-3 px-5 rounded hover:opacity-90"
+                    variant='secondary'
                   >
                     {t('view_skis')}
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="space-y-1">
-                  <h3 className="text-sm">Upgrade to unlock</h3>
-                  <button className="flex cursor-pointer h-fit w-fit justify-center bg-gradient-to-r from-blue-600 to-blue-500 text-btntxt py-3 px-5 rounded hover:opacity-90" onClick={() => router.push('/plans')}>
+                  <h3 className="text-sm">{t('upgrade_to_unlock')}</h3>
+                  <Button variant='primary' onClick={() => router.push('/plans')}>
                     {t('upgrade')}
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

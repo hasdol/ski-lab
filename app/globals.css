@@ -1,12 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&display=swap');
-
 @import "tailwindcss";
 @import "tailwindcss-animated";
 
 
 @theme {
-  --font-display: "Assistant", "sans-serif";
-
   --color-text: #505863;
   --color-highlight: #677dcd ; 
   --color-line: #6781df ;

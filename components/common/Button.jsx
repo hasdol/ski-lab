@@ -15,8 +15,8 @@ const Button = ({
   const isIconOnly = React.Children.count(children) === 1 && React.isValidElement(children);
 
   const baseStyles = isIconOnly
-    ? 'p-2.5 rounded-md text-sm font-medium focus:outline-none transition-all duration-200'
-    : 'px-5 py-2.5 rounded-md text-sm font-medium focus:outline-none transition-all duration-200';
+    ? 'p-2.5 rounded-md focus:outline-none transition-all duration-200'
+    : 'px-5 py-2.5 rounded-md focus:outline-none transition-all duration-200';
 
   let variantStyles = '';
   switch (variant) {

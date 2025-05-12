@@ -33,7 +33,7 @@ const ManageLockedSkis = () => {
         <title>Ski-Lab: Manage locked skis</title>
         <meta name="description" content="Displaying locked skis as a result of plan downgrade" />
       </Head>
-      <div className="manage-locked-skis-page py-4 px-2 max-w-3xl mx-auto">
+      <div className=" mx-auto">
         <div className='my-2'>
           <Button variant='secondary' onClick={() => router.back()}>{t('back')}</Button>
 

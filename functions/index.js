@@ -1,3 +1,11 @@
+/* ------------------------------------------------------------------
+   Firebase Cloud Functions – full file (updated May 2025)
+   ------------------------------------------------------------------ */
+
+/* eslint-disable consistent-return */
+/* ------------------------------------------------------------------
+   Initialisation
+   ------------------------------------------------------------------ */
 const admin = require('firebase-admin');
 admin.initializeApp();
 const db = admin.firestore();
@@ -8,10 +16,26 @@ const { onDocumentCreated, onDocumentDeleted } = require('firebase-functions/v2/
 const { defineSecret } = require('firebase-functions/params');
 const fetch = (...a) => import('node-fetch').then(({ default: f }) => f(...a));
 
-// 🔐 1)  Declare the secret *once* and use the token everywhere
+// 🔐 Secrets
 const METNO_USER_AGENT = defineSecret('METNO_USER_AGENT');
 
-// ─────────── CORS helper ───────────
+/* ------------------------------------------------------------------
+   Plan limits & helpers (used everywhere)
+   ------------------------------------------------------------------ */
+const PLAN_LIMITS = {
+  free: 8,
+  senior: 16,
+  senior_pluss: 32,
+  coach: 64,
+  company: 5000,
+};
+function getPlanLimit(plan = 'free') {
+  return PLAN_LIMITS[plan] ?? 8; // safe fallback for unknown plans
+}
+
+/* ------------------------------------------------------------------
+   CORS helper
+   ------------------------------------------------------------------ */
 function addCorsHeaders(res) {
   const ALLOWED = process.env.ALLOWED_ORIGINS || '*'; // tighten in prod
   res.set({
@@ -21,14 +45,13 @@ function addCorsHeaders(res) {
   });
 }
 
-// ───────────────────────────────────
-//  weatherForecast   (gen‑2 HTTPS)
-//   GET /weatherForecast?lat=..&lon=..
-// ───────────────────────────────────
+/* ------------------------------------------------------------------
+   weatherForecast (gen‑2 HTTPS)
+   ------------------------------------------------------------------ */
 exports.weatherForecast = onRequest(
   {
     region: 'europe-north1',
-    secrets: [METNO_USER_AGENT], // 👈 use the constant here
+    secrets: [METNO_USER_AGENT],
     timeoutSeconds: 15,
     memory: '256MiB',
   },
@@ -44,12 +67,12 @@ exports.weatherForecast = onRequest(
     try {
       const upstream = await fetch(
         `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`,
-        { headers: { 'User-Agent': METNO_USER_AGENT.value() } }, // ← read the secret
+        { headers: { 'User-Agent': METNO_USER_AGENT.value() } },
       );
 
       if (!upstream.ok) throw new Error(`yr.no responded ${upstream.status}`);
 
-      addCorsHeaders(res); // double‑sure
+      addCorsHeaders(res);
       return res
         .set('Cache-Control', 'public, max-age=900, s-maxage=900')
         .json(await upstream.json());
@@ -61,10 +84,9 @@ exports.weatherForecast = onRequest(
   },
 );
 
-
-// ----------------------------------------------------------------
-// Auth Trigger – Initialize user
-// ----------------------------------------------------------------
+/* ------------------------------------------------------------------
+   Auth Trigger – Initialize user
+   ------------------------------------------------------------------ */
 exports.onUserCreate = functionsV1.auth.user().onCreate(async (user) => {
   const userRef = db.collection('users').doc(user.uid);
   const initialData = {
@@ -80,7 +102,6 @@ exports.onUserCreate = functionsV1.auth.user().onCreate(async (user) => {
     lockedSkisCount: 0,
     stripeCustomerId: null,
     stripeSubscriptionId: null,
-    photoURL: null,
   };
   try {
     await userRef.set(initialData);
@@ -90,9 +111,9 @@ exports.onUserCreate = functionsV1.auth.user().onCreate(async (user) => {
   }
 });
 
-// ----------------------------------------------------------------
-// Stripe Callable Functions
-// ----------------------------------------------------------------
+/* ------------------------------------------------------------------
+   Stripe Callable Functions
+   ------------------------------------------------------------------ */
 exports.getStripePlans = onCall({ secrets: ['STRIPE_SECRET'] }, async (event) => {
   if (!event.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
   const stripe = require('stripe')(process.env.STRIPE_SECRET);
@@ -122,23 +143,18 @@ exports.getStripePlans = onCall({ secrets: ['STRIPE_SECRET'] }, async (event) =>
 });
 
 exports.createCheckoutSession = onCall({ secrets: ['STRIPE_SECRET', 'APP_URL'] }, async (event) => {
-  if (!event.auth)
-    throw new HttpsError('unauthenticated', 'User must be authenticated.');
-
+  if (!event.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
   const { priceId } = event.data;
-  if (!priceId)
-    throw new HttpsError('invalid-argument', 'Price ID must be provided.');
+  if (!priceId) throw new HttpsError('invalid-argument', 'Price ID must be provided.');
 
   const stripe = require('stripe')(process.env.STRIPE_SECRET);
   const appUrl = process.env.APP_URL;
   const userId = event.auth.uid;
 
-  // Fetch the user's Firestore document to check subscription details.
+  // Fetch subscription status
   const userRef = db.collection('users').doc(userId);
   const userDoc = await userRef.get();
   const userData = userDoc.exists ? userDoc.data() : {};
-
-  // If either a stripeSubscriptionId or stripeCustomerId exists, user is considered existing.
   const alreadySubscribed = Boolean(userData.stripeSubscriptionId || userData.stripeCustomerId);
 
   try {
@@ -146,13 +162,8 @@ exports.createCheckoutSession = onCall({ secrets: ['STRIPE_SECRET', 'APP_URL'] }
     const product = await stripe.products.retrieve(price.product);
     const plan = product.metadata.plan || 'free';
 
-    // Prepare subscription data.
     const subscriptionData = { metadata: { userId, plan } };
-
-    // Only add a 30-day trial for new users
-    if (!alreadySubscribed) {
-      subscriptionData.trial_period_days = 30;
-    }
+    if (!alreadySubscribed) subscriptionData.trial_period_days = 30;
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -172,7 +183,6 @@ exports.createCheckoutSession = onCall({ secrets: ['STRIPE_SECRET', 'APP_URL'] }
   }
 });
 
-
 exports.getCustomerPortalUrl = onCall({ secrets: ['STRIPE_SECRET', 'APP_URL'] }, async (event) => {
   if (!event.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
   const userId = event.auth.uid;
@@ -191,12 +201,10 @@ exports.getCustomerPortalUrl = onCall({ secrets: ['STRIPE_SECRET', 'APP_URL'] },
   return { url: portalSession.url };
 });
 
-// ----------------------------------------------------------------
-// Stripe Webhook
-// ----------------------------------------------------------------
-exports.stripeWebhook = onRequest({
-  secrets: ['STRIPE_SECRET', 'STRIPE_SIGNING_SECRET']
-}, async (req, res) => {
+/* ------------------------------------------------------------------
+   Stripe Webhook
+   ------------------------------------------------------------------ */
+exports.stripeWebhook = onRequest({ secrets: ['STRIPE_SECRET', 'STRIPE_SIGNING_SECRET'] }, async (req, res) => {
   const stripe = require('stripe')(process.env.STRIPE_SECRET);
   const sig = req.headers['stripe-signature'];
 
@@ -208,199 +216,145 @@ exports.stripeWebhook = onRequest({
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  switch (event.type) {
-    case 'checkout.session.completed':
-      await handleCheckoutSession(event.data.object);
-      break;
-    case 'customer.subscription.deleted':
-      await handleSubscriptionDeleted(event.data.object);
-      break;
-    case 'customer.subscription.updated':
-      await handleSubscriptionUpdated(event.data.object);
-      break;
-    default:
-      console.log(`Unhandled event type ${event.type}`);
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed':
+        await handleCheckoutSession(event.data.object);
+        break;
+      case 'customer.subscription.deleted':
+        await handleSubscriptionDeleted(event.data.object);
+        break;
+      case 'customer.subscription.updated':
+        await handleSubscriptionUpdated(event.data.object);
+        break;
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+  } catch (e) {
+    console.error('Webhook handler failure:', e);
+    return res.status(500).send('Webhook handler error');
   }
 
   res.status(200).json({ received: true });
 });
 
-// ----------------------------------------------------------------
-// Stripe Webhook Helpers
-// ----------------------------------------------------------------
+/* ------------------------------------------------------------------
+   Stripe Webhook Helpers (idempotent & single‑write)
+   ------------------------------------------------------------------ */
 async function handleCheckoutSession(session) {
   const userRef = db.collection('users').doc(session.metadata.userId);
   const skisRef = userRef.collection('skis');
   const plan = session.metadata.plan || 'free';
 
-  await db.runTransaction(async (transaction) => {
-    const userDoc = await transaction.get(userRef);
-    if (!userDoc.exists) throw new Error(`User ${session.metadata.userId} does not exist.`);
-    const lockedSkisSnapshot = await transaction.get(skisRef.where('locked', '==', true));
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+    if (!snap.exists) throw new Error(`User ${session.metadata.userId} does not exist.`);
+    const u = snap.data();
+    const lockedSnapshot = await tx.get(skisRef.where('locked', '==', true));
 
-    transaction.update(userRef, {
+    tx.update(userRef, {
       stripeCustomerId: session.customer,
       stripeSubscriptionId: session.subscription,
       plan,
       lockedSkisCount: 0,
     });
-
-    lockedSkisSnapshot.forEach((doc) => {
-      transaction.update(doc.ref, { locked: false });
-    });
+    lockedSnapshot.forEach((doc) => tx.update(doc.ref, { locked: false }));
   });
 }
 
 async function handleSubscriptionDeleted(subscription) {
   const userId = subscription.metadata.userId;
   const userRef = db.collection('users').doc(userId);
-  const skisRef = userRef.collection('skis');
+  const skisCol = userRef.collection('skis');
 
-  await db.runTransaction(async (transaction) => {
-    const userDoc = await transaction.get(userRef);
-    if (!userDoc.exists) throw new Error(`User ${userId} does not exist.`);
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+    if (!snap.exists) throw new Error(`User ${userId} missing`);
 
-    const userData = userDoc.data();
-    const skiCount = userData.skiCount || 0;
-    const lockedSkisCount = userData.lockedSkisCount || 0;
-    const planLimits = { free: 12 };
-    const skiLimit = planLimits.free;
-    const unlockedSkisCount = skiCount - lockedSkisCount;
-    const skisToLockCount = Math.max(0, unlockedSkisCount - skiLimit);
+    const u = snap.data();
+    if (!u.stripeSubscriptionId) return; // idempotent
 
-    let skisToLockSnapshot = null;
-    if (skisToLockCount > 0) {
-      skisToLockSnapshot = await transaction.get(
-        skisRef.where('locked', '==', false).orderBy('dateAdded', 'desc').limit(skisToLockCount)
-      );
+    const limit = getPlanLimit('free');
+    const unlocked = (u.skiCount || 0) - (u.lockedSkisCount || 0);
+    let lockCount = Math.max(0, unlocked - limit);
+
+    if (lockCount) {
+      const q = skisCol.where('locked', '==', false).orderBy('dateAdded', 'desc').limit(lockCount);
+      (await tx.get(q)).forEach((d) => tx.update(d.ref, { locked: true }));
     }
 
-    transaction.update(userRef, {
+    tx.update(userRef, {
       plan: 'free',
       stripeSubscriptionId: admin.firestore.FieldValue.delete(),
+      lockedSkisCount: (u.lockedSkisCount || 0) + lockCount,
     });
-
-    if (skisToLockSnapshot) {
-      skisToLockSnapshot.forEach((doc) => {
-        transaction.update(doc.ref, { locked: true });
-      });
-      transaction.update(userRef, {
-        lockedSkisCount: admin.firestore.FieldValue.increment(skisToLockCount),
-      });
-    }
   });
-
-  const snap = await userRef.get();
-  if (snap.exists && snap.data().scheduledDeletion) {
-    await admin.auth().deleteUser(userId);
-    await userRef.delete();
-  }
 }
 
 async function handleSubscriptionUpdated(subscription) {
   const stripe = require('stripe')(process.env.STRIPE_SECRET);
   const userId = subscription.metadata.userId;
   const userRef = db.collection('users').doc(userId);
-  const skisRef = userRef.collection('skis');
+  const skisCol = userRef.collection('skis');
 
-  try {
-    const priceId = subscription.items.data[0]?.price.id;
-    const price = await stripe.prices.retrieve(priceId);
-    const product = await stripe.products.retrieve(price.product);
-    const newPlan = product.metadata.plan || 'free';
+  // Lookup plan + limit
+  const priceId = subscription.items.data[0].price.id;
+  const product = await stripe.products.retrieve((await stripe.prices.retrieve(priceId)).product);
+  const newPlan = product.metadata.plan || 'free';
+  const newLimit = getPlanLimit(newPlan);
 
-    await db.runTransaction(async (transaction) => {
-      const userDoc = await transaction.get(userRef);
-      if (!userDoc.exists) throw new Error(`User ${userId} does not exist.`);
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+    if (!snap.exists) throw new Error(`User ${userId} missing`);
 
-      const userData = userDoc.data();
-      const skiCount = userData.skiCount || 0;
-      const lockedSkisCount = userData.lockedSkisCount || 0;
-      const unlockedSkisCount = skiCount - lockedSkisCount;
+    const u = snap.data();
+    const unlockedNow = (u.skiCount || 0) - (u.lockedSkisCount || 0);
 
-      const planLimits = {
-        free: 6,
-        senior: 16,
-        senior_pluss: 40,
-        coach: 100,
-        company: 5000,
-      };
-      const newLimit = planLimits[newPlan] || 12;
+    // Downgrade → lock newest skis
+    let lockCount = Math.max(0, unlockedNow - newLimit);
+    if (lockCount) {
+      const qLock = skisCol.where('locked', '==', false).orderBy('dateAdded', 'desc').limit(lockCount);
+      (await tx.get(qLock)).forEach((d) => tx.update(d.ref, { locked: true }));
+    }
 
-      // Case: Too many unlocked skis → lock
-      const skisToLockCount = Math.max(0, unlockedSkisCount - newLimit);
-      if (skisToLockCount > 0) {
-        const skisToLockSnapshot = await transaction.get(
-          skisRef.where('locked', '==', false)
-            .orderBy('dateAdded', 'desc')
-            .limit(skisToLockCount)
-        );
-        skisToLockSnapshot.forEach((doc) => {
-          transaction.update(doc.ref, { locked: true });
-        });
-        transaction.update(userRef, {
-          lockedSkisCount: admin.firestore.FieldValue.increment(skisToLockCount),
-        });
-      }
+    // Upgrade → unlock oldest locked skis
+    let unlockCount = Math.max(0, newLimit - unlockedNow);
+    unlockCount = Math.min(unlockCount, u.lockedSkisCount || 0);
+    if (unlockCount) {
+      const qUnlock = skisCol.where('locked', '==', true).orderBy('dateAdded').limit(unlockCount);
+      (await tx.get(qUnlock)).forEach((d) => tx.update(d.ref, { locked: false }));
+    }
 
-      // Case: Enough room for unlocking → unlock
-      const skisToUnlockCount = Math.max(0, newLimit - unlockedSkisCount);
-      if (skisToUnlockCount > 0 && lockedSkisCount > 0) {
-        const actualUnlockCount = Math.min(skisToUnlockCount, lockedSkisCount);
-
-        const skisToUnlockSnapshot = await transaction.get(
-          skisRef.where('locked', '==', true)
-            .orderBy('dateAdded') // oldest locked skis first
-            .limit(actualUnlockCount)
-        );
-        skisToUnlockSnapshot.forEach((doc) => {
-          transaction.update(doc.ref, { locked: false });
-        });
-        transaction.update(userRef, {
-          lockedSkisCount: admin.firestore.FieldValue.increment(-actualUnlockCount),
-        });
-      }
-
-      transaction.update(userRef, { plan: newPlan });
+    tx.update(userRef, {
+      plan: newPlan,
+      lockedSkisCount: (u.lockedSkisCount || 0) + lockCount - unlockCount,
     });
-
-    console.log(`Updated user ${userId} to plan ${newPlan}`);
-  } catch (error) {
-    console.error(`Failed to update user plan:`, error);
-  }
+  });
+  console.log(`Updated user ${userId} to plan ${newPlan}`);
 }
 
-
-
-
-// ----------------------------------------------------------------
-// Firestore Triggers
-// ----------------------------------------------------------------
+/* ------------------------------------------------------------------
+   Firestore Triggers – skis add / delete (single‑write counters)
+   ------------------------------------------------------------------ */
 exports.onSkiCreated = onDocumentCreated('users/{userId}/skis/{skiId}', async (event) => {
   const { userId } = event.params;
   const userRef = db.collection('users').doc(userId);
-  const skiData = event.data.data();
+  const skiRef = event.data.ref;
 
-  const userDoc = await userRef.get();
-  if (!userDoc.exists) return;
-  const userData = userDoc.data();
-  const planLimits = {
-    free: 6,
-    senior: 16,
-    senior_pluss: 40,
-    coach: 100,
-    company: 5000,
-  };
-  const skiLimit = planLimits[userData.plan || 'free'] || 12;
-  const skiCount = userData.skiCount || 0;
-  const shouldLock = skiCount >= skiLimit;
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+    if (!snap.exists) return;
 
-  await userRef.firestore.runTransaction(async (transaction) => {
-    transaction.update(userRef, {
-      skiCount: admin.firestore.FieldValue.increment(1),
-      ...(shouldLock && { lockedSkisCount: admin.firestore.FieldValue.increment(1) }),
+    const u = snap.data();
+    const limit = getPlanLimit(u.plan);
+    const newSkiCount = (u.skiCount || 0) + 1;
+    const shouldLock = newSkiCount - (u.lockedSkisCount || 0) > limit;
+
+    tx.update(userRef, {
+      skiCount: newSkiCount,
+      lockedSkisCount: (u.lockedSkisCount || 0) + (shouldLock ? 1 : 0),
     });
-    transaction.update(event.data.ref, {
+    tx.update(skiRef, {
       locked: shouldLock,
       dateAdded: admin.firestore.FieldValue.serverTimestamp(),
     });
@@ -409,51 +363,34 @@ exports.onSkiCreated = onDocumentCreated('users/{userId}/skis/{skiId}', async (e
 
 exports.onSkiDeleted = onDocumentDeleted('users/{userId}/skis/{skiId}', async (event) => {
   const { userId } = event.params;
-  const skiData = event.data.data();
+  const wasLocked = event.data.data().locked;
   const userRef = db.collection('users').doc(userId);
-  const skisRef = userRef.collection('skis');
+  const skisCol = userRef.collection('skis');
 
-  const userDoc = await userRef.get();
-  if (!userDoc.exists) return;
-  const userData = userDoc.data();
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+    if (!snap.exists) return;
 
-  const planLimits = {
-    free: 6,
-    senior: 16,
-    senior_pluss: 40,
-    coach: 100,
-    company: 5000,
-  };
+    const u = snap.data();
+    const newSkiCount = (u.skiCount || 0) - 1;
+    const newLockedCount = (u.lockedSkisCount || 0) - (wasLocked ? 1 : 0);
+    const limit = getPlanLimit(u.plan);
+    const unlockedAfterDel = newSkiCount - newLockedCount;
 
-  const skiLimit = planLimits[userData.plan || 'free'] || 12;
-  const skiCount = userData.skiCount || 0;
-  const lockedSkisCount = userData.lockedSkisCount || 0;
-  const unlockedSkisCount = skiCount - lockedSkisCount;
-  const newUnlockedCount = skiData.locked ? unlockedSkisCount : unlockedSkisCount - 1;
-  const skisToUnlockCount = (newUnlockedCount < skiLimit && lockedSkisCount > 0)
-    ? skiLimit - newUnlockedCount
-    : 0;
-
-  await db.runTransaction(async (transaction) => {
-    const update = {
-      skiCount: admin.firestore.FieldValue.increment(-1),
-    };
-    if (skiData.locked) update.lockedSkisCount = admin.firestore.FieldValue.increment(-1);
-    transaction.update(userRef, update);
-
-    if (skisToUnlockCount > 0) {
-      const snapshot = await transaction.get(
-        skisRef.where('locked', '==', true).orderBy('dateAdded').limit(skisToUnlockCount)
-      );
-      snapshot.forEach((doc) => {
-        transaction.update(doc.ref, { locked: false });
-      });
-      transaction.update(userRef, {
-        lockedSkisCount: admin.firestore.FieldValue.increment(-skisToUnlockCount),
-      });
+    let toUnlock = 0;
+    if (unlockedAfterDel < limit && newLockedCount > 0) {
+      toUnlock = Math.min(limit - unlockedAfterDel, newLockedCount);
+      const q = skisCol.where('locked', '==', true).orderBy('dateAdded').limit(toUnlock);
+      (await tx.get(q)).forEach((d) => tx.update(d.ref, { locked: false }));
     }
+
+    tx.update(userRef, {
+      skiCount: newSkiCount,
+      lockedSkisCount: newLockedCount - toUnlock,
+    });
   });
 });
+
 
 // ----------------------------------------------------------------
 // Account Deletion Management
