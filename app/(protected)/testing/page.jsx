@@ -238,7 +238,7 @@ const Testing = () => {
       >
         <div>
           <div className="flex justify-between">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4 md:mb-5 mb-5">
+            <h1 className="text-3xl font-bold text-gray-900 mb-5">
               {t('round')} {roundNumber}/{totalRounds}
             </h1>
             <div className='space-x-2'>
@@ -285,7 +285,7 @@ const Testing = () => {
                               }))
                             }
                           />
-                          <VscGrabber size={25} className="flex w-full justify-self-center bg-sbtn rounded" />
+                          <VscGrabber size={25} className="flex w-full justify-self-center bg-gray-100 rounded" />
                         </div>
                       )}
                     </Draggable>

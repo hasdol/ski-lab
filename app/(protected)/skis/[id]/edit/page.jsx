@@ -26,7 +26,7 @@ const EditSkisPage = () => {
   if (!ski) return <div className="m-2">{t('ski_not_found')}</div>;
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="mx-auto">
       <Head>
         <title>Ski-Lab: Edit skis</title>
         <meta name="description" content="Edit skis" />

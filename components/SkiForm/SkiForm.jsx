@@ -135,7 +135,7 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
   };
 
   return (
-    <div className='max-w-4xl mx-auto animate-fade-up animate-duration-300'>
+    <div className='mx-auto animate-fade-up animate-duration-300'>
       <form onSubmit={handleSubmit} className="space-y-2">
         <Input
           label={t('serial_number')}

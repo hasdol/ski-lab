@@ -83,7 +83,7 @@ export default function SettingsPage() {
         <meta name="description" content="" />
       </Head>
 
-      <div className="max-w-4xl mx-auto animate-fade-up animate-duration-300">
+      <div className="mx-auto animate-fade-up animate-duration-300">
 
         {/* Back Button */}
         <div className="flex justify-between mb-5">
@@ -153,7 +153,7 @@ export default function SettingsPage() {
                       checked={english}
                       onChange={(e) => setEnglish(e.target.checked)}
                     />
-                    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-gray-300 transition duration-300 ease-in-out peer-checked:bg-btn after:absolute after:top-0.5 after:left-[2px] after:bg-btntxt after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-gray-300 transition duration-300 ease-in-out peer-checked:bg-blue-500 after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
                   </label>
                   <div className="flex items-center justify-center">
                     {english ? <Flag country="US" size={20} /> : <Flag country="NO" size={20} />}
@@ -175,7 +175,7 @@ export default function SettingsPage() {
                   checked={gloveMode}
                   onChange={(e) => setGloveMode(e.target.checked)}
                 />
-                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-gray-300 transition duration-300 ease-in-out peer-checked:bg-btn after:absolute after:top-0.5 after:left-[2px] after:bg-btntxt after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-gray-300 transition duration-300 ease-in-out peer-checked:bg-blue-500 after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
               </label>
               <div className="flex items-center justify-center">
                 {gloveMode ? <GiWinterGloves size={20} /> : <FaHandsClapping size={20} />}

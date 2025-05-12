@@ -87,7 +87,7 @@ const PlansPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-up animate-duration-300">
-      <div className="bg-white rounded-md p-6 md:p-8">
+      <div className="">
         <h1 className="text-3xl font-semibold text-center text-gray-800 mb-8">
           {t('pick_a_plan')}
         </h1>
@@ -105,7 +105,7 @@ const PlansPage = () => {
               return (
                 <div
                   key={plan.productId}
-                  className="bg-white rounded-md shadow-md overflow-hidden flex flex-col relative hover:shadow-lg transition"
+                  className="rounded-md shadow-md overflow-hidden flex flex-col relative hover:shadow-lg transition"
                 >
                   {isCurrent && (
                     <span className="absolute top-3 right-3 bg-gradient-to-br from-blue-500 to-indigo-500 text-white text-xs px-2 py-1 rounded">

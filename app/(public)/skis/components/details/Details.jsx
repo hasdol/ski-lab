@@ -310,8 +310,8 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
   }, [chartData, grindHistory]);
 
   return (
-    <div className="max-w-4xl mx-auto mt-2  rounded-md animate-fade-down animate-duration-300 relative">
-      <div className="bg-white rounded-md p-4 md:p-5">
+    <div className="mx-auto animate-fade-down animate-duration-300 relative">
+      <div className="p-4 ">
         {/* Ski Info Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5 border-b border-gray-300 pb-6">
 

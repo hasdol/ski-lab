@@ -35,7 +35,7 @@ const Account = () => {
       <Head>
         <title>Ski-Lab: {t('account')}</title>
       </Head>
-      <div className="max-w-4xl mx-auto animate-fade-up animate-duration-300">
+      <div className="mx-auto animate-fade-up animate-duration-300">
         <h1 className="text-3xl font-bold text-gray-900 mb-5">
           {t('account')}
         </h1>
