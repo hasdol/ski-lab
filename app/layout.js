@@ -1,7 +1,7 @@
 'use client'
 import './globals.css'
 import React from 'react'
-import { Mulish } from 'next/font/google'
+import { Comme } from 'next/font/google'
 import { usePathname } from 'next/navigation'
 import CookieConsent from '@/components/common/CookieConcent'
 import { AuthProvider } from '@/context/AuthContext'
@@ -9,8 +9,9 @@ import { UserPreferencesProvider } from '@/context/UserPreferencesContext'
 import { TournamentProvider } from '@/context/TournamentContext'
 import Navigation from '@/components/layout/Navigation'
 
-const roboto = Mulish({
+const roboto = Comme({
   weight: '400',
+  subsets: ['latin'],
 })
 
 
