@@ -225,7 +225,7 @@ const Skis = () => {
         <meta name="description" content="List of your added skis" />
       </Head>
 
-      <div className="container mx-auto animate-fade-up animate-duration-300">
+      <div className="container mx-auto animate-fade animate-duration-300">
         <h1 className="text-3xl font-bold text-gray-900 mb-5">
           {t('skipark')}
         </h1>
@@ -380,7 +380,7 @@ const Skis = () => {
         )}
 
         {/* No skis message */}
-        {sortedAndFilteredSkis.length === 0 && (
+        {sortedAndFilteredSkis.length === 0 && !loading && (
           <div className="my-4 mx-2">
             <div className="italic">{t('you_have_no')} {t('skis')}.</div>
           </div>
@@ -394,7 +394,7 @@ const Skis = () => {
             </div>
           ) : (
             viewMode === 'card' ? (
-              <div className={`flex flex-col   ${gloveMode ? 'grid grid-cols-2 gap-4' : 'space-y-2'}`}>
+              <div className={`flex flex-col animate-fade-down animate-duration-300  ${gloveMode ? 'grid grid-cols-2 gap-4' : 'space-y-2'}`}>
                 {sortedAndFilteredSkis.map(ski => (
                   <SkiItem
                     key={ski.id}
@@ -411,24 +411,27 @@ const Skis = () => {
                 ))}
               </div>
             ) : (
-              <SkiTable
-                skis={sortedAndFilteredSkis}
-                /* selection */
-                selectedSkis={selectedSkisMap}
-                onToggleSelect={handleCheckboxChange}
-                /* details */
-                expandedSkiId={expandedSkiId}
-                onToggleDetails={toggleDetails}
-                /* sorting */
-                sortField={sortField}
-                sortDirection={sortDirection}
-                onSort={handleSortChange}
-                /* row actions */
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onArchive={handleArchive}
-                onUnarchive={handleUnarchive}
-              />
+              <div className='animate-fade animate-duration-300 '>
+                <SkiTable
+                  skis={sortedAndFilteredSkis}
+                  /* selection */
+                  selectedSkis={selectedSkisMap}
+                  onToggleSelect={handleCheckboxChange}
+                  /* details */
+                  expandedSkiId={expandedSkiId}
+                  onToggleDetails={toggleDetails}
+                  /* sorting */
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={handleSortChange}
+                  /* row actions */
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onArchive={handleArchive}
+                  onUnarchive={handleUnarchive}
+                />
+              </div>
+
             )
           )}
         </div>

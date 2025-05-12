@@ -120,7 +120,7 @@ const Results = () => {
         <meta name="description" content="Displaying your test results" />
       </Head>
 
-      <div className="animate-fade-up animate-duration-300">
+      <div className="animate-fade animate-duration-300">
         <h1 className="text-3xl font-bold text-gray-900 mb-5">
           {t('results')}
         </h1>
@@ -178,7 +178,7 @@ const Results = () => {
             </div>
           ) : resultsToShow.length > 0 ? (
             resultsToShow.map((result) => (
-              <div key={result.id} className=" mb-5 animate-fade-down animate-duration-300 shadow rounded-md p-5">
+              <div key={result.id} className="animate-fade-down animate-duration-300 mb-5 shadow rounded-md p-5">
                 <div className="flex justify-between">
                   <div>
                     <h3 className="font-semibold text-xl">
@@ -240,7 +240,7 @@ const Results = () => {
                   </ul>
                 </div>
 
-                <div className="flex justify-end mt-2 p-4">
+                <div className="flex justify-end mt-2">
                   <div className="flex items-center space-x-2 text-sm text-gray-600">
                     <span>{new Date(result.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     <span>{new Date(result.timestamp.seconds * 1000).toLocaleDateString()}</span>

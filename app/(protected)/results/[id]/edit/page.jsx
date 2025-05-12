@@ -17,6 +17,7 @@ import {
   // we'll add this util in teamFunctions
   unshareTestResult,
 } from '@/lib/firebase/teamFunctions'
+import Spinner from '@/components/common/Spinner/Spinner'
 
 const EditResultPage = () => {
   const { t } = useTranslation()
@@ -133,7 +134,7 @@ const EditResultPage = () => {
     }
   }
 
-  if (loading) return <div>{t('loading')}...</div>
+  if (loading) return <div className='flex justify-center'><Spinner /></div>
   if (error) return <div>Error: {error.message}</div>
   if (!resultData) return <div>{t('no_result_data_found')}</div>
 
@@ -143,7 +144,7 @@ const EditResultPage = () => {
         <title>SkiLab: {t('edit_result')}</title>
         <meta name="description" content="Edit result" />
       </Head>
-      <div className="max-w-4xl mx-auto animate-fade-up animate-duration-300">
+      <div className="mx-auto animate-fade-up animate-duration-300">
         <h1 className="text-3xl font-bold text-gray-900 mb-5">
           {t('edit_result')}
         </h1>
@@ -158,7 +159,7 @@ const EditResultPage = () => {
             </div>
           ))}
 
-          <h3 className="mt-5 mb-2 text-2xl font-semibold text-dominant">{t('test_details')}</h3>
+          <h3 className="mt-10 mb-2 text-2xl font-semibold text-gray-800">{t('test_details')}</h3>
           <div className="space-y-4">
             {/* Metadata fields… */}
             <Input type="text" name="location" placeholder={t('location')} value={resultData.location} onChange={handleInputChange} required />
