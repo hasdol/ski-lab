@@ -15,6 +15,8 @@ import { useProfileActions } from '@/hooks/useProfileActions';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
 import Flag from 'react-flagkit';
+import { RebuildSkiKeywords } from './components/RebuildSkiKeywords';
+
 
 export default function SettingsPage() {
   const { user, userData } = useAuth();
@@ -195,7 +197,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-
+          <RebuildSkiKeywords/>
         </div>
       </div>
     </>

@@ -47,6 +47,7 @@ const Results = () => {
     loadMore,
     exhausted,
     loading,
+    refresh,
   } = usePaginatedResults({
     term: debouncedSearch,
     temp: tempRange,
@@ -91,6 +92,7 @@ const Results = () => {
     }
     setModalOpen(false);
     setCurrentTestId(null);
+    refresh();
   };
 
   // Highlight matches in any text

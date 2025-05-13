@@ -14,6 +14,14 @@ export const buildKeywords = (data, lng = 'en') => {
     t(data.snowCondition?.grainType),
     t(data.snowCondition?.source),
     ...(data.rankings ?? []).flatMap(r => [r.brand, r.serialNumber, r.grind]),
+
+    /* --- SKI‑specific --------------------------------- */
+    data.serialNumber,              // SNR
+    data.brand,
+    data.model,
+    data.grind,
+    data.base,
+    data.skiType,                   // cold / universal / warm
   ]
     .filter(Boolean)
     .flatMap(s => s.toString().toLowerCase().trim().split(/[\s‑-]+/)); // split on space/dash

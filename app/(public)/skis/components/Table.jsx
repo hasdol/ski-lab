@@ -15,9 +15,11 @@ import {
 
 import Button from '@/components/common/Button';
 import SkiDetails from './details/Details';
+import highlight from '@/helpers/highlightSearchTerm';
 
 const SkiTable = ({
   skis,
+  search = '',
   /* selection */
   selectedSkis = {},
   onToggleSelect,
@@ -184,11 +186,11 @@ const SkiTable = ({
                   </td>
 
                   {/* Data columns */}
-                  <td className="p-2">{ski.serialNumber || '--'}</td>
-                  <td className="p-2">{t(ski.style) || '--'}</td>
-                  <td className="p-2">{ski.brand || '--'}</td>
-                  <td className="p-2">{ski.model || '--'}</td>
-                  <td className="p-2">{ski.grind || '--'}</td>
+                  <td className="p-2">{highlight(ski.serialNumber, search)}</td>
+                  <td className="p-2">{highlight(t(ski.style), search)}</td>
+                  <td className="p-2">{highlight(ski.brand, search)}</td>
+                  <td className="p-2">{highlight(ski.model, search)}</td>
+                  <td className="p-2">{highlight(ski.grind, search)}</td>
                   <td className="p-2">{ski.base || '--'}</td>
                   <td className="p-2">{ski.length || '--'}</td>
                   <td className="p-2">{ski.stiffness || '--'}</td>

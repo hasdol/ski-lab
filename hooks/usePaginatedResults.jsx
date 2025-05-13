@@ -88,7 +88,7 @@ const usePaginatedResults = ({ term = '', temp = [-100, 100], style = 'all', sor
 
   useEffect(() => { refresh(); }, [refresh]);
 
-  return { docs, loadMore, exhausted, loading };
+  return { docs, loadMore, exhausted, loading, refresh };
 };
 
 export default usePaginatedResults;
