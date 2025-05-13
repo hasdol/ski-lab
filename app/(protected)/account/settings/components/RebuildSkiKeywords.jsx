@@ -1,45 +1,49 @@
-import {
-  collection,
-  getDocs,
-  updateDoc,
-  doc,
-  writeBatch
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';     // ← your existing config
+// src/components/ReindexSkiKeywords.js
+'use client';
+
+import React, { useState } from 'react';
+import { collection, getDocs, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
+import { buildKeywords } from '@/helpers/buildKeywords';
 import { useAuth } from '@/context/AuthContext';
-import { buildKeywords } from '@/helpers/buildKeywords'; // ← updated helper
+import Button from '@/components/common/Button';
 
-/**
- * Re‑generate keywords_en / keywords_no for *every* ski that belongs to
- * the currently signed‑in user.
- * Splits the work into batches of 500 (Firestore’s limit).
- */
-export async function RebuildSkiKeywords() {
-  const { user } = useAuth.getState?.() ?? {}; // ← grab auth any way you like
-  if (!user?.uid) throw new Error('Need to be signed in first');
+export default function ReindexSkiKeywords() {
+  const { user } = useAuth();
+  const [running, setRunning] = useState(false);
 
-  const snap = await getDocs(
-    collection(db, `users/${user.uid}/skis`)
+  const handleReindex = async () => {
+    if (!user) {
+      alert('You must be signed in.');
+      return;
+    }
+
+    setRunning(true);
+    try {
+      // 1️⃣  load *all* skis for the current user
+      const skisCol = collection(db, `users/${user.uid}/skis`);
+      const snap = await getDocs(skisCol);
+
+      // 2️⃣  recompute keyword arrays, write back
+      for (const docSnap of snap.docs) {
+        const data = docSnap.data();
+        const keywords_en = buildKeywords(data, 'en');
+        const keywords_no = buildKeywords(data, 'no');
+        await updateDoc(docSnap.ref, { keywords_en, keywords_no });
+      }
+
+      alert('✅ Re‑indexed all of your skis');
+    } catch (err) {
+      console.error('Reindex failed:', err);
+      alert('⚠️ Error reindexing — see console for details');
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  return (
+    <Button onClick={handleReindex} disabled={running} variant="secondary">
+      {running ? 'Re‑indexing…' : 'Re‑index My Ski Keywords'}
+    </Button>
   );
-  if (snap.empty) {
-    console.log('No skis found — nothing to rebuild.');
-    return;
-  }
-
-  const CHUNK = 500;
-  const docs = snap.docs;
-  for (let i = 0; i < docs.length; i += CHUNK) {
-    const batch = writeBatch(db);
-    docs.slice(i, i + CHUNK).forEach((d) => {
-      const data = d.data();
-      batch.update(doc(db, d.ref.path), {
-        keywords_en: buildKeywords(data, 'en'),
-        keywords_no: buildKeywords(data, 'no')
-      });
-    });
-    await batch.commit();           // ⏱ ~6 KB write quota per doc
-    console.log(`Updated ${Math.min(i + CHUNK, docs.length)}/${docs.length}`);
-  }
-  console.log('✅  Finished rebuilding ski keywords');
 }
-
