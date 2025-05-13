@@ -246,6 +246,10 @@
   "edit_skis": "Rediger skipar",
   "edit_result": "Rediger resultat",
   "upgrade_to_unlock": "Oppgrader for å låse opp",
-  "shared_in_events": "Delt i følgende arrangementer"
+  "shared_in_events": "Delt i følgende arrangementer",
+  "type_min_chars": "Min. 3 bokstaver",
+  "temp_filter": "Temperatur filter",
+  "snr_location": "Snr, sted",
+  "no_results": "Ingen resultater"
   
 }

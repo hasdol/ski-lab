@@ -1,6 +1,6 @@
 // src/components/Filter/Filter.js
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Drawer,
@@ -20,7 +20,7 @@ const Filter = ({
     open,
     onClose,
     tempRange,
-    handleTempChange,
+    onTempCommit,
     sortOrder,
     setSortOrder,
     resetFilter,
@@ -28,6 +28,10 @@ const Filter = ({
     setStyleFilter,
 }) => {
     const { t } = useTranslation();
+
+    // Local range for smooth sliding without re‑queries
+    const [localRange, setLocalRange] = useState(tempRange);
+    useEffect(() => setLocalRange(tempRange), [tempRange]); // keep in sync
 
     return (
         <Drawer anchor="right" open={open} onClose={onClose}>
@@ -69,13 +73,14 @@ const Filter = ({
                 </Box>
 
                 {/* Filter by Temperature */}
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, mt:4 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, mt: 4 }}>
                     <FaTemperatureThreeQuarters size={24} style={{ marginRight: 8 }} />
                     <Typography variant="subtitle1">{t('temp_range')}</Typography>
                 </Box>
                 <Slider
-                    value={tempRange}
-                    onChange={handleTempChange}
+                    value={localRange}
+                    onChange={(_, val) => setLocalRange(val)}
+                    onChangeCommitted={(_, val) => onTempCommit(val)}
                     valueLabelDisplay="on"
                     sx={{ color: 'var(--color-btn)' }}
                     min={-35}
@@ -83,31 +88,31 @@ const Filter = ({
                 />
 
                 {/* Bottom Buttons */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                  <Button
-                    sx={{
-                      flex: 1,
-                      backgroundColor: 'oklch(37.1% 0 0)',
-                      color: 'white',
-                      px: 4,
-                      py:1
-                    }}
-                    onClick={resetFilter}
-                  >
-                    {t('reset')}
-                  </Button>
-                  <Button
-                    sx={{
-                      flex: 1,
-                      backgroundColor: 'oklch(92.2% 0 0)',
-                      color: 'black',
-                      px: 2,
-                      py:1
-                    }}
-                    onClick={onClose}
-                  >
-                    {t('close')}
-                  </Button>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                    <Button
+                        sx={{
+                            flex: 1,
+                            backgroundColor: 'oklch(37.1% 0 0)',
+                            color: 'white',
+                            px: 4,
+                            py: 1
+                        }}
+                        onClick={resetFilter}
+                    >
+                        {t('reset')}
+                    </Button>
+                    <Button
+                        sx={{
+                            flex: 1,
+                            backgroundColor: 'oklch(92.2% 0 0)',
+                            color: 'black',
+                            px: 2,
+                            py: 1
+                        }}
+                        onClick={onClose}
+                    >
+                        {t('close')}
+                    </Button>
                 </Box>
             </Box>
         </Drawer>

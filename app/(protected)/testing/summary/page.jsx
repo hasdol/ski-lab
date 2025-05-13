@@ -9,7 +9,6 @@ import ResultList from './components/ResultList';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { useTranslation } from 'react-i18next';
 import { TournamentContext } from '@/context/TournamentContext';
-import { RiDeleteBinLine } from 'react-icons/ri';
 import { addTestResult } from '@/lib/firebase/firestoreFunctions';
 import { shareTestResult } from '@/lib/firebase/teamFunctions';
 import Button from '@/components/common/Button';

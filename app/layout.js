@@ -1,7 +1,6 @@
 'use client'
 import './globals.css'
 import React from 'react'
-import { Comme } from 'next/font/google'
 import { usePathname } from 'next/navigation'
 import CookieConsent from '@/components/common/CookieConcent'
 import { AuthProvider } from '@/context/AuthContext'
@@ -9,18 +8,13 @@ import { UserPreferencesProvider } from '@/context/UserPreferencesContext'
 import { TournamentProvider } from '@/context/TournamentContext'
 import Navigation from '@/components/layout/Navigation'
 
-const roboto = Comme({
-  weight: '400',
-  subsets: ['latin'],
-})
-
 
 export default function RootLayout({ children }) {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
 
   return (
-    <html lang="en" className={roboto.className}>
+    <html lang="en" >
       <body className="min-h-screen  text-text">
         <AuthProvider>
           <UserPreferencesProvider>

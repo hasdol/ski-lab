@@ -1,13 +1,19 @@
-'use client'
-import React, { useEffect, useState } from 'react';
+'use client';
+import React, { useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { RiFilter2Fill, RiFilter2Line, RiEditLine, RiDeleteBinLine, RiCloseLine } from 'react-icons/ri';
+import {
+  RiFilter2Fill,
+  RiFilter2Line,
+  RiEditLine,
+  RiDeleteBinLine,
+  RiCloseLine,
+} from 'react-icons/ri';
+import { useDebounce } from 'use-debounce';
 
-import useTournamentResults from '@/hooks/useTournamentResults';
+import usePaginatedResults from '@/hooks/usePaginatedResults';
 import { useAuth } from '@/context/AuthContext';
-import { isNew } from '@/helpers/helpers';
 import Filter from './components/Filter';
 import Spinner from '@/components/common/Spinner/Spinner';
 import ResultsSearch from './components/Search';
@@ -16,73 +22,53 @@ import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
 import Button from '@/components/common/Button';
 
 const Results = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [resultsToShow, setResultsToShow] = useState([]);
-  const [sortOrder, setSortOrder] = useState('desc');
+  // ------------------------------------------------------------
+  // Local UI state
+  // ------------------------------------------------------------
+  const [searchTermRaw, setSearchTermRaw] = useState('');
+  const [debouncedSearch] = useDebounce(searchTermRaw.toLowerCase(), 300);
   const [tempRange, setTempRange] = useState([-30, 30]);
-  const [defaultTempRange, setDefaultTempRange] = useState([-30, 30]);
+  const defaultTempRange = [-30, 30];
   const [styleFilter, setStyleFilter] = useState('all');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentTestId, setCurrentTestId] = useState(null);
 
-  const { results, loading, error } = useTournamentResults();
   const { t } = useTranslation();
   const { user } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    if (results.length > 0) {
-      const temps = results.map((r) => r.temperature);
-      const min = Math.min(...temps);
-      const max = Math.max(...temps);
-      setTempRange([min, max]);
-      setDefaultTempRange([min, max]);
-    }
-  }, [results]);
+  // ------------------------------------------------------------
+  // Data hook – pulls a page at a time
+  // ------------------------------------------------------------
+  const {
+    docs: resultsToShow,
+    loadMore,
+    exhausted,
+    loading,
+  } = usePaginatedResults({
+    term: debouncedSearch,
+    temp: tempRange,
+    style: styleFilter,
+  });
 
-  const handleTempChange = (_, newVal) => setTempRange(newVal);
+  // ------------------------------------------------------------
+  // Handlers
+  // ------------------------------------------------------------
+  const handleSearch = (val) => {
+    setSearchTermRaw(val);
+  };
+  const handleTempCommit = (newVal) => setTempRange(newVal);
   const toggleFilter = () => setIsFilterOpen((prev) => !prev);
   const resetFilter = () => {
-    setSearchTerm('');
-    setSortOrder('desc');
+    setSearchTermRaw('');
     setTempRange(defaultTempRange);
     setStyleFilter('all');
   };
-
   const isFilterActive =
-    searchTerm.trim() !== '' ||
-    sortOrder !== 'desc' ||
     tempRange[0] !== defaultTempRange[0] ||
     tempRange[1] !== defaultTempRange[1] ||
     styleFilter !== 'all';
-
-  useEffect(() => {
-    const filtered = results
-      .filter((result) => {
-        if (styleFilter !== 'all' && result.style !== styleFilter) return false;
-        const text = searchTerm.toLowerCase();
-        const match = (val) => val?.toLowerCase().includes(text);
-        return (
-          match(t(result.style, { lng: 'en' })) ||
-          match(t(result.style, { lng: 'no' })) ||
-          match(result.location) ||
-          match(t(result.snowCondition?.grainType, { lng: 'en' })) ||
-          match(t(result.snowCondition?.grainType, { lng: 'no' })) ||
-          match(t(result.snowCondition?.source, { lng: 'en' })) ||
-          match(t(result.snowCondition?.source, { lng: 'no' })) ||
-          result.rankings?.some((r) =>
-            match(r.serialNumber) || match(r.grind) || match(r.brand)
-          )
-        ) && result.temperature >= tempRange[0] && result.temperature <= tempRange[1];
-      })
-      .sort((a, b) =>
-        sortOrder === 'asc'
-          ? a.timestamp.seconds - b.timestamp.seconds
-          : b.timestamp.seconds - a.timestamp.seconds
-      );
-    setResultsToShow(filtered);
-  }, [results, searchTerm, sortOrder, tempRange, t, styleFilter]);
 
   const handleEdit = (id) => router.push(`/results/${id}/edit`);
   const handleDelete = (id) => {
@@ -90,11 +76,12 @@ const Results = () => {
     setCurrentTestId(id);
     setModalOpen(true);
   };
-
   const handleModalConfirm = async () => {
     try {
-      const response = await deleteTestResultEverywhere({ userId: user.uid, testId: currentTestId });
-      setResultsToShow((prev) => prev.filter((r) => r.id !== currentTestId));
+      const response = await deleteTestResultEverywhere({
+        userId: user.uid,
+        testId: currentTestId,
+      });
       alert(response.message);
     } catch (err) {
       console.error('Error deleting test result:', err);
@@ -104,15 +91,25 @@ const Results = () => {
     setCurrentTestId(null);
   };
 
+  // Highlight matches in any text
   const highlightSearchTerm = (text) => {
-    if (!searchTerm) return text;
-    return text.split(new RegExp(`(${searchTerm})`, 'gi')).map((part, i) =>
-      part.toLowerCase() === searchTerm.toLowerCase() ? <mark key={i}>{part}</mark> : part
-    );
+    if (!debouncedSearch) return text;
+    return text
+      .split(new RegExp(`(${debouncedSearch})`, 'gi'))
+      .map((part, i) =>
+        part.toLowerCase() === debouncedSearch ? (
+          <mark key={i} className="bg-yellow-200 text-gray-900">
+            {part}
+          </mark>
+        ) : (
+          part
+        )
+      );
   };
 
-  if (error) return <div className="m-2">{t('error_loading_results')}: {error.message}</div>;
-
+  // ------------------------------------------------------------
+  // Render
+  // ------------------------------------------------------------
   return (
     <>
       <Head>
@@ -125,134 +122,210 @@ const Results = () => {
           {t('results')}
         </h1>
 
+        {/* Search + filter button */}
         <div className="flex items-end justify-between mb-4">
-          <ResultsSearch onSearchChange={setSearchTerm} />
+          <ResultsSearch onSearch={handleSearch} />
           <div className="flex flex-col items-center w-fit">
             <label className="text-sm font-semibold mb-1">{t('filter')}</label>
             <Button
               onClick={toggleFilter}
               variant="secondary"
-              className={`${isFilterActive ? 'text-gray-800' : ''}`}
+              className={isFilterActive ? 'text-gray-800' : ''}
             >
               {isFilterActive ? <RiFilter2Fill /> : <RiFilter2Line />}
             </Button>
           </div>
         </div>
 
+        {/* Active filter chips */}
         {isFilterActive && (
           <div className="flex space-x-2 text-sm mx-2 mt-2">
-            {searchTerm && (
-              <Button variant="secondary" onClick={() => setSearchTerm('')}>
-                <span className="flex">{searchTerm} <RiCloseLine /></span>
-              </Button>
-            )}
             {styleFilter !== 'all' && (
-              <Button variant="secondary" onClick={() => setStyleFilter('all')}>
-                <span className="flex">{t(styleFilter)} <RiCloseLine /></span>
+              <Button
+                variant="secondary"
+                onClick={() => setStyleFilter('all')}
+              >
+                <span className="flex">
+                  {t(styleFilter)} <RiCloseLine />
+                </span>
               </Button>
             )}
-            {(sortOrder !== 'desc' || tempRange[0] !== defaultTempRange[0] || tempRange[1] !== defaultTempRange[1]) && (
-              <Button variant="secondary" onClick={resetFilter}>
-                <span className="flex">{t('reset_filters')} <RiCloseLine /></span>
-              </Button>
-            )}
+            {(tempRange[0] !== defaultTempRange[0] ||
+              tempRange[1] !== defaultTempRange[1]) && (
+                <Button variant="secondary" onClick={resetFilter}>
+                  <span className="flex">
+                    {t('temp_filter')} <RiCloseLine />
+                  </span>
+                </Button>
+              )}
           </div>
         )}
 
+        {/* Filter drawer */}
         <Filter
           open={isFilterOpen}
           onClose={toggleFilter}
           tempRange={tempRange}
-          handleTempChange={handleTempChange}
-          sortOrder={sortOrder}
-          setSortOrder={setSortOrder}
-          resetFilter={resetFilter}
+          onTempCommit={handleTempCommit}
           styleFilter={styleFilter}
           setStyleFilter={setStyleFilter}
+          resetFilter={resetFilter}
         />
 
-        <div className="my-4">
-          {loading ? (
-            <div className="flex justify-center items-center mt-10">
+        {/* Results list */}
+        <div className="my-10">
+          {loading && resultsToShow.length === 0 ? (
+            <div className="flex justify-center items-center h-64">
               <Spinner />
             </div>
-          ) : resultsToShow.length > 0 ? (
-            resultsToShow.map((result) => (
-              <div key={result.id} className="animate-fade-down animate-duration-300 mb-5 shadow rounded-md p-5">
-                <div className="flex justify-between">
-                  <div>
-                    <h3 className="font-semibold text-xl">
-                      {highlightSearchTerm(t(result.style))} / {highlightSearchTerm(`${result.temperature}°C`)}
-                    </h3>
-                    <i className="text-sm">{highlightSearchTerm(result.location)}</i>
+          ) : resultsToShow.length === 0 ? (
+            <p className="text-center text-gray-500 mt-10">
+              {t('no_results')}
+            </p>
+          ) : (
+            <div className="grid gap-4">
+              {resultsToShow.map((result) => (
+                <div
+                  key={result.id}
+                  className="shadow rounded-md p-5 flex flex-col justify-between animate-fade-down animate-duration-300 space-y-5"
+                >
+                  {/* header */}
+                  <div className="flex justify-between">
+                    <div>
+                      <h3 className="font-semibold text-xl">
+                        {highlightSearchTerm(t(result.style))} /{' '}
+                        {highlightSearchTerm(`${result.temperature}°C`)}
+                      </h3>
+                      <i className="text-sm">
+                        {highlightSearchTerm(result.location)}
+                      </i>
+                    </div>
+                    <div className="space-x-2 shrink-0">
+                      <Button
+                        onClick={() => handleEdit(result.id)}
+                        variant="secondary"
+                      >
+                        <RiEditLine />
+                      </Button>
+                      <Button
+                        onClick={() => handleDelete(result.id)}
+                        variant="danger"
+                      >
+                        <RiDeleteBinLine />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="space-x-2">
-                    <Button onClick={() => handleEdit(result.id)} variant="secondary">
-                      <RiEditLine />
-                    </Button>
-                    <Button onClick={() => handleDelete(result.id)} variant="danger">
-                      <RiDeleteBinLine />
-                    </Button>
-                  </div>
-                </div>
 
-                <ul className="my-2 space-y-2">
-                  {result.rankings.map((ranking, index) => (
-                    <li key={index} className="flex py-1">
-                      <span className="flex items-center w-1/3">
-                        {highlightSearchTerm(ranking.skiId ? ranking.serialNumber : t('deleted'))}
-                        {isNew(ranking) && (
-                          <div className="flex items-center">
-                            <span className="mx-2">-</span>
-                            <p className="text-highlight text-xs"> {t('new')}</p>
-                          </div>
-                        )}
+                  {/* ranking table */}
+                  <ul className="space-y-2">
+                    {result.rankings.map((ranking, idx) => (
+                      <li
+                        key={idx}
+                        className="flex py-1 text-sm"
+                      >
+                        <span className="flex items-center w-1/3">
+                          {highlightSearchTerm(
+                            ranking.skiId
+                              ? ranking.serialNumber
+                              : t('deleted')
+                          )}
+                          {ranking.score === 0 && (
+                            <span className="mx-2 text-highlight text-xs">
+                              {t('new')}
+                            </span>
+                          )}
+                        </span>
+                        <span className="w-1/3 text-center">
+                          {highlightSearchTerm(ranking.grind)}
+                        </span>
+                        <span className="w-1/3 text-end">
+                          {ranking.score}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className='border border-gray-300'></div>
+
+                  {/* extra meta */}
+                  <ul className="grid grid-cols-2 gap-4 text-sm">
+                    <li className="flex flex-col">
+                      <span className="text-gray-700">{t('humidity')}:</span>
+                      <span className="font-semibold">
+                        {result.humidity != ""
+                          ? `${result.humidity}%`
+                          : '--'}
                       </span>
-                      <span className="w-1/3 text-center">{highlightSearchTerm(ranking.grind)}</span>
-                      <span className="w-1/3 text-end">{ranking.score}</span>
                     </li>
-                  ))}
-                </ul>
+                    <li className="flex flex-col">
+                      <span className="text-gray-700">{t('snow_temperature')}:</span>
+                      <span className="font-semibold">
 
-                <div className="my-5">
-                  <p className="border-t border-gray-300 mb-4"></p>
-                  <ul className="text-sm grid grid-cols-2 gap-2">
-                    <li className="flex flex-col">
-                      {t('snow_type')}
-                      <div className="font-semibold text-base">{highlightSearchTerm(t(result.snowCondition?.grainType))}</div>
+                        {result.snowTemperature != ""
+                          ? `${result.snowTemperature}°C`
+                          : '--'}
+                      </span>
                     </li>
                     <li className="flex flex-col">
-                      {t('snow_source')}
-                      <div className="font-semibold text-base">{highlightSearchTerm(t(result.snowCondition?.source))}</div>
+                      <span className="text-gray-700">{t('snow_source')}:</span>
+                      <span className="font-semibold">
+                        {result.snowCondition?.source
+                          ? highlightSearchTerm(t(result.snowCondition.source))
+                          : '--'}
+                      </span>
                     </li>
                     <li className="flex flex-col">
-                      {t('snow_temperature')}
-                      <div className="font-semibold text-base">{result?.snowTemperature || '--'}</div>
+                      <span className="text-gray-700">{t('snow_type')}:</span>
+                      <span className="font-semibold">
+                        {result.snowCondition?.grainType
+                          ? highlightSearchTerm(t(result.snowCondition.grainType))
+                          : '--'}
+                      </span>
                     </li>
-                    <li className="flex flex-col">
-                      {t('humidity')}
-                      <div className="font-semibold text-base">{result?.humidity || '--'}</div>
-                    </li>
-                    <li className="flex flex-col col-span-2">
-                      {t('comment')}
-                      <div className="font-semibold text-base">{result?.comment || '--'}</div>
+                    <li className="col-span-2 flex flex-col">
+                      <span className="text-gray-700">{t('comment')}:</span>
+                      <span className="font-semibold">
+                        {result.comment
+                          ? highlightSearchTerm(result.comment)
+                          : '--'}
+                      </span>
                     </li>
                   </ul>
-                </div>
 
-                <div className="flex justify-end mt-2">
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <span>{new Date(result.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    <span>{new Date(result.timestamp.seconds * 1000).toLocaleDateString()}</span>
+
+
+
+                  {/* timestamp */}
+                  <div className="flex justify-end mt-2 text-xs text-gray-600">
+                    <span>
+                      {new Date(
+                        result.timestamp.seconds * 1000
+                      ).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                    <span className="ml-2">
+                      {new Date(
+                        result.timestamp.seconds * 1000
+                      ).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
-              </div>
-            ))) : (
-            <div className="my-4 italic">{t('no_test_results_available')}.</div>
+              ))}
+            </div>
+          )}
+
+          {/* Load more button */}
+          {!exhausted && !loading && (
+            <div className="flex justify-center my-4">
+              <Button onClick={loadMore}>{t('load_more')}</Button>
+            </div>
           )}
         </div>
       </div>
 
+      {/* Delete-confirmation modal */}
       <DeleteTestModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}

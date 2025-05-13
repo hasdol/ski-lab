@@ -12,12 +12,13 @@ import Input from '@/components/common/Input'
 import Button from '@/components/common/Button'
 import ShareWithEventSelector from '@/app/(protected)/testing/summary/components/ShareWithEvents'
 import {
-  updateTestResultBothPlaces,
   shareTestResult,
   // we'll add this util in teamFunctions
   unshareTestResult,
 } from '@/lib/firebase/teamFunctions'
 import Spinner from '@/components/common/Spinner/Spinner'
+import { updateTestResultBothPlaces } from '@/lib/firebase/firestoreFunctions'
+
 
 const EditResultPage = () => {
   const { t } = useTranslation()

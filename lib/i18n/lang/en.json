@@ -248,5 +248,9 @@
   "edit_skis": "Edit skis",
   "edit_result": "Edit result",
   "upgrade_to_unlock": "Upgrade to unlock",
-  "shared_in_events": "Shared in events"
+  "shared_in_events": "Shared in events",
+  "type_min_chars": "Min. 3 characters",
+  "temp_filter": "Temperature filter",
+  "snr_location": "Snr, location",
+  "no_results": "No results"
 }
