@@ -10,7 +10,6 @@ import Button from '@/components/common/Button';
 import { useRouter } from 'next/navigation';
 import ManageSubscription from '@/app/(protected)/account/components/ManageSubscription';
 import Spinner from '@/components/common/Spinner/Spinner';
-import ReindexMyKeywords from './components/ReindexMyKeywords';
 
 const Account = () => {
   const { user, userData } = useAuth();
@@ -119,7 +118,6 @@ const Account = () => {
               </div>
             </div>
           </div>
-          <ReindexMyKeywords/>
         </div>
       </div>
     </>
