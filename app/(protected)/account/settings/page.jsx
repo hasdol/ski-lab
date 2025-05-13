@@ -15,7 +15,7 @@ import { useProfileActions } from '@/hooks/useProfileActions';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
 import Flag from 'react-flagkit';
-import { RebuildSkiKeywords } from './components/RebuildSkiKeywords';
+import ReindexSkiKeywords from './components/ReindexSkiKeywords';
 
 
 export default function SettingsPage() {
@@ -197,7 +197,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-          <RebuildSkiKeywords/>
+          <ReindexSkiKeywords/>
         </div>
       </div>
     </>
