@@ -31,6 +31,7 @@ const Results = () => {
   const defaultTempRange = [-30, 30];
   const [styleFilter, setStyleFilter] = useState('all');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState('desc');
   const [modalOpen, setModalOpen] = useState(false);
   const [currentTestId, setCurrentTestId] = useState(null);
 
@@ -50,6 +51,7 @@ const Results = () => {
     term: debouncedSearch,
     temp: tempRange,
     style: styleFilter,
+    sortOrder,
   });
 
   // ------------------------------------------------------------
@@ -169,6 +171,8 @@ const Results = () => {
           onTempCommit={handleTempCommit}
           styleFilter={styleFilter}
           setStyleFilter={setStyleFilter}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
           resetFilter={resetFilter}
         />
 
