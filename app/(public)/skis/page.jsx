@@ -34,7 +34,7 @@ import {
   RiShoppingCartLine,
 } from 'react-icons/ri';
 import { MdFastForward } from 'react-icons/md';
-import ResultsSearch from '../results/components/Search';
+import ResultsSearch from '../../../components/Search/Search';
 
 const Skis = () => {
   const { t } = useTranslation();
@@ -334,7 +334,7 @@ const Skis = () => {
         {(styleFilter !== 'all' ||
           skiTypeFilter !== 'all' ||
           archivedFilter !== 'notArchived') && (
-          <div className="flex space-x-2 text-sm mx-2 mt-2">
+          <div className="flex space-x-2 text-sm  mt-2">
             {styleFilter !== 'all' && (
               <Button
                 variant="secondary"

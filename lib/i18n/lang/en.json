@@ -252,5 +252,7 @@
   "type_min_chars": "Min. 3 characters",
   "temp_filter": "Temperature filter",
   "snr_location": "Snr, location",
-  "no_results": "No results"
+  "no_results": "No results",
+  "go_to_test": "View test",
+  "number_of_tests": "Number of tests"
 }

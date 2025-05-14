@@ -16,7 +16,7 @@ import usePaginatedResults from '@/hooks/usePaginatedResults';
 import { useAuth } from '@/context/AuthContext';
 import Filter from './components/Filter';
 import Spinner from '@/components/common/Spinner/Spinner';
-import ResultsSearch from './components/Search';
+import ResultsSearch from '../../../components/Search/Search';
 import DeleteTestModal from '@/components/DeleteTestModal/DeleteTestModal';
 import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
 import Button from '@/components/common/Button';
@@ -127,7 +127,7 @@ const Results = () => {
         </h1>
 
         {/* Search + filter button */}
-        <div className="flex items-end justify-between mb-4">
+        <div className="flex items-end justify-between mb-2">
           <ResultsSearch onSearch={handleSearch} />
           <div className="flex flex-col items-center w-fit">
             <label className="text-sm font-semibold mb-1">{t('filter')}</label>
@@ -143,7 +143,7 @@ const Results = () => {
 
         {/* Active filter chips */}
         {isFilterActive && (
-          <div className="flex space-x-2 text-sm mx-2 mt-2">
+          <div className="flex space-x-2 text-sm">
             {styleFilter !== 'all' && (
               <Button
                 variant="secondary"
@@ -179,7 +179,7 @@ const Results = () => {
         />
 
         {/* Results list */}
-        <div className="my-10">
+        <div className="my-5">
           {loading && resultsToShow.length === 0 ? (
             <div className="flex justify-center items-center h-64">
               <Spinner />
@@ -199,7 +199,7 @@ const Results = () => {
                   <div className="flex justify-between">
                     <div>
                       <h3 className="font-semibold text-xl">
-                        {highlightSearchTerm(t(result.style))} /{' '}
+                        {highlightSearchTerm(t(result.style))} •{' '}
                         {highlightSearchTerm(`${result.temperature}°C`)}
                       </h3>
                       <i className="text-sm">

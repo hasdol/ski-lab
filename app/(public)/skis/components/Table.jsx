@@ -20,17 +20,13 @@ import highlight from '@/helpers/highlightSearchTerm';
 const SkiTable = ({
   skis,
   search = '',
-  /* selection */
   selectedSkis = {},
   onToggleSelect,
-  /* details */
   expandedSkiId,
   onToggleDetails,
-  /* sorting */
   sortField,
   sortDirection,
   onSort,
-  /* actions */
   onEdit,
   onDelete,
   onArchive,
@@ -42,9 +38,6 @@ const SkiTable = ({
     return null;
   }
 
-  /**
-   * Show ↑ / ↓ icon for currently active sort column.
-   */
   const renderSortIndicator = (column) => {
     if (sortField === column) {
       return sortDirection === 'asc' ? <RiSortAsc /> : <RiSortDesc />;
@@ -52,7 +45,6 @@ const SkiTable = ({
     return null;
   };
 
-  // Total columns (update if you add/remove columns)
   const COLUMN_COUNT = 12;
 
   return (
@@ -60,95 +52,97 @@ const SkiTable = ({
       <table className="min-w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-gray-300 bg-gray-100 text-text">
-            {/* Selection checkbox */}
-            <th className="px-2 py-2 text-center" />
-            {/* Expand / collapse */}
+            {/* Selection checkbox */}
             <th className="px-2 py-2 text-center" />
 
-            {/* Data columns */}
+            {/* Data columns (all centered now) */}
             <th
-              className="px-2 py-2 text-left cursor-pointer"
+              className="px-2 py-2 text-center cursor-pointer"
               onClick={() => onSort('serialNumber')}
             >
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center justify-center space-x-1">
                 <span>SNR</span>
                 {renderSortIndicator('serialNumber')}
               </div>
             </th>
             <th
-              className="px-2 py-2 text-left cursor-pointer"
+              className="px-2 py-2 text-center cursor-pointer"
               onClick={() => onSort('style')}
             >
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center justify-center space-x-1">
                 <span>{t('style')}</span>
                 {renderSortIndicator('style')}
               </div>
             </th>
             <th
-              className="px-2 py-2 text-left cursor-pointer"
+              className="px-2 py-2 text-center cursor-pointer"
               onClick={() => onSort('brand')}
             >
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center justify-center space-x-1">
                 <span>{t('brand')}</span>
                 {renderSortIndicator('brand')}
               </div>
             </th>
             <th
-              className="px-2 py-2 text-left cursor-pointer"
+              className="px-2 py-2 text-center cursor-pointer"
               onClick={() => onSort('model')}
             >
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center justify-center space-x-1">
                 <span>{t('model')}</span>
                 {renderSortIndicator('model')}
               </div>
             </th>
             <th
-              className="px-2 py-2 text-left cursor-pointer"
+              className="px-2 py-2 text-center cursor-pointer"
               onClick={() => onSort('grind')}
             >
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center justify-center space-x-1">
                 <span>{t('grind')}</span>
                 {renderSortIndicator('grind')}
               </div>
             </th>
             <th
-              className="px-2 py-2 text-left cursor-pointer"
+              className="px-2 py-2 text-center cursor-pointer"
               onClick={() => onSort('base')}
             >
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center justify-center space-x-1">
                 <span>Base</span>
                 {renderSortIndicator('base')}
               </div>
             </th>
             <th
-              className="px-2 py-2 text-left cursor-pointer"
+              className="px-2 py-2 text-center cursor-pointer"
               onClick={() => onSort('length')}
             >
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center justify-center space-x-1">
                 <span>{t('length')}</span>
                 {renderSortIndicator('length')}
               </div>
             </th>
             <th
-              className="px-2 py-2 text-left cursor-pointer"
+              className="px-2 py-2 text-center cursor-pointer"
               onClick={() => onSort('stiffness')}
             >
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center justify-center space-x-1">
                 <span>{t('stiffness')}</span>
                 {renderSortIndicator('stiffness')}
               </div>
             </th>
             <th
-              className="px-2 py-2 text-left cursor-pointer"
+              className="px-2 py-2 text-center cursor-pointer"
               onClick={() => onSort('construction')}
             >
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center justify-center space-x-1">
                 <span>{t('construction')}</span>
                 {renderSortIndicator('construction')}
               </div>
             </th>
+
             {/* Action column header */}
-            <th className="px-2 py-2 text-center">{t('actions')}</th>
+            <th className="px-2 py-2 text-center ">{t('actions')}</th>
+
+            {/* Expand / collapse */}
+            <th className="px-2 py-2 text-center" />
           </tr>
         </thead>
 
@@ -159,7 +153,7 @@ const SkiTable = ({
               <React.Fragment key={ski.id}>
                 {/* Main data row */}
                 <tr className="border-b border-gray-300 hover:bg-gray-100">
-                  {/* ✅ Selection */}
+                  {/* Selection */}
                   <td className="px-2 py-2 text-center">
                     <input
                       type="checkbox"
@@ -170,34 +164,37 @@ const SkiTable = ({
                     />
                   </td>
 
-                  {/* 🔍 Expand / collapse */}
+                  {/* Data columns */}
                   <td className="p-2 text-center">
-                    <Button
-                      variant="secondary"
-                      onClick={() => onToggleDetails?.(ski.id)}
-                      title={showDetails ? t('collapse') : t('expand')}
-                    >
-                      {showDetails ? (
-                        <RiCollapseDiagonalLine />
-                      ) : (
-                        <RiExpandDiagonalFill />
-                      )}
-                    </Button>
+                    {highlight(ski.serialNumber, search)}
+                  </td>
+                  <td className="p-2 text-center">
+                    {highlight(t(ski.style), search)}
+                  </td>
+                  <td className="p-2 text-center">
+                    {highlight(ski.brand, search)}
+                  </td>
+                  <td className="p-2 text-center">
+                    {highlight(ski.model, search)}
+                  </td>
+                  <td className="p-2 text-center">
+                    {highlight(ski.grind, search)}
+                  </td>
+                  <td className="p-2 text-center">
+                    {ski.base || '--'}
+                  </td>
+                  <td className="p-2 text-center">
+                    {ski.length || '--'}
+                  </td>
+                  <td className="p-2 text-center">
+                    {ski.stiffness || '--'}
+                  </td>
+                  <td className="p-2 text-center">
+                    {ski.construction || '--'}
                   </td>
 
-                  {/* Data columns */}
-                  <td className="p-2">{highlight(ski.serialNumber, search)}</td>
-                  <td className="p-2">{highlight(t(ski.style), search)}</td>
-                  <td className="p-2">{highlight(ski.brand, search)}</td>
-                  <td className="p-2">{highlight(ski.model, search)}</td>
-                  <td className="p-2">{highlight(ski.grind, search)}</td>
-                  <td className="p-2">{ski.base || '--'}</td>
-                  <td className="p-2">{ski.length || '--'}</td>
-                  <td className="p-2">{ski.stiffness || '--'}</td>
-                  <td className="p-2">{ski.construction || '--'}</td>
-
-                  {/* 🔧 Row actions */}
-                  <td className="p-2 flex justify-center gap-4">
+                  {/* Row actions */}
+                  <td className="p-2 flex justify-center gap-3">
                     <Button
                       variant="secondary"
                       title={t('edit')}
@@ -230,6 +227,21 @@ const SkiTable = ({
                       onClick={() => onDelete?.(ski.id)}
                     >
                       <MdDelete />
+                    </Button>
+                  </td>
+
+                  {/* Expand / collapse */}
+                  <td className="p-2 text-center">
+                    <Button
+                      variant="secondary"
+                      onClick={() => onToggleDetails?.(ski.id)}
+                      title={showDetails ? t('collapse') : t('expand')}
+                    >
+                      {showDetails ? (
+                        <RiCollapseDiagonalLine />
+                      ) : (
+                        <RiExpandDiagonalFill />
+                      )}
                     </Button>
                   </td>
                 </tr>

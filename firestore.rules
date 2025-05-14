@@ -73,7 +73,9 @@ service cloud.firestore {
         'newGrindDate',
         'testIds',
         'archived',
-        'skiType'
+        'skiType',
+        'keywords_en',
+        'keywords_no'
         ]));
 
         // Delete if user owns the ski

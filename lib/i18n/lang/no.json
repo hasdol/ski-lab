@@ -250,6 +250,8 @@
   "type_min_chars": "Min. 3 bokstaver",
   "temp_filter": "Temperatur filter",
   "snr_location": "Snr, sted",
-  "no_results": "Ingen resultater"
+  "no_results": "Ingen resultater",
+  "go_to_test": "Se testen",
+  "number_of_tests": "Antall tester"
   
 }

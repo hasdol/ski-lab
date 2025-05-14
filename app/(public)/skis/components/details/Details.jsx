@@ -67,24 +67,35 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
   // Custom tooltip for performance chart
   const CustomTooltip = useCallback(
     ({ active, payload, label }) => {
-      if (active && payload && payload.length) {
-        const data = payload[0].payload;
-        return (
-          <div className="custom-tooltip bg-background p-5 border border-sbtn shadow-xl rounded">
-            <p className='font-semibold text-lg mb-2'>{`${data.rank}/${data.total}`}</p>
-            <p className='text-sm'>{`${t('temperature')}: ${data.temp}°C`}</p>
-            <p className='text-sm'>{`${t('location')}: ${data.location}`}</p>
-            <p className="text-sm">
-              {t('snow_source')}: {t(data.snowSource)}
+      if (!active || !payload?.length) return null;
+      const d = payload[0].payload;
+
+      return (
+        <div className="bg-white border border-gray-300 shadow-lg rounded-md p-4 text-xs max-w-xs">
+          <p className="font-semibold text-base mb-2">
+            {d.rank}/{d.total}
+          </p>
+
+          <div className="space-y-[2px] leading-snug">
+            <p>
+              <strong>{t('test_date')}:</strong>{' '}
+              {new Date(label).toLocaleDateString()}
             </p>
-            <p className="text-sm">
-              {t('snow_type')}: {t(data.snowType)}
+            <p>
+              <strong>{t('location')}:</strong> {d.location}
             </p>
-            <p className="text-sm">{`${t('test_date')}: ${new Date(label).toLocaleDateString()}`}</p>
+            <p>
+              <strong>{t('temperature')}:</strong> {d.temp}°C
+            </p>
+            <p>
+              <strong>{t('snow_source')}:</strong> {t(d.snowSource)}
+            </p>
+            <p>
+              <strong>{t('snow_type')}:</strong> {t(d.snowType)}
+            </p>
           </div>
-        );
-      }
-      return null;
+        </div>
+      );
     },
     [t]
   );
@@ -232,7 +243,8 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
               location: test.location,
               temp: test.temperature || 0,
               snowType: test.snowCondition?.grainType || '',
-              snowSource: test.snowCondition?.source || ''
+              snowSource: test.snowCondition?.source || '',
+              testId: test.id
             });
           });
           currentRank += tiedCount;
@@ -249,7 +261,8 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         location: r.location,
         temp: r.temp,
         snowType: r.snowType,
-        snowSource: r.snowSource
+        snowSource: r.snowSource,
+        testId: r.testId
       }));
       setChartData(finalData);
       if (finalData.length > 0) {
@@ -444,7 +457,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         {/* Grind History Section */}
         <GrindHistory grindHistory={grindHistory} />
         {/* Action Buttons - Now inside the grid */}
-        <div className="col-span-2 md:col-span-3 flex justify-center space-x-2 mb-2 border-t border-gray-300 pt-5">
+        <div className="col-span-2 md:col-span-3 flex justify-center space-x-3 mb-2 border-t border-gray-300 pt-5">
           <Button
             onClick={onEdit}
             variant="secondary"
