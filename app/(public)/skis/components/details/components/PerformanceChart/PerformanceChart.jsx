@@ -95,11 +95,11 @@ const FloatingTooltip = ({ point, hideTooltip }) => {
 
   return (
     <div
-      className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 rounded-lg bg-white shadow-lg p-4 md:text-base text-sm transition-opacity duration-150"
+      className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-2/3 rounded-lg bg-white shadow-lg p-4 md:text-base text-sm transition-opacity duration-150"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="font-medium text-sm mb-2 flex justify-between">
-        <span>
+      <div className="font-medium mb-2 flex justify-between">
+        <span className='font-semibold'>
           {t('rank')}: {rank}
         </span>
         <span className="text-muted-foreground">

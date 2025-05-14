@@ -95,7 +95,7 @@ const CombinedConditionsHeatmap = ({
     <div className="relative mt-5" ref={containerRef}>
       {/* Tabs */}
       <div className="flex space-x-2 overflow-x-auto p-1 pb-3 mb-4">
-        {['natural', 'artificial', 'mix'].map((tab) => (
+        {['natural', 'artificial', 'mix'].map(tab => (
           <Button
             key={tab}
             variant={activeTab === tab ? 'tab' : 'secondary'}
@@ -110,16 +110,27 @@ const CombinedConditionsHeatmap = ({
         ))}
       </div>
 
-      {/* Small-tests info */}
-      {chartData.some((d) => d.total < 4) && (
-        <div className="flex items-center bg-blue-50 text-blue-800 px-4 py-2 rounded-md text-sm mb-4">
-          <MdInfoOutline className="w-5 h-5 mr-2 flex-shrink-0" />
-          <span>
-            {chartData.filter((d) => d.total < 4).length}{' '}
-            {t('small_tests_ignored_in_heatmap')}
-          </span>
-        </div>
-      )}
+      {/* Legend */}
+      <div className="flex flex-wrap items-center space-x-4 mb-4 px-1">
+        {[
+          'great',
+          'good',
+          'average',
+          'bad',
+          'very_bad',
+          'unknown',
+        ].map(cat => (
+          <div key={cat} className="flex items-center space-x-1">
+            <div
+              className="w-5 h-5 rounded-full"
+              style={{ backgroundColor: categoryColors[cat] }}
+            />
+            <span className="text-sm">{t(cat)}</span>
+          </div>
+        ))}
+      </div>
+
+
 
       {/* Heatmap table */}
       <div className="overflow-x-auto">
@@ -172,10 +183,21 @@ const CombinedConditionsHeatmap = ({
         </table>
       </div>
 
+      {/* Small-tests info */}
+      {chartData.some(d => d.total < 4) && (
+        <div className="flex items-center bg-blue-50 text-blue-800 p-2 rounded-md text-sm mt-4">
+          <MdInfoOutline className="w-5 h-5 mr-2 flex-shrink-0" />
+          <span>
+            {chartData.filter(d => d.total < 4).length}{' '}
+            {t('small_tests_ignored_in_heatmap')}
+          </span>
+        </div>
+      )}
+
       {/* Click-triggered popup */}
       {showPopup && popupData && (
         <div
-          className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 rounded-lg bg-white shadow-lg p-4 md:text-base text-sm transition-opacity duration-150"
+          className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-2/3 rounded-lg bg-white shadow-lg p-4 md:text-base text-sm transition-opacity duration-150"
 
           onClick={(e) => e.stopPropagation()}
         >
@@ -192,13 +214,13 @@ const CombinedConditionsHeatmap = ({
               .map((test) => (
                 <li key={test.testId} className="flex bg-gray-50 p-2 rounded-md flex-col sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <div className="text-xs font-semibold">
+                    <div className="text-sm font-semibold">
                       {new Date(test.testDate).toLocaleDateString()}
                     </div>
-                    <div className="text-xs">
+                    <div className="text-sm">
                       {t('rank')}: {test.rank}/{test.total}
                     </div>
-                    <div className="text-xs mb-1">{test.location}</div>
+                    <div className="text-sm mb-1">{test.location}</div>
                   </div>
                   <Button
                     type="button"

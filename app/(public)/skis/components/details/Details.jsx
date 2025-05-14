@@ -461,7 +461,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
           <Button
             onClick={onEdit}
             variant="secondary"
-            className='text-xs'
+            className='text-sm'
           >
             {t('edit')}
           </Button>
@@ -469,7 +469,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
             <Button
               onClick={onUnarchive}
               variant="primary"
-              className='text-xs'
+              className='text-sm'
             >
               {t('unarchive')}
             </Button>
@@ -477,7 +477,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
             <Button
               onClick={onArchive}
               variant="primary"
-              className='text-xs'
+              className='text-sm'
             >
               {t('archive')}
             </Button>
