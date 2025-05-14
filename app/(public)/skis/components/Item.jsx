@@ -48,7 +48,7 @@ const SkiItem = ({
     <div className={`${showDetails && 'shadow rounded-md' }`}>
       {/* Main clickable row - now controls checkbox */}
       <div
-        className={`w-full rounded-md p-2 hover:bg-gray-100 cursor-pointer transition-all duration-200` }
+        className={`w-full rounded-md p-2 hover:bg-gray-50 cursor-pointer transition-all duration-200` }
         variant='secondary'
         onClick={() => handleCheckboxChange(ski.id)}
       >

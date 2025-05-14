@@ -51,7 +51,7 @@ export default function TeamList({ teams }) {
       {teams.map((team) => (
         <div
           key={team.id}
-          className="flex justify-between bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-300 px-5 py-2.5 rounded-md focus:outline-none transition-all duration-200"
+          className="flex justify-between bg-white text-gray-800 shadow hover:bg-gray-50 active:scale-[0.98] focus:ring-2 focus:ring-gray-300 cursor-pointer p-2.5 rounded-md focus:outline-none transition-all duration-200"
           onClick={() => router.push(`/teams/${team.id}`)}
         >
           <div>

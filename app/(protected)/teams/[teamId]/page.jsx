@@ -99,7 +99,7 @@ export default function TeamDetailPage() {
           </div>
 
           {canManage && (
-            <div className="mb-6 px-3 py-2 bg-gray-100 rounded text-sm text-gray-800 text-center">
+            <div className="mb-6 px-3 py-2 bg-gray-100 rounded-md text-sm text-gray-800 text-center">
               {t('join_code')}: <span className="font-mono">{team.joinCode}</span>
             </div>
           )}
@@ -148,10 +148,9 @@ export default function TeamDetailPage() {
                         const end = new Date(evt.endDate.seconds * 1000);
                         const b = badge[cat];
                         return (
-                          <Button
+                          <div
                             key={evt.id}
-                            variant="secondary"
-                            className="relative text-left p-4 overflow-hidden w-full"
+                            className="shadow rounded-md hover:bg-gray-50 cursor-pointer relative text-left p-4 overflow-hidden w-full"
                             onClick={() => router.push(`/teams/${team.id}/${evt.id}`)}
                           >
                             <div className="absolute top-2 right-2 flex items-center space-x-1">
@@ -160,7 +159,7 @@ export default function TeamDetailPage() {
                             </div>
                             <h3 className="font-semibold text-base text-gray-800 break-words">{evt.name}</h3>
                             <p className="text-sm text-gray-500 mt-1">{start.toLocaleDateString()} - {end.toLocaleDateString()}</p>
-                          </Button>
+                          </div>
                         );
                       })}
                     </div>

@@ -31,7 +31,7 @@ const ResultsList = ({ rankings }) => {
 
                     <li
                         key={item.serialNumber}
-                        className={`flex items-center justify-between bg-gray-100 text-black rounded-md p-3 px-4
+                        className={`flex items-center justify-between bg-gray-50 text-black rounded-md p-3 px-4
                             }`}                    >
                         <div className="flex-1 text-left">P{item.rank}</div>
                         <div className="flex-1 text-center">{item.serialNumber} </div>
@@ -45,7 +45,7 @@ const ResultsList = ({ rankings }) => {
                 {rankedList.slice(1).map((item) => (
                     <li
                         key={item.serialNumber}
-                        className="flex items-center justify-between bg-gray-100 rounded-md p-3 px-4"
+                        className="flex items-center justify-between bg-gray-50 rounded-md p-3 px-4"
                     >
                         <span className="flex-1 text-left">P{item.rank}</span>
                         <span className="flex-1 text-center">{item.serialNumber}</span>

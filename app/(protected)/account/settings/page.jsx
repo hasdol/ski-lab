@@ -128,7 +128,7 @@ export default function SettingsPage() {
                 <div className='flex items-center justify-between bg-white border border-gray-200 rounded-md px-4 py-3 mt-1 cursor-pointer hover:bg-gray-50 transition'>
                   <RiUserLine className="text-gray-600 text-xl" />
                   <span className="flex-1 mx-4 text-gray-800">
-                    {userData?.displayName || t('no_username')}
+                    {userData?.displayName || t('--') && <span className='bg-orange-100 text-orange-800 p-2 rounded-md'>{t('no_username')}</span>}
                   </span>
                   <RiEditLine className="text-gray-600 text-xl" />
                 </div>

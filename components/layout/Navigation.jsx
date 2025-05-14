@@ -155,7 +155,7 @@ export default function Navigation() {
         <div className="flex-1 flex items-center justify-end justify-self-end relative">
           <Weather />
           <Button onClick={() => setIsSubNavOpen(o => !o)} variant='secondary' className="ml-4 p-2!">
-            <RiSettings3Line size={16} />
+            <RiSettings3Line size={20} />
           </Button>
 
           {isSubNavOpen && (
