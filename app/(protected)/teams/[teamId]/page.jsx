@@ -74,8 +74,7 @@ export default function TeamDetailPage() {
         <Button onClick={handleBack} variant="secondary" >{t('back')}</Button>
         {canManage && (
           <div className="flex space-x-2">
-            <Button onClick={() => router.push(`/teams/${teamId}/edit`)} variant="primary" >{t('edit')}</Button>
-            <Button onClick={() => router.push(`/teams/${teamId}/create-event`)} variant="primary">{t('create_event')}</Button>
+            <Button onClick={() => router.push(`/teams/${teamId}/edit`)} variant="primary" >{t('edit_team')}</Button>
           </div>
         )}
       </div>
@@ -122,7 +121,7 @@ export default function TeamDetailPage() {
 
           {/* Tab Content */}
           {activeTab === 'members' && canManage && (
-            <ul className="space-y-2 w-full">
+            <ul className="space-y-2 w-full mb-6">
               {team.members.map(id => (
                 <li key={id} className="flex items-center justify-between bg-gray-50 rounded px-3 py-2">
                   <MemberListItem userId={id} />
@@ -134,8 +133,12 @@ export default function TeamDetailPage() {
             </ul>
           )}
 
+
+         
+
           {activeTab === 'events' && (
             <div className="space-y-6 w-full">
+               {canManage && <Button onClick={() => router.push(`/teams/${teamId}/create-event`)} variant="primary" className='w-full md:w-fit'>{t('create_event')}</Button>}
               {['live', 'upcoming', 'past'].map(cat => (
                 categorized[cat].length > 0 && (
                   <div key={cat}>

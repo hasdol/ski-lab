@@ -24,17 +24,18 @@ export default function TeamsPage() {
           {t('teams')}
         </h1>
         
-        <div className="flex space-x-3 items-end">
-          <JoinTeamForm />
+        <div className="flex flex-col md:flex-row w-full space-x-3 gap-4 md:items-end justify-between">
           {canCreateTeam && (
             <Button
               onClick={() => router.push('/teams/create-team')}
               variant="primary"
               className="h-fit"
             >
-              {t('create')}
+              {t('create_team')}
             </Button>
           )}
+          <JoinTeamForm />
+          
         </div>
       </div>
 
