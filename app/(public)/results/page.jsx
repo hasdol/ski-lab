@@ -122,7 +122,7 @@ const Results = () => {
       </Head>
 
       <div className="animate-fade animate-duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 mb-5">
+        <h1 className="text-3xl font-bold text-gray-900 my-4">
           {t('results')}
         </h1>
 
@@ -193,7 +193,7 @@ const Results = () => {
               {resultsToShow.map((result) => (
                 <div
                   key={result.id}
-                  className="shadow rounded-md p-5 flex flex-col justify-between animate-fade-down animate-duration-300 space-y-5"
+                  className="border-l-2 border-gray-300 p-5 flex flex-col justify-between animate-fade-down animate-duration-300 space-y-5"
                 >
                   {/* header */}
                   <div className="flex justify-between">
@@ -251,7 +251,7 @@ const Results = () => {
                     ))}
                   </ul>
 
-                  <div className='border border-gray-300'></div>
+                  <div className='border-t border-gray-300'></div>
 
                   {/* extra meta */}
                   <ul className="grid grid-cols-2 gap-4 text-sm">

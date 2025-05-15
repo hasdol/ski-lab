@@ -30,7 +30,7 @@ const Contact = () => {
         <meta name="description" content="Contact and get in touch with the website creator" />
       </Head>
       <div className="mx-auto animate-fade-up animate-duration-300">
-      <h1 className="text-3xl font-bold text-gray-900 mb-5">
+      <h1 className="text-3xl font-bold text-gray-900 my-4">
           {t('contact')}
         </h1>
         <form className="space-y-8" onSubmit={handleSubmit}>

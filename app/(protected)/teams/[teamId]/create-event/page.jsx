@@ -76,7 +76,9 @@ export default function CreateEventPage() {
 
   return (
     <div className="mx-auto">
-      <h1 className="text-3xl font-semibold mb-4">{t('new_event')}</h1>
+      <h1 className="text-3xl font-bold text-gray-900 my-4">
+        {t('create_event')}
+      </h1>
 
       <Input
         type="text"

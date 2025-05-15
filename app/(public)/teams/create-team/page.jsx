@@ -52,8 +52,10 @@ export default function CreateTeamPage() {
   };
 
   return (
-    <div className="p-4 max-w-xl mx-auto">
-      <h1 className="text-3xl font-semibold mb-4">{t('create_team')}</h1>
+    <div className="max-w-xl mx-auto">
+      <h1 className="text-3xl font-bold text-gray-900 my-4">
+        {t('create_team')}
+      </h1>
 
       <Input
         type="text"

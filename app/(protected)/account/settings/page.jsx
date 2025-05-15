@@ -103,7 +103,7 @@ export default function SettingsPage() {
       <div className="mx-auto animate-fade-up animate-duration-300">
 
         {/* Back Button */}
-        <div className="flex justify-between mb-5">
+        <div className="flex justify-between my-4">
           <h1 className="text-3xl font-bold text-gray-900 md:mb-0">
             {t('settings')}
           </h1>

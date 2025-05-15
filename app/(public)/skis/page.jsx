@@ -208,7 +208,7 @@ const Skis = () => {
     <>
       <Head><title>Ski-Lab: Skis</title></Head>
       <div className="container mx-auto animate-fade animate-duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 mb-5">{t('skipark')}</h1>
+        <h1 className="text-3xl font-bold text-gray-900 my-4">{t('skipark')}</h1>
 
         {/* Top controls row */}
         <div className="flex items-end justify-between mb-4">

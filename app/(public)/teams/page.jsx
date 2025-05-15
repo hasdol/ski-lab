@@ -20,7 +20,7 @@ export default function TeamsPage() {
     <div className="container mx-auto animate-fade-up animate-duration-300">
       {/* Header */}
       <div className="flex flex-col items-start  justify-between">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+        <h1 className="text-3xl font-bold text-gray-900 my-4">
           {t('teams')}
         </h1>
         

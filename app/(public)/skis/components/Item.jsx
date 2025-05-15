@@ -1,6 +1,6 @@
 // ./components/SkiItem/SkiItem.jsx
 import React, { useContext } from 'react';
-import { RiHistoryLine, RiExpandDiagonalFill, RiCollapseDiagonalLine   } from "react-icons/ri";
+import { RiHistoryLine, RiExpandDiagonalFill, RiCollapseDiagonalLine } from "react-icons/ri";
 import { useTranslation } from 'react-i18next';
 
 import SkiDetail from './details/Details';
@@ -45,10 +45,15 @@ const SkiItem = ({
   };
 
   return (
-    <div className={`${showDetails && 'shadow rounded-md' }`}>
+    <div
+      className={`p-2 px-3 transition-all duration-200 border-l-2 ${showDetails
+          ? 'border-gray-400'
+          : 'border-gray-300 hover:bg-gray-50'
+        }`}
+    >
       {/* Main clickable row - now controls checkbox */}
       <div
-        className={`w-full rounded-md p-2 hover:bg-gray-50 cursor-pointer transition-all duration-200` }
+        className="w-full cursor-pointer"
         variant='secondary'
         onClick={() => handleCheckboxChange(ski.id)}
       >
@@ -91,8 +96,8 @@ const SkiItem = ({
               variant='secondary'
               className="ml-auto z-100 p-2!"
             >
-              {showDetails?<RiCollapseDiagonalLine />:<RiExpandDiagonalFill />}
-              
+              {showDetails ? <RiCollapseDiagonalLine /> : <RiExpandDiagonalFill />}
+
             </Button>
           )}
 
