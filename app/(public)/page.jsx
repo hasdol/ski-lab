@@ -118,7 +118,7 @@ const HomePage = () => {
                                   const start = event.startDate?.toLocaleDateString();
                                   const end = event.endDate?.toLocaleDateString();
                                   return (
-                                    <div key={event.id} className="rounded-md shadow backdrop-blur">
+                                    <div key={event.id} className="">
                                       <div className="flex justify-between items-center mb-1">
                                         <h3 className="text-sm font-semibold text-left">
                                           {team.name || t('unnamed_team')}
@@ -128,16 +128,16 @@ const HomePage = () => {
                                           Live
                                         </span>
                                       </div>
-                                      <Button
+                                      <div
                                         variant="secondary"
                                         onClick={() => router.push(`/teams/${team.id}/${event.id}`)}
-                                        className="w-full text-left"
+                                        className="flex flex-col text-left bg-white text-gray-800 shadow hover:bg-gray-50 active:scale-[0.98] focus:ring-2 focus:ring-gray-300 cursor-pointer p-4 rounded-md focus:outline-none transition-all duration-200"
                                       >
                                         <div className="font-medium">{event.name}</div>
                                         <div className="text-xs opacity-75">
                                           {start} – {end}
                                         </div>
-                                      </Button>
+                                      </div>
                                     </div>
                                   );
                                 })}

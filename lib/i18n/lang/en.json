@@ -188,7 +188,7 @@
   "view_skis": "View skis",
   "upgrade_promt": "Upgrade to add more skis",
   "sort": "Sort",
-  "confirm_delete_account": "Are you sure you want to delete your account?",
+  "confirm_delete_account": "Are you sure you want to delete your account? There is no going back",
   "test_guide": "Test guide",
   "guide_step_1": "Find a suitable downhill and select the first two skis with a partner",
   "guide_step_2": "Gain some speed side by side",
@@ -197,7 +197,7 @@
   "cookie_concent": "This website uses cookies to function. We use third-party services such as Firebase, Stripe, and MET Weather API. By continuing, you consent to the use of these cookies.",
   "cancel_account_deletion": "Cancel account deletion",
   "account_deletion_scheduled": "Account deletion scheduled",
-  "remember_to_cancel_subscription": "Cancel you subsciption to delete your account",
+  "remember_to_cancel_subscription": "Cancel you subscription to delete your account",
   "select_at_least_2_skis": "Select at least 2 skis",
   "dp": "DP",
   "select_skis_to_test": "Select skis to test",
@@ -254,5 +254,11 @@
   "snr_location": "Snr, location",
   "no_results": "No results",
   "go_to_test": "View test",
-  "number_of_tests": "Number of tests"
+  "number_of_tests": "Number of tests",
+  "confirm_delete_with_subscription": "You have an active subscription. If you delete your account it will cancel automatically.",
+  "you_are_not_signed_in": "You are not signed in",
+  "you_have_no_skis": "You have no skis",
+  "no_teams_joined": "No teams joined",
+    "you_have_no_results": "You have no results"
+
 }

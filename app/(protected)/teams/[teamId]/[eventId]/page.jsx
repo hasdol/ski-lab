@@ -63,21 +63,19 @@ export default function EventPage() {
       <div className="flex items-center justify-between mb-6">
         <Button onClick={handleBack} variant="secondary" >{t('back')}</Button>
         {canManage && (
-          <Button onClick={handleEdit} variant="secondary">{t('edit_event')}</Button>
+          <Button onClick={handleEdit} variant="primary">{t('edit_event')}</Button>
         )}
       </div>
 
       <div className="space-y-4">
         <div className="text-center">
-          <div className="w-1/2 h-auto mx-auto overflow-hidden mb-4">
             <UploadableImage
               photoURL={eventData.imageURL}
               variant="event"
-              alt={t('event_image')}
               clickable={false}
-              className="object-cover w-full h-full"
+              className="w-auto mx-auto mb-4 md:h-52 h-40 object-contain"
             />
-          </div>
+
           <h1 className="text-3xl font-semibold text-gray-800 mb-1">{eventData.name}</h1>
           <p className="text-sm text-gray-600">{startFmt} - {endFmt}</p>
         </div>

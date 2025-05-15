@@ -52,7 +52,13 @@ const usePaginatedResults = ({ term = '', temp = [-100, 100], style = 'all', sor
     cursor.current = null;
 
     const q = baseQuery();
-    if (!q) return setDocs([]);
+    if (!q) {
+      // no user (or no query) → clear state and stop loading
+      setDocs([]);
+      setLoading(false);
+      setExhausted(true);
+      return;
+    }
 
     const snap = await getDocs(q);
     const page = snap.docs.map((d) => ({ id: d.id, ...d.data() }));

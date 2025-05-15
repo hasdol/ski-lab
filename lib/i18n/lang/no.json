@@ -189,7 +189,7 @@
   "view_skis": "Vis skipar",
   "upgrade_promt": "Oppgrader for å opprette flere skipar",
   "sort": "Sorter",
-  "confirm_delete_account": "Ønsker du å slette kontoen din?",
+  "confirm_delete_account": "Ønsker du å slette kontoen din? Dette kan ikke angres",
   "test_guide": "Test veiledning",
   "guide_step_1": "Finn en nedoverbakke med et slipp-punkt og et måle-punkt",
   "guide_step_2": "Hold fast og gli side om side med en partner og slip hverandre på 'slipp-punktet'",
@@ -237,9 +237,9 @@
   "remove_image": "Fjern bildet",
   "events": "Arrangementer",
   "kick": "Spark ut",
-  "pick_a_plan":"Velg en plan",
+  "pick_a_plan": "Velg en plan",
   "current": "Nåverende",
-  "Company":"Bedrift",
+  "Company": "Bedrift",
   "Coach": "Trener",
   "share_with_live_events": "Del med pågående arrangementer",
   "add_skis": "Legg til skipar",
@@ -252,6 +252,10 @@
   "snr_location": "Snr, sted",
   "no_results": "Ingen resultater",
   "go_to_test": "Se testen",
-  "number_of_tests": "Antall tester"
-  
+  "number_of_tests": "Antall tester",
+  "confirm_delete_with_subscription": "Du har et aktivt abonnementet. Sletter du kontoen din kanseleres det automatisk",
+  "you_are_not_signed_in": "Du er ikke logget inn",
+  "you_have_no_skis": "Du har ingen skipar",
+  "no_teams_joined": "Du har ingen lag",
+  "you_have_no_results": "Du har ingen resultater"
 }

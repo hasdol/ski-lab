@@ -18,11 +18,6 @@ export default function TeamList({ teams }) {
   const [loadingTeamId, setLoadingTeamId] = useState(null);
 
 
-
-  if (!teams || !teams.length) {
-    return <div>No teams joined yet.</div>;
-  }
-
   const handleLeaveTeam = async (teamId) => {
     const confirmLeave = window.confirm('Are you sure you want to leave this team?');
     if (!confirmLeave) return;
@@ -37,17 +32,9 @@ export default function TeamList({ teams }) {
     }
   };
 
-  if (!teams?.length) {
-    return (
-      <div className="py-8 text-center text-gray-500">
-        {t('teams.noJoined')}
-      </div>
-    );
-  }
-
 
   return (
-    <div className="grid md:grid-cols-2 gap-3">
+    <div className="grid md:grid-cols-2 gap-3 my-4">
       {teams.map((team) => (
         <div
           key={team.id}

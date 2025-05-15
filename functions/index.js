@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------
-   Firebase Cloud Functions – full file (updated May 2025)
+   Firebase Cloud Functions – full file (updated May 2025)
    ------------------------------------------------------------------ */
 
 /* eslint-disable consistent-return */
@@ -9,6 +9,7 @@
 const admin = require('firebase-admin');
 admin.initializeApp();
 const db = admin.firestore();
+const bucket = admin.storage().bucket();          // 🆕 default storage bucket
 
 const functionsV1 = require('firebase-functions/v1');
 const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https');
@@ -16,7 +17,9 @@ const { onDocumentCreated, onDocumentDeleted } = require('firebase-functions/v2/
 const { defineSecret } = require('firebase-functions/params');
 const fetch = (...a) => import('node-fetch').then(({ default: f }) => f(...a));
 
-// 🔐 Secrets
+/* ------------------------------------------------------------------
+   🔐 Secrets
+   ------------------------------------------------------------------ */
 const METNO_USER_AGENT = defineSecret('METNO_USER_AGENT');
 
 /* ------------------------------------------------------------------
@@ -46,7 +49,7 @@ function addCorsHeaders(res) {
 }
 
 /* ------------------------------------------------------------------
-   weatherForecast (gen‑2 HTTPS)
+   weatherForecast (gen-2 HTTPS)
    ------------------------------------------------------------------ */
 exports.weatherForecast = onRequest(
   {
@@ -239,7 +242,7 @@ exports.stripeWebhook = onRequest({ secrets: ['STRIPE_SECRET', 'STRIPE_SIGNING_S
 });
 
 /* ------------------------------------------------------------------
-   Stripe Webhook Helpers (idempotent & single‑write)
+   Stripe Webhook Helpers (idempotent & single-write)
    ------------------------------------------------------------------ */
 async function handleCheckoutSession(session) {
   const userRef = db.collection('users').doc(session.metadata.userId);
@@ -334,7 +337,7 @@ async function handleSubscriptionUpdated(subscription) {
 }
 
 /* ------------------------------------------------------------------
-   Firestore Triggers – skis add / delete (single‑write counters)
+   Firestore Triggers – skis add / delete (single-write counters)
    ------------------------------------------------------------------ */
 exports.onSkiCreated = onDocumentCreated('users/{userId}/skis/{skiId}', async (event) => {
   const { userId } = event.params;
@@ -391,51 +394,117 @@ exports.onSkiDeleted = onDocumentDeleted('users/{userId}/skis/{skiId}', async (e
   });
 });
 
+/* ------------------------------------------------------------------
+   Account Deletion Management
+   ------------------------------------------------------------------ */
 
-// ----------------------------------------------------------------
-// Account Deletion Management
-// ----------------------------------------------------------------
-
-async function deleteProfilePicture(userId) {
-  const bucket = admin.storage().bucket(); // Uses the default bucket from your project
-  const file = bucket.file(`profilePictures/${userId}/profile.jpg`);
+// ------------------------------------------------------------------
+// Helper: delete a single file if it exists (server-side storage API)
+// ------------------------------------------------------------------
+async function deleteFileIfExists(path) {
   try {
-    await file.delete();
-    console.log('Profile picture deleted successfully.');
-  } catch (error) {
-    // If the file is not found, error.code might be 404.
-    if (error.code === 404) {
-      console.log('No profile picture to delete.');
-    } else {
-      console.error('Error deleting profile picture:', error.message);
-      throw error;
-    }
+    await bucket.file(path).delete();
+    console.log(`✅ deleted gs://${bucket.name}/${path}`);
+  } catch (err) {
+    if (err.code === 404) return; // ignore missing files
+    console.error('Storage delete failed:', err.message);
+    throw err;
   }
 }
 
-exports.deleteUserAccount = onCall({ secrets: ['STRIPE_SECRET'] }, async (request) => {
-  if (!request.auth) {
-    throw new HttpsError("unauthenticated", "User must be authenticated.");
+// ------------------------------------------------------------------
+// Helper: fetch the teams a user owns vs. just belongs to
+// ------------------------------------------------------------------
+async function getUserTeamsByOwnership(uid) {
+  const teamsRef = db.collection('teams');
+  const snap = await teamsRef.where('members', 'array-contains', uid).get();
+
+  const ownedTeams = [];
+  const memberTeams = [];
+
+  snap.forEach((doc) => {
+    (doc.data().createdBy === uid ? ownedTeams : memberTeams).push(doc);
+  });
+
+  return { ownedTeams, memberTeams };
+}
+
+// ------------------------------------------------------------------
+// Helper: delete all events (and their images & testResults) in a team
+// If uid is provided, we delete only events created by that uid.
+// ------------------------------------------------------------------
+async function wipeEventsOfTeam(teamId, uid = null) {
+  const eventsRef = db.collection(`teams/${teamId}/events`);
+  const q = uid ? eventsRef.where('createdBy', '==', uid) : eventsRef;
+  const eventsSnap = await q.get();
+
+  for (const evt of eventsSnap.docs) {
+    const evtId = evt.id;
+
+    // 1) delete event image
+    await deleteFileIfExists(`teams/${teamId}/events/${evtId}/event.jpg`);
+
+    // 2) delete testResults sub-collection in pages of 500
+    const testsRef = evt.ref.collection('testResults');
+    while (true) {
+      const page = await testsRef.limit(500).get();
+      if (page.empty) break;
+      const batch = db.batch();
+      page.docs.forEach((d) => batch.delete(d.ref));
+      await batch.commit();
+    }
+
+    // 3) delete the event document
+    await evt.ref.delete();
   }
+}
+
+// ------------------------------------------------------------------
+// Helper: deep-delete an entire team and everything under it
+// ------------------------------------------------------------------
+async function wipeWholeTeam(teamId) {
+  // delete all events (whoever created them)
+  await wipeEventsOfTeam(teamId);
+
+  // delete team-level image
+  await deleteFileIfExists(`teams/${teamId}/team.jpg`);
+
+  // delete the team document itself
+  await db.collection('teams').doc(teamId).delete();
+}
+
+// ------------------------------------------------------------------
+// Helper: delete the user’s profile picture (legacy client path)
+// ------------------------------------------------------------------
+async function deleteProfilePicture(userId) {
+  await deleteFileIfExists(`profilePictures/${userId}/profile.jpg`);
+}
+
+// ------------------------------------------------------------------
+// deleteUserAccount – callable
+// ------------------------------------------------------------------
+exports.deleteUserAccount = onCall({ secrets: ['STRIPE_SECRET'] }, async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
+
   const uid = request.auth.uid;
-  const userRef = db.collection("users").doc(uid);
+  const userRef = db.collection('users').doc(uid);
   const userDoc = await userRef.get();
 
-  if (!userDoc.exists) {
-    throw new HttpsError("not-found", "User document not found.");
-  }
+  if (!userDoc.exists) throw new HttpsError('not-found', 'User document not found.');
   const userData = userDoc.data();
 
-  // Check for an active subscription
+  /* --------------------------------------------------------------
+     1. Cancel active Stripe subscription (unchanged)
+  -------------------------------------------------------------- */
   if (userData.stripeSubscriptionId) {
     const confirmDeleteSubscription = request.data.confirmDeleteSubscription;
     if (!confirmDeleteSubscription) {
       throw new HttpsError(
-        "failed-precondition",
-        "You must confirm that your active subscription will be cancelled in order to delete your account."
+        'failed-precondition',
+        'You must confirm that your active subscription will be cancelled in order to delete your account.',
       );
     }
-    // Initialize Stripe with the secret from the environment
+
     const stripe = require('stripe')(process.env.STRIPE_SECRET);
     try {
       await stripe.subscriptions.cancel(userData.stripeSubscriptionId);
@@ -444,49 +513,74 @@ exports.deleteUserAccount = onCall({ secrets: ['STRIPE_SECRET'] }, async (reques
         stripeSubscriptionId: admin.firestore.FieldValue.delete(),
         stripeCustomerId: admin.firestore.FieldValue.delete(),
       });
-    } catch (error) {
-      console.error("Error cancelling subscription:", error);
-      throw new HttpsError("internal", "Error cancelling subscription. Please try again later.");
+    } catch (err) {
+      console.error('Error cancelling subscription:', err);
+      throw new HttpsError('internal', 'Error cancelling subscription. Please try again later.');
     }
   }
 
-  // Delete the profile picture from Cloud Storage.
+  /* --------------------------------------------------------------
+     2. Handle teams & events created by / shared with this user
+  -------------------------------------------------------------- */
+  const { ownedTeams, memberTeams } = await getUserTeamsByOwnership(uid);
+
+  // 2a. remove teams the user owns
+  for (const teamDoc of ownedTeams) {
+    await wipeWholeTeam(teamDoc.id);
+  }
+
+  // 2b. in teams the user does NOT own:
+  for (const teamDoc of memberTeams) {
+    const teamId = teamDoc.id;
+
+    // remove only events they created
+    await wipeEventsOfTeam(teamId, uid);
+
+    // remove them from the members array
+    await teamDoc.ref.update({
+      members: admin.firestore.FieldValue.arrayRemove(uid),
+    });
+  }
+
+  /* --------------------------------------------------------------
+     3. Delete user-specific assets & sub-collections
+  -------------------------------------------------------------- */
   await deleteProfilePicture(uid);
 
-  // Delete subcollections (e.g., 'skis' and 'testResults').
   const subcollections = ['skis', 'testResults'];
   for (const sub of subcollections) {
     const subColRef = userRef.collection(sub);
-    const snapshot = await subColRef.get();
-    const batch = db.batch();
-    snapshot.forEach(doc => {
-      batch.delete(doc.ref);
-    });
-    await batch.commit();
-    console.log(`Subcollection '${sub}' deleted for user ${uid}.`);
+    while (true) {
+      const page = await subColRef.limit(500).get();
+      if (page.empty) break;
+      const batch = db.batch();
+      page.docs.forEach((doc) => batch.delete(doc.ref));
+      await batch.commit();
+    }
+    console.log(`Subcollection '${sub}' wiped for user ${uid}.`);
   }
 
-  // Delete the Firebase Auth user.
+  /* --------------------------------------------------------------
+     4. Delete Auth user & top-level user doc
+  -------------------------------------------------------------- */
   await admin.auth().deleteUser(uid);
-
-  // Delete the main Firestore user document.
   await userRef.delete();
 
-  return { message: "User account and all related data deleted successfully." };
+  return { message: 'User account and all related data deleted successfully.' };
 });
 
-
-
-
+/* ------------------------------------------------------------------
+   cancelUserDeletion
+   ------------------------------------------------------------------ */
 exports.cancelUserDeletion = onCall(async (request) => {
-  if (!request.auth) throw new HttpsError("unauthenticated", "User must be authenticated.");
+  if (!request.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
   const uid = request.auth.uid;
-  const userRef = db.collection("users").doc(uid);
+  const userRef = db.collection('users').doc(uid);
   await userRef.update({
     scheduledDeletion: admin.firestore.FieldValue.delete(),
     deletionScheduledAt: admin.firestore.FieldValue.delete(),
   });
-  return { message: "Account deletion has been cancelled." };
+  return { message: 'Account deletion has been cancelled.' };
 });
 
 exports.joinTeamByCode = onCall(async (request) => {

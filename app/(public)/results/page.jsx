@@ -184,9 +184,9 @@ const Results = () => {
             <div className="flex justify-center items-center h-64">
               <Spinner />
             </div>
-          ) : resultsToShow.length === 0 ? (
-            <p className="text-center text-gray-500 mt-10">
-              {t('no_results')}
+          ) : resultsToShow.length === 0 && user ? (
+            <p className="mt-4">
+              {t('you_have_no_results')}
             </p>
           ) : (
             <div className="grid gap-4">
@@ -328,6 +328,8 @@ const Results = () => {
               <Button onClick={loadMore}>{t('load_more')}</Button>
             </div>
           )}
+          {!user && <div className='mt-4 italic'>{t('you_are_not_signed_in')}</div>}
+
         </div>
       </div>
 

@@ -55,7 +55,7 @@ export default function TeamDetailPage() {
       else categorized.past.push(evt);
     }
   });
-  ['live','upcoming','past'].forEach(cat =>
+  ['live', 'upcoming', 'past'].forEach(cat =>
     categorized[cat].sort((a, b) => cat === 'past'
       ? b.endDate.seconds - a.endDate.seconds
       : a.startDate.seconds - b.startDate.seconds
@@ -74,7 +74,7 @@ export default function TeamDetailPage() {
         <Button onClick={handleBack} variant="secondary" >{t('back')}</Button>
         {canManage && (
           <div className="flex space-x-2">
-            <Button onClick={() => router.push(`/teams/${teamId}/edit`)} variant="secondary" >{t('edit')}</Button>
+            <Button onClick={() => router.push(`/teams/${teamId}/edit`)} variant="primary" >{t('edit')}</Button>
             <Button onClick={() => router.push(`/teams/${teamId}/create-event`)} variant="primary">{t('create_event')}</Button>
           </div>
         )}
@@ -83,15 +83,13 @@ export default function TeamDetailPage() {
       <div className="">
         {/* Team Header */}
         <div className="flex flex-col items-center">
-          <div className="w-1/2 h-auto md:w-1/2 md:h-auto overflow-hidden mb-4">
-            <UploadableImage
-              photoURL={team.imageURL}
-              variant="team"
-              alt={t('team_image')}
-              clickable={false}
-              className="object-cover w-full h-full"
-            />
-          </div>
+          <UploadableImage
+            photoURL={team.imageURL}
+            variant="team"
+            alt={t('team_image')}
+            clickable={false}
+            className="w-auto mx-auto mb-4 md:h-52 h-40 object-contain"
+          />
           <h1 className="text-2xl font-semibold mb-1 text-center">{team.name}</h1>
           <div className="flex space-x-4 text-sm text-gray-600 mb-6">
             <span>{t('members')}: {team.members.length}</span>
@@ -150,7 +148,7 @@ export default function TeamDetailPage() {
                         return (
                           <div
                             key={evt.id}
-                            className="shadow rounded-md hover:bg-gray-50 cursor-pointer relative text-left p-4 overflow-hidden w-full"
+                            className="shadow rounded-md hover:bg-gray-50 cursor-pointer relative text-left p-4 overflow-hidden w-full active:scale-[0.98] focus:ring-2 focus:ring-gray-300 focus:outline-none transition-all duration-200"
                             onClick={() => router.push(`/teams/${team.id}/${evt.id}`)}
                           >
                             <div className="absolute top-2 right-2 flex items-center space-x-1">

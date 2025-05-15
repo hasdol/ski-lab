@@ -1,15 +1,12 @@
-// src/app/(protected)/skis/page.jsx
 'use client';
 
 /* -------------------------------------------------------------------------- */
-/*  Skis list page – prefix‑searchable, paginated (32 per page), sortable.     */
-/*  Combines:                                                                  */
-/*    • usePaginatedSkis  (data fetching, keyword search, pagination)          */
-/*    • useSkis            (mutations + lockedSkisCount)                       */
-/*    • all original UI (filter drawer, card/table, test selection logic)      */
+/*  Skis list page – prefix-searchable, paginated (32 per page), sortable.     */
+/*  Now preserves selected skis in the view even if they don't match filters.  */
+/*  Displays matching items first, then selected extras sorted by the same field. */
 /* -------------------------------------------------------------------------- */
 
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -40,7 +37,7 @@ const Skis = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { gloveMode } = useContext(UserPreferencesContext);
-  const { userData } = useAuth();
+  const { user, userData } = useAuth();
   const {
     selectedSkis: selectedGlobal,
     setSelectedSkis,
@@ -48,11 +45,11 @@ const Skis = () => {
     resetTournament,
   } = useContext(TournamentContext);
 
-  /* ----------------------------- local search ----------------------------- */
+  // --- local search
   const [searchRaw, setSearchRaw] = useState('');
   const [debouncedTerm] = useDebounce(searchRaw.toLowerCase(), 300);
 
-  /* ----------------------------- filters & sort --------------------------- */
+  // --- filters & sort
   const [styleFilter, setStyleFilter] = useState(
     () => (typeof window !== 'undefined'
       ? localStorage.getItem('styleFilter') || 'all'
@@ -77,7 +74,7 @@ const Skis = () => {
   );
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  /* ----------------------------- data fetching ---------------------------- */
+  // --- data fetching
   const {
     docs: skis,
     loading,
@@ -94,224 +91,200 @@ const Skis = () => {
     sortDirection,
   });
 
-  /* ---------------------------- mutations (useSkis) ----------------------- */
+  // --- mutations
   const { deleteSki, updateSki, lockedSkisCount } = useSkis();
 
-  /* -------------------------- selection + expand -------------------------- */
+  // --- selection + persistence
   const [selectedMap, setSelectedMap] = useState({});
-  const [expandedSkiId, setExpandedSkiId] = useState(null);
+  const [selectedSkisDataMap, setSelectedSkisDataMap] = useState(() => new Map());
 
-  const toggleSelect = (id) =>
-    setSelectedMap((p) => ({ ...p, [id]: !p[id] }));
+  const toggleSelect = (id) => {
+    setSelectedMap(prev => {
+      const nowSelected = !prev[id];
+      const newMap = { ...prev, [id]: nowSelected };
 
-  const toggleDetails = (id) =>
-    setExpandedSkiId((prev) => (prev === id ? null : id));
+      setSelectedSkisDataMap(prevMap => {
+        const m = new Map(prevMap);
+        if (nowSelected) {
+          const skiObj = skis.find(s => s.id === id);
+          if (skiObj) m.set(id, skiObj);
+        } else {
+          m.delete(id);
+        }
+        return m;
+      });
 
-  const getSelectedList = () =>
-    Object.entries(selectedMap)
-      .filter(([, v]) => v)
-      .map(([id]) => skis.find((s) => s.id === id))
-      .filter(Boolean);
+      return newMap;
+    });
+  };
 
-  /* ------------------------------ localStorage ---------------------------- */
+  const getSelectedList = () => Array.from(selectedSkisDataMap.values());
+
+  // --- build displayedSkis: matching items first, then selected extras
+  const displayedSkis = useMemo(() => {
+    // matching items come directly from `skis`, already sorted
+    const matched = skis;
+    // extras = selected items not in matched
+    const matchedIds = new Set(matched.map(s => s.id));
+    const extras = Array.from(selectedSkisDataMap.values()).filter(s => !matchedIds.has(s.id));
+    if (extras.length) {
+      // sort extras by same field & direction
+      const compare = (a, b) => {
+        const aVal = a[sortField] ?? '';
+        const bVal = b[sortField] ?? '';
+        const cmp = typeof aVal === 'number' && typeof bVal === 'number'
+          ? aVal - bVal
+          : String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
+        return sortDirection === 'asc' ? cmp : -cmp;
+      };
+      extras.sort(compare);
+    }
+    return [...matched, ...extras];
+  }, [skis, selectedSkisDataMap, sortField, sortDirection]);
+
+  // --- persist filter/view into localStorage
   useEffect(() => { localStorage.setItem('viewMode', viewMode); }, [viewMode]);
   useEffect(() => { localStorage.setItem('styleFilter', styleFilter); }, [styleFilter]);
   useEffect(() => { localStorage.setItem('skiTypeFilter', skiTypeFilter); }, [skiTypeFilter]);
   useEffect(() => { localStorage.setItem('archivedFilter', archivedFilter); }, [archivedFilter]);
 
-  /* --------------------------- delete / archive --------------------------- */
+  // --- delete/archive
   const mutate = async (fn) => { await fn(); await refresh(); };
   const handleDelete = async (id) => {
-    if (confirm(t('delete_ski_promt')) && confirm(t('delete_ski_promt_2')))
-      mutate(() => deleteSki(id));
+    if (confirm(t('delete_ski_promt')) && confirm(t('delete_ski_promt_2'))) {
+      await mutate(() => deleteSki(id));
+      setSelectedMap(m => ({ ...m, [id]: false }));
+      setSelectedSkisDataMap(m => { const mm = new Map(m); mm.delete(id); return mm; });
+    }
   };
   const handleArchive = async (id) => {
-    if (confirm(t('archive_ski_promt')))
-      mutate(() => updateSki(id, { archived: true }));
+    if (confirm(t('archive_ski_promt'))) await mutate(() => updateSki(id, { archived: true }));
   };
-  const handleUnarchive = (id) =>
-    mutate(() => updateSki(id, { archived: false }));
+  const handleUnarchive = (id) => mutate(() => updateSki(id, { archived: false }));
 
-  /* --------------------------- plan + limits ----------------------------- */
+  // --- plan limits
   const skiCount = userData?.skiCount || 0;
   const plan = userData?.plan || 'free';
   const skiLimit =
-    plan === 'senior'
-      ? 16
-      : plan === 'senior_pluss'
-      ? 32
-      : plan === 'coach'
-      ? 64
-      : plan === 'company'
-      ? 5000
-      : 8;
+    plan === 'senior' ? 16 :
+    plan === 'senior_pluss' ? 32 :
+    plan === 'coach' ? 64 :
+    plan === 'company' ? 5000 : 8;
   const hasReachedLimit = skiCount >= skiLimit;
   const hasLockedSkis = lockedSkisCount > 0;
 
-  /* ------------------------------ handlers ------------------------------- */
-  const toggleFilterDrawer = () => setIsFilterOpen((o) => !o);
+  // --- handlers
+  const toggleFilterDrawer = () => setIsFilterOpen(o => !o);
   const resetFilter = () => {
     setStyleFilter('all');
     setSkiTypeFilter('all');
     setArchivedFilter('notArchived');
   };
   const handleAddSki = () => {
-    if (hasReachedLimit)
-      return alert(
-        plan === 'company'
-          ? 'Max skis reached for your plan.'
-          : t('upgrade_your_account_to_add_more_skis')
+    if (hasReachedLimit) {
+      return alert(plan === 'company'
+        ? 'Max skis reached for your plan.'
+        : t('upgrade_your_account_to_add_more_skis')
       );
+    }
     router.push('/skis/add');
   };
   const handleStartTournament = () => {
     const list = getSelectedList();
     if (list.length < 2) return alert(t('select_at_least_two_skis'));
-    if (
-      currentRound.length &&
-      !confirm(t('confirm_overwrite_test'))
-    )
-      return;
+    if (currentRound.length && !confirm(t('confirm_overwrite_test'))) return;
     resetTournament();
     setSelectedSkis(list);
     router.push('/testing');
   };
   const handleContinueTest = () => router.push('/testing/summary');
 
-  /* ----------------------------------------------------------------------- */
   if (error) return <div className="m-2">Error: {error.message}</div>;
 
   return (
     <>
-      <Head>
-        <title>Ski‑Lab: Skis</title>
-      </Head>
-
+      <Head><title>Ski-Lab: Skis</title></Head>
       <div className="container mx-auto animate-fade animate-duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 mb-5">
-          {t('skipark')}
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-5">{t('skipark')}</h1>
 
-        {/* ─── top controls row ─────────────────────────────────────── */}
+        {/* Top controls row */}
         <div className="flex items-end justify-between mb-4">
-          {/* left – selection + test controls */}
           <div className="flex flex-col justify-end">
-            <h3 className="text-sm font-semibold mb-1">
-              {getSelectedList().length > 1
+            <h3 className="text-sm font-semibold mb-1">{
+              getSelectedList().length > 1
                 ? `${getSelectedList().length} ${t('skis_selected')}`
-                : t('select_skis_to_test')}
-            </h3>
+                : t('select_skis_to_test')
+            }</h3>
             <div className="flex space-x-3 items-end">
               <Button
                 onClick={handleStartTournament}
                 variant="primary"
                 disabled={getSelectedList().length < 2}
-              >
-                {t('new_test')}
-              </Button>
+              >{t('new_test')}</Button>
               {!!currentRound.length && (
-                <Button
-                  onClick={handleContinueTest}
-                  variant="primary"
-                >
-                  <MdFastForward />
-                </Button>
+                <Button onClick={handleContinueTest} variant="primary"><MdFastForward/></Button>
               )}
             </div>
           </div>
 
-          {/* right – counters + filter + add */}
           <div className="flex space-x-3 items-end">
-            {/* plan button */}
-            <Button
-              onClick={() => router.push('/plans')}
-              variant="secondary"
-            >
-              <RiShoppingCartLine className="text-highlight" />
+            <Button onClick={() => router.push('/plans')} variant="secondary">
+              <RiShoppingCartLine className="text-highlight"/>
             </Button>
 
-            {/* add ski */}
             <div className="flex flex-col items-center w-fit">
-              <label
-                className={`text-sm font-semibold mb-1 ${
-                  hasReachedLimit && 'text-delete'
-                }`}
-              >
-                {skiCount}/{skiLimit}
-              </label>
+              <label className={`text-sm font-semibold mb-1 ${hasReachedLimit && 'text-delete'}`}>{skiCount}/{skiLimit}</label>
               <Button
                 onClick={handleAddSki}
                 variant="secondary"
                 disabled={hasReachedLimit}
                 className={hasReachedLimit ? 'text-red-500' : ''}
               >
-                {hasReachedLimit ? <RiLockLine /> : <RiAddLine />}
+                {hasReachedLimit ? <RiLockLine/> : <RiAddLine/>}
               </Button>
             </div>
 
-            {/* filter */}
             <div className="flex flex-col items-center w-fit">
-              <label className="text-sm font-semibold mb-1">
-                {t('filter')}
-              </label>
+              <label className="text-sm font-semibold mb-1">{t('filter')}</label>
               <Button
                 onClick={toggleFilterDrawer}
                 variant="secondary"
                 className={
-                  styleFilter !== 'all' ||
-                  skiTypeFilter !== 'all' ||
-                  archivedFilter !== 'notArchived'
+                  styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived'
                     ? 'text-gray-800'
                     : ''
                 }
               >
-                {styleFilter !== 'all' ||
-                skiTypeFilter !== 'all' ||
-                archivedFilter !== 'notArchived' ? (
-                  <RiFilter2Fill />
-                ) : (
-                  <RiFilter2Line />
-                )}
+                {styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived'
+                  ? <RiFilter2Fill />
+                  : <RiFilter2Line />}
               </Button>
             </div>
           </div>
         </div>
 
-        {/* search box */}
-        <ResultsSearch onSearch={setSearchRaw} />
+        {/* Search box */}
+        <ResultsSearch onSearch={setSearchRaw}/>
 
-        {/* locked skis prompt */}
+        {/* Locked skis prompt */}
         {(hasLockedSkis || (hasReachedLimit && plan === 'free')) && (
           <div className="flex my-4 space-x-4">
             {hasLockedSkis && (
               <div className="flex space-x-5 border border-gray-300 py-4 rounded-md items-center justify-center w-full">
                 <div className="space-y-1">
-                  <h3 className="text-sm flex items-center">
-                    <RiLockLine /> {lockedSkisCount}{' '}
-                    {t('locked_ski(s)')}
-                  </h3>
-                  <Button
-                    onClick={() => router.push('/skis/locked')}
-                    variant="secondary"
-                  >
-                    {t('view_skis')}
-                  </Button>
+                  <h3 className="text-sm flex items-center"><RiLockLine /> {lockedSkisCount} {t('locked_ski(s)')}</h3>
+                  <Button onClick={() => router.push('/skis/locked')} variant="secondary">{t('view_skis')}</Button>
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-sm">{t('upgrade_to_unlock')}</h3>
-                  <Button
-                    variant="primary"
-                    onClick={() => router.push('/plans')}
-                  >
-                    {t('upgrade')}
-                  </Button>
+                  <Button variant="primary" onClick={() => router.push('/plans')}>{t('upgrade')}</Button>
                 </div>
               </div>
             )}
           </div>
         )}
 
-        {/* filter drawer */}
+        {/* Filter drawer */}
         <SkiFilterDrawer
           open={isFilterOpen}
           onClose={toggleFilterDrawer}
@@ -330,96 +303,62 @@ const Skis = () => {
           setViewMode={setViewMode}
         />
 
-        {/* active filter chips */}
-        {(styleFilter !== 'all' ||
-          skiTypeFilter !== 'all' ||
-          archivedFilter !== 'notArchived') && (
-          <div className="flex space-x-2 text-sm  mt-2">
+        {/* Active filter chips */}
+        {(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && (
+          <div className="flex space-x-2 text-sm mt-2">
             {styleFilter !== 'all' && (
-              <Button
-                variant="secondary"
-                onClick={() => setStyleFilter('all')}
-              >
-                <span className="flex">
-                  {t(styleFilter)} <RiCloseLine />
-                </span>
-              </Button>
+              <Button variant="secondary" onClick={() => setStyleFilter('all')}><span className="flex">{t(styleFilter)} <RiCloseLine/></span></Button>
             )}
             {skiTypeFilter !== 'all' && (
-              <Button
-                variant="secondary"
-                onClick={() => setSkiTypeFilter('all')}
-              >
-                <span className="flex">
-                  {t(skiTypeFilter)} <RiCloseLine />
-                </span>
-              </Button>
+              <Button variant="secondary" onClick={() => setSkiTypeFilter('all')}><span className="flex">{t(skiTypeFilter)} <RiCloseLine/></span></Button>
             )}
             {archivedFilter !== 'notArchived' && (
-              <Button
-                variant="secondary"
-                onClick={() => setArchivedFilter('notArchived')}
-              >
-                <span className="flex">
-                  {t(archivedFilter)} <RiCloseLine />
-                </span>
-              </Button>
+              <Button variant="secondary" onClick={() => setArchivedFilter('notArchived')}><span className="flex">{t(archivedFilter)} <RiCloseLine/></span></Button>
             )}
           </div>
         )}
 
-        {/* list */}
+        {/* Ski list (cards or table) */}
         <div className="my-2">
           {loading && !skis.length ? (
-            <div className="flex justify-center items-center mt-10">
-              <Spinner />
-            </div>
+            <div className="flex justify-center items-center mt-10"><Spinner/></div>
           ) : viewMode === 'card' ? (
-            <div
-              className={
-                gloveMode
-                  ? 'grid grid-cols-2 gap-4'
-                  : 'flex flex-col space-y-2'
-              }
-            >
-              {skis.map((ski) => (
+            <div className={gloveMode ? 'grid grid-cols-2 gap-4' : 'flex flex-col space-y-2'}>
+              {displayedSkis.map(ski => (
                 <SkiItem
                   key={ski.id}
                   ski={ski}
                   search={debouncedTerm}
                   handleCheckboxChange={toggleSelect}
                   selectedSkis={selectedMap}
-                  expandedSkiId={expandedSkiId}
-                  toggleDetails={toggleDetails}
+                  expandedSkiId={null}
+                  toggleDetails={() => {}}
                   handleArchive={handleArchive}
                   handleUnarchive={handleUnarchive}
                   handleDelete={handleDelete}
-                  handleEdit={() =>
-                    router.push(`/skis/${ski.id}/edit`)
-                  }
+                  handleEdit={() => router.push(`/skis/${ski.id}/edit`)}
                 />
               ))}
             </div>
           ) : (
             <SkiTable
-              skis={skis}
+              skis={displayedSkis}
               search={debouncedTerm}
               selectedSkis={selectedMap}
               onToggleSelect={toggleSelect}
-              expandedSkiId={expandedSkiId}
-              onToggleDetails={toggleDetails}
+              expandedSkiId={null}
+              onToggleDetails={() => {}}
               sortField={sortField}
               sortDirection={sortDirection}
               onSort={(field) => {
-                field === sortField
-                  ? setSortDirection((d) =>
-                      d === 'asc' ? 'desc' : 'asc'
-                    )
-                  : (setSortField(field), setSortDirection('asc'));
+                if (field === sortField) {
+                  setSortDirection(d => (d === 'asc' ? 'desc' : 'asc'));
+                } else {
+                  setSortField(field);
+                  setSortDirection('asc');
+                }
               }}
-              onEdit={(ski) =>
-                router.push(`/skis/${ski.id}/edit`)
-              }
+              onEdit={ski => router.push(`/skis/${ski.id}/edit`)}
               onDelete={handleDelete}
               onArchive={handleArchive}
               onUnarchive={handleUnarchive}
@@ -427,11 +366,13 @@ const Skis = () => {
           )}
 
           {/* Load more button */}
-          {!exhausted && !loading && (
+          {!exhausted && !loading && user && (
             <div className="flex justify-center my-4">
               <Button onClick={loadMore}>{t('load_more')}</Button>
             </div>
           )}
+          {skis.length==0 && !loading && <p className='mt-4'>{t('you_have_no_skis')}</p>}
+          {!user && <span className='mt-4 italic'>{t('you_are_not_signed_in')}</span>}
         </div>
       </div>
     </>

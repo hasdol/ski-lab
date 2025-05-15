@@ -152,7 +152,7 @@ const SkiTable = ({
             return (
               <React.Fragment key={ski.id}>
                 {/* Main data row */}
-                <tr className="border-b border-gray-300 hover:bg-gray-100">
+                <tr className="border-b border-gray-300 hover:bg-gray-50">
                   {/* Selection */}
                   <td className="px-2 py-2 text-center">
                     <input

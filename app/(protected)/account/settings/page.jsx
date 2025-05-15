@@ -4,6 +4,7 @@ import Head from 'next/head';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { getAuth, signOut as firebaseSignOut } from 'firebase/auth';
 import { GiWinterGloves } from 'react-icons/gi';
 import { FaHandsClapping } from 'react-icons/fa6';
 import { RiEditLine, RiUserLine } from 'react-icons/ri';
@@ -45,13 +46,22 @@ export default function SettingsPage() {
 
   const handleDeleteAccount = async () => {
     let confirmDeleteSubscription = false;
+    // first confirm: handle subscription vs. simple
     if (userData?.stripeSubscriptionId) {
-      if (!window.confirm(
-        t('confirm_delete_with_subscription')
-      )) return;
+      if (!window.confirm(t('confirm_delete_with_subscription'))) return;
       confirmDeleteSubscription = true;
     } else {
       if (!window.confirm(t('confirm_delete_account'))) return;
+    }
+
+    // second, final “are you really sure?”
+    if (
+      !window.confirm(
+        t('confirm_delete_account_final') ||
+        'Are you absolutely sure you want to delete your account? This cannot be undone.'
+      )
+    ) {
+      return;
     }
 
     setIsLoading(true);
@@ -62,6 +72,12 @@ export default function SettingsPage() {
       const callable = httpsCallable(functions, 'deleteUserAccount');
       const result = await callable({ confirmDeleteSubscription });
       setSuccess(result.data.message);
+
+      await firebaseSignOut(getAuth());
+      // wait 2 seconds so the user can read the success message…
+      setTimeout(() => {
+        router.push('/');        // navigate to home
+      }, 2000);
     } catch (err) {
       setError(t('error_delete_account') + err.message);
     } finally {
@@ -92,7 +108,7 @@ export default function SettingsPage() {
             {t('settings')}
           </h1>
           <div>
-            <Button variant="secondary" className='text-xs' onClick={() => router.back()}>
+            <Button variant="secondary" className='text-sm' onClick={() => router.back()}>
               {t('back')}
             </Button>
           </div>

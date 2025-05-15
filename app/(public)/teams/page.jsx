@@ -19,7 +19,7 @@ export default function TeamsPage() {
   return (
     <div className="container mx-auto animate-fade-up animate-duration-300">
       {/* Header */}
-      <div className="flex flex-col items-start  justify-between mb-8">
+      <div className="flex flex-col items-start  justify-between">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
           {t('teams')}
         </h1>
@@ -32,7 +32,7 @@ export default function TeamsPage() {
               variant="primary"
               className="h-fit"
             >
-              {t('create_team')}
+              {t('create')}
             </Button>
           )}
         </div>
@@ -59,23 +59,13 @@ export default function TeamsPage() {
           <TeamList teams={teams} />
         )}
 
-        {/* Login Prompt */}
-        {!user && (
-          <div className="text-center pt-4">
-            <Button
-              variant="primary"
-              onClick={() => router.push('/signin')}
-              className="px-6 py-2"
-            >
-              {t('signIn')}
-            </Button>
-          </div>
-        )}
+        {!user && <span className='mt-4 italic'>{t('you_are_not_signed_in')}</span>}
+
 
         {/* No Teams Fallback */}
         {(!loading && !error && teams.length === 0) && (
-          <p className="text-gray-600 text-center">
-            {t('no_teams_found')}
+          <p className="mt-4">
+            {t('no_teams_joined')}
           </p>
         )}
       </section>
