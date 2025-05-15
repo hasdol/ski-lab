@@ -9,7 +9,7 @@ import { getUserTeamsWithLiveEvents } from '@/lib/firebase/firestoreFunctions';
 import { motion } from 'framer-motion';
 import SkiLogoAnimated from './components/SkiLogoAnimation';
 
-const bgUrl = '/bg.jpg';
+const bgUrl = '/bg6.jpg';
 
 const HomePage = () => {
   const { user, checkingStatus } = useAuth();
@@ -60,7 +60,7 @@ const HomePage = () => {
       <div className='relative flex flex-col items-center min-h-screen p-6 text-text overflow-hidden'>
         {/* Background image */}
         <div
-          className={`absolute inset-0 bg-cover bg-top blur-xs transition-opacity duration-1000 ${imageLoaded ? 'opacity-20 scale-110' : 'opacity-0'}`}
+          className={`absolute inset-0 bg-cover bg-top blur-[2px] transition-opacity duration-1000 ${imageLoaded ? 'opacity-30 scale-110' : 'opacity-0'}`}
           style={{ backgroundImage: `url(${bgUrl})` }}
         />
         <img
@@ -69,7 +69,7 @@ const HomePage = () => {
           className="hidden"
           onLoad={() => setImageLoaded(true)}
         />
-        <div className='flex flex-col items-center relative text-center w-full max-w-4xl mt-20'>
+        <div className='flex flex-col items-center relative text-center w-full max-w-4xl md:mt-20 mt-10'>
           <SkiLogoAnimated />
           {/* Hero section */}
           <motion.div
