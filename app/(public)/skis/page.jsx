@@ -120,15 +120,18 @@ const Skis = () => {
 
   const getSelectedList = () => Array.from(selectedSkisDataMap.values());
 
+  // --- detail toggle
+  const [expandedSkiId, setExpandedSkiId] = useState(null);
+  const toggleDetails = (id) => {
+    setExpandedSkiId(prev => (prev === id ? null : id));
+  };
+
   // --- build displayedSkis: matching items first, then selected extras
   const displayedSkis = useMemo(() => {
-    // matching items come directly from `skis`, already sorted
     const matched = skis;
-    // extras = selected items not in matched
     const matchedIds = new Set(matched.map(s => s.id));
     const extras = Array.from(selectedSkisDataMap.values()).filter(s => !matchedIds.has(s.id));
     if (extras.length) {
-      // sort extras by same field & direction
       const compare = (a, b) => {
         const aVal = a[sortField] ?? '';
         const bVal = b[sortField] ?? '';
@@ -323,7 +326,7 @@ const Skis = () => {
           {loading && !skis.length ? (
             <div className="flex justify-center items-center mt-10"><Spinner/></div>
           ) : viewMode === 'card' ? (
-            <div className={gloveMode ? 'grid grid-cols-2 gap-4' : 'flex flex-col space-y-2'}>
+            <div className={gloveMode ? 'grid grid-cols-2 gap-4' : 'flex flex-col space-y-2'}> 
               {displayedSkis.map(ski => (
                 <SkiItem
                   key={ski.id}
@@ -331,8 +334,8 @@ const Skis = () => {
                   search={debouncedTerm}
                   handleCheckboxChange={toggleSelect}
                   selectedSkis={selectedMap}
-                  expandedSkiId={null}
-                  toggleDetails={() => {}}
+                  expandedSkiId={expandedSkiId}
+                  toggleDetails={toggleDetails}
                   handleArchive={handleArchive}
                   handleUnarchive={handleUnarchive}
                   handleDelete={handleDelete}
@@ -346,8 +349,8 @@ const Skis = () => {
               search={debouncedTerm}
               selectedSkis={selectedMap}
               onToggleSelect={toggleSelect}
-              expandedSkiId={null}
-              onToggleDetails={() => {}}
+              expandedSkiId={expandedSkiId}
+              onToggleDetails={toggleDetails}
               sortField={sortField}
               sortDirection={sortDirection}
               onSort={(field) => {
@@ -371,7 +374,7 @@ const Skis = () => {
               <Button onClick={loadMore}>{t('load_more')}</Button>
             </div>
           )}
-          {skis.length==0 && !loading && <p className='mt-4'>{t('you_have_no_skis')}</p>}
+          {skis.length===0 && !loading && <p className='mt-4'>{t('you_have_no_skis')}</p>}
           {!user && <span className='mt-4 italic'>{t('you_are_not_signed_in')}</span>}
         </div>
       </div>
