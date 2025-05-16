@@ -193,7 +193,7 @@ const TestSummaryPage = () => {
         <meta name="description" content="Displaying your test results" />
       </Head>
 
-      <div className="space-y-5">
+      <div className='p-3 md:w-2/3 mx-auto space-y-6'>
         <h1 className="text-3xl font-bold text-gray-900 b-5">
           {t('summary')}
         </h1>

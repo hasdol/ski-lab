@@ -68,7 +68,7 @@ export default function TeamDetailPage() {
   };
 
   return (
-    <div className="mx-auto animate-fade-up animate-duration-300">
+    <div className='p-3 md:w-2/3 mx-auto'>
       {/* Back & Manage */}
       <div className="flex items-center justify-between mb-6">
         <Button onClick={handleBack} variant="secondary" >{t('back')}</Button>
@@ -134,11 +134,11 @@ export default function TeamDetailPage() {
           )}
 
 
-         
+
 
           {activeTab === 'events' && (
             <div className="space-y-6 w-full">
-               {canManage && <Button onClick={() => router.push(`/teams/${teamId}/create-event`)} variant="primary" className='w-full md:w-fit'>{t('create_event')}</Button>}
+              {canManage && <Button onClick={() => router.push(`/teams/${teamId}/create-event`)} variant="primary" className='w-full md:w-fit'>{t('create_event')}</Button>}
               {['live', 'upcoming', 'past'].map(cat => (
                 categorized[cat].length > 0 && (
                   <div key={cat}>

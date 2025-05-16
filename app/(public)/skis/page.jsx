@@ -205,7 +205,7 @@ const Skis = () => {
   if (error) return <div className="m-2">Error: {error.message}</div>;
 
   return (
-    <>
+    <div className='p-3 md:w-2/3 mx-auto'>
       <Head><title>Ski-Lab: Skis</title></Head>
       <div className="container mx-auto animate-fade animate-duration-300">
         <h1 className="text-3xl font-bold text-gray-900 my-4">{t('skipark')}</h1>
@@ -378,7 +378,7 @@ const Skis = () => {
           {!user && <span className='mt-4 italic'>{t('you_are_not_signed_in')}</span>}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -29,7 +29,7 @@ const Contact = () => {
         <title>Ski-Lab: Contact</title> 
         <meta name="description" content="Contact and get in touch with the website creator" />
       </Head>
-      <div className="mx-auto animate-fade-up animate-duration-300">
+      <div className="p-3 mx-auto animate-fade-up animate-duration-300">
       <h1 className="text-3xl font-bold text-gray-900 my-4">
           {t('contact')}
         </h1>

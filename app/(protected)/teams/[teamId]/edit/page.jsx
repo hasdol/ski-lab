@@ -103,7 +103,7 @@ export default function EditTeamPage() {
   }
 
   return (
-    <div className="mx-auto animate-fade-up animate-duration-300 space-y-4">
+    <div className='p-3 md:w-2/3 mx-auto'>
       <h1 className="text-3xl font-bold text-gray-900 my-4">
         {t('edit_team')}
       </h1>

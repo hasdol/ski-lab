@@ -26,10 +26,13 @@ const AddSkisPage = () => {
         <title>Ski-Lab: Add skis</title>
         <meta name="description" content="Adding skis to your ski database" />
       </Head>
-      <h1 className="text-3xl font-bold text-gray-900 my-4">
-        {t('add_skis')}
-      </h1>
-      <SkiForm onSubmit={handleAddSki} />
+      <div className='p-3 md:w-2/3 mx-auto'>
+        <h1 className="text-3xl font-bold text-gray-900 my-4">
+          {t('add_skis')}
+        </h1>
+        <SkiForm onSubmit={handleAddSki} />
+      </div>
+
     </div>
   );
 };

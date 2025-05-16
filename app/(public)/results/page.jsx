@@ -115,7 +115,8 @@ const Results = () => {
   // Render
   // ------------------------------------------------------------
   return (
-    <>
+    <div className='p-3 md:w-2/3 mx-auto'>
+
       <Head>
         <title>Ski-Lab: Results</title>
         <meta name="description" content="Displaying your test results" />
@@ -339,7 +340,7 @@ const Results = () => {
         onClose={() => setModalOpen(false)}
         onConfirm={handleModalConfirm}
       />
-    </>
+    </div>
   );
 };
 

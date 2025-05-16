@@ -145,11 +145,11 @@ const EditResultPage = () => {
         <title>SkiLab: {t('edit_result')}</title>
         <meta name="description" content="Edit result" />
       </Head>
-      <div className="mx-auto animate-fade-up animate-duration-300">
+      <div className='p-3 md:w-2/3 mx-auto'>
         <h1 className="text-3xl font-bold text-gray-900 my-4">
           {t('edit_result')}
         </h1>
-        <form onSubmit={handleSubmit} className="space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-2 animate-fade-down animate-duration-300">
           {/* Scores */}
           {resultData.rankings.map((r, i) => (
             <div key={i} className="flex flex-col">

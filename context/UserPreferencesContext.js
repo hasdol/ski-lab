@@ -1,3 +1,4 @@
+'use client'
 import React, { createContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';

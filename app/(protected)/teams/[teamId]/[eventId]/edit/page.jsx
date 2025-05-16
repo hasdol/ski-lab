@@ -108,7 +108,7 @@ export default function EditEventPage() {
   };
 
   return (
-    <div className="mx-auto space-y-6">
+    <div className='p-3 md:w-2/3 mx-auto space-y-6'>
       <h1 className="text-3xl font-bold text-gray-900 my-4">
         {t('edit_event')}
       </h1>

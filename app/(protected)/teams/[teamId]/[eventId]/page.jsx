@@ -59,7 +59,7 @@ export default function EventPage() {
   const endFmt = end?.toLocaleDateString();
 
   return (
-    <div className="mx-auto animate-fade-up animate-duration-300">
+    <div className='p-3 md:w-2/3 mx-auto'>
       <div className="flex items-center justify-between mb-6">
         <Button onClick={handleBack} variant="secondary" >{t('back')}</Button>
         {canManage && (
@@ -69,12 +69,12 @@ export default function EventPage() {
 
       <div className="space-y-4">
         <div className="text-center">
-            <UploadableImage
-              photoURL={eventData.imageURL}
-              variant="event"
-              clickable={false}
-              className="w-auto mx-auto mb-4 md:h-52 h-40 object-contain"
-            />
+          <UploadableImage
+            photoURL={eventData.imageURL}
+            variant="event"
+            clickable={false}
+            className="w-auto mx-auto mb-4 md:h-52 h-40 object-contain"
+          />
 
           <h1 className="text-3xl font-semibold text-gray-800 mb-1">{eventData.name}</h1>
           <p className="text-sm text-gray-600">{startFmt} - {endFmt}</p>

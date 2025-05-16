@@ -1,5 +1,5 @@
 'use client'
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';

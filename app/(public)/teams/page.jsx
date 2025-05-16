@@ -17,13 +17,14 @@ export default function TeamsPage() {
   const router = useRouter();
 
   return (
-    <div className="container mx-auto animate-fade-up animate-duration-300">
+    <div className='p-3 md:w-2/3 mx-auto'>
+
       {/* Header */}
       <div className="flex flex-col items-start  justify-between">
         <h1 className="text-3xl font-bold text-gray-900 my-4">
           {t('teams')}
         </h1>
-        
+
         <div className="flex flex-col md:flex-row w-full space-x-3 gap-4 md:items-end justify-between">
           {canCreateTeam && (
             <Button
@@ -35,7 +36,7 @@ export default function TeamsPage() {
             </Button>
           )}
           <JoinTeamForm />
-          
+
         </div>
       </div>
 

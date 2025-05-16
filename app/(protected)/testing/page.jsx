@@ -236,9 +236,9 @@ const Testing = () => {
           else onDragEndNonMatch(result);
         }}
       >
-        <div>
+      <div className='p-3 md:w-2/3 mx-auto'>
           <div className="flex justify-between">
-            <h1 className="text-3xl font-bold text-gray-900 mb-5">
+            <h1 className="text-3xl font-bold text-gray-900 my-4">
               {t('round')} {roundNumber}/{totalRounds}
             </h1>
             <div className='space-x-2'>

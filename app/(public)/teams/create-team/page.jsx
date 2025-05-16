@@ -52,7 +52,7 @@ export default function CreateTeamPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto">
+      <div className='p-3 md:w-2/3 mx-auto'>
       <h1 className="text-3xl font-bold text-gray-900 my-4">
         {t('create_team')}
       </h1>

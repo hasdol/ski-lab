@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://ski-lab.com
-
-# Sitemaps
-Sitemap: https://ski-lab.com/sitemap.xml

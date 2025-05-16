@@ -88,7 +88,7 @@ const PlansPage = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-up animate-duration-300">
       <div className="">
-        <h1 className="text-3xl font-semibold text-center text-gray-800 mb-8">
+        <h1 className="text-3xl text-center mb-5 font-bold text-gray-900 my-4">
           {t('pick_a_plan')}
         </h1>
 

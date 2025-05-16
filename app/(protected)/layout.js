@@ -1,22 +1,14 @@
-'use client'
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import Spinner from '@/components/common/Spinner/Spinner';
+// app/(protected)/layout.js
 
-function ProtectedRoute({ children, redirectTo = '/signin' }) {
-  const { user, checkingStatus } = useAuth();
-  const router = useRouter();
+// ── ❷ Prevent indexing of every protected route ───────────
+export const metadata = {
+  robots: {
+    index:  false,
+    follow: false,
+  },
+};
 
-  useEffect(() => {
-    if (!checkingStatus && !user) {
-      router.push(redirectTo);
-    }
-  }, [user, checkingStatus, router, redirectTo]);
-
-  if (checkingStatus || !user) return <div className='flex justify-center mt-10'><Spinner /></div> ;
-  return children;
-}
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function ProtectedLayout({ children }) {
   return <ProtectedRoute>{children}</ProtectedRoute>;

@@ -33,9 +33,10 @@ const Account = () => {
   return (
     <>
       <Head>
+        <meta name="robots" content="noindex, nofollow" />
         <title>Ski-Lab: {t('account')}</title>
       </Head>
-      <div className="mx-auto animate-fade-up animate-duration-300">
+      <div className="p-3 mx-auto animate-fade-up animate-duration-300">
         <h1 className="text-3xl font-bold text-gray-900 my-4">
           {t('account')}
         </h1>
