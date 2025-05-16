@@ -1,0 +1,18 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /account
+Disallow: /settings
+Disallow: /plans
+Disallow: /skis/add
+Disallow: /skis/locked
+Disallow: /results/*/edit
+Disallow: /testing
+Disallow: /create-event
+Disallow: /edit
+
+# Host
+Host: https://ski-lab.com
+
+# Sitemaps
+Sitemap: https://ski-lab.com/sitemap.xml
