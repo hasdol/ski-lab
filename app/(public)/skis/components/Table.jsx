@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   MdEdit,
   MdDelete,
@@ -32,7 +31,6 @@ const SkiTable = ({
   onArchive,
   onUnarchive
 }) => {
-  const { t } = useTranslation();
 
   if (!skis || skis.length === 0) {
     return null;
@@ -70,7 +68,7 @@ const SkiTable = ({
               onClick={() => onSort('style')}
             >
               <div className="flex items-center justify-center space-x-1">
-                <span>{t('style')}</span>
+                <span>Style</span>
                 {renderSortIndicator('style')}
               </div>
             </th>
@@ -79,7 +77,7 @@ const SkiTable = ({
               onClick={() => onSort('brand')}
             >
               <div className="flex items-center justify-center space-x-1">
-                <span>{t('brand')}</span>
+                <span>Brand</span>
                 {renderSortIndicator('brand')}
               </div>
             </th>
@@ -88,7 +86,7 @@ const SkiTable = ({
               onClick={() => onSort('model')}
             >
               <div className="flex items-center justify-center space-x-1">
-                <span>{t('model')}</span>
+                <span>Model</span>
                 {renderSortIndicator('model')}
               </div>
             </th>
@@ -97,7 +95,7 @@ const SkiTable = ({
               onClick={() => onSort('grind')}
             >
               <div className="flex items-center justify-center space-x-1">
-                <span>{t('grind')}</span>
+                <span>Grind</span>
                 {renderSortIndicator('grind')}
               </div>
             </th>
@@ -115,7 +113,7 @@ const SkiTable = ({
               onClick={() => onSort('length')}
             >
               <div className="flex items-center justify-center space-x-1">
-                <span>{t('length')}</span>
+                <span>Length</span>
                 {renderSortIndicator('length')}
               </div>
             </th>
@@ -124,7 +122,7 @@ const SkiTable = ({
               onClick={() => onSort('stiffness')}
             >
               <div className="flex items-center justify-center space-x-1">
-                <span>{t('stiffness')}</span>
+                <span>Stiffness</span>
                 {renderSortIndicator('stiffness')}
               </div>
             </th>
@@ -133,13 +131,13 @@ const SkiTable = ({
               onClick={() => onSort('construction')}
             >
               <div className="flex items-center justify-center space-x-1">
-                <span>{t('construction')}</span>
+                <span>Construction</span>
                 {renderSortIndicator('construction')}
               </div>
             </th>
 
             {/* Action column header */}
-            <th className="px-2 py-2 text-center ">{t('actions')}</th>
+            <th className="px-2 py-2 text-center ">Actions</th>
 
             {/* Expand / collapse */}
             <th className="px-2 py-2 text-center" />
@@ -160,7 +158,7 @@ const SkiTable = ({
                       checked={!!selectedSkis[ski.id]}
                       onChange={() => onToggleSelect?.(ski.id)}
                       className="accent-btn w-4 h-4"
-                      aria-label={t('select')}
+                      aria-label='Select'
                     />
                   </td>
 
@@ -197,7 +195,7 @@ const SkiTable = ({
                   <td className="p-2 flex justify-center gap-3">
                     <Button
                       variant="secondary"
-                      title={t('edit')}
+                      title='Edit'
                       onClick={() => onEdit?.(ski)}
                     >
                       <MdEdit />
@@ -206,7 +204,7 @@ const SkiTable = ({
                     {ski.archived ? (
                       <Button
                         variant="primary"
-                        title={t('unarchive')}
+                        title='unarchive'
                         onClick={() => onUnarchive?.(ski.id)}
                       >
                         <MdUnarchive />
@@ -214,7 +212,7 @@ const SkiTable = ({
                     ) : (
                       <Button
                         variant="secondary"
-                        title={t('archive')}
+                        title='archive'
                         onClick={() => onArchive?.(ski.id)}
                       >
                         <MdArchive />
@@ -223,7 +221,7 @@ const SkiTable = ({
 
                     <Button
                       variant="danger"
-                      title={t('delete')}
+                      title='delete'
                       onClick={() => onDelete?.(ski.id)}
                     >
                       <MdDelete />

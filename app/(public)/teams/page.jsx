@@ -4,7 +4,6 @@ import { useAuth } from '@/context/AuthContext';
 import useTeams from '@/hooks/useTeams';
 import JoinTeamForm from './components/JoinTeamForm';
 import TeamList from './components/TeamList';
-import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/common/Button';
 import Spinner from '@/components/common/Spinner/Spinner';
@@ -13,7 +12,6 @@ export default function TeamsPage() {
   const { user, userData } = useAuth();
   const { teams, loading, error } = useTeams();
   const canCreateTeam = ['coach', 'company'].includes(userData?.plan);
-  const { t } = useTranslation();
   const router = useRouter();
 
   return (
@@ -22,7 +20,7 @@ export default function TeamsPage() {
       {/* Header */}
       <div className="flex flex-col items-start  justify-between">
         <h1 className="text-3xl font-bold text-gray-900 my-4">
-          {t('teams')}
+          Teams
         </h1>
 
         <div className="flex flex-col md:flex-row w-full space-x-3 gap-4 md:items-end justify-between">
@@ -32,7 +30,7 @@ export default function TeamsPage() {
               variant="primary"
               className="h-fit"
             >
-              {t('create_team')}
+              Create Team
             </Button>
           )}
           <JoinTeamForm />
@@ -52,7 +50,7 @@ export default function TeamsPage() {
         {/* Error State */}
         {error && (
           <div className="bg-red-100 text-red-800 border border-red-200 px-4 py-3 rounded-md">
-            <strong>{t('error_loading_teams')}:</strong> {error.message}
+            <strong>Error loading teams:</strong> {error.message}
           </div>
         )}
 
@@ -61,13 +59,13 @@ export default function TeamsPage() {
           <TeamList teams={teams} />
         )}
 
-        {!user && <span className='mt-4 italic'>{t('you_are_not_signed_in')}</span>}
+        {!user && <span className='mt-4 italic'>You are not signed in</span>}
 
 
         {/* No Teams Fallback */}
         {(!loading && !error && teams.length === 0 && user) && (
           <p className="mt-4">
-            {t('no_teams_joined')}
+            No teams joined
           </p>
         )}
       </section>

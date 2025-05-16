@@ -34,6 +34,7 @@ module.exports = {
     '/signup/**',
     '/resetPassword',
     '/resetPassword/**',
+    '/contact',
   ],
 
   robotsTxtOptions: {

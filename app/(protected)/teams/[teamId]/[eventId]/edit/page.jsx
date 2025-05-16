@@ -1,7 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
 import { updateEvent, deleteEvent } from '@/lib/firebase/teamFunctions';
 import { deleteEventImage, uploadEventImage } from '@/lib/firebase/storageFunctions';
 import useEvent from '@/hooks/useEvent';
@@ -15,7 +14,6 @@ import Spinner from '@/components/common/Spinner/Spinner';
 export default function EditEventPage() {
   const { teamId, eventId } = useParams();
   const router = useRouter();
-  const { t } = useTranslation();
   const { user } = useAuth();
 
   const { eventData, loading, error } = useEvent(teamId, eventId);
@@ -44,8 +42,8 @@ export default function EditEventPage() {
   }, [eventData]);
 
   if (loading) return <Spinner />;
-  if (error) return <div className="text-red-700">{t('error')}: {error.message}</div>;
-  if (!eventData) return <div>{t('no_event_found')}</div>;
+  if (error) return <div className="text-red-700">Error: {error.message}</div>;
+  if (!eventData) return <div>No event found</div>;
 
   const handleFile = (e) => {
     const selected = e.target.files?.[0];
@@ -110,35 +108,35 @@ export default function EditEventPage() {
   return (
     <div className='p-3 md:w-2/3 mx-auto space-y-6'>
       <h1 className="text-3xl font-bold text-gray-900 my-4">
-        {t('edit_event')}
+        Edit Event
       </h1>
       <Button onClick={() => router.push(`/teams/${teamId}/${eventId}`)} variant="secondary" >
-        {t('back')}
+        Back
       </Button>
 
       <div className="space-y-4">
-        <Input value={name} onChange={e => setName(e.target.value)} placeholder={t('event_name')} />
-        <Input type="textarea" value={desc} onChange={e => setDesc(e.target.value)} placeholder={t('description')} />
+        <Input value={name} onChange={e => setName(e.target.value)} placeholder='Event name' />
+        <Input type="textarea" value={desc} onChange={e => setDesc(e.target.value)} placeholder='Description' />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input type="date" label={t('start_date')} value={startDate} onChange={e => setStartDate(e.target.value)} />
-          <Input type="date" label={t('end_date')} value={endDate} onChange={e => setEndDate(e.target.value)} />
+          <Input type="date" label='Start date' value={startDate} onChange={e => setStartDate(e.target.value)} />
+          <Input type="date" label='End date' value={endDate} onChange={e => setEndDate(e.target.value)} />
         </div>
-        <GeocodeInput label={t('event_location')} initialValue={location.address} onLocationSelect={(lat, lon, addr) => setLocation({ lat, lon, address: addr })} />
+        <GeocodeInput label='Event location' initialValue={location.address} onLocationSelect={(lat, lon, addr) => setLocation({ lat, lon, address: addr })} />
         <div className="w-32 h-32 overflow-hidden mx-auto">
-          <UploadableImage photoURL={imageURL} variant="event" alt={t('event_image')} clickable handleImageChange={handleFile} className="object-cover w-full h-full" />
+          <UploadableImage photoURL={imageURL} variant="event" alt='event image' clickable handleImageChange={handleFile} className="object-cover w-full h-full" />
         </div>
         {imageURL && (
           <Button onClick={handleRemoveImage} variant="danger" className="text-xs w-full">
-            {t('remove_image')}
+            Remove image
           </Button>
         )}
       </div>
       <div className="flex gap-2">
         <Button onClick={handleUpdate} variant="primary" loading={uploading}>
-          {t('update')}
+          Update
         </Button>
         <Button onClick={handleDelete} variant="danger" >
-          {t('delete')}
+          Delete
         </Button>
 
       </div>

@@ -1,7 +1,6 @@
 'use client'
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
 import { useSingleSki } from '@/hooks/useSingleSki';
 import { useSkis } from '@/hooks/useSkis';
 import SkiForm from '@/components/SkiForm/SkiForm';
@@ -11,7 +10,6 @@ const EditSkisPage = () => {
   const { updateSki, loading: updating, error: updateError } = useSkis();
   const { id } = useParams();
   const router = useRouter();
-  const { t } = useTranslation();
   const { ski, loading, error } = useSingleSki(id);
 
   const handleUpdateSki = async (formData) => {
@@ -28,7 +26,7 @@ const EditSkisPage = () => {
     <div>
       <div className='p-3 md:w-2/3 mx-auto'>
         <h1 className="text-3xl font-bold text-gray-900 my-4">
-          {t('edit_skis')}
+          Edit Skis
         </h1>
         <SkiForm initialData={ski} onSubmit={handleUpdateSki} isEdit={true} />
       </div>

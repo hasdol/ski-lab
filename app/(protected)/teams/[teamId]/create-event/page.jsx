@@ -4,7 +4,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createEvent, updateEvent } from '@/lib/firebase/teamFunctions';
 import { uploadEventImage } from '@/lib/firebase/storageFunctions';
-import { useTranslation } from 'react-i18next';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
 import UploadableImage from '@/components/common/UploadableImage';
@@ -14,7 +13,6 @@ export default function CreateEventPage() {
   const { teamId } = useParams();
   const router = useRouter();
   const { user } = useAuth();
-  const { t } = useTranslation();
 
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
@@ -75,9 +73,9 @@ export default function CreateEventPage() {
   };
 
   return (
-      <div className='p-3 md:w-2/3 mx-auto'>
+    <div className='p-3 md:w-2/3 mx-auto space-y-4'>
       <h1 className="text-3xl font-bold text-gray-900 my-4">
-        {t('create_event')}
+        Create Event
       </h1>
 
       <Input
@@ -98,7 +96,7 @@ export default function CreateEventPage() {
       <Input
         type="date"
         name="startDate"
-        label={t('start_date')}
+        label='Start date'
         value={startDate}
         onChange={(e) => setStartDate(e.target.value)}
         required
@@ -106,7 +104,7 @@ export default function CreateEventPage() {
       <Input
         type="date"
         name="endDate"
-        label={t('end_date')}
+        label='End date'
         value={endDate}
         onChange={(e) => setEndDate(e.target.value)}
         required
@@ -128,10 +126,10 @@ export default function CreateEventPage() {
 
       <div className="flex gap-3 mt-4">
         <Button onClick={handleCreate} variant="primary" loading={uploading}>
-          {t('create')}
+          Create
         </Button>
         <Button onClick={() => router.push(`/teams/${teamId}`)} variant="secondary">
-          {t('cancel')}
+          Cancel
         </Button>
       </div>
     </div>

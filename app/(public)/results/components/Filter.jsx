@@ -1,7 +1,6 @@
 // src/components/Filter/Filter.js
 
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
     Drawer,
     IconButton,
@@ -27,7 +26,6 @@ const Filter = ({
     styleFilter,
     setStyleFilter,
 }) => {
-    const { t } = useTranslation();
 
     // Local range for smooth sliding without re‑queries
     const [localRange, setLocalRange] = useState(tempRange);
@@ -37,7 +35,7 @@ const Filter = ({
         <Drawer anchor="right" open={open} onClose={onClose}>
             <Box sx={{ width: 300, padding: 2 }}>
                 <Typography variant="h6" gutterBottom>
-                    {t('filter')}
+                    Filter
                 </Typography>
 
                 {/* Sort by Date */}
@@ -48,7 +46,7 @@ const Filter = ({
                 {/* Filter by Style */}
                 <Box sx={{ mt: 4 }}>
                     <Typography variant="subtitle1" gutterBottom>
-                        {t('style')}
+                        Style
                     </Typography>
                     <RadioGroup
                         value={styleFilter}
@@ -57,17 +55,17 @@ const Filter = ({
                         <FormControlLabel
                             value="all"
                             control={<Radio />}
-                            label={t('all')}
+                            label='All'
                         />
                         <FormControlLabel
                             value="classic"
                             control={<Radio />}
-                            label={t('classic')}
+                            label='Classic'
                         />
                         <FormControlLabel
                             value="skate"
                             control={<Radio />}
-                            label={t('skate')}
+                            label='Skate'
                         />
                     </RadioGroup>
                 </Box>
@@ -75,7 +73,7 @@ const Filter = ({
                 {/* Filter by Temperature */}
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, mt: 4 }}>
                     <FaTemperatureThreeQuarters size={24} style={{ marginRight: 8 }} />
-                    <Typography variant="subtitle1">{t('temp_range')}</Typography>
+                    <Typography variant="subtitle1">Temperature range</Typography>
                 </Box>
                 <Slider
                     value={localRange}
@@ -99,7 +97,7 @@ const Filter = ({
                         }}
                         onClick={resetFilter}
                     >
-                        {t('reset')}
+                        REset
                     </Button>
                     <Button
                         sx={{
@@ -111,7 +109,7 @@ const Filter = ({
                         }}
                         onClick={onClose}
                     >
-                        {t('close')}
+                        Close
                     </Button>
                 </Box>
             </Box>

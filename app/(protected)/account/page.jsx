@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { RiVerifiedBadgeFill, RiDeleteBinLine } from "react-icons/ri";
 import { useAuth } from '@/context/AuthContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
@@ -13,7 +12,6 @@ import Spinner from '@/components/common/Spinner/Spinner';
 const Account = () => {
   const { user, userData } = useAuth();
   const { isChangingImg, errorMessage, updateProfileImage, deleteProfileImage } = useProfileActions(user);
-  const { t } = useTranslation();
   const router = useRouter();
 
 
@@ -31,9 +29,9 @@ const Account = () => {
 
   return (
     <>
-      <div className="p-3 mx-auto animate-fade-up animate-duration-300">
+      <div className='p-3 md:w-2/3 mx-auto'>
         <h1 className="text-3xl font-bold text-gray-900 my-4">
-          {t('account')}
+          Account
         </h1>
         <div className="mt-10">
           <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
@@ -55,7 +53,7 @@ const Account = () => {
                   ) : (
                     <span className='flex items-center text-xs'>
                       <RiDeleteBinLine className="mr-1" />
-                      {t('remove')}
+                      Remove
                     </span>
                   )}
                 </Button>
@@ -64,7 +62,7 @@ const Account = () => {
 
             <div className="space-y-4 text-center md:text-left">
               <div className="mb-6">
-                <p className="text-gray-500 text-lg mb-1">{t('hello')}</p>
+                <p className="text-gray-500 text-lg mb-1">Hello</p>
                 <h1 className="font-bold text-3xl text-gray-800 mb-3">
                   {userData?.displayName || t('guest')}
                 </h1>
@@ -73,13 +71,13 @@ const Account = () => {
                   <div className="mb-6">
                     {userData.plan === 'free' ? (
                       <p className="text-gray-600 font-medium">
-                        {t('freeUser')}
+                        Free user
                       </p>
                     ) : (
                       <p className="inline-flex items-center justify-center gap-1.5
                                   bg-gradient-to-br from-blue-500 to-indigo-500 text-white
                                    px-4 py-1.5 rounded-full text-sm">
-                        {t(`${userData.plan} plan`)}
+                        {`${userData.plan} plan`}
                         <RiVerifiedBadgeFill className="w-4 h-4" />
                       </p>
                     )}
@@ -100,13 +98,13 @@ const Account = () => {
                   variant="secondary"
                   className="w-full md:w-auto"
                 >
-                  {t('settings')}
+                  Settings
                 </Button>
               </div>
 
               <div className="mt-6 border-t pt-4">
                 <p className="text-sm text-gray-500">
-                  {t('joined')}: {' '}
+                  Joined: {' '}
                   <span className="font-medium">
                     {user?.metadata.creationTime ? formatDate(user.metadata.creationTime) : ''}
                   </span>

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createTeam, updateTeamImage } from '@/lib/firebase/teamFunctions';
 import { uploadTeamImage } from '@/lib/firebase/storageFunctions';
-import { useTranslation } from 'react-i18next';
 import Button from '@/components/common/Button';
 import UploadableImage from '@/components/common/UploadableImage';
 import Input from '@/components/common/Input';
@@ -16,7 +15,6 @@ export default function CreateTeamPage() {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [imageURL, setImageURL] = useState('');
-  const { t } = useTranslation();
   const router = useRouter();
 
   const handleFileChange = (e) => {
@@ -54,7 +52,7 @@ export default function CreateTeamPage() {
   return (
       <div className='p-3 md:w-2/3 mx-auto'>
       <h1 className="text-3xl font-bold text-gray-900 my-4">
-        {t('create_team')}
+        Create Team
       </h1>
 
       <Input
@@ -79,10 +77,10 @@ export default function CreateTeamPage() {
 
       <div className="flex gap-3 mt-4">
         <Button onClick={handleCreateTeam} variant="primary" loading={uploading}>
-          {t('create')}
+          Create
         </Button>
         <Button onClick={() => router.push('/teams')} variant="secondary">
-          {t('cancel')}
+          Cancel
         </Button>
       </div>
     </div>

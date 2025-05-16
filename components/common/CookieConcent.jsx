@@ -25,7 +25,7 @@ const CookieConsent = () => {
     return (
         <div className="fixed bottom-0 left-0 w-full bg-slate-700 text-white p-5 text-center z-50">
             <p className="mb-4">
-                {t('cookie_concent')}
+                This website uses cookies to function. We use third-party services such as Firebase, Stripe, and MET Weather API. By continuing, you consent to the use of these cookies.
             </p>
             <button
                 onClick={handleAccept}

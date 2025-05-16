@@ -2,13 +2,11 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
 import { registerWithEmailAndPassword } from '@/lib/firebase/authFunctions';
 import Button from '@/components/common/Button';
 
 const SignUp = () => {
   const router = useRouter();
-  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -29,8 +27,8 @@ const SignUp = () => {
 
   return (
     <>
-      <div className="p-3 mt-20 md:w-1/2 md:mx-auto animate-fade-down animate-duration-300">
-        <h1 className="text-5xl mb-10 font-semibold">{t('signUp')}</h1>
+      <div className="p-3 mt-20 md:w-1/3 md:mx-auto animate-fade-down animate-duration-300">
+        <h1 className="text-5xl mb-10 font-semibold">Sign Up</h1>
         {error && <p className="bg-red-100 text-red-700 p-3 rounded">{error}</p>}
         <form onSubmit={handleSignUp} className="space-y-3 text-black">
           <input
@@ -54,14 +52,14 @@ const SignUp = () => {
             loading={isLoading}
             variant="primary"
           >
-            {t('signUp')}
+            Sign Up
           </Button>
         </form>
         <div className="mt-6 text-sm">
           <p>
             Already have an account?{' '}
             <button onClick={() => router.push('/signin')} className="underline">
-              {t('signIn')}
+              Sign In
             </button>
           </p>
         </div>

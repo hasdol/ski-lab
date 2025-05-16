@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
-import { useTranslation } from 'react-i18next'
 import { formatDateForInputWithTime } from '@/helpers/helpers'
 import { Timestamp } from 'firebase/firestore'
 import { useSingleResult } from '@/hooks/useSingleResult'
@@ -20,7 +19,6 @@ import { updateTestResultBothPlaces } from '@/lib/firebase/firestoreFunctions'
 
 
 const EditResultPage = () => {
-  const { t } = useTranslation()
   const { id } = useParams()
   const router = useRouter()
   const { user } = useAuth()
@@ -136,37 +134,37 @@ const EditResultPage = () => {
 
   if (loading) return <div className='flex justify-center'><Spinner /></div>
   if (error) return <div>Error: {error.message}</div>
-  if (!resultData) return <div>{t('no_result_data_found')}</div>
+  if (!resultData) return <div>No result data found</div>
 
   return (
     <>
       <div className='p-3 md:w-2/3 mx-auto'>
         <h1 className="text-3xl font-bold text-gray-900 my-4">
-          {t('edit_result')}
+          Edit Result
         </h1>
         <form onSubmit={handleSubmit} className="space-y-2 animate-fade-down animate-duration-300">
           {/* Scores */}
           {resultData.rankings.map((r, i) => (
             <div key={i} className="flex flex-col">
               <label className="font-semibold mb-1">
-                {`${r.serialNumber || t('deleted')} - ${r.grind || ''}`}
+                {`${r.serialNumber || 'Deleted'} - ${r.grind || ''}`}
               </label>
               <Input type="number" name={`score-${i}`} value={r.score} onChange={handleInputChange} />
             </div>
           ))}
 
-          <h3 className="mt-10 mb-2 text-2xl font-semibold text-gray-800">{t('test_details')}</h3>
+          <h3 className="mt-10 mb-2 text-2xl font-semibold text-gray-800">Test details</h3>
           <div className="space-y-4">
             {/* Metadata fields… */}
-            <Input type="text" name="location" placeholder={t('location')} value={resultData.location} onChange={handleInputChange} required />
-            <Input type="select" name="style" placeholder={t('style')} value={resultData.style} onChange={handleInputChange} required options={[{ label: t('classic'), value: 'classic' }, { label: t('skate'), value: 'skate' }]} />
-            <Input type="number" name="temperature" placeholder={t('temperature')} value={resultData.temperature} onChange={handleInputChange} />
-            <Input type="radio" name="source" placeholder={t('snow_source')} value={resultData.snowCondition.source} onChange={handleInputChange} required options={[{ label: t('natural'), value: 'natural' }, { label: t('artificial'), value: 'artificial' }, { label: t('mix'), value: 'mix' }]} />
-            <Input type="select" name="grainType" placeholder={t('snow_type')} value={resultData.snowCondition.grainType} onChange={handleInputChange} required options={[{ label: t('fresh'), value: 'fresh' }, { label: t('fine_grained'), value: 'fine_grained' }, { label: t('coarse_grained'), value: 'coarse_grained' }, { label: t('wet'), value: 'wet' }, { label: t('icy_conditions'), value: 'icy_conditions' }, { label: t('sugary_snow'), value: 'sugary_snow' }]} />
-            <Input type="number" name="snowTemperature" placeholder={t('snow_temperature')} value={resultData.snowTemperature} onChange={handleInputChange} />
-            <Input type="number" name="humidity" placeholder={t('humidity')} value={resultData.humidity} onChange={handleInputChange} />
-            <Input type="text" name="comment" placeholder={t('comment')} value={resultData.comment} onChange={handleInputChange} />
-            <Input type="datetime-local" name="date" placeholder={t('date')} value={formatDateForInputWithTime(resultData.timestamp)} onChange={handleInputChange} required />
+            <Input type="text" name="location" placeholder='Location' value={resultData.location} onChange={handleInputChange} required />
+            <Input type="select" name="style" placeholder='Style' value={resultData.style} onChange={handleInputChange} required options={[{ label: 'Classic', value: 'classic' }, { label: 'Skate', value: 'skate' }]} />
+            <Input type="number" name="temperature" placeholder='Temperature' value={resultData.temperature} onChange={handleInputChange} />
+            <Input type="radio" name="source" placeholder='Snow source' value={resultData.snowCondition.source} onChange={handleInputChange} required options={[{ label: 'Natural', value: 'natural' }, { label: 'Artificial', value: 'artificial' }, { label: 'Mix', value: 'mix' }]} />
+            <Input type="select" name="grainType" placeholder='Snow type'value={resultData.snowCondition.grainType} onChange={handleInputChange} required options={[{ label: 'Fresh', value: 'fresh' }, { label: 'Fine grained', value: 'fine_grained' }, { label: 'Coarse grained', value: 'coarse_grained' }, { label: 'Wet', value: 'wet' }, { label: 'Icy', value: 'icy_conditions' }, { label: 'Sugary', value: 'sugary_snow' }]} />
+            <Input type="number" name="snowTemperature" placeholder='Snow temperature'value={resultData.snowTemperature} onChange={handleInputChange} />
+            <Input type="number" name="humidity" placeholder='Humidity' value={resultData.humidity} onChange={handleInputChange} />
+            <Input type="text" name="comment" placeholder='Comment' value={resultData.comment} onChange={handleInputChange} />
+            <Input type="datetime-local" name="date" placeholder='Date' value={formatDateForInputWithTime(resultData.timestamp)} onChange={handleInputChange} required />
 
             {/* Shared events selector, pre-check from result.sharedIn */}
             <ShareWithEventSelector
@@ -179,8 +177,8 @@ const EditResultPage = () => {
           </div>
 
           <div className="flex space-x-4 my-5">
-            <Button type="submit" variant="primary" loading={isSubmitting}>{t('save')}</Button>
-            <Button variant="secondary" onClick={() => router.back()}>{t('back')}</Button>
+            <Button type="submit" variant="primary" loading={isSubmitting}>Save</Button>
+            <Button variant="secondary" onClick={() => router.back()}>Back</Button>
           </div>
         </form>
       </div>

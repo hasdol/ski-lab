@@ -1,7 +1,6 @@
 // components/ManageLockedSkisPage.jsx
 'use client'
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { useLockedSkis } from '@/hooks/useLockedSkis';
 import LockedSkiItem from './components/LockedSkiItem';
@@ -10,16 +9,15 @@ import { useRouter } from 'next/navigation';
 
 const ManageLockedSkis = () => {
   const { lockedSkis, loading, error, deleteLockedSki } = useLockedSkis();
-  const { t } = useTranslation();
   const router = useRouter();
 
   const handleDelete = async (skiId) => {
     try {
       await deleteLockedSki(skiId);
-      alert(t('ski_deleted_successfully'));
+      alert('Ski deleted successfully');
     } catch (err) {
       console.error(err);
-      alert(t('error_deleting_ski'));
+      alert('Error deleting ski');
     }
   };
 
@@ -30,13 +28,13 @@ const ManageLockedSkis = () => {
     <>
       <div className='p-3 md:w-2/3 mx-auto'>
         <div className='my-2'>
-          <Button variant='secondary' onClick={() => router.back()}>{t('back')}</Button>
+          <Button variant='secondary' onClick={() => router.back()}>Back</Button>
 
         </div>
 
         {lockedSkis.length === 0 ? (
           <div className="text-center">
-            {t('no_locked_skis')}
+            No locked skis
           </div>
         ) : (
           <div className="space-y-2">

@@ -1,7 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
 import { updateTeam, deleteTeam } from '@/lib/firebase/teamFunctions';
 import { deleteTeamImage, uploadTeamImage } from '@/lib/firebase/storageFunctions';
 import useSingleTeam from '@/hooks/useSingleTeam';
@@ -14,7 +13,6 @@ import { useAuth } from '@/context/AuthContext';
 export default function EditTeamPage() {
   const { teamId } = useParams();
   const router = useRouter();
-  const { t } = useTranslation();
   const { user } = useAuth();
   const { team, loading, error } = useSingleTeam(teamId);
 
@@ -96,28 +94,28 @@ export default function EditTeamPage() {
     return (
       <div className="mx-auto">
         <div className="bg-red-50 text-red-700 rounded-md p-6">
-          {t('error_loading_team')}: {error.message}
+          Error loading team: {error.message}
         </div>
       </div>
     );
   }
 
   return (
-    <div className='p-3 md:w-2/3 mx-auto'>
+    <div className='p-3 md:w-2/3 mx-auto space-y-4'>
       <h1 className="text-3xl font-bold text-gray-900 my-4">
-        {t('edit_team')}
+        Edit Team
       </h1>
       <Button
         onClick={handleBack}
         variant="secondary"
       >
-        {t('back')}
+        Back
       </Button>
 
       <div className=" space-y-6">
         <Input
           type="text"
-          label={t('team_name')}
+          label='Team name'
           value={name}
           onChange={e => setName(e.target.value)}
           required
@@ -128,7 +126,7 @@ export default function EditTeamPage() {
             <UploadableImage
               photoURL={imageURL}
               variant="team"
-              alt={t('team_image')}
+              alt='team image'
               clickable
               handleImageChange={handleFile}
               className="object-cover w-full h-full"
@@ -141,7 +139,7 @@ export default function EditTeamPage() {
               className="text-xs"
               disabled={loadingAction}
             >
-              {t('remove_image')}
+              Remove image
             </Button>
           )}
         </div>
@@ -152,14 +150,14 @@ export default function EditTeamPage() {
             variant="primary"
             loading={loadingAction}
           >
-            {t('update')}
+            Update
           </Button>
           <Button
             onClick={handleDelete}
             variant="danger"
             loading={loadingAction}
           >
-            {t('delete')}
+            Delete
           </Button>
 
         </div>

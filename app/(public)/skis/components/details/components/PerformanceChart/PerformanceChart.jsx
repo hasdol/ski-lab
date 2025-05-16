@@ -17,7 +17,6 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
-import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import { getTimestamp } from '@/helpers/helpers';
 import Button from '@/components/common/Button';
@@ -74,7 +73,6 @@ const ClickableDot = ({
 ────────────────────────────────────────────── */
 const FloatingTooltip = ({ point, hideTooltip }) => {
   const router = useRouter();
-  const { t } = useTranslation();
 
   const {
     rank,
@@ -100,7 +98,7 @@ const FloatingTooltip = ({ point, hideTooltip }) => {
     >
       <div className="font-medium mb-2 flex justify-between">
         <span className='font-semibold'>
-          {t('rank')}: {rank}
+          Rank: {rank}
         </span>
         <span className="text-muted-foreground">
           {new Date(testDate).toLocaleDateString()}
@@ -109,21 +107,21 @@ const FloatingTooltip = ({ point, hideTooltip }) => {
 
       {rows.map(({ key, value }) => (
         <div key={key} className="flex justify-between mb-1">
-          <span className="mr-2 ">{t(key)}</span>
-          <span>{t(String(value))}</span>
+          <span className="mr-2 ">{key}</span>
+          <span>{String(value)}</span>
         </div>
       ))}
 
       <div className="mt-4 flex justify-end space-x-2">
         <Button type="button" variant="secondary" onClick={hideTooltip}>
-          {t('close')}
+          Close
         </Button>
         <Button
           type="button"
           variant="primary"
           onClick={() => router.push(`/results/${testId}`)}
         >
-          {t('go_to_test')}
+          Go to test
         </Button>
       </div>
     </div>
@@ -146,7 +144,6 @@ const PerformanceChart = forwardRef(
     },
     ref
   ) => {
-    const { t } = useTranslation();
     const { activePoint, show: showTooltip, hide: hideTooltip } =
       useChartTooltip();
     const wrapperRef = useRef(null);
@@ -217,7 +214,7 @@ const PerformanceChart = forwardRef(
               }
               ticks={xTicks}
               label={{
-                value: t('test_date'),
+                value: 'Test date',
                 position: 'insideBottom',
                 offset: -30,
                 fontSize: 14,
@@ -231,7 +228,7 @@ const PerformanceChart = forwardRef(
               domain={[maxRank, 1]}
               allowDecimals={false}
               label={{
-                value: t('rank'),
+                value: 'Rank',
                 angle: -90,
                 position: 'insideLeft',
                 fontSize: 14,
@@ -243,7 +240,7 @@ const PerformanceChart = forwardRef(
             <Line
               type="monotone"
               dataKey="rank"
-              name={t('rank')}
+              name='rank'
               stroke="var(--color-line)"
               strokeWidth={2}
               dot={({ key: dotKey, ...dotProps }) => (

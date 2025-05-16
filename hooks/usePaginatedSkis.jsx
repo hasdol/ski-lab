@@ -1,4 +1,3 @@
-// src/hooks/usePaginatedSkis.js
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -13,7 +12,6 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { useAuth } from '@/context/AuthContext';
-import i18n from '@/lib/i18n/i18n';
 
 const PAGE_SIZE = 32;
 const MIN_CHARS = 2;
@@ -43,21 +41,20 @@ export default function usePaginatedSkis({
   const [exhausted, setExhausted] = useState(false);
   const cursor = useRef(null);
 
-  // determine keyword field based on locale
-  const keywordField = i18n.language.startsWith('no') ? 'keywords_no' : 'keywords_en';
+  // Always use English keywords field
+  const keywordField = 'keywords_en';
 
-  // build the base Firestore query
+  // Build base Firestore query
   const buildBaseQuery = useCallback(() => {
     if (!user) return null;
     const colRef = collection(db, `users/${user.uid}/skis`);
     let q = term.length >= MIN_CHARS
       ? query(colRef, where(keywordField, 'array-contains', term))
       : query(colRef);
-    q = query(q, orderBy(sortField, sortDirection), limit(PAGE_SIZE));
-    return q;
-  }, [user, term, keywordField, sortField, sortDirection]);
+    return query(q, orderBy(sortField, sortDirection), limit(PAGE_SIZE));
+  }, [user, term, sortField, sortDirection]);
 
-  // fetch first page
+  // Fetch first page
   const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -76,7 +73,7 @@ export default function usePaginatedSkis({
       const page = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       cursor.current = snap.docs[snap.docs.length - 1] || null;
 
-      // apply client-side filters
+      // Client-side filters
       const filtered = page.filter(d =>
         (style === 'all' || d.style === style) &&
         (skiType === 'all' || d.skiType === skiType) &&
@@ -96,7 +93,7 @@ export default function usePaginatedSkis({
     }
   }, [buildBaseQuery, style, skiType, archived]);
 
-  // fetch next page
+  // Fetch next page
   const loadMore = useCallback(async () => {
     if (exhausted || !cursor.current) return;
     const nextQ = query(buildBaseQuery(), startAfter(cursor.current));
@@ -121,7 +118,7 @@ export default function usePaginatedSkis({
     }
   }, [buildBaseQuery, exhausted, style, skiType, archived]);
 
-  // auto-refresh on dependency changes
+  // Auto-refresh on dependency changes
   useEffect(() => {
     refresh();
   }, [refresh]);

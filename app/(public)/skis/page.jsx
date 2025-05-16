@@ -8,7 +8,6 @@
 
 import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
 
 import usePaginatedSkis from '@/hooks/usePaginatedSkis';
@@ -33,7 +32,6 @@ import { MdFastForward } from 'react-icons/md';
 import ResultsSearch from '../../../components/Search/Search';
 
 const Skis = () => {
-  const { t } = useTranslation();
   const router = useRouter();
   const { gloveMode } = useContext(UserPreferencesContext);
   const { user, userData } = useAuth();
@@ -153,14 +151,14 @@ const Skis = () => {
   // --- delete/archive
   const mutate = async (fn) => { await fn(); await refresh(); };
   const handleDelete = async (id) => {
-    if (confirm(t('delete_ski_promt')) && confirm(t('delete_ski_promt_2'))) {
+    if (confirm('Are you sure you want to delete this ski?') && confirm('Are you really sure? You can not undo this')) {
       await mutate(() => deleteSki(id));
       setSelectedMap(m => ({ ...m, [id]: false }));
       setSelectedSkisDataMap(m => { const mm = new Map(m); mm.delete(id); return mm; });
     }
   };
   const handleArchive = async (id) => {
-    if (confirm(t('archive_ski_promt'))) await mutate(() => updateSki(id, { archived: true }));
+    if (confirm('This will filter the ski from you active list. You can get them back using the filter')) await mutate(() => updateSki(id, { archived: true }));
   };
   const handleUnarchive = (id) => mutate(() => updateSki(id, { archived: false }));
 
@@ -186,15 +184,15 @@ const Skis = () => {
     if (hasReachedLimit) {
       return alert(plan === 'company'
         ? 'Max skis reached for your plan.'
-        : t('upgrade_your_account_to_add_more_skis')
+        : 'Upgrade your account to add more skis'
       );
     }
     router.push('/skis/add');
   };
   const handleStartTournament = () => {
     const list = getSelectedList();
-    if (list.length < 2) return alert(t('select_at_least_two_skis'));
-    if (currentRound.length && !confirm(t('confirm_overwrite_test'))) return;
+    if (list.length < 2) return alert('Select at least two skis');
+    if (currentRound.length && !confirm('Do you want to overwrite the existing test?')) return;
     resetTournament();
     setSelectedSkis(list);
     router.push('/testing');
@@ -206,22 +204,22 @@ const Skis = () => {
   return (
     <div className='p-3 md:w-2/3 mx-auto'>
       <div className="container mx-auto animate-fade animate-duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 my-4">{t('skipark')}</h1>
+        <h1 className="text-3xl font-bold text-gray-900 my-4">Skis</h1>
 
         {/* Top controls row */}
         <div className="flex items-end justify-between mb-4">
           <div className="flex flex-col justify-end">
             <h3 className="text-sm font-semibold mb-1">{
               getSelectedList().length > 1
-                ? `${getSelectedList().length} ${t('skis_selected')}`
-                : t('select_skis_to_test')
+                ? `${getSelectedList().length} skis selected`
+                : 'Select skis to test'
             }</h3>
             <div className="flex space-x-3 items-end">
               <Button
                 onClick={handleStartTournament}
                 variant="primary"
                 disabled={getSelectedList().length < 2}
-              >{t('new_test')}</Button>
+              >New Test</Button>
               {!!currentRound.length && (
                 <Button onClick={handleContinueTest} variant="primary"><MdFastForward/></Button>
               )}
@@ -246,7 +244,7 @@ const Skis = () => {
             </div>
 
             <div className="flex flex-col items-center w-fit">
-              <label className="text-sm font-semibold mb-1">{t('filter')}</label>
+              <label className="text-sm font-semibold mb-1">Filter</label>
               <Button
                 onClick={toggleFilterDrawer}
                 variant="secondary"
@@ -273,12 +271,12 @@ const Skis = () => {
             {hasLockedSkis && (
               <div className="flex space-x-5 border border-gray-300 py-4 rounded-md items-center justify-center w-full">
                 <div className="space-y-1">
-                  <h3 className="text-sm flex items-center"><RiLockLine /> {lockedSkisCount} {t('locked_ski(s)')}</h3>
-                  <Button onClick={() => router.push('/skis/locked')} variant="secondary">{t('view_skis')}</Button>
+                  <h3 className="text-sm flex items-center"><RiLockLine /> {lockedSkisCount} locked ski(s)</h3>
+                  <Button onClick={() => router.push('/skis/locked')} variant="secondary">View skis</Button>
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-sm">{t('upgrade_to_unlock')}</h3>
-                  <Button variant="primary" onClick={() => router.push('/plans')}>{t('upgrade')}</Button>
+                  <h3 className="text-sm">Upgrade to unlock</h3>
+                  <Button variant="primary" onClick={() => router.push('/plans')}>Upgrade</Button>
                 </div>
               </div>
             )}
@@ -308,13 +306,13 @@ const Skis = () => {
         {(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && (
           <div className="flex space-x-2 text-sm mt-2">
             {styleFilter !== 'all' && (
-              <Button variant="tab" onClick={() => setStyleFilter('all')}><span className="flex">{t(styleFilter)} <RiCloseLine/></span></Button>
+              <Button variant="tab" onClick={() => setStyleFilter('all')}><span className="flex">{styleFilter} <RiCloseLine/></span></Button>
             )}
             {skiTypeFilter !== 'all' && (
-              <Button variant="tab" onClick={() => setSkiTypeFilter('all')}><span className="flex">{t(skiTypeFilter)} <RiCloseLine/></span></Button>
+              <Button variant="tab" onClick={() => setSkiTypeFilter('all')}><span className="flex">{skiTypeFilter} <RiCloseLine/></span></Button>
             )}
             {archivedFilter !== 'notArchived' && (
-              <Button variant="tab" onClick={() => setArchivedFilter('notArchived')}><span className="flex">{t(archivedFilter)} <RiCloseLine/></span></Button>
+              <Button variant="tab" onClick={() => setArchivedFilter('notArchived')}><span className="flex">{archivedFilter} <RiCloseLine/></span></Button>
             )}
           </div>
         )}
@@ -369,11 +367,11 @@ const Skis = () => {
           {/* Load more button */}
           {!exhausted && !loading && user && (
             <div className="flex justify-center my-4">
-              <Button onClick={loadMore}>{t('load_more')}</Button>
+              <Button onClick={loadMore}>Load more</Button>
             </div>
           )}
-          {skis.length===0 && !loading && user && <p className='mt-4'>{t('you_have_no_skis')}</p>}
-          {!user && <span className='mt-4 italic'>{t('you_are_not_signed_in')}</span>}
+          {skis.length===0 && !loading && user && <p className='mt-4'>You have no skis</p>}
+          {!user && <span className='mt-4 italic'>You are not signed in</span>}
         </div>
       </div>
     </div>

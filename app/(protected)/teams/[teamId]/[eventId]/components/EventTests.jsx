@@ -1,7 +1,6 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
 import { RiEditLine, RiDeleteBinLine } from 'react-icons/ri';
 
 import Spinner from '@/components/common/Spinner/Spinner';
@@ -12,7 +11,6 @@ import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
 import Button from '@/components/common/Button';
 
 export default function EventTests({ teamId, eventId }) {
-  const { t } = useTranslation();
   const { user } = useAuth();
   const router = useRouter();
 
@@ -54,10 +52,10 @@ export default function EventTests({ teamId, eventId }) {
     return <div className="flex justify-center mt-4"><Spinner /></div>;
   }
   if (error) {
-    return <div>{t('error_loading_results')}: {error.message}</div>;
+    return <div>Error loading results: {error.message}</div>;
   }
   if (testResults.length === 0) {
-    return <div className="my-4 italic">{t('no_test_results_available')}</div>;
+    return <div className="my-4 italic">No test results available</div>;
   }
 
   return (
@@ -71,7 +69,7 @@ export default function EventTests({ teamId, eventId }) {
 
             <div>
               <h3 className="flex font-semibold text-xl items-center">
-                {t(result.style)} / {result.temperature}°C
+                {result.style} / {result.temperature}°C
               </h3>
               <i className="text-sm">{result.location}</i>
 
@@ -87,7 +85,7 @@ export default function EventTests({ teamId, eventId }) {
                   </Button>
                   <Button
                     variant="danger"
-                    title={t('delete')}
+                    title='delete'
                     onClick={() => handleDelete(result.id)}
                   >
                     <RiDeleteBinLine />
@@ -119,31 +117,31 @@ export default function EventTests({ teamId, eventId }) {
             <p className="border-t border-sbtn mb-4"></p>
             <ul className="text-sm grid grid-cols-2 gap-2">
               <li className="flex flex-col">
-                {t('snow_type')}
+                Snow type
                 <div className="font-semibold text-base">
-                  {t(result.snowCondition?.grainType) || '--'}
+                  {result.snowCondition?.grainType || '--'}
                 </div>
               </li>
               <li className="flex flex-col">
-                {t('snow_source')}
+                Snow source
                 <div className="font-semibold text-base">
-                  {t(result.snowCondition?.source) || '--'}
+                  {result.snowCondition?.source || '--'}
                 </div>
               </li>
               <li className="flex flex-col">
-                {t('snow_temperature')}
+                Snow temperature
                 <div className="font-semibold text-base">
                   {result.snowTemperature ?? '--'}
                 </div>
               </li>
               <li className="flex flex-col">
-                {t('humidity')}
+                Humidity
                 <div className="font-semibold text-base">
                   {result.humidity ?? '--'}
                 </div>
               </li>
               <li className="flex flex-col col-span-2">
-                {t('comment')}
+                Comment
                 <div className="font-semibold text-base">
                   {result.comment || '--'}
                 </div>

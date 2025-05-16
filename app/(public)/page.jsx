@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
-import { useTranslation } from 'react-i18next';
 import Button from '@/components/common/Button';
 import { getUserTeamsWithLiveEvents } from '@/lib/firebase/firestoreFunctions';
 import { motion } from 'framer-motion';
@@ -12,7 +11,6 @@ const bgUrl = '/bg6.jpg';
 
 const HomePage = () => {
   const { user, checkingStatus } = useAuth();
-  const { t } = useTranslation();
   const router = useRouter();
 
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -89,7 +87,7 @@ const HomePage = () => {
                     variant='primary'
                     onClick={() => handleNavigation('/signin')}
                   >
-                    {t('getStarted')}
+                    Get started
                   </Button>
                 ) : (
                   <div className='mt-6 space-y-6'>
@@ -98,7 +96,7 @@ const HomePage = () => {
                         onClick={() => handleNavigation('/skis')}
                         variant='primary'
                       >
-                        {t('start_test')}
+                        Start test
                       </Button>
                     </div>
 

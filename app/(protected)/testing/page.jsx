@@ -2,7 +2,6 @@
 import React, { useEffect, useContext, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import { useTranslation } from 'react-i18next';
 import HelpModal from '@/app/(protected)/testing/components/HelpModal';
 import { TournamentContext } from '@/context/TournamentContext';
 import { RiDeleteBinLine, RiQuestionLine } from 'react-icons/ri';
@@ -11,7 +10,6 @@ import SkiMatchup from './components/SkiMatchup';
 import Button from '@/components/common/Button';
 
 const Testing = () => {
-  const { t } = useTranslation();
   const router = useRouter();
   const {
     selectedSkis,
@@ -34,7 +32,7 @@ const Testing = () => {
     resetTournament
   } = useContext(TournamentContext);
 
-  const [help] = useState([t('test_help1')]); // Array of help tips
+  const [help] = useState(['Winner should always have 0', 'Both skis on 0 will result in tiebreak where you select the winner']); // Array of help tips
   const totalRounds = Math.ceil(Math.log2(selectedSkis.length));
 
   // Handle drag updates for potential swap highlighting
@@ -234,7 +232,7 @@ const Testing = () => {
       <div className='p-3 md:w-2/3 mx-auto'>
           <div className="flex justify-between">
             <h1 className="text-3xl font-bold text-gray-900 my-4">
-              {t('round')} {roundNumber}/{totalRounds}
+              Round {roundNumber}/{totalRounds}
             </h1>
             <div className='space-x-2'>
               <Button
@@ -296,7 +294,7 @@ const Testing = () => {
                 variant='secondary'
                 onClick={goBackToPreviousRound}
               >
-                {t('go_back')}
+                Go back
               </Button>
             )}
             <div className="flex items-center space-x-2">
@@ -304,7 +302,7 @@ const Testing = () => {
                 variant='primary'
                 onClick={handleSubmitRound}
               >
-                {t('submit_round')}
+                Submit round
               </Button>
             </div>
           </div>

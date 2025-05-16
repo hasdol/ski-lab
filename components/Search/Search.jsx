@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RiSearchLine } from 'react-icons/ri';
 import { useDebounce } from 'use-debounce';
-import Button from '@/components/common/Button';
 
 const MIN_CHARS = 3;
 
@@ -24,7 +23,7 @@ const ResultsSearch = ({ onSearch }) => {
         <input
           id="search-input"
           type="text"
-          placeholder={t('search')}
+          placeholder='Search'
           value={local}
           onChange={(e) => setLocal(e.target.value)}
           className="w-full bg-white px-4 py-3 outline-none"
@@ -35,7 +34,7 @@ const ResultsSearch = ({ onSearch }) => {
       </div>
       {local.length > 0 && local.length < MIN_CHARS && (
         <p className={`absolute -bottom-5 text-xs text-gray-500 mt-1`}>
-          {t('type_min_chars', { count: MIN_CHARS })}
+          Type minimum 3 characters
         </p>
       )}
     </div>

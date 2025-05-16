@@ -6,10 +6,8 @@ import getStripe from '@/helpers/stripe';
 import Spinner from '@/components/common/Spinner/Spinner';
 import Button from '@/components/common/Button';
 import { RiCheckFill } from 'react-icons/ri';
-import { useTranslation } from 'react-i18next';
 
 const PlansPage = () => {
-  const { t } = useTranslation();
   const [plans, setPlans] = useState([]);
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [loadingCheckout, setLoadingCheckout] = useState('');
@@ -86,10 +84,10 @@ const PlansPage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-up animate-duration-300">
+    <div className='p-3 md:w-1/2 mx-auto'>
       <div className="">
         <h1 className="text-3xl text-center mb-5 font-bold text-gray-900 my-4">
-          {t('pick_a_plan')}
+          Pick a Plan
         </h1>
 
         {plans.length === 0 ? (

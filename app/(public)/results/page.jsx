@@ -1,7 +1,6 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
 import {
   RiFilter2Fill,
   RiFilter2Line,
@@ -34,7 +33,6 @@ const Results = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentTestId, setCurrentTestId] = useState(null);
 
-  const { t } = useTranslation();
   const { user } = useAuth();
   const router = useRouter();
 
@@ -87,7 +85,7 @@ const Results = () => {
       alert(response.message);
     } catch (err) {
       console.error('Error deleting test result:', err);
-      alert(t('error_deleting_result'));
+      alert('Error deleting result');
     }
     setModalOpen(false);
     setCurrentTestId(null);
@@ -118,14 +116,14 @@ const Results = () => {
 
       <div className="animate-fade animate-duration-300">
         <h1 className="text-3xl font-bold text-gray-900 my-4">
-          {t('results')}
+          Results
         </h1>
 
         {/* Search + filter button */}
         <div className="flex items-end justify-between mb-2">
           <ResultsSearch onSearch={handleSearch} />
           <div className="flex flex-col items-center w-fit">
-            <label className="text-sm font-semibold mb-1">{t('filter')}</label>
+            <label className="text-sm font-semibold mb-1">Filter</label>
             <Button
               onClick={toggleFilter}
               variant="secondary"
@@ -145,7 +143,7 @@ const Results = () => {
                 onClick={() => setStyleFilter('all')}
               >
                 <span className="flex">
-                  {t(styleFilter)} <RiCloseLine />
+                  {styleFilter} <RiCloseLine />
                 </span>
               </Button>
             )}
@@ -153,7 +151,7 @@ const Results = () => {
               tempRange[1] !== defaultTempRange[1]) && (
                 <Button variant="secondary" onClick={resetFilter}>
                   <span className="flex">
-                    {t('temp_filter')} <RiCloseLine />
+                    Temperature filter <RiCloseLine />
                   </span>
                 </Button>
               )}
@@ -181,7 +179,7 @@ const Results = () => {
             </div>
           ) : resultsToShow.length === 0 && user ? (
             <p className="mt-4">
-              {t('you_have_no_results')}
+              You have no results
             </p>
           ) : (
             <div className="grid gap-4">
@@ -194,7 +192,7 @@ const Results = () => {
                   <div className="flex justify-between">
                     <div>
                       <h3 className="font-semibold text-xl">
-                        {highlightSearchTerm(t(result.style))} •{' '}
+                        {highlightSearchTerm(result.style.charAt(0).toUpperCase() + result.style.slice(1))} •{' '}
                         {highlightSearchTerm(`${result.temperature}°C`)}
                       </h3>
                       <i className="text-sm">
@@ -228,11 +226,11 @@ const Results = () => {
                           {highlightSearchTerm(
                             ranking.skiId
                               ? ranking.serialNumber
-                              : t('deleted')
+                              : 'Deleted'
                           )}
                           {ranking.score === 0 && (
                             <span className="mx-2 text-highlight text-xs">
-                              {t('new')}
+                              New
                             </span>
                           )}
                         </span>
@@ -251,7 +249,7 @@ const Results = () => {
                   {/* extra meta */}
                   <ul className="grid grid-cols-2 gap-4 text-sm">
                     <li className="flex flex-col">
-                      <span className="text-gray-700">{t('humidity')}:</span>
+                      <span className="text-gray-700">Humidity:</span>
                       <span className="font-semibold">
                         {result.humidity != ""
                           ? `${result.humidity}%`
@@ -259,7 +257,7 @@ const Results = () => {
                       </span>
                     </li>
                     <li className="flex flex-col">
-                      <span className="text-gray-700">{t('snow_temperature')}:</span>
+                      <span className="text-gray-700">Snow temperature:</span>
                       <span className="font-semibold">
 
                         {result.snowTemperature != ""
@@ -268,23 +266,23 @@ const Results = () => {
                       </span>
                     </li>
                     <li className="flex flex-col">
-                      <span className="text-gray-700">{t('snow_source')}:</span>
+                      <span className="text-gray-700">Snow source:</span>
                       <span className="font-semibold">
                         {result.snowCondition?.source
-                          ? highlightSearchTerm(t(result.snowCondition.source))
+                          ? highlightSearchTerm(result.snowCondition.source)
                           : '--'}
                       </span>
                     </li>
                     <li className="flex flex-col">
-                      <span className="text-gray-700">{t('snow_type')}:</span>
+                      <span className="text-gray-700">Snow type:</span>
                       <span className="font-semibold">
                         {result.snowCondition?.grainType
-                          ? highlightSearchTerm(t(result.snowCondition.grainType))
+                          ? highlightSearchTerm(result.snowCondition.grainType)
                           : '--'}
                       </span>
                     </li>
                     <li className="col-span-2 flex flex-col">
-                      <span className="text-gray-700">{t('comment')}:</span>
+                      <span className="text-gray-700">Comment:</span>
                       <span className="font-semibold">
                         {result.comment
                           ? highlightSearchTerm(result.comment)
@@ -320,10 +318,10 @@ const Results = () => {
           {/* Load more button */}
           {!exhausted && !loading && (
             <div className="flex justify-center my-4">
-              <Button onClick={loadMore}>{t('load_more')}</Button>
+              <Button onClick={loadMore}>Load more</Button>
             </div>
           )}
-          {!user && <div className='mt-4 italic'>{t('you_are_not_signed_in')}</div>}
+          {!user && <div className='mt-4 italic'>You are not signed in</div>}
 
         </div>
       </div>

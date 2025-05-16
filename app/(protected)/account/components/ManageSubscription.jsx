@@ -2,14 +2,12 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useTranslation } from 'react-i18next';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useRouter } from 'next/navigation';
 import Button from '../../../../components/common/Button';
 
 const ManageSubscription = () => {
   const { user, userData } = useAuth();
-  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const functions = getFunctions();
   const router = useRouter();
@@ -41,7 +39,7 @@ const ManageSubscription = () => {
         loading={loading}
         variant='primary'
       >
-        {t('manageSubscription')}
+        Manage subscription
       </Button>
     );
   }
@@ -52,7 +50,7 @@ const ManageSubscription = () => {
       loading={loading}
       variant="primary"
     >
-      {t('upgrade')}
+      Upgrade
     </Button>
   );
 };

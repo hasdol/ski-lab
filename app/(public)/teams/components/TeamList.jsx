@@ -1,7 +1,6 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
 import Button from '@/components/common/Button';
 import { IoExitOutline } from "react-icons/io5";
 import { httpsCallable } from 'firebase/functions';
@@ -13,7 +12,6 @@ const leaveTeamCallable = httpsCallable(functions, 'leaveTeamById');
 
 export default function TeamList({ teams }) {
   const router = useRouter();
-  const { t } = useTranslation();
   const { user } = useAuth();
   const [loadingTeamId, setLoadingTeamId] = useState(null);
 
@@ -43,7 +41,7 @@ export default function TeamList({ teams }) {
         >
           <div>
             <h3 className='font-semibold'>{team.name}</h3>
-            <p className='text-xs'>{t('members')}: {team.members.length}</p>
+            <p className='text-xs'>Members: {team.members.length}</p>
           </div>
           <div className='self-center justify-self-end'>
             {user.uid !== team.createdBy && (

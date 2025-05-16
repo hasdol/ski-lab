@@ -6,7 +6,6 @@ import { useAuth } from '@/context/AuthContext';
 import { mapRankingsToTournamentData } from '@/helpers/helpers';
 import ResultList from './components/ResultList';
 import Spinner from '@/components/common/Spinner/Spinner';
-import { useTranslation } from 'react-i18next';
 import { TournamentContext } from '@/context/TournamentContext';
 import { addTestResult } from '@/lib/firebase/firestoreFunctions';
 import { shareTestResult } from '@/lib/firebase/teamFunctions';
@@ -16,7 +15,6 @@ import ShareWithEventSelector from '@/app/(protected)/testing/summary/components
 import { WEATHER_ENDPOINT } from '@/lib/firebase/weatherEndpoint';
 
 const TestSummaryPage = () => {
-  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
   const { selectedSkis, calculateRankings, resetTournament } =
@@ -160,28 +158,28 @@ const TestSummaryPage = () => {
 
   /* ───────────── misc helpers ───────────── */
   const handleResetTest = () => {
-    if (window.confirm(t('reset_test_prompt'))) resetTournament();
+    if (window.confirm('Do you want to delete the test')) resetTournament();
   };
 
   const styleOptions = [
-    { label: t('classic'), value: 'classic' },
-    { label: t('skate'), value: 'skate' },
+    { label: 'Classic', value: 'classic' },
+    { label: 'Skate', value: 'skate' },
     { label: 'DP', value: 'dp' },
   ];
 
   const snowSourceOptions = [
-    { label: t('natural'), value: 'natural' },
-    { label: t('artificial'), value: 'artificial' },
-    { label: t('mix'), value: 'mix' },
+    { label: 'Natural', value: 'natural' },
+    { label: 'Artificial', value: 'artificial' },
+    { label: 'Mix', value: 'mix' },
   ];
 
   const snowGrainOptions = [
-    { label: t('fresh'), value: 'fresh' },
-    { label: t('fine_grained'), value: 'fine_grained' },
-    { label: t('coarse_grained'), value: 'coarse_grained' },
-    { label: t('wet'), value: 'wet' },
-    { label: t('icy_conditions'), value: 'icy_conditions' },
-    { label: t('sugary_snow'), value: 'sugary_snow' },
+    { label: 'Fresh', value: 'fresh' },
+    { label: 'Fine grained', value: 'fine_grained' },
+    { label: 'Coarse grained', value: 'coarse_grained' },
+    { label: 'Wet', value: 'wet' },
+    { label: 'Icy', value: 'icy_conditions' },
+    { label: 'Sugary', value: 'sugary_snow' },
   ];
 
   /* ───────────── render ───────────── */
@@ -189,7 +187,7 @@ const TestSummaryPage = () => {
     <div>
       <div className='p-3 md:w-2/3 mx-auto space-y-6'>
         <h1 className="text-3xl font-bold text-gray-900 b-5">
-          {t('summary')}
+          Summary
         </h1>
 
         <Button
@@ -197,7 +195,7 @@ const TestSummaryPage = () => {
           variant="secondary"
           onClick={() => router.push('/testing')}
         >
-          {t('back')}
+          Back
         </Button>
         {/* results list */}
         <div>
@@ -218,7 +216,7 @@ const TestSummaryPage = () => {
           <Input
             type="text"
             name="location"
-            placeholder={t('location')}
+            placeholder='Location'
             onChange={handleInputChange}
             value={additionalData.location}
             required
@@ -227,7 +225,7 @@ const TestSummaryPage = () => {
           <Input
             type="select"
             name="style"
-            placeholder={t('style')}
+            placeholder='Style'
             onChange={handleInputChange}
             value={additionalData.style}
             options={styleOptions}
@@ -237,7 +235,7 @@ const TestSummaryPage = () => {
           <Input
             type="number"
             name="temperature"
-            placeholder={t('temperature')}
+            placeholder='Temperature'
             value={additionalData.temperature}
             onChange={handleInputChange}
             required
@@ -246,7 +244,7 @@ const TestSummaryPage = () => {
           <Input
             type="radio"
             name="source"
-            placeholder={t('snow_source')}
+            placeholder='Snow source'
             value={additionalData.snowCondition.source}
             onChange={handleInputChange}
             options={snowSourceOptions}
@@ -256,7 +254,7 @@ const TestSummaryPage = () => {
           <Input
             type="select"
             name="grainType"
-            placeholder={t('snow_type')}
+            placeholder='Snow type'
             value={additionalData.snowCondition.grainType}
             onChange={handleInputChange}
             options={snowGrainOptions}
@@ -266,7 +264,7 @@ const TestSummaryPage = () => {
           <Input
             type="number"
             name="snowTemperature"
-            placeholder={t('snow_temperature')}
+            placeholder='Snow temperature'
             value={additionalData.snowTemperature}
             onChange={handleInputChange}
           />
@@ -274,7 +272,7 @@ const TestSummaryPage = () => {
           <Input
             type="number"
             name="humidity"
-            placeholder={t('humidity')}
+            placeholder='Humidity'
             value={additionalData.humidity}
             onChange={handleInputChange}
           />
@@ -282,7 +280,7 @@ const TestSummaryPage = () => {
           <Input
             type="text"
             name="comment"
-            placeholder={t('comment')}
+            placeholder='Comment'
             value={additionalData.comment}
             onChange={handleInputChange}
           />
@@ -298,7 +296,7 @@ const TestSummaryPage = () => {
           <div className="flex sm:space-x-4 space-y-4 sm:space-y-0 my-4 justify-between">
             <div className="flex space-x-2">
               <Button type="submit" loading={loading} variant="primary">
-                {t('save')}
+                Save
               </Button>
 
               <Button
@@ -307,14 +305,14 @@ const TestSummaryPage = () => {
                 className="justify-self-end"
                 onClick={handleResetTest}
               >
-                {t('delete')}
+                Delete
               </Button>
             </div>
           </div>
         </form>
 
         {locationError && (
-          <div className="text-red-500">{t('enable_location_services')}</div>
+          <div className="text-red-500">Enable location services</div>
         )}
       </div>
     </div>

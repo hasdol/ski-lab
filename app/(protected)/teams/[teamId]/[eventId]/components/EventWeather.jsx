@@ -2,7 +2,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   RiSunLine,
   RiCloudLine,
@@ -22,7 +21,6 @@ export default function EventWeather({ eventData }) {
   const [forecast, setForecast]   = useState(null);
   const [loading, setLoading]     = useState(true);
   const [selectedDay, setSelectedDay] = useState(null);
-  const { t } = useTranslation();
 
   /* ─────────────────────────  FETCH  ───────────────────────── */
   useEffect(() => {
@@ -110,7 +108,7 @@ export default function EventWeather({ eventData }) {
         {eventData.location.address} (yr.no)
       </h2>
 
-      {loading && <p className="text-gray-400">{t('loading')} …</p>}
+      {loading && <p className="text-gray-400">Loading …</p>}
 
       {forecast?.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-7 gap-2">
@@ -122,11 +120,11 @@ export default function EventWeather({ eventData }) {
             >
               <div className="grid grid-cols-5 md:grid-cols-1 items-center">
                 <div>
-                  {t(
+                  {
                     new Date(day.date).toLocaleDateString('en', {
                       weekday: 'short',
                     })
-                  )}
+                  }
                 </div>
 
                 <div className="text-2xl my-2 flex justify-self-center">
@@ -158,19 +156,19 @@ export default function EventWeather({ eventData }) {
         <div className="fixed inset-0 backdrop-blur flex items-center justify-center z-50">
           <div className="bg-white rounded-md p-4 mx-2 shadow-md w-full max-w-2xl relative">
             <h3 className="flex space-x-1 text-lg font-semibold mb-4">
-              <span>{t(forecast[selectedDay].date.slice(0, 3))}</span>
+              <span>{forecast[selectedDay].date.slice(0, 3)}</span>
               <span>-</span>
               <span>{forecast[selectedDay].date.slice(4)}</span>
             </h3>
 
             <div className="max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-6 font-semibold text-gray-600 text-xs border-b pb-2 mb-2">
-                <div>{t('time')}</div>
+                <div>Time</div>
                 <div></div>
                 <div>Temp</div>
-                <div>{t('precip')}</div>
-                <div>{t('wind')}</div>
-                <div>{t('humidity')}</div>
+                <div>Precip</div>
+                <div>Wind</div>
+                <div>Humidity</div>
               </div>
 
               {forecast[selectedDay].hourly.map((h, i) => (
@@ -195,7 +193,7 @@ export default function EventWeather({ eventData }) {
               variant="secondary"
               className="mt-4 text-xs"
             >
-              {t('close')}
+              Close
             </Button>
           </div>
         </div>

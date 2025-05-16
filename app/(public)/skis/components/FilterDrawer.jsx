@@ -1,6 +1,5 @@
 // SkiFilterDrawer.jsx
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Drawer,
   Box,
@@ -33,65 +32,63 @@ const SkiFilterDrawer = ({
   viewMode,
   setViewMode,
 }) => {
-  const { t } = useTranslation();
-
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
       <Box
         sx={{
-          width: 280,            // Keep the original drawer width
-          p: 3,                  // More padding all around
+          width: 280,
+          p: 3,
           display: 'flex',
           flexDirection: 'column',
-          gap: 4,                // Bigger gap between each major section
+          gap: 4,
         }}
       >
         {/* --- Section 1: Filter (Style, Type, Archived) --- */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Typography variant="h6" textAlign="center" gutterBottom>
-            {t('filter')}
+            Filter
           </Typography>
 
           {/* Style Filter */}
           <FormControl size="small" fullWidth>
-            <InputLabel>{t('style')}</InputLabel>
+            <InputLabel>Style</InputLabel>
             <Select
-              label={t('style')}
+              label="Style"
               value={styleFilter}
               onChange={(e) => setStyleFilter(e.target.value)}
             >
-              <MenuItem value="all">{t('all')}</MenuItem>
-              <MenuItem value="classic">{t('classic')}</MenuItem>
-              <MenuItem value="skate">{t('skate')}</MenuItem>
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="classic">Classic</MenuItem>
+              <MenuItem value="skate">Skate</MenuItem>
             </Select>
           </FormControl>
 
           {/* Ski Type Filter */}
           <FormControl size="small" fullWidth>
-            <InputLabel>{t('ski_type')}</InputLabel>
+            <InputLabel>Ski Type</InputLabel>
             <Select
-              label={t('ski_type')}
+              label="Ski Type"
               value={skiTypeFilter}
               onChange={(e) => setSkiTypeFilter(e.target.value)}
             >
-              <MenuItem value="all">{t('all')}</MenuItem>
-              <MenuItem value="cold">{t('cold')}</MenuItem>
-              <MenuItem value="universal">{t('universal')}</MenuItem>
-              <MenuItem value="warm">{t('warm')}</MenuItem>
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="cold">Cold</MenuItem>
+              <MenuItem value="universal">Universal</MenuItem>
+              <MenuItem value="warm">Warm</MenuItem>
             </Select>
           </FormControl>
 
           {/* Archived Filter */}
           <FormControl size="small" fullWidth>
-            <InputLabel>{t('archived')}</InputLabel>
+            <InputLabel>Archived</InputLabel>
             <Select
-              label={t('archived')}
+              label="Archived"
               value={archivedFilter}
               onChange={(e) => setArchivedFilter(e.target.value)}
             >
-              <MenuItem value="notArchived">{t('active_only')}</MenuItem>
-              <MenuItem value="archived">{t('archived_only')}</MenuItem>
-              <MenuItem value="all">{t('show_all')}</MenuItem>
+              <MenuItem value="notArchived">Active Only</MenuItem>
+              <MenuItem value="archived">Archived Only</MenuItem>
+              <MenuItem value="all">Show All</MenuItem>
             </Select>
           </FormControl>
         </Box>
@@ -99,25 +96,25 @@ const SkiFilterDrawer = ({
         {/* --- Section 2: Sorting (Field & Direction) --- */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Typography variant="h6" textAlign="center" gutterBottom>
-            {t('sort')}
+            Sort
           </Typography>
 
           {/* Sort By */}
           <FormControl size="small" fullWidth>
-            <InputLabel>{t('sort_by')}</InputLabel>
+            <InputLabel>Sort By</InputLabel>
             <Select
-              label={t('sort_by')}
+              label="Sort By"
               value={sortField}
               onChange={(e) => setSortField(e.target.value)}
             >
-              <MenuItem value="serialNumber">{t('serial_number')}</MenuItem>
-              <MenuItem value="style">{t('style')}</MenuItem>
-              <MenuItem value="brand">{t('brand')}</MenuItem>
-              <MenuItem value="model">{t('model')}</MenuItem>
-              <MenuItem value="grind">{t('grind')}</MenuItem>
+              <MenuItem value="serialNumber">Serial Number</MenuItem>
+              <MenuItem value="style">Style</MenuItem>
+              <MenuItem value="brand">Brand</MenuItem>
+              <MenuItem value="model">Model</MenuItem>
+              <MenuItem value="grind">Grind</MenuItem>
               <MenuItem value="base">Base</MenuItem>
-              <MenuItem value="length">{t('length')}</MenuItem>
-              <MenuItem value="stiffness">{t('stiffness')}</MenuItem>
+              <MenuItem value="length">Length</MenuItem>
+              <MenuItem value="stiffness">Stiffness</MenuItem>
             </Select>
           </FormControl>
 
@@ -141,7 +138,7 @@ const SkiFilterDrawer = ({
         {/* --- Section 3: View Mode (Card or Table) --- */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Typography variant="h6" textAlign="center" gutterBottom>
-            {t('view')}
+            View
           </Typography>
           <ToggleButtonGroup
             exclusive
@@ -167,11 +164,11 @@ const SkiFilterDrawer = ({
               backgroundColor: 'oklch(37.1% 0 0)',
               color: 'white',
               px: 4,
-              py:1
+              py: 1,
             }}
             onClick={resetFilter}
           >
-            {t('reset')}
+            Reset
           </Button>
           <Button
             sx={{
@@ -179,11 +176,11 @@ const SkiFilterDrawer = ({
               backgroundColor: 'oklch(92.2% 0 0)',
               color: 'black',
               px: 2,
-              py:1
+              py: 1,
             }}
             onClick={onClose}
           >
-            {t('close')}
+            Close
           </Button>
         </Box>
       </Box>

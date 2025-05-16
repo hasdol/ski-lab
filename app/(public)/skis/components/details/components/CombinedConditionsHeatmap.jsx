@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/common/Button';
 import { MdInfoOutline } from 'react-icons/md';
@@ -10,7 +9,6 @@ const CombinedConditionsHeatmap = ({
   combinedPerformanceData,
   chartData,
 }) => {
-  const { t } = useTranslation();
   const router = useRouter();
   const containerRef = useRef(null);
 
@@ -102,7 +100,7 @@ const CombinedConditionsHeatmap = ({
             onClick={() => setActiveTab(tab)}
             className={`${activeTab === tab && 'bg-gray-200'} text-sm`}
           >
-            {t(tab)}
+            {tab}
             {categoryDotCounts[tab] > 0 && (
               <span className="ml-1 opacity-90">({categoryDotCounts[tab]})</span>
             )}
@@ -125,7 +123,7 @@ const CombinedConditionsHeatmap = ({
               className="w-5 h-5 rounded-full"
               style={{ backgroundColor: categoryColors[cat] }}
             />
-            <span className="text-sm">{t(cat)}</span>
+            <span className="text-sm">{cat}</span>
           </div>
         ))}
       </div>
@@ -138,7 +136,7 @@ const CombinedConditionsHeatmap = ({
           <thead>
             <tr className="border-b border-gray-200">
               <th className="text-left text-gray-600 font-medium pb-3">
-                {t('snow_type')}
+                Snow type
               </th>
               {temperatureList.map((temp) => (
                 <th key={temp} className="text-center text-gray-600 font-medium pb-3 px-2">
@@ -154,7 +152,7 @@ const CombinedConditionsHeatmap = ({
                 className="border-b border-gray-100 last:border-0"
               >
                 <td className="text-sm text-gray-500 py-2 pr-4">
-                  {t(row.source)} – {t(row.snowType)}
+                  {row.source} – {row.snowType}
                 </td>
                 {temperatureList.map((temp) => {
                   const key = `${temp}___${row.source.toLowerCase()}___${row.snowType.toLowerCase()}`;
@@ -189,7 +187,7 @@ const CombinedConditionsHeatmap = ({
           <MdInfoOutline className="w-5 h-5 mr-2 flex-shrink-0" />
           <span>
             {chartData.filter(d => d.total < 4).length}{' '}
-            {t('small_tests_ignored_in_heatmap')}
+            Tests with only 2 skis are ignored
           </span>
         </div>
       )}
@@ -202,10 +200,10 @@ const CombinedConditionsHeatmap = ({
           onClick={(e) => e.stopPropagation()}
         >
           <h3 className='font-semibold'>
-            {popupData.temp}°C • {t(popupData.source)} • {t(popupData.snowType)}
+            {popupData.temp}°C • {popupData.source} • {popupData.snowType}
           </h3>
           <span className="">
-            {t('number_of_tests')}: {popupData.tests.length}
+            Number of tests: {popupData.tests.length}
           </span>
 
           <ul className=" space-y-4 my-4">
@@ -218,7 +216,7 @@ const CombinedConditionsHeatmap = ({
                       {new Date(test.testDate).toLocaleDateString()}
                     </div>
                     <div className="text-sm">
-                      {t('rank')}: {test.rank}/{test.total}
+                      Rank: {test.rank}/{test.total}
                     </div>
                     <div className="text-sm mb-1">{test.location}</div>
                   </div>
@@ -228,7 +226,7 @@ const CombinedConditionsHeatmap = ({
                     size="xs"
                     onClick={() => router.push(`/results/${test.testId}`)}
                   >
-                    {t('go_to_test')}
+                    Go to test
                   </Button>
                 </li>
               ))}
@@ -236,7 +234,7 @@ const CombinedConditionsHeatmap = ({
 
           <div className="mt-3 flex justify-end">
             <Button variant="secondary" size="xs" onClick={() => setShowPopup(false)}>
-              {t('close')}
+              Close
             </Button>
           </div>
         </div>

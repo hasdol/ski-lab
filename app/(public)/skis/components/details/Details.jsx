@@ -1,6 +1,5 @@
 'use client'
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import CombinedConditionsHeatmap from './components/CombinedConditionsHeatmap';
 import PerformanceChart from './components/PerformanceChart/PerformanceChart';
 import SelectSeason from './components/PerformanceChart/SelectSeason';
@@ -10,7 +9,6 @@ import useSkiTests from '@/hooks/useSkiTests';
 import Button from '@/components/common/Button';
 
 const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
-  const { t } = useTranslation();
   const { tests, loading: testsLoading, error: testsError } = useSkiTests(ski.id);
 
   // Chart data for THIS ski
@@ -78,26 +76,25 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
 
           <div className="space-y-[2px] leading-snug">
             <p>
-              <strong>{t('test_date')}:</strong>{' '}
+              <strong>Test date:</strong>{' '}
               {new Date(label).toLocaleDateString()}
             </p>
             <p>
-              <strong>{t('location')}:</strong> {d.location}
+              <strong>Location:</strong> {d.location}
             </p>
             <p>
-              <strong>{t('temperature')}:</strong> {d.temp}°C
+              <strong>Temerature:</strong> {d.temp}°C
             </p>
             <p>
-              <strong>{t('snow_source')}:</strong> {t(d.snowSource)}
+              <strong>Snow source:</strong> {d.snowSource}
             </p>
             <p>
-              <strong>{t('snow_type')}:</strong> {t(d.snowType)}
+              <strong>Snow type:</strong> {d.snowType}
             </p>
           </div>
         </div>
       );
     },
-    [t]
   );
 
   // Get unique temperatures from chartData
@@ -331,19 +328,19 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
 
           {/* Rest of the ski info items */}
           <div className="space-y-1">
-            <label className="text-sm text-gray-500">{t('brand')}</label>
+            <label className="text-sm text-gray-500">Brand</label>
             <p className="font-semibold text-gray-800">{ski.brand || "--"}</p>
           </div>
           <div className="space-y-1">
-            <label className="text-sm text-gray-500">{t('model')}</label>
+            <label className="text-sm text-gray-500">Model</label>
             <p className="font-semibold text-gray-800">{ski.model || "--"}</p>
           </div>
           <div className="space-y-1">
-            <label className="text-sm text-gray-500">{t('length')}</label>
+            <label className="text-sm text-gray-500">Length</label>
             <p className="font-semibold text-gray-800">{ski.length || "--"}</p>
           </div>
           <div className="space-y-1">
-            <label className="text-sm text-gray-500">{t('stiffness')}</label>
+            <label className="text-sm text-gray-500">Stiffness</label>
             <p className="font-semibold text-gray-800">{ski.stiffness || "--"}</p>
           </div>
           <div className="space-y-1">
@@ -351,15 +348,15 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
             <p className="font-semibold text-gray-800">{ski.base || "--"}</p>
           </div>
           <div className="space-y-1">
-            <label className="text-sm text-gray-500">{t('construction')}</label>
+            <label className="text-sm text-gray-500">Construction</label>
             <p className="font-semibold text-gray-800">{ski.construction || "--"}</p>
           </div>
           <div className="space-y-1">
-            <label className="text-sm text-gray-500">{t('grind_date')}</label>
+            <label className="text-sm text-gray-500">Grind date</label>
             <p className="font-semibold text-gray-800">{formatDate(ski.grindDate)}</p>
           </div>
           <div className="space-y-1 col-span-2">
-            <label className="text-sm text-gray-500">{t('comment')}</label>
+            <label className="text-sm text-gray-500">Comment</label>
             <p className="font-semibold text-gray-800">{ski.comment || "--"}</p>
           </div>
         </div>
@@ -368,7 +365,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         <div className="mb-5 border-b border-gray-300 pb-5">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <h2 className="text-2xl font-semibold mb-4 md:mb-0">
-              {t('performance')}
+              Performance
             </h2>
             {tests && tests.length > 0 && (
               <SelectSeason
@@ -382,7 +379,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
           {tests && tests.length > 0 ? (
             !chartData.length ? (
               <div className="text-center text-gray-500 py-4">
-                {t('test_to_see_performance')}
+                Test to se performance
               </div>
             ) : (
               <PerformanceChart
@@ -399,7 +396,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
             )
           ) : (
             <div className="text-center text-gray-500 py-4">
-              {t('no_tests')}
+              No tests
             </div>
           )}
         </div>
@@ -408,7 +405,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         <div className="mb-5 border-b border-gray-300 pb-10">
           <div className="flex flex-col justify-between space-y-2">
             <h2 className="text-2xl font-semibold mb-4">
-              {t('recommended_conditions')}
+              Recommended conditions
             </h2>
             <div className="flex gap-4">
               {ski.grindDate && (
@@ -419,7 +416,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
                     checked={showCurrentGrind}
                     onChange={(e) => setShowCurrentGrind(e.target.checked)}
                   />
-                  <span className="text-sm">{t('current_grind')}</span>
+                  <span className="text-sm">Current grind</span>
                 </label>
               )}
               <label className="flex items-center space-x-2">
@@ -429,7 +426,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
                   checked={showCurrentSeason}
                   onChange={(e) => setShowCurrentSeason(e.target.checked)}
                 />
-                <span className="text-sm">{t('current_season')}</span>
+                <span className="text-sm">Current season</span>
               </label>
             </div>
           </div>
@@ -444,12 +441,12 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
               />
             ) : (
               <div className="text-center text-gray-500 py-4">
-                {t('no_tests')}
+                No tests
               </div>
             )
           ) : (
             <div className="text-center text-gray-500 py-4">
-              {t('no_tests')}
+              No tests
             </div>
           )}
         </div>
@@ -457,13 +454,13 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         {/* Grind History Section */}
         <GrindHistory grindHistory={grindHistory} />
         {/* Action Buttons - Now inside the grid */}
-        <div className="col-span-2 md:col-span-3 flex justify-center space-x-3 mb-2 border-t border-gray-300 pt-5">
+        <div className="col-span-2 md:col-span-3 flex justify-center space-x-3 bg-gray-100 pb-4  pt-5">
           <Button
             onClick={onEdit}
             variant="primary"
             className='text-sm'
           >
-            {t('edit')}
+            Edit
           </Button>
           {ski.archived ? (
             <Button
@@ -471,7 +468,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
               variant="archive"
               className='text-sm'
             >
-              {t('unarchive')}
+              Unarchive
             </Button>
           ) : (
             <Button
@@ -479,7 +476,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
               variant="archive"
               className='text-sm'
             >
-              {t('archive')}
+              Archive
             </Button>
           )}
           <Button
@@ -487,7 +484,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
             variant="danger"
             className='text-sm'
           >
-            {t('delete')}
+            Delete
           </Button>
         </div>
 

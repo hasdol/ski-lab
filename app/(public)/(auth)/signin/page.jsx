@@ -2,7 +2,6 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
 import { loginWithEmailAndPassword } from '@/lib/firebase/authFunctions';
 import Button from '@/components/common/Button';
 
@@ -12,7 +11,6 @@ const SignIn = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { t } = useTranslation();
 
   const handleSignIn = async (e) => {
     e.preventDefault();
@@ -40,8 +38,8 @@ const SignIn = () => {
 
   return (
     <>
-      <div className="p-3 mt-20 md:w-1/2 md:mx-auto animate-fade-down animate-duration-300">
-        <h1 className="text-5xl mb-10 font-semibold ">{t('signIn')}</h1>
+      <div className="p-3 mt-20 md:w-1/3 md:mx-auto animate-fade-down animate-duration-300">
+        <h1 className="text-5xl mb-10 font-semibold ">Sign In</h1>
         {error && <p className="bg-red-100 text-red-700 p-3 rounded">{error}</p>}
         <form onSubmit={handleSignIn} className="space-y-3 text-black">
           <input
@@ -65,7 +63,7 @@ const SignIn = () => {
             loading={isLoading}
             variant="primary"
           >
-            {t('signIn')}
+            Sign In
           </Button>
         </form>
         <div className="mt-6 text-sm flex flex-col space-y-2">

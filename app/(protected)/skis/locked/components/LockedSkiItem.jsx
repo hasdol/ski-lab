@@ -1,13 +1,11 @@
 // components/ManageLockedSkisPage/LockedSkiItem.jsx
 
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 import { RiLockLine, RiDeleteBinLine } from "react-icons/ri";
 import Button from '@/components/common/Button';
 
 const LockedSkiItem = ({ ski, handleDelete }) => {
-  const { t } = useTranslation();
 
   const confirmDelete = (e) => {
     e.stopPropagation(); // Prevent triggering any parent click events
@@ -23,7 +21,7 @@ const LockedSkiItem = ({ ski, handleDelete }) => {
     <div className="flex items-center justify-between p-2 shadow rounded-md">
       <RiLockLine className='ml-2' />
       <div className="flex items-center space-x-2">
-        <span className="font-semibold">{t('serial_number')}: </span>
+        <span className="font-semibold">Serial number </span>
         <span>{ski.serialNumber}</span>
       </div>
       <Button

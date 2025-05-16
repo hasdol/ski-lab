@@ -24,10 +24,10 @@ import Weather from '@/components/Weather';
 import Button from '@/components/common/Button';
 
 const navConfig = [
-  { key: 'home', labelKey: 'home', icon: <RiHome5Line size={22} />, path: '/' },
-  { key: 'skis', labelKey: 'skipark', icon: <TiFlowParallel size={22} />, path: '/skis' },
-  { key: 'results', labelKey: 'results', icon: <BiChart size={24} />, path: '/results' },
-  { key: 'teams', labelKey: 'teams', icon: <RiTeamLine size={22} />, path: '/teams' },
+  { key: 'home', labelKey: 'Home', icon: <RiHome5Line size={22} />, path: '/' },
+  { key: 'skis', labelKey: 'Skipark', icon: <TiFlowParallel size={22} />, path: '/skis' },
+  { key: 'results', labelKey: 'Results', icon: <BiChart size={24} />, path: '/results' },
+  { key: 'teams', labelKey: 'Teams', icon: <RiTeamLine size={22} />, path: '/teams' },
 ];
 
 export default function Navigation() {
@@ -65,12 +65,12 @@ export default function Navigation() {
   };
 
   const subNavItems = [
-    user && { key: 'account', labelKey: 'account', icon: <RiUser6Line size={22} />, path: '/account' },
-    user && { key: 'settings', labelKey: 'settings', icon: <RiSettings3Line size={22} />, path: '/account/settings' },
-    user && { key: 'contact', labelKey: 'contact', icon: <RiMessage2Line size={22} />, path: '/contact' },
-    user && { key: 'signOut', labelKey: 'signOut', icon: <RiLogoutCircleRLine size={22} />, onClick: () => { signOut(router.push); setIsSubNavOpen(false); } },
-    !user && { key: 'signIn', labelKey: 'signIn', icon: <RiLoginCircleLine size={22} />, path: '/signin' },
-    !user && { key: 'signUp', labelKey: 'signUp', icon: <RiUserAddLine size={22} />, path: '/signup' },
+    user && { key: 'account', labelKey: 'Account', icon: <RiUser6Line size={22} />, path: '/account' },
+    user && { key: 'settings', labelKey: 'Settings', icon: <RiSettings3Line size={22} />, path: '/account/settings' },
+    user && { key: 'contact', labelKey: 'Contact', icon: <RiMessage2Line size={22} />, path: '/contact' },
+    user && { key: 'signOut', labelKey: 'Sign Out', icon: <RiLogoutCircleRLine size={22} />, onClick: () => { signOut(router.push); setIsSubNavOpen(false); } },
+    !user && { key: 'signIn', labelKey: 'Sign In', icon: <RiLoginCircleLine size={22} />, path: '/signin' },
+    !user && { key: 'signUp', labelKey: 'Sign Up', icon: <RiUserAddLine size={22} />, path: '/signup' },
   ].filter(Boolean);
 
   return (
@@ -82,7 +82,7 @@ export default function Navigation() {
             <button
               key={item.key}
               onClick={() => router.push(item.path)}
-              aria-label={t(item.labelKey)}
+              aria-label={item.labelKey}
               className={`p-4 flex items-center justify-center transition ${isActive(item.path) ? 'text-gray-800 border-t-2 border-gray-500' : 'text-gray-600'}`}
             >
               {item.icon}
@@ -90,7 +90,7 @@ export default function Navigation() {
           ))}
           <button
             onClick={() => setIsSubNavOpen(o => !o)}
-            aria-label={t('more')}
+            aria-label='more'
             className={`p-4 flex items-center justify-center transition ${isSubNavOpen ? 'text-gray-800 border-t-2 border-gray-500' : 'text-gray-600'}`}
           >
             <RiSettings3Line size={22} />
@@ -114,12 +114,12 @@ export default function Navigation() {
               {subNavItems.map(item =>
                 item.path ? (
                   <Link key={item.key} href={item.path} onClick={() => setIsSubNavOpen(false)} className="w-full flex justify-between items-center p-3 border-l-2 border-gray-300 hover:bg-gray-100">
-                    <span>{t(item.labelKey)}</span>
+                    <span>{item.labelKey}</span>
                     {item.icon}
                   </Link>
                 ) : (
                   <button key={item.key} onClick={item.onClick} className="w-full flex justify-between items-center p-3 border-l-2 border-gray-300 hover:bg-gray-100">
-                    <span>{t(item.labelKey)}</span>
+                    <span>{item.labelKey}</span>
                     {item.icon}
                   </button>
                 )
@@ -143,7 +143,7 @@ export default function Navigation() {
               <li key={item.key}>
                 <Link href={item.path} className={`flex items-center justify-center transition py-1 hover:bg-gray-100 rounded-md  ${isActive(item.path) ? 'bg-gray-100  text-primary' : 'text-gray-700 hover:text-primary'}`}>
                   {item.icon}
-                  <span className="ml-2">{t(item.labelKey)}</span>
+                  <span className="ml-2">{item.labelKey}</span>
                 </Link>
               </li>
             ))}
@@ -164,12 +164,12 @@ export default function Navigation() {
                     item.path ? (
                       <Link key={item.key} href={item.path} onClick={() => setIsSubNavOpen(false)} className="flex items-center  text-sm w-full px-4 py-2 text-gray-700 hover:bg-gray-100">
                         {item.icon}
-                        <span className="ml-2">{t(item.labelKey)}</span>
+                        <span className="ml-2">{item.labelKey}</span>
                       </Link>
                     ) : (
                       <button key={item.key} onClick={item.onClick} className="flex items-center w-full px-4 py-2 text-sm  text-gray-700 hover:bg-gray-100">
                         {item.icon}
-                        <span className="ml-2">{t(item.labelKey)}</span>
+                        <span className="ml-2">{item.labelKey}</span>
                       </button>
                     )
                   )}

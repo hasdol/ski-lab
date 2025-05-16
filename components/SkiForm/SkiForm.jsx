@@ -138,21 +138,21 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
     <div className='mx-auto animate-fade-down animate-duration-300'>
       <form onSubmit={handleSubmit} className="space-y-2">
         <Input
-          label={t('serial_number')}
+          label='Serial number'
           type="number"
           name="serialNumber"
           value={formData.serialNumber}
           onChange={handleChange}
-          placeholder={t('serial_number')}
+          placeholder='Serial number'
           required
         />
         <Input
-          label={t('style')}
+          label='Style'
           type="select"
           name="style"
           value={formData.style}
           onChange={handleChange}
-          placeholder={t('style')}
+          placeholder='Style'
           required
           options={[
             { label: t('classic'), value: 'classic' },
@@ -161,45 +161,45 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
           ]}
         />
         <Input
-          label={t('brand')}
+          label='Brand'
           type="text"
           name="brand"
           value={formData.brand}
           onChange={handleChange}
-          placeholder={t('brand')}
+          placeholder='Brand'
           required
         />
         <Input
-          label={t('model')}
+          label='Model'
           type="text"
           name="model"
           value={formData.model}
           onChange={handleChange}
-          placeholder={t('model')}
+          placeholder='Model'
         />
         <div className={`${isEdit && 'bg-white border border-gray-300 rounded-md my-4 p-4'}`}>
           {isEdit && (
-            <h3 className="self-start text-xl mb-4 font-semibold">{t('change_grind')}</h3>
+            <h3 className="self-start text-xl mb-4 font-semibold">Change grind</h3>
           )}
           <div className="flex flex-col justify-between items-center">
             <div className="w-full grid grid-cols-2 gap-2 items-center">
               <Input
-                label={t('grind')}
+                label='Grind'
                 type="text"
                 name="grind"
                 value={formData.grind}
                 onChange={handleChange}
-                placeholder={t('grind')}
+                placeholder='Grind'
                 required
                 disabled={isEdit}
               />
               <Input
-                label={t('grind_date')}
+                label='Grind date'
                 type="date"
                 name="grindDate"
                 value={formData.grindDate}
                 onChange={handleChange}
-                placeholder={t('grind_date')}
+                placeholder='Grind date'
                 required
                 disabled={isEdit}
               />
@@ -212,27 +212,27 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
             {isEdit && (
               <div className="w-full grid grid-cols-2 gap-2 items-center">
                 <Input
-                  label={t('new_grind')}
+                  label='New grind'
                   type="text"
                   name="newGrind"
                   value={formData.newGrind || ''}
                   onChange={handleChange}
-                  placeholder={t('new_grind')}
+                  placeholder='New grind'
                 />
                 <Input
-                  label={t('grind_date')}
+                  label='Grind date'
                   type="date"
                   name="newGrindDate"
                   value={formData.newGrindDate || ''}
                   onChange={handleChange}
-                  placeholder={t('grind_date')}
+                  placeholder='Grind date'
                 />
               </div>
             )}
           </div>
           {isEdit && formData.grindHistory.length > 0 && (
             <div className="p-4 flex flex-col items-center">
-              <h3 className="text-xl font-semibold mb-4">{t('grind_history')}</h3>
+              <h3 className="text-xl font-semibold mb-4">Grind history</h3>
               <ul className="space-y-2">
                 {formData.grindHistory.map((entry, index) => (
                   <li key={index} className="flex justify-between items-center space-x-2">
@@ -253,12 +253,12 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
           )}
         </div>
         <Input
-          label={t('ski_type')}
+          label='Ski type'
           type="select"
           name="skiType"
           value={formData.skiType}
           onChange={handleChange}
-          placeholder={t('ski_type')}
+          placeholder='Ski type'
           options={[
             { label: t('cold'), value: 'cold' },
             { label: t('universal'), value: 'universal' },
@@ -266,7 +266,7 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
           ]}
         />
         <Input
-          label={t('length')}
+          label='Length'
           type="range"
           name="length"
           value={formData.length}
@@ -274,16 +274,16 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
           min={170}
           max={220}
           step={1}
-          placeholder={t('length')}
+          placeholder='Length'
           unit="cm"
         />
         <Input
-          label={t('stiffness')}
+          label='Stiffness'
           type="text"
           name="stiffness"
           value={formData.stiffness}
           onChange={handleChange}
-          placeholder={t('stiffness')}
+          placeholder='Stiffness'
         />
         <Input
           label="Base"
@@ -294,27 +294,27 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
           placeholder="Base"
         />
         <Input
-          label={t('construction')}
+          label='Construction'
           type="text"
           name="construction"
           value={formData.construction}
           onChange={handleChange}
-          placeholder={t('construction')}
+          placeholder='Construction'
         />
         <Input
-          label={t('comment')}
+          label='Comment'
           type="textarea"
           name="comment"
           value={formData.comment}
           onChange={handleChange}
-          placeholder={t('comment')}
+          placeholder='Comment'
         />
         <div className="flex space-x-2 my-4">
           <Button type="submit" loading={isSubmitting} variant="primary">
-            {t('save')}
+            Save
           </Button>
           <Button variant="secondary" onClick={() => router.back()}>
-            {t('back')}
+            Back
           </Button>
         </div>
       </form>

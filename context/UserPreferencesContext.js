@@ -1,95 +1,54 @@
-'use client'
+'use client';
 import React, { createContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
-import { db } from '../lib/firebase/config'; 
-import i18n from '../lib/i18n/i18n';
+import { db } from '@/lib/firebase/config';
 
 export const UserPreferencesContext = createContext();
 
+/**
+ * Only gloveMode is left.  The language toggle & i18n changes are gone.
+ */
 export const UserPreferencesProvider = ({ children }) => {
   const { user } = useAuth();
-  const [english, setEnglish] = useState(true);
-  // Remove colormode state – always use light theme.
-  const colormode = 'light';
   const [gloveMode, setGloveMode] = useState(false);
 
-  // On load, ensure we use the light theme.
+  /* Light-theme enforcement stays */
   useEffect(() => {
     document.documentElement.classList.remove('dark');
-    const storedGloveMode = localStorage.getItem('gloveMode');
-    if (storedGloveMode) {
-      setGloveMode(storedGloveMode === 'true');
-    }
+    const storedGlove = localStorage.getItem('gloveMode');
+    if (storedGlove) setGloveMode(storedGlove === 'true');
   }, []);
 
-  // Fetch preferences from Firestore if user is logged in
+  /* Keep syncing gloveMode with Firestore */
   useEffect(() => {
-    if (user) {
-      const userPreferencesRef = doc(db, 'users', user.uid);
-      const unsubscribe = onSnapshot(userPreferencesRef, (doc) => {
-        const data = doc.data();
-        if (data && data.preferences) {
-          const { languagePreference, gloveModePreference } = data.preferences;
-          
-          setEnglish(languagePreference === 'en');
-          i18n.changeLanguage(languagePreference);
-
-          const newGloveMode = gloveModePreference || false;
-          setGloveMode(newGloveMode);
-          localStorage.setItem('gloveMode', newGloveMode);
-        }
-      });
-      return () => unsubscribe();
-    }
+    if (!user) return;
+    const ref = doc(db, 'users', user.uid);
+    const unsub = onSnapshot(ref, snap => {
+      const pref = snap.data()?.preferences?.gloveModePreference ?? false;
+      setGloveMode(pref);
+      localStorage.setItem('gloveMode', pref);
+    });
+    return () => unsub();
   }, [user]);
 
-  const toggleEnglish = async () => {
-    const newLanguage = english ? 'no' : 'en';
-    setEnglish(!english);
-    i18n.changeLanguage(newLanguage);
-    if (user) {
-      try {
-        const userPreferencesRef = doc(db, 'users', user.uid);
-        await setDoc(userPreferencesRef, {
-          preferences: {
-            languagePreference: newLanguage
-          }
-        }, { merge: true });
-      } catch (error) {
-        console.error("Error setting language preference: ", error);
-        alert("Failed to update language preference. Please try again.");
-      }
-    }
-  };
-
   const toggleGloveMode = async () => {
-    const newGloveMode = !gloveMode;
-    setGloveMode(newGloveMode);
-    localStorage.setItem('gloveMode', newGloveMode);
+    const next = !gloveMode;
+    setGloveMode(next);
+    localStorage.setItem('gloveMode', next);
     if (user) {
-      try {
-        const userPreferencesRef = doc(db, 'users', user.uid);
-        await setDoc(userPreferencesRef, {
-          preferences: {
-            gloveModePreference: newGloveMode
-          }
-        }, { merge: true });
-      } catch (error) {
-        console.error("Error setting glove mode preference: ", error);
-        alert("Failed to update glove mode. Please try again.");
-      }
+      await setDoc(
+        doc(db, 'users', user.uid),
+        { preferences: { gloveModePreference: next } },
+        { merge: true }
+      );
     }
   };
 
   return (
-    <UserPreferencesContext.Provider value={{ 
-      english, 
-      setEnglish: toggleEnglish, 
-      colormode, // Always light.
-      gloveMode,
-      setGloveMode: toggleGloveMode
-    }}>
+    <UserPreferencesContext.Provider
+      value={{ gloveMode, setGloveMode: toggleGloveMode, colormode: 'light' }}
+    >
       {children}
     </UserPreferencesContext.Provider>
   );

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { getUserTeamsWithEvents } from '@/lib/firebase/firestoreFunctions';
-import { useTranslation } from 'react-i18next';
 
 export default function ShareWithEventSelector({
   userId,
@@ -11,7 +10,6 @@ export default function ShareWithEventSelector({
   initialSelectedEvents = [],
   includePast = false,
 }) {
-  const { t } = useTranslation();
   const [teams, setTeams] = useState([]);
   const [teamEvents, setTeamEvents] = useState({});
   const [selected, setSelected] = useState({});
@@ -109,11 +107,11 @@ export default function ShareWithEventSelector({
 
   return (
     <div className="p-4 border border-gray-300 rounded-lg bg-white">
-      <h2 className='font-semibold text-lg mb-5'>{includePast?t('shared_in_events'):t('share_with_live_events')}</h2>
+      <h2 className='font-semibold text-lg mb-5'>{includePast?'Shared in events':'Share with live events'}</h2>
       <div className="mb-4">
         <input
           type="text"
-          placeholder={t('search_teams_events')}
+          placeholder='Search team events'
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring"
@@ -121,7 +119,7 @@ export default function ShareWithEventSelector({
       </div>
 
       {filteredTeams.length === 0 && (
-        <p className="text-center text-sm text-gray-500">{t('no_matches_found')}</p>
+        <p className="text-center text-sm text-gray-500">No match found</p>
       )}
 
       {filteredTeams.map(team => (

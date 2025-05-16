@@ -6,12 +6,12 @@ const GrindHistory = ({ grindHistory }) => {
   const { t } = useTranslation();
 
   if (!grindHistory || grindHistory.length === 0) {
-    return <i>{t('no_grind_history')}</i>;
+    return <i>No grind history</i>;
   }
 
   return (
-    <div className="my-4">
-      <h3 className="text-2xl font-semibold mb-5">{t('grind_history')}</h3>
+    <div className="my-10">
+      <h3 className="text-2xl font-semibold mb-5">Grind history</h3>
       <ul className="space-y-4">
         {grindHistory.map((entry, index) => (
           <li
@@ -20,15 +20,15 @@ const GrindHistory = ({ grindHistory }) => {
           >
             <div>
               <p className="font-semibold">
-                {t('grind')}: {entry.grind || '--'}
+                Grind: {entry.grind || '--'}
                 {index === 0 && (
                   <span className="ml-1 text-sm text-gray-500">
-                    ({t('current')})
+                    (Current)
                   </span>
                 )}
               </p>
               <p className='text-sm'>
-                {t('grind_date')}: {formatDate(entry.grindDate)}
+                Grind date: {formatDate(entry.grindDate)}
               </p>
             </div>
           </li>

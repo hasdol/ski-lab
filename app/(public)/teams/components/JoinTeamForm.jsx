@@ -3,13 +3,11 @@ import { useAuth } from '@/context/AuthContext';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
-import { useTranslation } from 'react-i18next';
 
 export default function JoinTeamForm() {
   const { user } = useAuth();
   const [code, setCode] = useState('');
   const [loading, setIsLoading] = useState(false);
-  const { t } = useTranslation();
 
   const handleJoin = async (e) => {
     e.preventDefault();
@@ -33,7 +31,7 @@ export default function JoinTeamForm() {
       <Input
         type="text"
         name="temperature"
-        placeholder={t('enter_team_code')}
+        placeholder='Enter team code'
         onChange={(e) => setCode(e.target.value)}
         value={code}
         disabled={!user}

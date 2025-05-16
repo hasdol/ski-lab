@@ -1,7 +1,6 @@
 // ./components/SkiItem/SkiItem.jsx
 import React, { useContext } from 'react';
 import { RiHistoryLine, RiExpandDiagonalFill, RiCollapseDiagonalLine } from "react-icons/ri";
-import { useTranslation } from 'react-i18next';
 
 import SkiDetail from './details/Details';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
@@ -22,7 +21,6 @@ const SkiItem = ({
   toggleDetails,
   allExpanded = false,
 }) => {
-  const { t } = useTranslation();
   const { gloveMode } = useContext(UserPreferencesContext);
 
   const showDetails = allExpanded || (ski.id === expandedSkiId);
@@ -63,7 +61,7 @@ const SkiItem = ({
             checked={selectedSkis[ski.id] || false}
             readOnly
             className={`mr-2 accent-btn ${gloveMode ? 'w-10 h-10' : 'w-4 h-4'}`}
-            aria-label={t('selectSki')}
+            aria-label='select ski'
           />
 
           {!gloveMode ? (
@@ -72,15 +70,15 @@ const SkiItem = ({
               <span>•</span>
               <span>{highlight(ski.grind, search)}</span>
               <span>•</span>
-              <span>{highlight(t(ski.style), search)}</span>
+              <span>{highlight(ski.style.charAt(0).toUpperCase() + ski.style.slice(1), search)}</span>
               {/* Archive or New indicators */}
               {ski.archived && <RiHistoryLine />}
-              {isNew(ski) && !gloveMode && <p className="text-highlight text-xs"> - {t('new')}</p>}
+              {isNew(ski) && !gloveMode && <p className="text-highlight text-xs"> - New</p>}
             </div>
           ) : (
             <div className="flex flex-col">
               <span className="text-lg font-bold">{ski.serialNumber}</span>
-              <span>{t(ski.style)}</span>
+              <span>{ski.style}</span>
             </div>
           )}
 

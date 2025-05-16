@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
 import {
   RiArrowLeftLine,
   RiEditLine,
@@ -19,7 +18,6 @@ import {
 } from '@/lib/firebase/firestoreFunctions';
 
 const ResultDetailsPage = () => {
-  const { t } = useTranslation();
   const router = useRouter();
   const { id } = useParams() ?? {};
   const { user } = useAuth();

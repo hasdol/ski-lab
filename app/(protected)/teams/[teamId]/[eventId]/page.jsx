@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import useEvent from '@/hooks/useEvent';
-import { useTranslation } from 'react-i18next';
 import Button from '@/components/common/Button';
 import UploadableImage from '@/components/common/UploadableImage';
 import Tabs from './components/Tabs';
@@ -17,7 +16,6 @@ export default function EventPage() {
   const { teamId, eventId } = useParams();
   const router = useRouter();
   const { eventData, loading, error } = useEvent(teamId, eventId);
-  const { t } = useTranslation();
   const { userData } = useAuth();
 
   const canManage = ['coach', 'company'].includes(userData?.plan);
@@ -37,7 +35,7 @@ export default function EventPage() {
     return (
       <div className="mx-auto">
         <div className="bg-red-50 text-red-700 rounded-md p-6">
-          {t('error')}: {error.message}
+          Error: {error.message}
         </div>
       </div>
     );
@@ -46,7 +44,7 @@ export default function EventPage() {
     return (
       <div className="mx-auto">
         <div className="bg-yellow-50 text-yellow-800 rounded-md p-6">
-          {t('no_event_found')}
+          No event found
         </div>
       </div>
     );
@@ -61,9 +59,9 @@ export default function EventPage() {
   return (
     <div className='p-3 md:w-2/3 mx-auto'>
       <div className="flex items-center justify-between mb-6">
-        <Button onClick={handleBack} variant="secondary" >{t('back')}</Button>
+        <Button onClick={handleBack} variant="secondary" >Back</Button>
         {canManage && (
-          <Button onClick={handleEdit} variant="primary">{t('edit_event')}</Button>
+          <Button onClick={handleEdit} variant="primary">Edit Event</Button>
         )}
       </div>
 
@@ -82,10 +80,13 @@ export default function EventPage() {
 
         <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
+        {console.log(activeTab)
+        }
+
         <div className="pt-4">
-          {activeTab === 'overview' && <EventOverview eventData={eventData} />}
-          {activeTab === 'tests' && <EventTests teamId={teamId} eventId={eventId} />}
-          {activeTab === 'weather' && <EventWeather eventData={eventData} />}
+          {activeTab === 'Overview' && <EventOverview eventData={eventData} />}
+          {activeTab === 'Tests' && <EventTests teamId={teamId} eventId={eventId} />}
+          {activeTab === 'Weather' && <EventWeather eventData={eventData} />}
         </div>
       </div>
     </div>

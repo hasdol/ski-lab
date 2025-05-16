@@ -1,7 +1,6 @@
 'use client';
 import React, { useState, useContext } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useTranslation } from 'react-i18next';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { getAuth, signOut as firebaseSignOut } from 'firebase/auth';
 import { GiWinterGloves } from 'react-icons/gi';
@@ -14,14 +13,13 @@ import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
-import Flag from 'react-flagkit';
-
 
 export default function SettingsPage() {
   const { user, userData } = useAuth();
   const { resetPassword, updateDisplayName } = useProfileActions(user);
-  const { t } = useTranslation();
-  const { english, setEnglish, gloveMode, setGloveMode } = useContext(UserPreferencesContext);
+  const { gloveMode, setGloveMode } = useContext(UserPreferencesContext);
+
+  /* local UI state … unchanged … */
   const [newDisplayName, setNewDisplayName] = useState(userData?.displayName || '');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -94,16 +92,16 @@ export default function SettingsPage() {
 
   return (
     <>
-      <div className="p-3 mx-auto animate-fade-up animate-duration-300">
+      <div className='p-3 md:w-2/3 mx-auto'>
 
         {/* Back Button */}
         <div className="flex justify-between my-4">
           <h1 className="text-3xl font-bold text-gray-900 md:mb-0">
-            {t('settings')}
+            Settings
           </h1>
           <div>
             <Button variant="secondary" className='text-sm' onClick={() => router.back()}>
-              {t('back')}
+              Back
             </Button>
           </div>
 
@@ -115,17 +113,17 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <Input
                   type="text"
-                  label={t('username')}
+                  label='Username'
                   value={newDisplayName}
                   onChange={e => setNewDisplayName(e.target.value)}
-                  placeholder={t('username')}
+                  placeholder='Username'
                 />
                 <div className="flex space-x-3">
                   <Button variant="primary" onClick={handleDisplayNameUpdate} disabled={isLoading}>
-                    {t('save')}
+                    Save
                   </Button>
                   <Button variant="secondary" onClick={() => setIsEditingUsername(false)}>
-                    {t('close')}
+                    Close
                   </Button>
                 </div>
               </div>
@@ -138,7 +136,7 @@ export default function SettingsPage() {
                 <div className='flex items-center justify-between bg-white border border-gray-200 rounded-md px-4 py-3 mt-1 cursor-pointer hover:bg-gray-50 transition'>
                   <RiUserLine className="text-gray-600 text-xl" />
                   <span className="flex-1 mx-4 text-gray-800">
-                    {userData?.displayName || t('--') && <span className='bg-orange-100 text-orange-800 p-2 rounded-md'>{t('no_username')}</span>}
+                    {userData?.displayName || t('--') && <span className='bg-orange-100 text-orange-800 p-2 rounded-md'>No username</span>}
                   </span>
                   <RiEditLine className="text-gray-600 text-xl" />
                 </div>
@@ -149,48 +147,21 @@ export default function SettingsPage() {
             {success && <div className="bg-green-50 text-green-700 px-4 py-2 rounded-md mt-2">{success}</div>}
           </div>
 
-          {/* Preferences Section */}
-          <div className="grid grid-cols-2 ">
-            {/* Language Toggle Container */}
+          {/* Preferences – only gloveMode remains */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             <div className="flex flex-col items-center space-y-3">
-              {!gloveMode ? (
-                <>
-                  <h3 className="font-semibold text-lg">{t('language')}</h3>
-                  <label className="inline-flex relative items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      id="toggle-language"
-                      className="sr-only peer"
-                      checked={english}
-                      onChange={(e) => setEnglish(e.target.checked)}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-gray-300 transition duration-300 ease-in-out peer-checked:bg-blue-500 after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
-                  </label>
-                  <div className="flex items-center justify-center">
-                    {english ? <Flag country="US" size={20} /> : <Flag country="NO" size={20} />}
-                  </div>
-                </>
-              ) : (
-                <div style={{ height: '100px' }}></div>
-              )}
-            </div>
-
-            {/* Glove Mode Toggle Container */}
-            <div className="flex flex-col items-center space-y-3">
-              <h3 className="font-semibold text-lg">{t('glove_mode')}</h3>
+              <h3 className="font-semibold text-lg">Glove mode</h3>
               <label className="inline-flex relative items-center cursor-pointer">
                 <input
                   type="checkbox"
                   id="toggle-glove"
                   className="sr-only peer"
                   checked={gloveMode}
-                  onChange={(e) => setGloveMode(e.target.checked)}
+                  onChange={() => setGloveMode()}
                 />
-                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-gray-300 transition duration-300 ease-in-out peer-checked:bg-blue-500 after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-gray-300 transition duration-300 ease-in-out peer-checked:bg-blue-500 after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5" />
               </label>
-              <div className="flex items-center justify-center">
-                {gloveMode ? <GiWinterGloves size={20} /> : <FaHandsClapping size={20} />}
-              </div>
+              {gloveMode ? <GiWinterGloves size={20} /> : <FaHandsClapping size={20} />}
             </div>
           </div>
 
@@ -198,10 +169,10 @@ export default function SettingsPage() {
           {!gloveMode && (
             <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
               <Button variant="danger" onClick={resetPassword} className="flex-1">
-                {t('reset_password')}
+                Reset Password
               </Button>
               <Button variant="danger" onClick={handleDeleteAccount} className="flex-1">
-                {t('delete_account')}
+                Delete Account
               </Button>
             </div>
           )}
