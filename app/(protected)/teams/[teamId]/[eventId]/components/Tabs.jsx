@@ -16,8 +16,8 @@ export default function Tabs({ activeTab, setActiveTab }) {
           <Button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            variant={`${isActive ? 'tab' : 'secondary'}`}
-            className='text-xs'
+            variant='tab'
+            className={` text-sm ${isActive && 'bg-gray-200'}`}
           >
             {t(tab)}
           </Button>

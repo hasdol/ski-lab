@@ -310,13 +310,13 @@ const Skis = () => {
         {(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && (
           <div className="flex space-x-2 text-sm mt-2">
             {styleFilter !== 'all' && (
-              <Button variant="secondary" onClick={() => setStyleFilter('all')}><span className="flex">{t(styleFilter)} <RiCloseLine/></span></Button>
+              <Button variant="tab" onClick={() => setStyleFilter('all')}><span className="flex">{t(styleFilter)} <RiCloseLine/></span></Button>
             )}
             {skiTypeFilter !== 'all' && (
-              <Button variant="secondary" onClick={() => setSkiTypeFilter('all')}><span className="flex">{t(skiTypeFilter)} <RiCloseLine/></span></Button>
+              <Button variant="tab" onClick={() => setSkiTypeFilter('all')}><span className="flex">{t(skiTypeFilter)} <RiCloseLine/></span></Button>
             )}
             {archivedFilter !== 'notArchived' && (
-              <Button variant="secondary" onClick={() => setArchivedFilter('notArchived')}><span className="flex">{t(archivedFilter)} <RiCloseLine/></span></Button>
+              <Button variant="tab" onClick={() => setArchivedFilter('notArchived')}><span className="flex">{t(archivedFilter)} <RiCloseLine/></span></Button>
             )}
           </div>
         )}
@@ -374,7 +374,7 @@ const Skis = () => {
               <Button onClick={loadMore}>{t('load_more')}</Button>
             </div>
           )}
-          {skis.length===0 && !loading && <p className='mt-4'>{t('you_have_no_skis')}</p>}
+          {skis.length===0 && !loading && user && <p className='mt-4'>{t('you_have_no_skis')}</p>}
           {!user && <span className='mt-4 italic'>{t('you_are_not_signed_in')}</span>}
         </div>
       </div>

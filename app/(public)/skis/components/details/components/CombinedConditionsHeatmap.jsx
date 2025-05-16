@@ -94,13 +94,13 @@ const CombinedConditionsHeatmap = ({
   return (
     <div className="relative mt-5" ref={containerRef}>
       {/* Tabs */}
-      <div className="flex space-x-2 overflow-x-auto p-1 pb-3 mb-4">
+      <div className="flex space-x-2 overflow-x-auto py-1 pb-3 mb-4">
         {['natural', 'artificial', 'mix'].map(tab => (
           <Button
             key={tab}
-            variant={activeTab === tab ? 'tab' : 'secondary'}
+            variant='tab'
             onClick={() => setActiveTab(tab)}
-            className="text-xs"
+            className={`${activeTab === tab && 'bg-gray-200'} text-sm`}
           >
             {t(tab)}
             {categoryDotCounts[tab] > 0 && (
@@ -111,7 +111,7 @@ const CombinedConditionsHeatmap = ({
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center space-x-4 mb-4 px-1">
+      <div className="flex flex-wrap items-center space-x-4 mb-4 px-1 gap-2">
         {[
           'great',
           'good',
@@ -197,7 +197,7 @@ const CombinedConditionsHeatmap = ({
       {/* Click-triggered popup */}
       {showPopup && popupData && (
         <div
-          className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-2/3 rounded-lg bg-white shadow-lg p-4 md:text-base text-sm transition-opacity duration-150"
+          className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-2/3 rounded-md bg-white shadow-lg p-4 md:text-base text-sm transition-opacity duration-150"
 
           onClick={(e) => e.stopPropagation()}
         >

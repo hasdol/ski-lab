@@ -236,7 +236,7 @@
   "remove_image": "Remove image",
   "events": "Events",
   "kick": "Kick",
-  "pick_a_plan":"Pick a plan",
+  "pick_a_plan": "Pick a plan",
   "current": "Current",
   "Company": "Company",
   "Coach": "Coach",
@@ -259,6 +259,5 @@
   "you_are_not_signed_in": "You are not signed in",
   "you_have_no_skis": "You have no skis",
   "no_teams_joined": "No teams joined",
-    "you_have_no_results": "You have no results"
-
+  "you_have_no_results": "You have no results"
 }

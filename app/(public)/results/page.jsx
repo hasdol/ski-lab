@@ -146,7 +146,7 @@ const Results = () => {
           <div className="flex space-x-2 text-sm">
             {styleFilter !== 'all' && (
               <Button
-                variant="secondary"
+                variant="tab"
                 onClick={() => setStyleFilter('all')}
               >
                 <span className="flex">

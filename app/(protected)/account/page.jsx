@@ -39,7 +39,7 @@ const Account = () => {
         <h1 className="text-3xl font-bold text-gray-900 my-4">
           {t('account')}
         </h1>
-        <div className="">
+        <div className="mt-10">
           <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
             <div className="relative text-center">
               <ProfileImage

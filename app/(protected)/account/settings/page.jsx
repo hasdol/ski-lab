@@ -156,7 +156,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Preferences Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 ">
             {/* Language Toggle Container */}
             <div className="flex flex-col items-center space-y-3">
               {!gloveMode ? (

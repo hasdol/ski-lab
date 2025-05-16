@@ -244,7 +244,7 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
                       onClick={() => handleDeleteGrind(index)}
                       variant="danger"
                     >
-                      <RiDeleteBinLine size={12} />
+                      <RiDeleteBinLine />
                     </Button>
                   </li>
                 ))}

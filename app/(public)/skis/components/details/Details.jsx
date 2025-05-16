@@ -324,7 +324,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
 
   return (
     <div className="mx-auto animate-fade-down animate-duration-300 relative">
-      <div className="p-4 ">
+      <div className="mt-5">
         {/* Ski Info Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5 border-b border-gray-300 pb-6">
 
@@ -460,7 +460,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         <div className="col-span-2 md:col-span-3 flex justify-center space-x-3 mb-2 border-t border-gray-300 pt-5">
           <Button
             onClick={onEdit}
-            variant="secondary"
+            variant="primary"
             className='text-sm'
           >
             {t('edit')}
@@ -468,7 +468,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
           {ski.archived ? (
             <Button
               onClick={onUnarchive}
-              variant="primary"
+              variant="archive"
               className='text-sm'
             >
               {t('unarchive')}
@@ -476,7 +476,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
           ) : (
             <Button
               onClick={onArchive}
-              variant="primary"
+              variant="archive"
               className='text-sm'
             >
               {t('archive')}
@@ -485,7 +485,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
           <Button
             onClick={onDelete}
             variant="danger"
-            className='text-xs'
+            className='text-sm'
           >
             {t('delete')}
           </Button>

@@ -64,7 +64,7 @@ export default function TeamsPage() {
 
 
         {/* No Teams Fallback */}
-        {(!loading && !error && teams.length === 0) && (
+        {(!loading && !error && teams.length === 0 && user) && (
           <p className="mt-4">
             {t('no_teams_joined')}
           </p>

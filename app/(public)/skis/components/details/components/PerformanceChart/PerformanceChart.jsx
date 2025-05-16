@@ -116,7 +116,7 @@ const FloatingTooltip = ({ point, hideTooltip }) => {
 
       <div className="mt-4 flex justify-end space-x-2">
         <Button type="button" variant="secondary" onClick={hideTooltip}>
-          {t('hide')}
+          {t('close')}
         </Button>
         <Button
           type="button"

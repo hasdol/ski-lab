@@ -10,7 +10,7 @@ const Button = ({
   variant = 'primary',
   disabled = false,
   loading = false,
-  className = '',
+  className = '', 
   ...props
 }) => {
   const isIconOnly = React.Children.count(children) === 1 && React.isValidElement(children);
@@ -34,7 +34,10 @@ const Button = ({
       variantStyles = 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] focus:ring-2 focus:ring-blue-300 shadow-sm';
       break;
     case 'tab':
-      variantStyles = 'bg-gray-200 text-gray-800 border border-gray-300 hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-100';
+      variantStyles = 'bg-gray-100 text-gray-800 hover:bg-gray-200 px-4 py-3';
+      break;
+    case 'archive':
+      variantStyles = 'bg-teal-500/60 text-gray-800 hover:bg-teal-500/80';
       break;
     default:
       variantStyles = 'bg-blue-500 text-white hover:bg-blue-600 active:scale-[0.98] focus:ring-2 focus:ring-blue-300 shadow-sm';
