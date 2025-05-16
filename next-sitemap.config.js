@@ -28,6 +28,12 @@ module.exports = {
     '/edit/**',
     '/teams/create-team',
     '/teams/create-team/**',
+    '/signin',
+    '/signin/**',
+    '/signup',
+    '/signup/**',
+    '/resetPassword',
+    '/resetPassword/**',
   ],
 
   robotsTxtOptions: {
