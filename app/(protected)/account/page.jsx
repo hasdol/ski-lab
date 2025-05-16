@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import Head from 'next/head';
 import { useTranslation } from 'react-i18next';
 import { RiVerifiedBadgeFill, RiDeleteBinLine } from "react-icons/ri";
 import { useAuth } from '@/context/AuthContext';
@@ -32,10 +31,6 @@ const Account = () => {
 
   return (
     <>
-      <Head>
-        <meta name="robots" content="noindex, nofollow" />
-        <title>Ski-Lab: {t('account')}</title>
-      </Head>
       <div className="p-3 mx-auto animate-fade-up animate-duration-300">
         <h1 className="text-3xl font-bold text-gray-900 my-4">
           {t('account')}

@@ -1,7 +1,6 @@
 // pages/PasswordReset.js
 'use client';
 import React, { useState } from 'react';
-import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { sendPasswordReset } from '@/lib/firebase/authFunctions';
 import Button from '@/components/common/Button';
@@ -37,10 +36,6 @@ const PasswordReset = () => {
 
   return (
     <>
-      <Head>
-        <title>Ski-Lab: Reset password</title>
-        <meta name="description" content="Reset your password in Ski-Lab" />
-      </Head>
       <div className="p-3 mt-20 md:w-1/2 md:mx-auto animate-fade-down animate-duration-300">
         <h1 className="text-5xl mb-10 font-semibold">{t('reset_password')}</h1>
         {resetError && <p className="bg-red-100 text-red-700 p-3 rounded">{resetError}</p>}

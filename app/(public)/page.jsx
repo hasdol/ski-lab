@@ -1,6 +1,5 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -52,11 +51,6 @@ const HomePage = () => {
 
   return (
     <>
-      <Head>
-        <title>Ski-Lab: Organize, Test, Analyze</title>
-        <meta name="description" content="Ski-Lab provides an intuitive way of organizing, testing, and analyzing skis." />
-      </Head>
-
       <div className='relative flex flex-col items-center min-h-screen p-6 text-text overflow-hidden'>
         {/* Background image */}
         <div

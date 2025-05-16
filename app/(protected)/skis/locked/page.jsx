@@ -1,7 +1,6 @@
 // components/ManageLockedSkisPage.jsx
 'use client'
 import React from 'react';
-import Head from 'next/head';
 import { useTranslation } from 'react-i18next';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { useLockedSkis } from '@/hooks/useLockedSkis';
@@ -29,10 +28,6 @@ const ManageLockedSkis = () => {
 
   return (
     <>
-      <Head>
-        <title>Ski-Lab: Manage locked skis</title>
-        <meta name="description" content="Displaying locked skis as a result of plan downgrade" />
-      </Head>
       <div className='p-3 md:w-2/3 mx-auto'>
         <div className='my-2'>
           <Button variant='secondary' onClick={() => router.back()}>{t('back')}</Button>

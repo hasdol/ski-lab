@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useSkis } from '@/hooks/useSkis';
 import SkiForm from '@/components/SkiForm/SkiForm';
 import Spinner from '@/components/common/Spinner/Spinner';
-import Head from 'next/head';
 import { useTranslation } from 'react-i18next';
 
 const AddSkisPage = () => {
@@ -22,10 +21,6 @@ const AddSkisPage = () => {
 
   return (
     <div>
-      <Head>
-        <title>Ski-Lab: Add skis</title>
-        <meta name="description" content="Adding skis to your ski database" />
-      </Head>
       <div className='p-3 md:w-2/3 mx-auto'>
         <h1 className="text-3xl font-bold text-gray-900 my-4">
           {t('add_skis')}

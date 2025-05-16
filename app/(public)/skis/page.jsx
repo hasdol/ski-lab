@@ -7,7 +7,6 @@
 /* -------------------------------------------------------------------------- */
 
 import React, { useContext, useState, useEffect, useMemo } from 'react';
-import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
@@ -206,7 +205,6 @@ const Skis = () => {
 
   return (
     <div className='p-3 md:w-2/3 mx-auto'>
-      <Head><title>Ski-Lab: Skis</title></Head>
       <div className="container mx-auto animate-fade animate-duration-300">
         <h1 className="text-3xl font-bold text-gray-900 my-4">{t('skipark')}</h1>
 

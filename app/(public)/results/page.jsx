@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import {
@@ -116,11 +115,6 @@ const Results = () => {
   // ------------------------------------------------------------
   return (
     <div className='p-3 md:w-2/3 mx-auto'>
-
-      <Head>
-        <title>Ski-Lab: Results</title>
-        <meta name="description" content="Displaying your test results" />
-      </Head>
 
       <div className="animate-fade animate-duration-300">
         <h1 className="text-3xl font-bold text-gray-900 my-4">

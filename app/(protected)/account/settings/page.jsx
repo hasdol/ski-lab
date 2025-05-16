@@ -1,6 +1,5 @@
 'use client';
 import React, { useState, useContext } from 'react';
-import Head from 'next/head';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { getFunctions, httpsCallable } from 'firebase/functions';
@@ -95,11 +94,6 @@ export default function SettingsPage() {
 
   return (
     <>
-      <Head>
-        <title>Ski-Lab: {t('settings')}</title>
-        <meta name="description" content="" />
-      </Head>
-
       <div className="p-3 mx-auto animate-fade-up animate-duration-300">
 
         {/* Back Button */}

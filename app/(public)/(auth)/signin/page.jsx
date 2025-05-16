@@ -1,7 +1,6 @@
 // pages/SignIn.js
 'use client';
 import React, { useState } from 'react';
-import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { loginWithEmailAndPassword } from '@/lib/firebase/authFunctions';
@@ -41,10 +40,6 @@ const SignIn = () => {
 
   return (
     <>
-      <Head>
-        <title>Ski-Lab: Sign in</title>
-        <meta name="description" content="Sign in to Ski-Lab" />
-      </Head>
       <div className="p-3 mt-20 md:w-1/2 md:mx-auto animate-fade-down animate-duration-300">
         <h1 className="text-5xl mb-10 font-semibold ">{t('signIn')}</h1>
         {error && <p className="bg-red-100 text-red-700 p-3 rounded">{error}</p>}

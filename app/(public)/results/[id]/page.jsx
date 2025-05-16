@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Head from 'next/head';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import {
@@ -75,11 +74,6 @@ const ResultDetailsPage = () => {
 
   return (
     <>
-      <Head>
-        <title>Ski‑Lab: {t('result')} #{id}</title>
-        <meta name="description" content="Single test result" />
-      </Head>
-
       <div className="animate-fade animate-duration-300">
         {/* Back button */}
         <Button

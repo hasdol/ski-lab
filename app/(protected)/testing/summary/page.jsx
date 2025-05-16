@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useContext, useEffect, useState } from 'react';
-import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { mapRankingsToTournamentData } from '@/helpers/helpers';
@@ -187,12 +186,7 @@ const TestSummaryPage = () => {
 
   /* ───────────── render ───────────── */
   return (
-    <div className="">
-      <Head>
-        <title>Ski-Lab: Results</title>
-        <meta name="description" content="Displaying your test results" />
-      </Head>
-
+    <div>
       <div className='p-3 md:w-2/3 mx-auto space-y-6'>
         <h1 className="text-3xl font-bold text-gray-900 b-5">
           {t('summary')}

@@ -6,7 +6,6 @@ import { useSingleSki } from '@/hooks/useSingleSki';
 import { useSkis } from '@/hooks/useSkis';
 import SkiForm from '@/components/SkiForm/SkiForm';
 import Spinner from '@/components/common/Spinner/Spinner';
-import Head from 'next/head';
 
 const EditSkisPage = () => {
   const { updateSki, loading: updating, error: updateError } = useSkis();
@@ -27,10 +26,6 @@ const EditSkisPage = () => {
 
   return (
     <div>
-      <Head>
-        <title>Ski-Lab: Edit skis</title>
-        <meta name="description" content="Edit skis" />
-      </Head>
       <div className='p-3 md:w-2/3 mx-auto'>
         <h1 className="text-3xl font-bold text-gray-900 my-4">
           {t('edit_skis')}

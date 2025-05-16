@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import Head from 'next/head'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { useTranslation } from 'react-i18next'
@@ -141,10 +140,6 @@ const EditResultPage = () => {
 
   return (
     <>
-      <Head>
-        <title>SkiLab: {t('edit_result')}</title>
-        <meta name="description" content="Edit result" />
-      </Head>
       <div className='p-3 md:w-2/3 mx-auto'>
         <h1 className="text-3xl font-bold text-gray-900 my-4">
           {t('edit_result')}

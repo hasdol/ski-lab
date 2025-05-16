@@ -1,6 +1,5 @@
 'use client'
 import React, { useEffect, useContext, useState } from 'react';
-import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useTranslation } from 'react-i18next';
@@ -225,10 +224,6 @@ const Testing = () => {
 
   return (
     <>
-      <Head>
-        <title>Ski-Lab: Testing</title>
-        <meta name="description" content="Testing skis in a cup format" />
-      </Head>
       <DragDropContext
         onDragUpdate={onDragUpdate}
         onDragEnd={(result) => {
