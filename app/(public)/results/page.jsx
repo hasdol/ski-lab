@@ -18,7 +18,7 @@ import ResultsSearch from '../../../components/Search/Search';
 import DeleteTestModal from '@/components/DeleteTestModal/DeleteTestModal';
 import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
 import Button from '@/components/common/Button';
-import { formatSnowTypeLabel, formatSourceLabel } from '@/helpers/helpers';
+import { formatSnowTypeLabel, formatSourceLabel, highlightSearchTerm } from '@/helpers/helpers';
 
 const Results = () => {
   // ------------------------------------------------------------
@@ -93,21 +93,6 @@ const Results = () => {
     refresh();
   };
 
-  // Highlight matches in any text
-  const highlightSearchTerm = (text) => {
-    if (!debouncedSearch) return text;
-    return text
-      .split(new RegExp(`(${debouncedSearch})`, 'gi'))
-      .map((part, i) =>
-        part.toLowerCase() === debouncedSearch ? (
-          <mark key={i} className="bg-yellow-200 text-gray-900">
-            {part}
-          </mark>
-        ) : (
-          part
-        )
-      );
-  };
 
   // ------------------------------------------------------------
   // Render
@@ -193,11 +178,14 @@ const Results = () => {
                   <div className="flex justify-between">
                     <div>
                       <h3 className="font-semibold text-xl">
-                        {highlightSearchTerm(result.style.charAt(0).toUpperCase() + result.style.slice(1))} /{' '}
-                        {highlightSearchTerm(`${result.temperature}°C`)}
+                        {highlightSearchTerm(
+                          result.style.charAt(0).toUpperCase() + result.style.slice(1),
+                          debouncedSearch
+                        )} /{' '}
+                        {highlightSearchTerm(`${result.temperature}°C`, debouncedSearch)}
                       </h3>
                       <i className="text-sm">
-                        {highlightSearchTerm(result.location)}
+                        {highlightSearchTerm(result.location, debouncedSearch)}
                       </i>
                     </div>
                     <div className="space-x-2 shrink-0">
@@ -227,7 +215,8 @@ const Results = () => {
                           {highlightSearchTerm(
                             ranking.skiId
                               ? ranking.serialNumber
-                              : 'Deleted'
+                              : 'Deleted',
+                            debouncedSearch
                           )}
                           {ranking.score === 0 && (
                             <span className="mx-2 text-highlight text-xs">
@@ -236,7 +225,7 @@ const Results = () => {
                           )}
                         </span>
                         <span className="w-1/3 text-center">
-                          {highlightSearchTerm(ranking.grind)}
+                          {highlightSearchTerm(ranking.grind, debouncedSearch)}
                         </span>
                         <span className="w-1/3 text-end">
                           {ranking.score}
@@ -270,7 +259,10 @@ const Results = () => {
                       <span className="text-gray-700">Snow source:</span>
                       <span className="font-semibold">
                         {result.snowCondition?.source
-                          ? highlightSearchTerm(formatSourceLabel(result.snowCondition.source))
+                          ? highlightSearchTerm(
+                            formatSourceLabel(result.snowCondition.source),
+                            debouncedSearch
+                          )
                           : '--'}
                       </span>
                     </li>
@@ -278,7 +270,10 @@ const Results = () => {
                       <span className="text-gray-700">Snow type:</span>
                       <span className="font-semibold">
                         {result.snowCondition?.grainType
-                          ? highlightSearchTerm(formatSnowTypeLabel(result.snowCondition.grainType))
+                          ? highlightSearchTerm(
+                            formatSnowTypeLabel(result.snowCondition.grainType),
+                            debouncedSearch
+                          )
                           : '--'}
                       </span>
                     </li>
@@ -286,13 +281,12 @@ const Results = () => {
                       <span className="text-gray-700">Comment:</span>
                       <span className="font-semibold">
                         {result.comment
-                          ? highlightSearchTerm(result.comment)
+                          ? highlightSearchTerm(result.comment, debouncedSearch)
+
                           : '--'}
                       </span>
                     </li>
                   </ul>
-
-
 
 
                   {/* timestamp */}

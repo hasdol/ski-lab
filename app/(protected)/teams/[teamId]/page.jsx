@@ -66,7 +66,7 @@ export default function TeamDetailPage() {
   };
 
   return (
-    <div className='p-3 md:w-2/3 mx-auto'>
+    <div className='p-3 md:w-2/3 mx-auto pb-20'>
       {/* Back & Manage */}
       <div className="flex items-center justify-between mb-6">
         <Button onClick={handleBack} variant="secondary" >Back</Button>
@@ -149,15 +149,17 @@ export default function TeamDetailPage() {
                         return (
                           <div
                             key={evt.id}
-                            className="shadow rounded-md hover:bg-gray-50 cursor-pointer relative text-left p-4 overflow-hidden w-full active:scale-[0.98] focus:ring-2 focus:ring-gray-300 focus:outline-none transition-all duration-200"
-                            onClick={() => router.push(`/teams/${team.id}/${evt.id}`)}
+                            className="border-l-2 border-gray-300 cursor-pointer relative text-left p-4 overflow-hidden w-full"
+
                           >
-                            <div className="absolute top-2 right-2 flex items-center space-x-1">
-                              <span className={`h-2 w-2 rounded-full ${b.dot} ${cat === 'live' ? 'animate-pulse' : ''}`}></span>
-                              <span className="text-xs  text-gray-700">{b.label}</span>
+                            <div className='flex justify-between'>
+                              <div>
+                                <h3 className="font-semibold text-base text-gray-800 break-words">{evt.name}</h3>
+                                <p className="text-sm text-gray-500 mt-1">{start.toLocaleDateString()} - {end.toLocaleDateString()}</p>
+                              </div>
+                              <Button onClick={() => router.push(`/teams/${team.id}/${evt.id}`)} variant='secondary' className='text-sm mt-2'>View</Button>
                             </div>
-                            <h3 className="font-semibold text-base text-gray-800 break-words">{evt.name}</h3>
-                            <p className="text-sm text-gray-500 mt-1">{start.toLocaleDateString()} - {end.toLocaleDateString()}</p>
+
                           </div>
                         );
                       })}

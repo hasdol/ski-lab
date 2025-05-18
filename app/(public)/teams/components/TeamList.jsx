@@ -36,8 +36,8 @@ export default function TeamList({ teams }) {
       {teams.map((team) => (
         <div
           key={team.id}
-          className="flex justify-between bg-white text-gray-800 shadow hover:bg-gray-50 active:scale-[0.98] focus:ring-2 focus:ring-gray-300 cursor-pointer p-2.5 rounded-md focus:outline-none transition-all duration-200"
-          onClick={() => router.push(`/teams/${team.id}`)}
+          className="flex justify-between border-l-2 border-gray-300  text-gray-800  cursor-pointer p-2.5"
+          
         >
           <div>
             <h3 className='font-semibold'>{team.name}</h3>
@@ -57,7 +57,7 @@ export default function TeamList({ teams }) {
               </Button>
             )}
 
-
+            <Button onClick={() => router.push(`/teams/${team.id}`)} variant='secondary' className='text-sm'>View</Button>
           </div>
         </div>
       ))}
