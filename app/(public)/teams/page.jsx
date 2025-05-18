@@ -15,7 +15,7 @@ export default function TeamsPage() {
   const router = useRouter();
 
   return (
-    <div className='p-3 md:w-2/3 mx-auto pb-20'>
+    <div className='p-3 md:w-2/3 mx-auto'>
 
       {/* Header */}
       <div className="flex flex-col items-start  justify-between">

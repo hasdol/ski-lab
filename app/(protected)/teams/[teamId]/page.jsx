@@ -66,7 +66,7 @@ export default function TeamDetailPage() {
   };
 
   return (
-    <div className='p-3 md:w-2/3 mx-auto pb-20'>
+    <div className='p-3 md:w-2/3 mx-auto'>
       {/* Back & Manage */}
       <div className="flex items-center justify-between mb-6">
         <Button onClick={handleBack} variant="secondary" >Back</Button>

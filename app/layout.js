@@ -43,7 +43,7 @@ export default function RootLayout({ children }) {
           <UserPreferencesProvider>
             <TournamentProvider>
               <Navigation />
-              <main className="mb-auto md:flex md:flex-col md:pb-0 md:w-full">
+              <main className="mb-auto pb-20 md:flex md:flex-col md:pb-0 md:w-full">
                 {children}
               </main>
               <CookieConsent />
