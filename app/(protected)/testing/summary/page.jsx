@@ -178,8 +178,8 @@ const TestSummaryPage = () => {
     { label: 'Fine grained', value: 'fine_grained' },
     { label: 'Coarse grained', value: 'coarse_grained' },
     { label: 'Wet', value: 'wet' },
-    { label: 'Icy', value: 'icy_conditions' },
-    { label: 'Sugary', value: 'sugary_snow' },
+    { label: 'Icy', value: 'icy' },
+    { label: 'Sugary', value: 'sugary' },
   ];
 
   /* ───────────── render ───────────── */

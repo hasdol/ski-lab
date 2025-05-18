@@ -14,7 +14,7 @@ import {
 
 import Button from '@/components/common/Button';
 import SkiDetails from './details/Details';
-import highlight from '@/helpers/highlightSearchTerm';
+import { highlightSearchTerm } from '@/helpers/helpers';
 
 const SkiTable = ({
   skis,
@@ -164,19 +164,19 @@ const SkiTable = ({
 
                   {/* Data columns */}
                   <td className="p-2 text-center">
-                    {highlight(ski.serialNumber, search)}
+                    {highlightSearchTerm(ski.serialNumber, search)}
                   </td>
                   <td className="p-2 text-center">
-                    {highlight(t(ski.style), search)}
+                    {highlightSearchTerm(t(ski.style), search)}
                   </td>
                   <td className="p-2 text-center">
-                    {highlight(ski.brand, search)}
+                    {highlightSearchTerm(ski.brand, search)}
                   </td>
                   <td className="p-2 text-center">
-                    {highlight(ski.model, search)}
+                    {highlightSearchTerm(ski.model, search)}
                   </td>
                   <td className="p-2 text-center">
-                    {highlight(ski.grind, search)}
+                    {highlightSearchTerm(ski.grind, search)}
                   </td>
                   <td className="p-2 text-center">
                     {ski.base || '--'}

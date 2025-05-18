@@ -1,13 +1,11 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { RiSearchLine } from 'react-icons/ri';
 import { useDebounce } from 'use-debounce';
 
 const MIN_CHARS = 3;
 
 const ResultsSearch = ({ onSearch }) => {
-  const { t } = useTranslation();
   const [local, setLocal] = useState('');
   const [debounced] = useDebounce(local, 300);
 

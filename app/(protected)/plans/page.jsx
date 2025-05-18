@@ -107,13 +107,13 @@ const PlansPage = () => {
                 >
                   {isCurrent && (
                     <span className="absolute top-3 right-3 bg-gradient-to-br from-blue-500 to-indigo-500 text-white text-xs px-2 py-1 rounded">
-                      {t('current')}
+                      Current
                     </span>
                   )}
 
                   <div className="px-6 pt-6">
                     <h2 className="text-xl font-semibold text-gray-800">
-                      {t(plan.name)}
+                      {plan.name}
                     </h2>
                     <p className="text-sm text-gray-500 italic mt-1">
                       {plan.name === 'Company' && 'Industry Leader'}

@@ -2,6 +2,7 @@ import React, { useMemo, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/common/Button';
 import { MdInfoOutline } from 'react-icons/md';
+import { formatSnowTypeLabel, formatSourceLabel } from '@/helpers/helpers';
 
 const CombinedConditionsHeatmap = ({
   temperatureList,
@@ -152,8 +153,8 @@ const CombinedConditionsHeatmap = ({
                 className="border-b border-gray-100 last:border-0"
               >
                 <td className="text-sm text-gray-500 py-2 pr-4">
-                  {row.source} – {row.snowType}
-                </td>
+                  {formatSourceLabel(row.source)} – {formatSnowTypeLabel(row.snowType)}                </td>
+
                 {temperatureList.map((temp) => {
                   const key = `${temp}___${row.source.toLowerCase()}___${row.snowType.toLowerCase()}`;
                   const item = performanceMap[key];
@@ -200,7 +201,8 @@ const CombinedConditionsHeatmap = ({
           onClick={(e) => e.stopPropagation()}
         >
           <h3 className='font-semibold'>
-            {popupData.temp}°C • {popupData.source} • {popupData.snowType}
+            {popupData.temp}°C • {formatSourceLabel(popupData.source)} • {formatSnowTypeLabel(popupData.snowType)}
+
           </h3>
           <span className="">
             Number of tests: {popupData.tests.length}

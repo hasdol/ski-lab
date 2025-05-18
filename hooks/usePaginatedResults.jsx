@@ -38,13 +38,22 @@ const usePaginatedResults = ({ term = '', temp = [-100, 100], style = 'all', sor
   const baseQuery = useCallback(() => {
     if (!user) return null;
     const col = collection(db, `users/${user.uid}/testResults`);
+    // Inside baseQuery construction logic:
     if (term && term.length >= MIN_CHARS) {
-      return query(
-        col,
-        where(keywordField, 'array-contains', term),
-        orderBy('timestamp', sortOrder),
-        limit(PAGE),
-      );
+      // Split search term into components
+      const searchComponents = term
+        .toLowerCase()
+        .split(/[\s_]+/) // Split on both spaces and underscores
+        .filter(t => t.length >= MIN_CHARS);
+
+      if (searchComponents.length > 0) {
+        return query(
+          col,
+          where(keywordField, 'array-contains-any', searchComponents),
+          orderBy('timestamp', sortOrder),
+          limit(PAGE),
+        );
+      }
     }
     return query(col, orderBy('timestamp', sortOrder), limit(PAGE));
   }, [user, term, sortOrder]);

@@ -18,7 +18,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { useRouter } from 'next/navigation';
-import { getTimestamp } from '@/helpers/helpers';
+import { formatSnowTypeLabel, formatSourceLabel, getTimestamp } from '@/helpers/helpers';
 import Button from '@/components/common/Button';
 
 /* ───────────────────────────────────────────────
@@ -85,10 +85,10 @@ const FloatingTooltip = ({ point, hideTooltip }) => {
   } = point.payload;
 
   const rows = [
-    { key: 'location', value: location },
-    { key: 'temperature', value: temp },
-    { key: 'snow_type', value: snowType },
-    { key: 'snow_source', value: snowSource },
+    { key: 'Location', value: location },
+    { key: 'Temperature', value: temp },
+    { key: 'Snow type', value: formatSnowTypeLabel(snowType) },
+    { key: 'Snow source', value: formatSourceLabel(snowSource)},
   ].filter(({ value }) => value !== undefined && value !== null && value !== '');
 
   return (

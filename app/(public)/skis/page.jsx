@@ -318,7 +318,7 @@ const Skis = () => {
         )}
 
         {/* Ski list (cards or table) */}
-        <div className="my-2">
+        <div className="my-5">
           {loading && !skis.length ? (
             <div className="flex justify-center items-center mt-10"><Spinner/></div>
           ) : viewMode === 'card' ? (

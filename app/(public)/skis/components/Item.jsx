@@ -4,9 +4,8 @@ import { RiHistoryLine, RiExpandDiagonalFill, RiCollapseDiagonalLine } from "rea
 
 import SkiDetail from './details/Details';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
-import { isNew } from '@/helpers/helpers';
+import { isNew, highlightSearchTerm } from '@/helpers/helpers';
 import Button from '@/components/common/Button';
-import highlight from '@/helpers/highlightSearchTerm';
 
 const SkiItem = ({
   ski,
@@ -66,11 +65,11 @@ const SkiItem = ({
 
           {!gloveMode ? (
             <div className='flex space-x-1 items-center'>
-              <span>{highlight(ski.serialNumber, search)}</span>
+              <span>{highlightSearchTerm(ski.serialNumber, search)}</span>
               <span>•</span>
-              <span>{highlight(ski.grind, search)}</span>
+              <span>{highlightSearchTerm(ski.grind, search)}</span>
               <span>•</span>
-              <span>{highlight(ski.style.charAt(0).toUpperCase() + ski.style.slice(1), search)}</span>
+              <span>{highlightSearchTerm(ski.style.charAt(0).toUpperCase() + ski.style.slice(1), search)}</span>
               {/* Archive or New indicators */}
               {ski.archived && <RiHistoryLine />}
               {isNew(ski) && !gloveMode && <p className="text-highlight text-xs"> - New</p>}

@@ -18,6 +18,7 @@ import ResultsSearch from '../../../components/Search/Search';
 import DeleteTestModal from '@/components/DeleteTestModal/DeleteTestModal';
 import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
 import Button from '@/components/common/Button';
+import { formatSnowTypeLabel, formatSourceLabel } from '@/helpers/helpers';
 
 const Results = () => {
   // ------------------------------------------------------------
@@ -192,7 +193,7 @@ const Results = () => {
                   <div className="flex justify-between">
                     <div>
                       <h3 className="font-semibold text-xl">
-                        {highlightSearchTerm(result.style.charAt(0).toUpperCase() + result.style.slice(1))} •{' '}
+                        {highlightSearchTerm(result.style.charAt(0).toUpperCase() + result.style.slice(1))} /{' '}
                         {highlightSearchTerm(`${result.temperature}°C`)}
                       </h3>
                       <i className="text-sm">
@@ -230,7 +231,7 @@ const Results = () => {
                           )}
                           {ranking.score === 0 && (
                             <span className="mx-2 text-highlight text-xs">
-                              New
+                              - New
                             </span>
                           )}
                         </span>
@@ -269,7 +270,7 @@ const Results = () => {
                       <span className="text-gray-700">Snow source:</span>
                       <span className="font-semibold">
                         {result.snowCondition?.source
-                          ? highlightSearchTerm(result.snowCondition.source)
+                          ? highlightSearchTerm(formatSourceLabel(result.snowCondition.source))
                           : '--'}
                       </span>
                     </li>
@@ -277,7 +278,7 @@ const Results = () => {
                       <span className="text-gray-700">Snow type:</span>
                       <span className="font-semibold">
                         {result.snowCondition?.grainType
-                          ? highlightSearchTerm(result.snowCondition.grainType)
+                          ? highlightSearchTerm(formatSnowTypeLabel(result.snowCondition.grainType))
                           : '--'}
                       </span>
                     </li>

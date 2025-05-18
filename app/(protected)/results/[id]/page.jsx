@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
-  RiArrowLeftLine,
   RiEditLine,
   RiDeleteBinLine,
 } from 'react-icons/ri';
@@ -16,6 +15,7 @@ import {
   getTournamentResult,
   deleteTestResultEverywhere,
 } from '@/lib/firebase/firestoreFunctions';
+import { formatSnowTypeLabel, formatSourceLabel } from '@/helpers/helpers';
 
 const ResultDetailsPage = () => {
   const router = useRouter();
@@ -65,22 +65,21 @@ const ResultDetailsPage = () => {
   if (!result) {
     return (
       <div className="text-center text-gray-500 mt-10">
-        {t('result_not_found')}
+        Results not found
       </div>
     );
   }
 
   return (
     <>
-      <div className="animate-fade animate-duration-300">
+      <div className='p-3 md:w-2/3 mx-auto'>
         {/* Back button */}
         <Button
           variant="secondary"
           className="mb-4 flex items-center gap-1"
           onClick={() => router.back()}
         >
-          <RiArrowLeftLine />
-          {t('back')}
+          Back
         </Button>
 
         {/* ONE full‑width “Results card” */}
@@ -89,7 +88,7 @@ const ResultDetailsPage = () => {
           <div className="flex justify-between">
             <div>
               <h1 className="font-semibold text-2xl">
-                {t(result.style)} • {result.temperature}°C
+                {result.style.charAt(0).toUpperCase() + result.style.slice(1)} / {result.temperature}°C
               </h1>
               <i className="text-sm">{result.location}</i>
             </div>
@@ -116,10 +115,10 @@ const ResultDetailsPage = () => {
               .map((ranking, idx) => (
                 <li key={idx} className="flex py-1 text-sm">
                   <span className="flex items-center w-1/3">
-                    {ranking.skiId ? ranking.serialNumber : t('deleted')}
+                    {ranking.skiId ? ranking.serialNumber : 'deleted'}
                     {ranking.score === 0 && (
                       <span className="mx-2 text-highlight text-xs">
-                        {t('new')}
+                        - New
                       </span>
                     )}
                   </span>
@@ -134,13 +133,13 @@ const ResultDetailsPage = () => {
           {/* extra meta */}
           <ul className="grid grid-cols-2 gap-4 text-sm">
             <li className="flex flex-col">
-              <span className="text-gray-700">{t('humidity')}:</span>
+              <span className="text-gray-700">Humidity:</span>
               <span className="font-semibold">
                 {result.humidity !== '' ? `${result.humidity}%` : '--'}
               </span>
             </li>
             <li className="flex flex-col">
-              <span className="text-gray-700">{t('snow_temperature')}:</span>
+              <span className="text-gray-700">Snow temperature:</span>
               <span className="font-semibold">
                 {result.snowTemperature !== ''
                   ? `${result.snowTemperature}°C`
@@ -148,23 +147,23 @@ const ResultDetailsPage = () => {
               </span>
             </li>
             <li className="flex flex-col">
-              <span className="text-gray-700">{t('snow_source')}:</span>
+              <span className="text-gray-700">Snow source</span>
               <span className="font-semibold">
                 {result.snowCondition?.source
-                  ? t(result.snowCondition.source)
+                  ? formatSourceLabel(result.snowCondition.source)
                   : '--'}
               </span>
             </li>
             <li className="flex flex-col">
-              <span className="text-gray-700">{t('snow_type')}:</span>
+              <span className="text-gray-700">Snow type:</span>
               <span className="font-semibold">
                 {result.snowCondition?.grainType
-                  ? t(result.snowCondition.grainType)
+                  ? formatSnowTypeLabel(result.snowCondition.grainType)
                   : '--'}
               </span>
             </li>
             <li className="col-span-2 flex flex-col">
-              <span className="text-gray-700">{t('comment')}:</span>
+              <span className="text-gray-700">Comment:</span>
               <span className="font-semibold">
                 {result.comment || '--'}
               </span>
