@@ -49,21 +49,21 @@ export default function EditTeamPage() {
       router.push(`/teams/${teamId}`);
     } catch (e) {
       console.error(e);
-      alert(t('error_updating_team') + e.message);
+      alert('Error updating team: ' + e.message);
     } finally {
       setLoadingAction(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm(t('confirm_delete_team'))) return;
+    if (!confirm('Are you sure you want to delete the team?')) return;
     setLoadingAction(true);
     try {
       await deleteTeam(teamId);
       router.push('/teams');
     } catch (e) {
       console.error(e);
-      alert(t('error_deleting_team') + e.message);
+      alert('Error deleting team' + e.message);
     } finally {
       setLoadingAction(false);
     }
@@ -77,7 +77,7 @@ export default function EditTeamPage() {
       setImageURL('');
     } catch (e) {
       console.error(e);
-      alert(t('error_removing_image') + e.message);
+      alert('Error removing image: ' + e.message);
     } finally {
       setLoadingAction(false);
     }

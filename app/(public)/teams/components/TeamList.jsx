@@ -32,32 +32,34 @@ export default function TeamList({ teams }) {
 
 
   return (
-    <div className="grid md:grid-cols-2 gap-3 my-4 animate-fade-down animate-duration-300">
+    <div className="grid md:grid-cols-2 gap-4 my-4 animate-fade-down animate-duration-300">
       {teams.map((team) => (
         <div
           key={team.id}
-          className="flex justify-between border-l-2 border-gray-300  text-gray-800  cursor-pointer p-2.5"
-          
+          className="flex justify-between rounded-md border border-gray-300  text-gray-800  cursor-pointer p-2.5"
+
         >
           <div>
             <h3 className='font-semibold'>{team.name}</h3>
             <p className='text-xs'>Members: {team.members.length}</p>
           </div>
-          <div className='self-center justify-self-end'>
+          <div className='self-center space-x-2 justify-self-end'>
+
+            <Button onClick={() => router.push(`/teams/${team.id}`)} variant='secondary' className='text-sm'>View</Button>
+
             {user.uid !== team.createdBy && (
               <Button
-                variant="secondary"
+                variant="danger"
+                className='text-sm'
                 loading={loadingTeamId === team.id}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleLeaveTeam(team.id);
                 }}
               >
-                <IoExitOutline />
+                Leave
               </Button>
             )}
-
-            <Button onClick={() => router.push(`/teams/${team.id}`)} variant='secondary' className='text-sm'>View</Button>
           </div>
         </div>
       ))}

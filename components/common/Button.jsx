@@ -16,7 +16,7 @@ const Button = ({
   const isIconOnly = React.Children.count(children) === 1 && React.isValidElement(children);
 
   const baseStyles = isIconOnly
-    ? 'p-4 rounded-md focus:outline-none transition-all duration-200'
+    ? 'p-3.5 rounded-md focus:outline-none transition-all duration-200'
     : 'px-5 py-2.5 rounded-md focus:outline-none transition-all duration-200';
 
   let variantStyles = '';
@@ -37,7 +37,7 @@ const Button = ({
       variantStyles = 'bg-gray-100 text-gray-800 hover:bg-gray-200 px-4 py-3';
       break;
     case 'archive':
-      variantStyles = 'bg-teal-500/60 text-gray-800 hover:bg-teal-500/80';
+      variantStyles = 'bg-teal-300/50 text-gray-800 hover:bg-teal-400/40';
       break;
     default:
       variantStyles = 'bg-blue-500 text-white hover:bg-blue-600 active:scale-[0.98] focus:ring-2 focus:ring-blue-300 shadow-sm';

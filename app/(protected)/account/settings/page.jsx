@@ -32,7 +32,7 @@ export default function SettingsPage() {
     setError('');
     try {
       await updateDisplayName(newDisplayName);
-      setSuccess(t('success'));
+      setSuccess('Success!');
       setIsEditingUsername(false);
     } catch (err) {
       setError(err.message);
@@ -45,16 +45,16 @@ export default function SettingsPage() {
     let confirmDeleteSubscription = false;
     // first confirm: handle subscription vs. simple
     if (userData?.stripeSubscriptionId) {
-      if (!window.confirm(t('confirm_delete_with_subscription'))) return;
+      if (!window.confirm('You have an active subscription. Deleting you account will automatically cancel the subscription. Proceed? ')) return;
       confirmDeleteSubscription = true;
     } else {
-      if (!window.confirm(t('confirm_delete_account'))) return;
+      if (!window.confirm('Are you sure you want to delete your account?')) return;
     }
 
     // second, final “are you really sure?”
     if (
       !window.confirm(
-        t('confirm_delete_account_final') ||
+        'Final warning. You can not undo this' ||
         'Are you absolutely sure you want to delete your account? This cannot be undone.'
       )
     ) {
@@ -76,7 +76,7 @@ export default function SettingsPage() {
         router.push('/');        // navigate to home
       }, 2000);
     } catch (err) {
-      setError(t('error_delete_account') + err.message);
+      setError('Error deleting your account: ' + err.message);
     } finally {
       setIsLoading(false);
     }
@@ -136,7 +136,7 @@ export default function SettingsPage() {
                 <div className='flex items-center justify-between bg-white border border-gray-200 rounded-md px-4 py-3 mt-1 cursor-pointer hover:bg-gray-50 transition'>
                   <RiUserLine className="text-gray-600 text-xl" />
                   <span className="flex-1 mx-4 text-gray-800">
-                    {userData?.displayName || t('--') && <span className='bg-orange-100 text-orange-800 p-2 rounded-md'>No username</span>}
+                    {userData?.displayName || '--' && <span className='bg-orange-100 text-orange-800 p-2 rounded-md'>No username</span>}
                   </span>
                   <RiEditLine className="text-gray-600 text-xl" />
                 </div>

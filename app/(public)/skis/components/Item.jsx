@@ -43,14 +43,14 @@ const SkiItem = ({
 
   return (
     <div
-      className={`p-2 px-3 animate-fade-down animate-duration-300 transition-all duration-200 border-l-2 ${showDetails
+      className={`animate-fade-down animate-duration-300 transition-all rounded-md duration-200 border ${showDetails
           ? 'border-gray-400'
           : 'border-gray-300 hover:bg-gray-50'
         }`}
     >
       {/* Main clickable row - now controls checkbox */}
       <div
-        className="w-full cursor-pointer"
+        className="p-3 w-full cursor-pointer"
         variant='secondary'
         onClick={() => handleCheckboxChange(ski.id)}
       >

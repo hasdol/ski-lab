@@ -83,7 +83,7 @@ export default function EditEventPage() {
   };
 
   const handleDelete = async () => {
-    if (!confirm(t('confirm_delete_event'))) return;
+    if (!confirm('Are you sure you want to delete the event?')) return;
     try {
       await deleteEvent(teamId, eventId);
       router.push(`/teams/${teamId}`);
@@ -98,10 +98,10 @@ export default function EditEventPage() {
       await deleteEventImage(teamId, eventId);
       await updateEvent(teamId, eventId, { imageURL: '' });
       setImageURL('');
-      alert(t('image_removed_success'));
+      alert('Successfully removed the image');
     } catch (err) {
       console.error(err);
-      alert(t('remove_image_error') + err.message);
+      alert('Error removing image: ' + err.message);
     }
   };
 

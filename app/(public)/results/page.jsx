@@ -172,7 +172,7 @@ const Results = () => {
               {resultsToShow.map((result) => (
                 <div
                   key={result.id}
-                  className="border-l-2 border-gray-300 p-5 flex flex-col justify-between animate-fade-down animate-duration-300 space-y-5"
+                  className="border border-gray-300 rounded-md p-5 flex flex-col justify-between animate-fade-down animate-duration-300 space-y-5"
                 >
                   {/* header */}
                   <div className="flex justify-between">

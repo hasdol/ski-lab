@@ -149,7 +149,7 @@ export default function TeamDetailPage() {
                         return (
                           <div
                             key={evt.id}
-                            className="border-l-2 border-gray-300 cursor-pointer relative text-left p-4 overflow-hidden w-full"
+                            className="border border-gray-300 rounded-md cursor-pointer relative text-left p-4 overflow-hidden w-full"
 
                           >
                             <div className='flex justify-between'>

@@ -32,8 +32,8 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
     'fine_grained',
     'coarse_grained',
     'wet',
-    'icy_conditions',
-    'sugary_snow'
+    'icy',
+    'sugary'
   ];
 
   // Build list of all snow combos
@@ -320,7 +320,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
   }, [chartData, grindHistory]);
 
   return (
-    <div className="mx-auto animate-fade-down animate-duration-300 relative">
+    <div className="px-5 pb-5 mx-auto animate-fade-down animate-duration-300 relative">
       <div className="mt-5">
         {/* Ski Info Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5 border-b border-gray-300 pb-6">

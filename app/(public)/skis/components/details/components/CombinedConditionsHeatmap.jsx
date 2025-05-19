@@ -188,7 +188,7 @@ const CombinedConditionsHeatmap = ({
           <MdInfoOutline className="w-5 h-5 mr-2 flex-shrink-0" />
           <span>
             {chartData.filter(d => d.total < 4).length}{' '}
-            Tests with only 2 skis are ignored
+            tests are ignored. Tests with only two skis are ignored
           </span>
         </div>
       )}
