@@ -3,7 +3,6 @@
 import React, { useContext, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
 import {
   RiHome5Line,
   RiTeamLine,
@@ -16,8 +15,6 @@ import {
 } from 'react-icons/ri';
 import { TiFlowParallel } from 'react-icons/ti';
 import { BiChart } from 'react-icons/bi';
-
-import { TournamentContext } from '@/context/TournamentContext';
 import { useAuth } from '@/context/AuthContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
 import Weather from '@/components/Weather';
@@ -33,10 +30,8 @@ const navConfig = [
 export default function Navigation() {
   const router = useRouter();
   const pathname = usePathname();
-  const { t } = useTranslation();
   const { user } = useAuth();
   const { signOut } = useProfileActions(user);
-  const { currentRound } = useContext(TournamentContext);
 
   const isActive = path => path === pathname;
   const [isSubNavOpen, setIsSubNavOpen] = useState(false);
@@ -101,10 +96,24 @@ export default function Navigation() {
       {/* Mobile: backdrop + draggable drop-up subnav */}
       {isSubNavOpen && (
         <>
-          <div className="fixed inset-0 z-20 backdrop-blur bg-black/10" onClick={() => setIsSubNavOpen(false)} />
+          {/* Mobile overlay */}
+          <div
+            className="md:hidden fixed inset-0 z-20 backdrop-blur bg-black/10"
+            onClick={() => setIsSubNavOpen(false)}
+          />
+          {/* Desktop overlay covering the rest of the page below the header */}
+          <div
+            className="hidden md:block fixed inset-x-0 top-15 bottom-0 z-40 backdrop-blur bg-black/10"
+            onClick={() => setIsSubNavOpen(false)}
+          />
+          {/* Mobile: draggable drop-up subnav */}
           <div
             className="md:hidden fixed inset-x-0 bottom-0 z-30 h-fit pb-20 bg-white rounded-t-lg shadow-lg"
-            style={{ transform: `translateY(${dragOffset}px)`, transition: dragOffset === 0 ? 'transform 0.3s ease' : undefined, touchAction: 'none' }}
+            style={{
+              transform: `translateY(${dragOffset}px)`,
+              transition: dragOffset === 0 ? 'transform 0.3s ease' : undefined,
+              touchAction: 'none',
+            }}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -113,12 +122,21 @@ export default function Navigation() {
               <div className="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mb-5" />
               {subNavItems.map(item =>
                 item.path ? (
-                  <Link key={item.key} href={item.path} onClick={() => setIsSubNavOpen(false)} className="w-full flex justify-between items-center p-3 border-l-2 border-gray-300 hover:bg-gray-100">
+                  <Link
+                    key={item.key}
+                    href={item.path}
+                    onClick={() => setIsSubNavOpen(false)}
+                    className="w-full flex justify-between items-center p-3 border-l-2 border-gray-300 hover:bg-gray-100"
+                  >
                     <span>{item.labelKey}</span>
                     {item.icon}
                   </Link>
                 ) : (
-                  <button key={item.key} onClick={item.onClick} className="w-full flex justify-between items-center p-3 border-l-2 border-gray-300 hover:bg-gray-100">
+                  <button
+                    key={item.key}
+                    onClick={item.onClick}
+                    className="w-full flex justify-between items-center p-3 border-l-2 border-gray-300 hover:bg-gray-100"
+                  >
                     <span>{item.labelKey}</span>
                     {item.icon}
                   </button>
@@ -158,16 +176,16 @@ export default function Navigation() {
           {isSubNavOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setIsSubNavOpen(false)} />
-              <div className="absolute right-0 top-10 mt-2 w-48 bg-white rounded-md shadow-lg overflow-hidden z-50 animate-fade-down animate-duration-300">
-                <div className="py-2">
+              <div className="absolute right-0 top-10 w-48 mt-2 bg-white rounded-md shadow-lg overflow-hidden z-50 animate-fade-down animate-duration-300">
+                <div className="space-y-2 p-3  ">
                   {subNavItems.map(item =>
                     item.path ? (
-                      <Link key={item.key} href={item.path} onClick={() => setIsSubNavOpen(false)} className="flex items-center  text-sm w-full px-4 py-2 text-gray-700 hover:bg-gray-100">
+                      <Link key={item.key} href={item.path} onClick={() => setIsSubNavOpen(false)} className="flex items-center w-full px-4 py-2 border-l-2 border-gray-300 text-gray-700 hover:bg-gray-100">
                         {item.icon}
                         <span className="ml-2">{item.labelKey}</span>
                       </Link>
                     ) : (
-                      <button key={item.key} onClick={item.onClick} className="flex items-center w-full px-4 py-2 text-sm  text-gray-700 hover:bg-gray-100">
+                      <button key={item.key} onClick={item.onClick} className="flex items-center w-full px-4 py-2 border-l-2 border-gray-300 text-gray-700 hover:bg-gray-100">
                         {item.icon}
                         <span className="ml-2">{item.labelKey}</span>
                       </button>
