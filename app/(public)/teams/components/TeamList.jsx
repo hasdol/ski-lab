@@ -47,7 +47,7 @@ export default function TeamList({ teams }) {
 
             <Button onClick={() => router.push(`/teams/${team.id}`)} variant='secondary' className='text-sm'>View</Button>
 
-            {user.uid !== team.createdBy && (
+            {user?.uid !== team.createdBy && (
               <Button
                 variant="danger"
                 className='text-sm'

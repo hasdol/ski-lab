@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
         return unsubscribeUser;
       } else {
         setUserData(null);
+        return () => {}; 
       }
     });
 
