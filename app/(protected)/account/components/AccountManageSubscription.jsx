@@ -6,7 +6,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useRouter } from 'next/navigation';
 import Button from '../../../../components/common/Button';
 
-const ManageSubscription = () => {
+const AccountManageSubscription = () => {
   const { user, userData } = useAuth();
   const [loading, setLoading] = useState(false);
   const functions = getFunctions();
@@ -55,4 +55,4 @@ const ManageSubscription = () => {
   );
 };
 
-export default ManageSubscription;
+export default AccountManageSubscription;

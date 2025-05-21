@@ -1,6 +1,6 @@
 // src/hooks/useSingleTeam.js
 import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase/config';
+import { db } from '@/lib/firebase/firebaseConfig';
 import { doc, getDoc, collection, onSnapshot } from 'firebase/firestore';
 
 const useSingleTeam = (teamId) => {

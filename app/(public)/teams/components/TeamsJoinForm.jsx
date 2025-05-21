@@ -4,7 +4,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
 
-export default function JoinTeamForm() {
+export default function TeamsJoinForm() {
   const { user } = useAuth();
   const [code, setCode] = useState('');
   const [loading, setIsLoading] = useState(false);

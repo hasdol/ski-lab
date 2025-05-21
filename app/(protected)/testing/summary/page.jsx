@@ -4,14 +4,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { mapRankingsToTournamentData } from '@/helpers/helpers';
-import ResultList from './components/ResultList';
+import SummaryResultList from './components/SummaryResultList';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { TournamentContext } from '@/context/TournamentContext';
 import { addTestResult } from '@/lib/firebase/firestoreFunctions';
 import { shareTestResult } from '@/lib/firebase/teamFunctions';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
-import ShareWithEventSelector from '@/app/(protected)/testing/summary/components/ShareWithEvents';
+import ShareWithEventSelector from '@/components/ShareWithEvents/ShareWithEvents';
 import { WEATHER_ENDPOINT } from '@/lib/firebase/weatherEndpoint';
 
 const TestSummaryPage = () => {
@@ -204,7 +204,7 @@ const TestSummaryPage = () => {
               <Spinner />
             </div>
           ) : (
-            <ResultList rankings={rankings} />
+            <SummaryResultList rankings={rankings} />
           )}
         </div>
 

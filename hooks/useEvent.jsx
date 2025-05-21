@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { db } from '@/lib/firebase/firebaseConfig';
 
 const useEvent = (teamId, eventId) => {
   const [eventData, setEventData] = useState(null);

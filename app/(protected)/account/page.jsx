@@ -3,10 +3,10 @@ import React from 'react';
 import { RiVerifiedBadgeFill, RiDeleteBinLine } from "react-icons/ri";
 import { useAuth } from '@/context/AuthContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
-import ProfileImage from '@/app/(protected)/account/components/ProfileImage';
+import ProfileImage from '@/app/(protected)/account/components/AccountProfileImage';
 import Button from '@/components/common/Button';
 import { useRouter } from 'next/navigation';
-import ManageSubscription from '@/app/(protected)/account/components/ManageSubscription';
+import ManageSubscription from '@/app/(protected)/account/components/AccountManageSubscription';
 import Spinner from '@/components/common/Spinner/Spinner';
 
 const Account = () => {

@@ -15,7 +15,7 @@ import {
 import { RiLayoutGridLine } from 'react-icons/ri';
 import { MdViewAgenda } from 'react-icons/md';
 
-const SkiFilterDrawer = ({
+const SkiFilter = ({
   open,
   onClose,
   styleFilter,
@@ -188,4 +188,4 @@ const SkiFilterDrawer = ({
   );
 };
 
-export default SkiFilterDrawer;
+export default SkiFilter;

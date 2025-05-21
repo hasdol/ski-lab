@@ -17,9 +17,8 @@ const EditSkisPage = () => {
     router.push('/skis');
   };
 
-  if (loading || updating) return <Spinner />;
-  if (error || updateError)
-    return <div className="m-2">Error: {error?.message || updateError?.message}</div>;
+  if (loading) return <Spinner />;
+
   if (!ski) return <div className="m-2">{t('ski_not_found')}</div>;
 
   return (
@@ -29,6 +28,7 @@ const EditSkisPage = () => {
           Edit Skis
         </h1>
         <SkiForm initialData={ski} onSubmit={handleUpdateSki} isEdit={true} />
+        {error || updateError && <div className="bg-red-100 text-red-800 p-2 rounded-md">Error: {error?.message || updateError?.message}</div>}
       </div>
 
     </div>

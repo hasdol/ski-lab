@@ -2,7 +2,7 @@
 import React, { useContext } from 'react';
 import { RiHistoryLine, RiExpandDiagonalFill, RiCollapseDiagonalLine } from "react-icons/ri";
 
-import SkiDetail from './details/Details';
+import SkiDetail from './details/SkiDetails';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 import { isNew, highlightSearchTerm } from '@/helpers/helpers';
 import Button from '@/components/common/Button';

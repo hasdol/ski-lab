@@ -3,7 +3,7 @@ import React from 'react';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
 
-const DateSort = ({ sortOrder, setSortOrder }) => {
+const ResultsDateSort = ({ sortOrder, setSortOrder }) => {
 
     const handleChange = (event) => {
         setSortOrder(event.target.value);
@@ -25,4 +25,4 @@ const DateSort = ({ sortOrder, setSortOrder }) => {
     );
 };
 
-export default DateSort;
+export default ResultsDateSort;

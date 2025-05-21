@@ -12,9 +12,9 @@ import { useDebounce } from 'use-debounce';
 
 import usePaginatedSkis from '@/hooks/usePaginatedSkis';
 import { useSkis } from '@/hooks/useSkis';
-import SkiItem from './components/Item';
-import SkiTable from './components/Table';
-import SkiFilterDrawer from './components/FilterDrawer';
+import SkiItem from './components/SkiItem';
+import SkiTable from './components/SkiTable';
+import SkiFilter from './components/SkiFilter';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 import { TournamentContext } from '@/context/TournamentContext';
 import { useAuth } from '@/context/AuthContext';
@@ -227,17 +227,16 @@ const Skis = () => {
           </div>
 
           <div className="flex space-x-3 items-end">
-            <Button onClick={() => router.push('/plans')} variant="secondary">
-              <RiShoppingCartLine className="text-highlight"/>
+            <Button onClick={() => router.push('/plans')} variant="archive">
+              <RiShoppingCartLine />
             </Button>
 
             <div className="flex flex-col items-center w-fit">
-              <label className={`text-sm font-semibold mb-1 ${hasReachedLimit && 'text-delete'}`}>{skiCount}/{skiLimit}</label>
+              <label className={`text-sm font-semibold mb-1 ${hasReachedLimit && 'text-red-500'}`}>{skiCount}/{skiLimit}</label>
               <Button
                 onClick={handleAddSki}
-                variant="secondary"
+                variant='primary'
                 disabled={hasReachedLimit}
-                className={hasReachedLimit ? 'text-red-500' : ''}
               >
                 {hasReachedLimit ? <RiLockLine/> : <RiAddLine/>}
               </Button>
@@ -269,7 +268,7 @@ const Skis = () => {
         {(hasLockedSkis || (hasReachedLimit && plan === 'free')) && (
           <div className="flex my-4 space-x-4">
             {hasLockedSkis && (
-              <div className="flex space-x-5 border border-gray-300 py-4 rounded-md items-center justify-center w-full">
+              <div className="flex space-x-5 border border-orange-400 py-4 rounded-md items-center justify-center w-full">
                 <div className="space-y-1">
                   <h3 className="text-sm flex items-center"><RiLockLine /> {lockedSkisCount} locked ski(s)</h3>
                   <Button onClick={() => router.push('/skis/locked')} variant="secondary">View skis</Button>
@@ -284,7 +283,7 @@ const Skis = () => {
         )}
 
         {/* Filter drawer */}
-        <SkiFilterDrawer
+        <SkiFilter
           open={isFilterOpen}
           onClose={toggleFilterDrawer}
           styleFilter={styleFilter}

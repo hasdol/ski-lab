@@ -2,7 +2,7 @@ import Button from '@/components/common/Button';
 import React from 'react';
 
 
-const HelpModal = ({ isOpen, onClose, help }) => {
+const TestingHelpModal = ({ isOpen, onClose, help }) => {
 
     if (!isOpen) return null; // Don't render the modal if it's not open
 
@@ -56,4 +56,4 @@ const HelpModal = ({ isOpen, onClose, help }) => {
     );
 };
 
-export default HelpModal;
+export default TestingHelpModal;

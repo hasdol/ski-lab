@@ -37,7 +37,7 @@ const Button = ({
       variantStyles = 'bg-gray-100 text-gray-800 hover:bg-gray-200 px-4 py-3';
       break;
     case 'archive':
-      variantStyles = 'bg-teal-300/50 text-gray-800 hover:bg-teal-400/40';
+      variantStyles = 'bg-emerald-200 text-emerald-900 hover:bg-emerald-300';
       break;
     default:
       variantStyles = 'bg-blue-500 text-white hover:bg-blue-600 active:scale-[0.98] focus:ring-2 focus:ring-blue-300 shadow-sm';

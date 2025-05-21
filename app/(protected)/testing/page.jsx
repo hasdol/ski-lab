@@ -2,11 +2,11 @@
 import React, { useEffect, useContext, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import HelpModal from '@/app/(protected)/testing/components/HelpModal';
+import TestingHelpModal from '@/app/(protected)/testing/components/TestingHelpModal';
 import { TournamentContext } from '@/context/TournamentContext';
 import { RiDeleteBinLine, RiQuestionLine } from 'react-icons/ri';
 import { VscGrabber } from 'react-icons/vsc';
-import SkiMatchup from './components/SkiMatchup';
+import TestingSkiMatchup from './components/TestingSkiMatchup';
 import Button from '@/components/common/Button';
 
 const Testing = () => {
@@ -266,7 +266,7 @@ const Testing = () => {
                           {...provided.dragHandleProps}
                           className={`bg-white shadow rounded ${draggableSnapshot.isDragging ? 'shadow-lg' : ''}`}
                         >
-                          <SkiMatchup
+                          <TestingSkiMatchup
                             key={match.id}
                             match={match}
                             scores={matchScores[match.id] || {}}
@@ -307,7 +307,7 @@ const Testing = () => {
             </div>
           </div>
         </div>
-        <HelpModal isOpen={isHelpOpen} onClose={toggleHelpModal} help={help} />
+        <TestingHelpModal isOpen={isHelpOpen} onClose={toggleHelpModal} help={help} />
       </DragDropContext>
     </>
   );

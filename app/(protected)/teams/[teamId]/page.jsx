@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import useSingleTeam from '@/hooks/useSingleTeam';
 import Button from '@/components/common/Button';
 import UploadableImage from '@/components/common/UploadableImage';
-import MemberListItem from './components/MemberListItem';
+import TeamMemberListItem from './components/TeamMemberListItem';
 import { removeTeamMember } from '@/lib/firebase/teamFunctions';
 import Spinner from '@/components/common/Spinner/Spinner';
 
@@ -122,7 +122,7 @@ export default function TeamDetailPage() {
             <ul className="space-y-2 w-full mb-6">
               {team.members.map(id => (
                 <li key={id} className="flex items-center justify-between bg-gray-50 rounded px-3 py-2">
-                  <MemberListItem userId={id} />
+                  <TeamMemberListItem userId={id} />
                   {id !== userData.uid && (
                     <Button variant="danger" className="text-xs" onClick={() => handleKick(id)}>Kick</Button>
                   )}

@@ -1,7 +1,7 @@
 // src/hooks/useEventTestResults.js
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { db } from '@/lib/firebase/firebaseConfig';
 
 /**
  * Custom hook for subscribing to test results at teams/{teamId}/events/{eventId}/testResults.

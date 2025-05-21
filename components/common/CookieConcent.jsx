@@ -1,11 +1,8 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 
 
 const CookieConsent = () => {
-    const { t } = useTranslation();
-
     const [hasConsented, setHasConsented] = useState(false);
 
     useEffect(() => {

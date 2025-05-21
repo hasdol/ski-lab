@@ -2,7 +2,7 @@
 import React from 'react';
 import useUser from '@/hooks/useUser';
 
-export default function MemberListItem({ userId }) {
+export default function TeamMemberListItem({ userId }) {
   const user = useUser(userId);
   if (!user) return <div className="text-sm italic opacity-50">Loading…</div>;
 

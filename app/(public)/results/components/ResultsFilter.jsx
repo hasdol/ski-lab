@@ -13,9 +13,9 @@ import {
     Radio
 } from '@mui/material';
 import { FaTemperatureThreeQuarters } from 'react-icons/fa6';
-import DateSort from './DateSort'; // Adjust the path if necessary
+import DateSort from './ResultsDateSort'; // Adjust the path if necessary
 
-const Filter = ({
+const ResultsFilter = ({
     open,
     onClose,
     tempRange,
@@ -117,4 +117,4 @@ const Filter = ({
     );
 };
 
-export default Filter;
+export default ResultsFilter;

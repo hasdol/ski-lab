@@ -2,7 +2,7 @@
 import React from 'react';
 import { FaCircleUser } from 'react-icons/fa6';
 
-const ProfileImage = ({ photoURL, isChangingImg, handleImageChange }) => {
+const AccountProfileImage = ({ photoURL, isChangingImg, handleImageChange }) => {
   return (
     <div className="relative">
       <label htmlFor="profile-image-upload" className="relative cursor-pointer block">
@@ -35,4 +35,4 @@ const ProfileImage = ({ photoURL, isChangingImg, handleImageChange }) => {
   );
 };
 
-export default ProfileImage;
+export default AccountProfileImage;

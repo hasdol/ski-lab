@@ -4,13 +4,13 @@ import { useRouter } from 'next/navigation';
 import Button from '@/components/common/Button';
 import { IoExitOutline } from "react-icons/io5";
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '@/lib/firebase/config';
+import { functions } from '@/lib/firebase/firebaseConfig';
 import { useAuth } from '@/context/AuthContext';
 
 const leaveTeamCallable = httpsCallable(functions, 'leaveTeamById');
 
 
-export default function TeamList({ teams }) {
+export default function TeamsList({ teams }) {
   const router = useRouter();
   const { user } = useAuth();
   const [loadingTeamId, setLoadingTeamId] = useState(null);

@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import useEvent from '@/hooks/useEvent';
 import Button from '@/components/common/Button';
 import UploadableImage from '@/components/common/UploadableImage';
-import Tabs from './components/Tabs';
+import EventTabs from './components/EventTabs';
 import EventOverview from './components/EventOverview';
 import EventTests from './components/EventTests';
 import EventWeather from './components/EventWeather';
@@ -78,7 +78,7 @@ export default function EventPage() {
           <p className="text-sm text-gray-600">{startFmt} - {endFmt}</p>
         </div>
 
-        <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+        <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
         {console.log(activeTab)
         }

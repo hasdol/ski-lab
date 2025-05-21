@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useContext, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import {
@@ -17,7 +17,7 @@ import { TiFlowParallel } from 'react-icons/ti';
 import { BiChart } from 'react-icons/bi';
 import { useAuth } from '@/context/AuthContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
-import Weather from '@/components/Weather';
+import Weather from '@/components/Weather/Weather';
 import Button from '@/components/common/Button';
 
 const navConfig = [

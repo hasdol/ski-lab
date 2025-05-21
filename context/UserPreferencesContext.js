@@ -2,7 +2,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { db } from '@/lib/firebase/firebaseConfig';
 
 export const UserPreferencesContext = createContext();
 

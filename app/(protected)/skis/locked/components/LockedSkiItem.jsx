@@ -18,7 +18,7 @@ const LockedSkiItem = ({ ski, handleDelete }) => {
   };
 
   return (
-    <div className="flex items-center justify-between p-2 shadow rounded-md">
+    <div className="flex items-center border border-gray-300 rounded-md justify-between p-2">
       <RiLockLine className='ml-2' />
       <div className="flex items-center space-x-2">
         <span className="font-semibold">Serial number </span>

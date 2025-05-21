@@ -1,4 +1,4 @@
-const ResultsList = ({ rankings }) => {
+const SummaryResultList = ({ rankings }) => {
     // Sort rankings in descending order of cumulativeScore
     const sortedRankings = [...rankings].sort((a, b) => a.cumulativeScore - b.cumulativeScore);
 
@@ -57,4 +57,4 @@ const ResultsList = ({ rankings }) => {
     );
 };
 
-export default ResultsList;
+export default SummaryResultList;

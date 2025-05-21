@@ -1,8 +1,8 @@
 'use client'
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
-import CombinedConditionsHeatmap from './components/CombinedConditionsHeatmap';
-import PerformanceChart from './components/PerformanceChart/PerformanceChart';
-import SelectSeason from './components/PerformanceChart/SelectSeason';
+import CombinedConditionsHeatmap from './components/SkiConditionHeatmap';
+import PerformanceChart from './components/PerformanceChart/SkiPerformanceChart';
+import SelectSeason from './components/PerformanceChart/SkiSelectSeason';
 import GrindHistory from '@/components/GrindHistory/GrindHistory';
 import { formatDate, getTimestamp, getSeason } from '@/helpers/helpers';
 import useSkiTests from '@/hooks/useSkiTests';
@@ -454,31 +454,34 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         {/* Grind History Section */}
         <GrindHistory grindHistory={grindHistory} />
         {/* Action Buttons - Now inside the grid */}
-        <div className="col-span-2 md:col-span-3 flex justify-center space-x-3 bg-gray-100 pb-4  pt-5">
-          <Button
-            onClick={onEdit}
-            variant="primary"
-            className='text-sm'
-          >
-            Edit
-          </Button>
-          {ski.archived ? (
+        <div className="col-span-2 md:col-span-3 flex justify-between border-t border-gray-300 pt-8 pb-4">
+          <div className='space-x-3'> 
             <Button
-              onClick={onUnarchive}
-              variant="archive"
+              onClick={onEdit}
+              variant="primary"
               className='text-sm'
             >
-              Unarchive
+              Edit
             </Button>
-          ) : (
-            <Button
-              onClick={onArchive}
-              variant="archive"
-              className='text-sm'
-            >
-              Archive
-            </Button>
-          )}
+            {ski.archived ? (
+              <Button
+                onClick={onUnarchive}
+                variant="archive"
+                className='text-sm'
+              >
+                Unarchive
+              </Button>
+            ) : (
+              <Button
+                onClick={onArchive}
+                variant="archive"
+                className='text-sm'
+              >
+                Archive
+              </Button>
+            )}
+          </div>
+
           <Button
             onClick={onDelete}
             variant="danger"

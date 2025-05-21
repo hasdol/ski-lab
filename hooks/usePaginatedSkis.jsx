@@ -10,7 +10,7 @@ import {
   startAfter,
   getDocs,
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { db } from '@/lib/firebase/firebaseConfig';
 import { useAuth } from '@/context/AuthContext';
 
 const PAGE_SIZE = 32;

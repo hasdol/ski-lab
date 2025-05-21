@@ -8,7 +8,7 @@ import { Timestamp } from 'firebase/firestore'
 import { useSingleResult } from '@/hooks/useSingleResult'
 import Input from '@/components/common/Input'
 import Button from '@/components/common/Button'
-import ShareWithEventSelector from '@/app/(protected)/testing/summary/components/ShareWithEvents'
+import ShareWithEventSelector from '@/components/ShareWithEvents/ShareWithEvents'
 import {
   shareTestResult,
   // we'll add this util in teamFunctions

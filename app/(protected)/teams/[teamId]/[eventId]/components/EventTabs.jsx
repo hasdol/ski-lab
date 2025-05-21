@@ -2,7 +2,7 @@
 import Button from '@/components/common/Button';
 import React from 'react';
 
-export default function Tabs({ activeTab, setActiveTab }) {
+export default function EventTabs({ activeTab, setActiveTab }) {
   const tabs = ['Overview', 'Tests', 'Weather'];
 
   return (

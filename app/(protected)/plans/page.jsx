@@ -103,7 +103,7 @@ const PlansPage = () => {
               return (
                 <div
                   key={plan.productId}
-                  className="rounded-md shadow-md overflow-hidden flex flex-col relative hover:shadow-lg transition"
+                  className="rounded-md  border border-gray-300 overflow-hidden flex flex-col"
                 >
                   {isCurrent && (
                     <span className="absolute top-3 right-3 bg-gradient-to-br from-blue-500 to-indigo-500 text-white text-xs px-2 py-1 rounded">

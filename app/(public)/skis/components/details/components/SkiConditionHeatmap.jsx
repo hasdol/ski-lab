@@ -4,7 +4,7 @@ import Button from '@/components/common/Button';
 import { MdInfoOutline } from 'react-icons/md';
 import { formatSnowTypeLabel, formatSourceLabel } from '@/helpers/helpers';
 
-const CombinedConditionsHeatmap = ({
+const SkiConditionHeatmap = ({
   temperatureList,
   allSnowCombos,
   combinedPerformanceData,
@@ -101,7 +101,7 @@ const CombinedConditionsHeatmap = ({
             onClick={() => setActiveTab(tab)}
             className={`${activeTab === tab && 'bg-gray-200'} text-sm`}
           >
-            {tab}
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
             {categoryDotCounts[tab] > 0 && (
               <span className="ml-1 opacity-90">({categoryDotCounts[tab]})</span>
             )}
@@ -110,21 +110,21 @@ const CombinedConditionsHeatmap = ({
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center space-x-4 mb-4 px-1 gap-2">
+      <div className="flex flex-wrap items-center gap-3 mb-4 px-1">
         {[
-          'great',
-          'good',
-          'average',
-          'bad',
-          'very_bad',
-          'unknown',
-        ].map(cat => (
-          <div key={cat} className="flex items-center space-x-1">
+          { key: 'great', label: 'Great' },
+          { key: 'good', label: 'Good' },
+          { key: 'average', label: 'Average' },
+          { key: 'bad', label: 'Bad' },
+          { key: 'very_bad', label: 'Very Bad' },
+          { key: 'unknown', label: 'Unknown' },
+        ].map(({ key, label }) => (
+          <div key={key} className="flex items-center gap-2">
             <div
-              className="w-5 h-5 rounded-full"
-              style={{ backgroundColor: categoryColors[cat] }}
+              className="w-4 h-4 rounded-full flex-shrink-0"
+              style={{ backgroundColor: categoryColors[key] }}
             />
-            <span className="text-sm">{cat}</span>
+            <span className="text-sm text-gray-700 whitespace-nowrap">{label}</span>
           </div>
         ))}
       </div>
@@ -153,7 +153,7 @@ const CombinedConditionsHeatmap = ({
                 className="border-b border-gray-100 last:border-0"
               >
                 <td className="text-sm text-gray-500 py-2 pr-4">
-                  {formatSourceLabel(row.source)} – {formatSnowTypeLabel(row.snowType)}                </td>
+                  {formatSourceLabel(row.source)} – {formatSnowTypeLabel(row.snowType)}  </td>
 
                 {temperatureList.map((temp) => {
                   const key = `${temp}___${row.source.toLowerCase()}___${row.snowType.toLowerCase()}`;
@@ -245,4 +245,4 @@ const CombinedConditionsHeatmap = ({
   );
 };
 
-export default CombinedConditionsHeatmap;
+export default SkiConditionHeatmap;

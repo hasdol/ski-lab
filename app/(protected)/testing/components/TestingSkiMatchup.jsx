@@ -5,7 +5,7 @@ import { MdDragIndicator, MdOutlineClose } from 'react-icons/md';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 import Input from '@/components/common/Input';
 
-const SkiMatchup = ({ match, scores, onScoreChange, potentialSwapTarget }) => {
+const TestingSkiMatchup = ({ match, scores, onScoreChange, potentialSwapTarget }) => {
   const { gloveMode } = useContext(UserPreferencesContext);
 
   const handleScoreChange = (skiId, e) => {
@@ -85,4 +85,4 @@ const SkiMatchup = ({ match, scores, onScoreChange, potentialSwapTarget }) => {
   );
 };
 
-export default SkiMatchup;
+export default TestingSkiMatchup;

@@ -13,9 +13,7 @@ const AddSkisPage = () => {
     await addSki(formData);
     router.push('/skis');
   };
-
   if (loading) return <Spinner />;
-  if (error) return <div className="m-2">Error: {error.message}</div>;
 
   return (
     <div>
@@ -24,6 +22,7 @@ const AddSkisPage = () => {
           Add Skis
         </h1>
         <SkiForm onSubmit={handleAddSki} />
+        {error && <div className="bg-red-100 text-red-800 p-2 rounded-md">Error: {error.message}</div>}
       </div>
 
     </div>

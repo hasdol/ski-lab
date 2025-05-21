@@ -2,8 +2,8 @@
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import useTeams from '@/hooks/useTeams';
-import JoinTeamForm from './components/JoinTeamForm';
-import TeamList from './components/TeamList';
+import JoinTeamForm from './components/TeamsJoinForm';
+import TeamList from './components/TeamsList';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/common/Button';
 import Spinner from '@/components/common/Spinner/Spinner';

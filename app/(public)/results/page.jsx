@@ -12,7 +12,7 @@ import { useDebounce } from 'use-debounce';
 
 import usePaginatedResults from '@/hooks/usePaginatedResults';
 import { useAuth } from '@/context/AuthContext';
-import Filter from './components/Filter';
+import Filter from './components/ResultsFilter';
 import Spinner from '@/components/common/Spinner/Spinner';
 import ResultsSearch from '../../../components/Search/Search';
 import DeleteTestModal from '@/components/DeleteTestModal/DeleteTestModal';
