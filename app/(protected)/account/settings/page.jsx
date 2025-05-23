@@ -88,7 +88,7 @@ export default function SettingsPage() {
         </Button>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-10">
         {/* Username Section */}
         <div>
           {isEditingUsername ? (
@@ -146,24 +146,23 @@ export default function SettingsPage() {
             </label>
             {gloveMode ? <GiWinterGloves size={20} /> : <FaHandsClapping size={20} />}
           </div>
-          <p className="p-2 h-fit my-auto bg-blue-100 text-blue-800 rounded-md relative">
+          {!gloveMode && <p className="p-2 h-fit my-auto bg-blue-100 text-blue-800 rounded-md relative">
             <RiInformationLine size={25} className="mr-1 absolute -top-5 left-1/2 -translate-x-1/2" />
             Bigger input fields and buttons to make it easier to perform tests
-          </p>
+          </p>}
+
         </div>
 
         {/* Danger Zone */}
         {!gloveMode && (
-          <div className="border border-red-300 rounded-md p-3">
-            <h2 className="text-red-500 font-semibold mb-4 text-lg">Danger Zone</h2>
-            <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
-              <Button variant="danger" onClick={resetPassword} className="flex-1">
-                Reset Password
-              </Button>
-              <Button variant="danger" onClick={handleDeleteAccount} className="flex-1">
-                Delete Account
-              </Button>
-            </div>
+
+          <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
+            <Button variant="danger" onClick={resetPassword} className="flex-1">
+              Reset Password
+            </Button>
+            <Button variant="danger" onClick={handleDeleteAccount} className="flex-1">
+              Delete Account
+            </Button>
           </div>
         )}
       </div>

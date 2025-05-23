@@ -46,103 +46,26 @@ const SkiTable = ({
   const COLUMN_COUNT = 12;
 
   return (
-    <div className={`bg-white rounded-md overflow-hidden transition-all duration-200 
-    }`}>
+    <div className="bg-white rounded-md overflow-hidden transition-all duration-200">
       <div className="overflow-x-auto pb-20">
-        <table className="min-w-full border-collapse text-sm">
+        <table className="min-w-full border-collapse text-sm text-center">
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50 text-gray-700">
-              {/* Selection checkbox */}
-              <th className="px-4 py-3 text-left" />
-
-              {/* Data columns */}
-              <th
-                className="px-4 py-3 text-left cursor-pointer hover:bg-gray-100"
-                onClick={() => onSort('serialNumber')}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>SNR</span>
-                  {renderSortIndicator('serialNumber')}
-                </div>
-              </th>
-              <th
-                className="px-4 py-3 text-left cursor-pointer hover:bg-gray-100"
-                onClick={() => onSort('style')}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>Style</span>
-                  {renderSortIndicator('style')}
-                </div>
-              </th>
-              <th
-                className="px-4 py-3 text-left cursor-pointer hover:bg-gray-100"
-                onClick={() => onSort('brand')}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>Brand</span>
-                  {renderSortIndicator('brand')}
-                </div>
-              </th>
-              <th
-                className="px-4 py-3 text-left cursor-pointer hover:bg-gray-100"
-                onClick={() => onSort('model')}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>Model</span>
-                  {renderSortIndicator('model')}
-                </div>
-              </th>
-              <th
-                className="px-4 py-3 text-left cursor-pointer hover:bg-gray-100"
-                onClick={() => onSort('grind')}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>Grind</span>
-                  {renderSortIndicator('grind')}
-                </div>
-              </th>
-              <th
-                className="px-4 py-3 text-left cursor-pointer hover:bg-gray-100"
-                onClick={() => onSort('base')}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>Base</span>
-                  {renderSortIndicator('base')}
-                </div>
-              </th>
-              <th
-                className="px-4 py-3 text-left cursor-pointer hover:bg-gray-100"
-                onClick={() => onSort('length')}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>Length</span>
-                  {renderSortIndicator('length')}
-                </div>
-              </th>
-              <th
-                className="px-4 py-3 text-left cursor-pointer hover:bg-gray-100"
-                onClick={() => onSort('stiffness')}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>Stiffness</span>
-                  {renderSortIndicator('stiffness')}
-                </div>
-              </th>
-              <th
-                className="px-4 py-3 text-left cursor-pointer hover:bg-gray-100"
-                onClick={() => onSort('construction')}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>Construction</span>
-                  {renderSortIndicator('construction')}
-                </div>
-              </th>
-
-              {/* Action column header */}
-              <th className="px-4 py-3 text-left">Actions</th>
-
-              {/* Expand/collapse */}
-              <th className="px-4 py-3 text-left" />
+              <th className="px-4 py-3" />
+              {['snr', 'style', 'brand', 'model', 'grind', 'base', 'length', 'stiffness', 'construction'].map((field) => (
+                <th
+                  key={field}
+                  className="px-4 py-3 cursor-pointer hover:bg-gray-100"
+                  onClick={() => onSort(field)}
+                >
+                  <div className="flex justify-center items-center space-x-1">
+                    <span className="capitalize">{field}</span>
+                    {renderSortIndicator(field)}
+                  </div>
+                </th>
+              ))}
+              <th className="px-4 py-3">Actions</th>
+              <th className="px-4 py-3">Expand</th>
             </tr>
           </thead>
 
@@ -150,108 +73,85 @@ const SkiTable = ({
             {skis.map((ski) => {
               const showDetails = expandedSkiId === ski.id;
               const isSelected = !!selectedSkis[ski.id];
-              
+
               return (
                 <React.Fragment key={ski.id}>
-                  {/* Main data row */}
-                  <tr className={`border-b border-gray-200 `}>
-                    {/* Selection */}
-                    <td className="px-4 py-3">
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-2">
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => onToggleSelect?.(ski.id)}
-                        className="accent-btn w-4 h-4"
+                        className="accent-btn w-4 h-4 mx-auto"
                         aria-label='Select'
                       />
                     </td>
+                    <td className="px-4 py-2">{highlightSearchTerm(ski.serialNumber, search)}</td>
+                    <td className="px-4 py-2 capitalize">{highlightSearchTerm(ski.style, search)}</td>
+                    <td className="px-4 py-2">{highlightSearchTerm(ski.brand, search)}</td>
+                    <td className="px-4 py-2">{highlightSearchTerm(ski.model, search) || '--'}</td>
+                    <td className="px-4 py-2">{highlightSearchTerm(ski.grind, search)}</td>
+                    <td className="px-4 py-2">{ski.base || '--'}</td>
+                    <td className="px-4 py-2">{ski.length || '--'}</td>
+                    <td className="px-4 py-2">{ski.stiffness || '--'}</td>
+                    <td className="px-4 py-2">{ski.construction || '--'}</td>
 
-                    {/* Data columns */}
-                    <td className="px-4 py-3">
-                      {highlightSearchTerm(ski.serialNumber, search)}
-                    </td>
-                    <td className="px-4 py-3">
-                      {highlightSearchTerm(ski.style, search)}
-                    </td>
-                    <td className="px-4 py-3">
-                      {highlightSearchTerm(ski.brand, search)}
-                    </td>
-                    <td className="px-4 py-3">
-                      {highlightSearchTerm(ski.model, search)}
-                    </td>
-                    <td className="px-4 py-3">
-                      {highlightSearchTerm(ski.grind, search)}
-                    </td>
-                    <td className="px-4 py-3">
-                      {ski.base || '--'}
-                    </td>
-                    <td className="px-4 py-3">
-                      {ski.length || '--'}
-                    </td>
-                    <td className="px-4 py-3">
-                      {ski.stiffness || '--'}
-                    </td>
-                    <td className="px-4 py-3">
-                      {ski.construction || '--'}
-                    </td>
-
-                    {/* Row actions */}
-                    <td className="px-4 py-3 flex items-center gap-2">
-                      <Button
-                        variant="primary"
-                        title='Edit'
-                        onClick={() => onEdit?.(ski)}
-                      >
-                        <MdEdit  />
-                      </Button>
-
-                      {ski.archived ? (
+                    <td className="">
+                      <div className="flex justify-center items-center gap-3">
                         <Button
-                          variant="archive"
-                          title='Unarchive'
-                          onClick={() => onUnarchive?.(ski.id)}
+                          variant="primary"
+                          title='Edit'
+                          onClick={() => onEdit?.(ski)}
                         >
-                          <MdUnarchive  />
+                          <MdEdit size={16} />
                         </Button>
-                      ) : (
-                        <Button
-                          variant="archive"
-                          title='Archive'
-                          onClick={() => onArchive?.(ski.id)}
-                        >
-                          <MdArchive />
-                        </Button>
-                      )}
 
-                      <Button
-                        variant="danger"
-                        title='Delete'
-                        onClick={() => onDelete?.(ski.id)}
-                      >
-                        <MdDelete />
-                      </Button>
+                        {ski.archived ? (
+                          <Button
+                            variant="archive"
+                            title='Unarchive'
+                            onClick={() => onUnarchive?.(ski.id)}
+                          >
+                            <MdUnarchive />
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="archive"
+                            title='Archive'
+                            onClick={() => onArchive?.(ski.id)}
+                          >
+                            <MdArchive size={16} />
+                          </Button>
+                        )}
+
+                        <Button
+                          variant="danger"
+                          title='Delete'
+                          onClick={() => onDelete?.(ski.id)}
+                        >
+                          <MdDelete size={16} />
+                        </Button>
+                      </div>
                     </td>
 
-                    {/* Expand/collapse */}
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-2">
                       <Button
                         variant="secondary"
                         onClick={() => onToggleDetails?.(ski.id)}
                       >
                         {showDetails ? (
-                          <RiCollapseDiagonalLine />
+                          <RiCollapseDiagonalLine size={16} />
                         ) : (
-                          <RiExpandDiagonalFill />
+                          <RiExpandDiagonalFill size={16} />
                         )}
                       </Button>
                     </td>
                   </tr>
 
-                  {/* Expanded details row */}
                   {showDetails && (
                     <tr className="border-b border-gray-200 bg-gray-50">
                       <td colSpan={COLUMN_COUNT} className="px-4 py-4">
-                        <div className="bg-white p-4 rounded-lg border border-gray-300">
+                        <div className="bg-white p-4 rounded-md border border-gray-300">
                           <SkiDetails
                             ski={ski}
                             onEdit={() => onEdit?.(ski)}

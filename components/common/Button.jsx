@@ -25,7 +25,7 @@ const Button = ({
       variantStyles = 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-[0.98] focus:ring-2 focus:ring-indigo-300/50';
       break;
     case 'secondary':
-      variantStyles = 'bg-gray-100 text-gray-800  hover:bg-gray-200 active:scale-[0.98] focus:ring-2 focus:ring-gray-300';
+      variantStyles = 'bg-white ring-1 ring-gray-300 ring-inset text-gray-800  hover:bg-gray-100 active:scale-[0.98] focus:ring-2 focus:ring-gray-200';
       break;
     case 'danger':
       variantStyles = 'bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors active:scale-[0.98] focus:ring-2 focus:ring-red-300';

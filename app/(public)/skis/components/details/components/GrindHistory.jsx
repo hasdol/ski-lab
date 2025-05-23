@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatDate } from '../../helpers/helpers';
+import { formatDate } from '../../../../../../helpers/helpers';
 
 const GrindHistory = ({ grindHistory }) => {
   const { t } = useTranslation();
@@ -16,7 +16,7 @@ const GrindHistory = ({ grindHistory }) => {
         {grindHistory.map((entry, index) => (
           <li
             key={index}
-            className="flex justify-between items-center px-2 border-l-2 border-gray-300"
+            className={`flex justify-between items-center px-2 border-l-2 border-gray-300`}
           >
             <div>
               <p className="font-semibold">

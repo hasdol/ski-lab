@@ -167,9 +167,9 @@ const Skis = () => {
   const plan = userData?.plan || 'free';
   const skiLimit =
     plan === 'senior' ? 16 :
-    plan === 'senior_pluss' ? 32 :
-    plan === 'coach' ? 64 :
-    plan === 'company' ? 5000 : 8;
+      plan === 'senior_pluss' ? 32 :
+        plan === 'coach' ? 64 :
+          plan === 'company' ? 5000 : 8;
   const hasReachedLimit = skiCount >= skiLimit;
   const hasLockedSkis = lockedSkisCount > 0;
 
@@ -221,24 +221,29 @@ const Skis = () => {
                 disabled={getSelectedList().length < 2}
               >New Test</Button>
               {!!currentRound.length && (
-                <Button onClick={handleContinueTest} variant="primary"><MdFastForward/></Button>
+                <Button onClick={handleContinueTest} variant="primary"><MdFastForward /></Button>
               )}
             </div>
           </div>
 
           <div className="flex space-x-3 items-end">
-            <Button onClick={() => router.push('/plans')} variant="secondary" className='text-indigo-500!'>
-              <RiShoppingCartLine />
-            </Button>
+            <div className="flex flex-col items-center w-fit">
+              <label className="text-sm font-semibold mb-1">Plans</label>
+              <Button onClick={() => router.push('/plans')} variant="secondary" className='text-indigo-500!'>
+                <RiShoppingCartLine />
+              </Button>
+            </div>
 
             <div className="flex flex-col items-center w-fit">
-              <label className={`text-sm font-semibold mb-1 ${hasReachedLimit && 'text-red-500'}`}>{skiCount}/{skiLimit}</label>
+              <label className={`text-sm font-semibold mb-1 ${hasReachedLimit && 'text-red-500'}`}>
+                {skiCount === 0 ? 'Add ski' : `${skiCount}/${skiLimit}`}
+              </label>              
               <Button
                 onClick={handleAddSki}
                 variant='primary'
                 disabled={hasReachedLimit}
               >
-                {hasReachedLimit ? <RiLockLine/> : <RiAddLine/>}
+                {hasReachedLimit ? <RiLockLine /> : <RiAddLine />}
               </Button>
             </div>
 
@@ -262,7 +267,7 @@ const Skis = () => {
         </div>
 
         {/* Search box */}
-        <ResultsSearch onSearch={setSearchRaw}/>
+        <ResultsSearch onSearch={setSearchRaw} />
 
         {/* Locked skis prompt */}
         {(hasLockedSkis || (hasReachedLimit && plan === 'free')) && (
@@ -305,13 +310,13 @@ const Skis = () => {
         {(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && (
           <div className="flex space-x-2 text-sm mt-2">
             {styleFilter !== 'all' && (
-              <Button variant="tab" onClick={() => setStyleFilter('all')}><span className="flex">{styleFilter} <RiCloseLine/></span></Button>
+              <Button variant="tab" onClick={() => setStyleFilter('all')}><span className="flex">{styleFilter} <RiCloseLine /></span></Button>
             )}
             {skiTypeFilter !== 'all' && (
-              <Button variant="tab" onClick={() => setSkiTypeFilter('all')}><span className="flex">{skiTypeFilter} <RiCloseLine/></span></Button>
+              <Button variant="tab" onClick={() => setSkiTypeFilter('all')}><span className="flex">{skiTypeFilter} <RiCloseLine /></span></Button>
             )}
             {archivedFilter !== 'notArchived' && (
-              <Button variant="tab" onClick={() => setArchivedFilter('notArchived')}><span className="flex">{archivedFilter} <RiCloseLine/></span></Button>
+              <Button variant="tab" onClick={() => setArchivedFilter('notArchived')}><span className="flex">{archivedFilter} <RiCloseLine /></span></Button>
             )}
           </div>
         )}
@@ -319,9 +324,9 @@ const Skis = () => {
         {/* Ski list (cards or table) */}
         <div className="my-5">
           {loading && !skis.length ? (
-            <div className="flex justify-center items-center mt-10"><Spinner/></div>
+            <div className="flex justify-center items-center mt-10"><Spinner /></div>
           ) : viewMode === 'card' ? (
-            <div className={gloveMode ? 'grid grid-cols-2 gap-4' : 'flex flex-col space-y-2'}> 
+            <div className={gloveMode ? 'grid grid-cols-2 gap-4' : 'flex flex-col space-y-2'}>
               {displayedSkis.map(ski => (
                 <SkiItem
                   key={ski.id}
@@ -369,7 +374,7 @@ const Skis = () => {
               <Button onClick={loadMore}>Load more</Button>
             </div>
           )}
-          {skis.length===0 && !loading && user && <p className='mt-4'>You have no skis</p>}
+          {skis.length === 0 && !loading && user && <p className='mt-4'>You have no skis</p>}
           {!user && <span className='mt-4 italic'>You are not signed in</span>}
         </div>
       </div>

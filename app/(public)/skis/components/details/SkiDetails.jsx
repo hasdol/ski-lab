@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import CombinedConditionsHeatmap from './components/SkiConditionHeatmap';
 import PerformanceChart from './components/PerformanceChart/SkiPerformanceChart';
 import SelectSeason from './components/PerformanceChart/SkiSelectSeason';
-import GrindHistory from '@/components/GrindHistory/GrindHistory';
+import GrindHistory from '@/app/(public)/skis/components/details/components/GrindHistory';
 import { formatDate, getTimestamp, getSeason } from '@/helpers/helpers';
 import useSkiTests from '@/hooks/useSkiTests';
 import Button from '@/components/common/Button';

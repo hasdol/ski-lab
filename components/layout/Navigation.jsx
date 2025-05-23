@@ -118,7 +118,7 @@ export default function Navigation() {
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            <div className="px-2 space-y-2 pt-4">
+            <div className="p-4 space-y-2">
               <div className="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mb-5" />
               {subNavItems.map(item =>
                 item.path ? (
@@ -126,7 +126,7 @@ export default function Navigation() {
                     key={item.key}
                     href={item.path}
                     onClick={() => setIsSubNavOpen(false)}
-                    className="w-full flex justify-between items-center p-3 border-l-2 border-gray-300 hover:bg-gray-100"
+                    className="border rounded-md flex justify-between items-center w-full px-4 py-3  border-gray-300 text-gray-700 hover:bg-gray-100"
                   >
                     <span>{item.labelKey}</span>
                     {item.icon}
@@ -135,7 +135,7 @@ export default function Navigation() {
                   <button
                     key={item.key}
                     onClick={item.onClick}
-                    className="w-full flex justify-between items-center p-3 border-l-2 border-gray-300 hover:bg-gray-100"
+                    className="border rounded-md flex justify-between items-center w-full px-4 py-3  border-gray-300 text-gray-700 hover:bg-gray-100"
                   >
                     <span>{item.labelKey}</span>
                     {item.icon}
@@ -177,16 +177,16 @@ export default function Navigation() {
           {isSubNavOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setIsSubNavOpen(false)} />
-              <div className="absolute right-0 top-10 w-48 mt-2 bg-white rounded-md shadow-lg overflow-hidden z-50 animate-fade-down animate-duration-300">
-                <div className="space-y-2 p-3  ">
+              <div className="absolute right-0 top-10 w-58 mt-2 bg-white rounded-md shadow-lg overflow-hidden z-50 animate-fade-down animate-duration-300">
+                <div className="space-y-3 p-5  ">
                   {subNavItems.map(item =>
                     item.path ? (
-                      <Link key={item.key} href={item.path} onClick={() => setIsSubNavOpen(false)} className="flex items-center w-full px-4 py-2 border-l-2 border-gray-300 text-gray-700 hover:bg-gray-100">
+                      <Link key={item.key} href={item.path} onClick={() => setIsSubNavOpen(false)} className="border rounded-md flex items-center w-full px-4 py-2  border-gray-300 text-gray-700 hover:bg-gray-100">
                         {item.icon}
                         <span className="ml-2">{item.labelKey}</span>
                       </Link>
                     ) : (
-                      <button key={item.key} onClick={item.onClick} className="flex items-center w-full px-4 py-2 border-l-2 border-gray-300 text-gray-700 hover:bg-gray-100">
+                      <button key={item.key} onClick={item.onClick} className="border rounded-md flex items-center w-full px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-100">
                         {item.icon}
                         <span className="ml-2">{item.labelKey}</span>
                       </button>

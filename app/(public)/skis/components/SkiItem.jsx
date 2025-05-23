@@ -43,9 +43,9 @@ const SkiItem = ({
 
   return (
     <div
-      className={`animate-fade-down animate-duration-300 transition-all rounded-md duration-200 border ${showDetails
-          ? 'border-gray-400'
-          : 'border-gray-300 hover:bg-gray-50'
+      className={`animate-fade-down animate-duration-300 transition-all rounded-md duration-200 border border-gray-300 ${showDetails
+          ? ''
+          : ' hover:bg-gray-50'
         }`}
     >
       {/* Main clickable row - now controls checkbox */}
