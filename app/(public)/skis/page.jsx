@@ -227,7 +227,7 @@ const Skis = () => {
           </div>
 
           <div className="flex space-x-3 items-end">
-            <Button onClick={() => router.push('/plans')} variant="archive">
+            <Button onClick={() => router.push('/plans')} variant="secondary" className='text-indigo-500!'>
               <RiShoppingCartLine />
             </Button>
 

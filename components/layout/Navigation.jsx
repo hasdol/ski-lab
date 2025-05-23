@@ -9,9 +9,9 @@ import {
   RiSettings3Line,
   RiUser6Line,
   RiMessage2Line,
-  RiLogoutCircleRLine,
-  RiLoginCircleLine,
   RiUserAddLine,
+  RiLoginBoxLine,
+  RiLogoutBoxLine
 } from 'react-icons/ri';
 import { TiFlowParallel } from 'react-icons/ti';
 import { BiChart } from 'react-icons/bi';
@@ -63,8 +63,8 @@ export default function Navigation() {
     user && { key: 'account', labelKey: 'Account', icon: <RiUser6Line size={22} />, path: '/account' },
     user && { key: 'settings', labelKey: 'Settings', icon: <RiSettings3Line size={22} />, path: '/account/settings' },
     user && { key: 'contact', labelKey: 'Contact', icon: <RiMessage2Line size={22} />, path: '/contact' },
-    user && { key: 'signOut', labelKey: 'Sign Out', icon: <RiLogoutCircleRLine size={22} />, onClick: () => { signOut(router.push); setIsSubNavOpen(false); } },
-    !user && { key: 'signIn', labelKey: 'Sign In', icon: <RiLoginCircleLine size={22} />, path: '/signin' },
+    user && { key: 'signOut', labelKey: 'Sign Out', icon: <RiLogoutBoxLine size={22} />, onClick: () => { signOut(router.push); setIsSubNavOpen(false); } },
+    !user && { key: 'signIn', labelKey: 'Sign In', icon: <RiLoginBoxLine size={22} />, path: '/signin' },
     !user && { key: 'signUp', labelKey: 'Sign Up', icon: <RiUserAddLine size={22} />, path: '/signup' },
   ].filter(Boolean);
 
@@ -88,7 +88,7 @@ export default function Navigation() {
             aria-label='more'
             className={`p-4 flex items-center justify-center transition ${isSubNavOpen ? 'text-gray-800 border-t-2 border-gray-500' : 'text-gray-600'}`}
           >
-            <RiSettings3Line size={22} />
+            {user? <RiSettings3Line size={20} />:<RiLoginBoxLine size={20}/>}
           </button>
         </div>
       </nav>
@@ -170,7 +170,8 @@ export default function Navigation() {
         <div className="flex-1 flex items-center justify-end justify-self-end relative">
           <Weather />
           <Button onClick={() => setIsSubNavOpen(o => !o)} variant='secondary' className="ml-4 p-2!">
-            <RiSettings3Line size={20} />
+            {user? <RiSettings3Line size={20} />:<RiLoginBoxLine size={20}/>}
+            
           </Button>
 
           {isSubNavOpen && (
