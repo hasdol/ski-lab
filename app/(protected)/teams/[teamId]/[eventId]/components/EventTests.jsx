@@ -8,7 +8,7 @@ import DeleteTestModal from '@/components/DeleteTestModal/DeleteTestModal';
 import { useAuth } from '@/context/AuthContext';
 import { useEventTestResults } from '@/hooks/useEventTestResults';
 import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 
 export default function EventTests({ teamId, eventId }) {
   const { user } = useAuth();

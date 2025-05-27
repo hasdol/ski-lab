@@ -1,8 +1,8 @@
 'use client'
 import React, { useState } from 'react';
 import useContactForm from '@/hooks/useContactForm';
-import Button from '@/components/common/Button';
-import Input from '@/components/common/Input';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 
 const Contact = () => {
   const [subject, setSubject] = useState('');

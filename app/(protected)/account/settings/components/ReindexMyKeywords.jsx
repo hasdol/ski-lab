@@ -6,7 +6,7 @@ import { getDocs, updateDoc, collection } from 'firebase/firestore';
 import { db } from '@/lib/firebase/firebaseConfig';
 import { buildKeywords } from '@/helpers/buildKeywords';
 import { useAuth } from '@/context/AuthContext';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 
 export default function ReindexMyKeywords() {
   const { user } = useAuth();

@@ -17,7 +17,7 @@ import Spinner from '@/components/common/Spinner/Spinner';
 import Search from '../../../components/Search/Search';
 import DeleteTestModal from '@/components/DeleteTestModal/DeleteTestModal';
 import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 import { formatSnowTypeLabel, formatSourceLabel, highlightSearchTerm } from '@/helpers/helpers';
 
 const Results = () => {

@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Timestamp } from 'firebase/firestore';
 import { RiArrowDownDoubleLine, RiDeleteBinLine } from "react-icons/ri";
 
-import Input from '@/components/common/Input'; // Updated import: using the unified Input component
-import Button from '../common/Button';
+import Input from '@/components/ui/Input'; // Updated import: using the unified Input component
+import Button from '../ui/Button';
 import { useRouter } from 'next/navigation';
 
 const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {

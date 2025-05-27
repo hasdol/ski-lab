@@ -18,7 +18,7 @@ import { BiChart } from 'react-icons/bi';
 import { useAuth } from '@/context/AuthContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
 import Weather from '@/components/Weather/Weather';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 
 const navConfig = [
   { key: 'home', labelKey: 'Home', icon: <RiHome5Line size={22} />, path: '/' },

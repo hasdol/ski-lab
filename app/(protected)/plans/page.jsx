@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import getStripe from '@/helpers/stripe';
 import Spinner from '@/components/common/Spinner/Spinner';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 import { RiCheckFill } from 'react-icons/ri';
 
 const PlansPage = () => {

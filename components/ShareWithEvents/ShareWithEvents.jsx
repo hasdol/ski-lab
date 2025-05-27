@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { getUserTeamsWithEvents } from '@/lib/firebase/firestoreFunctions';
+import Input from '../ui/Input';
 
 export default function ShareWithEventSelector({
   userId,
@@ -109,12 +110,11 @@ export default function ShareWithEventSelector({
     <div className="p-4 border border-gray-300 rounded-lg bg-white">
       <h2 className='font-semibold text-lg mb-5'>{includePast?'Shared in events':'Share with live events'}</h2>
       <div className="mb-4">
-        <input
+        <Input
           type="text"
           placeholder='Search team events'
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring"
         />
       </div>
 

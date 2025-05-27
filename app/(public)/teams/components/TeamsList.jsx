@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 import { IoExitOutline } from "react-icons/io5";
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '@/lib/firebase/firebaseConfig';

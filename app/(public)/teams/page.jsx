@@ -5,7 +5,7 @@ import useTeams from '@/hooks/useTeams';
 import JoinTeamForm from './components/TeamsJoinForm';
 import TeamList from './components/TeamsList';
 import { useRouter } from 'next/navigation';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 import Spinner from '@/components/common/Spinner/Spinner';
 
 export default function TeamsPage() {

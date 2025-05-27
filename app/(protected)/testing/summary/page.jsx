@@ -9,8 +9,8 @@ import Spinner from '@/components/common/Spinner/Spinner';
 import { TournamentContext } from '@/context/TournamentContext';
 import { addTestResult } from '@/lib/firebase/firestoreFunctions';
 import { shareTestResult } from '@/lib/firebase/teamFunctions';
-import Button from '@/components/common/Button';
-import Input from '@/components/common/Input';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 import ShareWithEventSelector from '@/components/ShareWithEvents/ShareWithEvents';
 import { WEATHER_ENDPOINT } from '@/lib/firebase/weatherEndpoint';
 

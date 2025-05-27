@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { RiLockLine, RiDeleteBinLine } from "react-icons/ri";
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 
 const LockedSkiItem = ({ ski, handleDelete }) => {
 

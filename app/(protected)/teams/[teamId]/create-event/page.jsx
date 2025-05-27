@@ -4,9 +4,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createEvent, updateEvent } from '@/lib/firebase/teamFunctions';
 import { uploadEventImage } from '@/lib/firebase/storageFunctions';
-import Button from '@/components/common/Button';
-import Input from '@/components/common/Input';
-import UploadableImage from '@/components/common/UploadableImage';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import GeocodeInput from '@/components/GeocodeInput/GeocodeInput';
 
 export default function CreateEventPage() {
@@ -117,10 +117,8 @@ export default function CreateEventPage() {
 
       <UploadableImage
         photoURL={imageURL}
-        isChangingImg={uploading}
         handleImageChange={handleFileChange}
         variant="event"
-        alt="Event Image"
         clickable={true}
       />
 

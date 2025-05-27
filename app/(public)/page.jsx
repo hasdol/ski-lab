@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 import { getUserTeamsWithLiveEvents } from '@/lib/firebase/firestoreFunctions';
 import { motion } from 'framer-motion';
 import SkiLogoAnimated from './components/SkiLogoAnimation';

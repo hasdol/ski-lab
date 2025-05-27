@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createTeam, updateTeamImage } from '@/lib/firebase/teamFunctions';
 import { uploadTeamImage } from '@/lib/firebase/storageFunctions';
-import Button from '@/components/common/Button';
-import UploadableImage from '@/components/common/UploadableImage';
-import Input from '@/components/common/Input';
+import Button from '@/components/ui/Button';
+import UploadableImage from '@/components/UploadableImage/UploadableImage';
+import Input from '@/components/ui/Input';
 
 export default function CreateTeamPage() {
   const { user, userData } = useAuth();
@@ -50,7 +50,7 @@ export default function CreateTeamPage() {
   };
 
   return (
-      <div className='p-3 md:w-2/3 mx-auto'>
+    <div className='p-3 md:w-2/3 mx-auto space-y-8'>
       <h1 className="text-3xl font-bold text-gray-900 my-4">
         Create Team
       </h1>
@@ -67,7 +67,6 @@ export default function CreateTeamPage() {
       {(userData?.plan === 'coach' || userData?.plan === 'company') && (
         <UploadableImage
           photoURL={imageURL}
-          isChangingImg={uploading}
           handleImageChange={handleFileChange}
           variant="team"
           alt="Team Image"

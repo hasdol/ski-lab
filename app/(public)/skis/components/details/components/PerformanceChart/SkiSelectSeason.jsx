@@ -1,6 +1,6 @@
 // components/SelectSeason/SelectSeason.jsx
 
-import Input from '@/components/common/Input';
+import Input from '@/components/ui/Input';
 import React from 'react';
 
 const SelectSeason = ({ selectedSeason, handleSeasonChange, availableSeasons }) => {

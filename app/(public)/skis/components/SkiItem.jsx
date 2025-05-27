@@ -5,7 +5,7 @@ import { RiHistoryLine, RiExpandDiagonalFill, RiCollapseDiagonalLine } from "rea
 import SkiDetail from './details/SkiDetails';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 import { isNew, highlightSearchTerm } from '@/helpers/helpers';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 
 const SkiItem = ({
   ski,

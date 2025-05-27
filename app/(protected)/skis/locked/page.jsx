@@ -4,7 +4,7 @@ import React from 'react';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { useLockedSkis } from '@/hooks/useLockedSkis';
 import LockedSkiItem from './components/LockedSkiItem';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
 
 const ManageLockedSkis = () => {

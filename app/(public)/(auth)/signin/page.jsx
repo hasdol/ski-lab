@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginWithEmailAndPassword } from '@/lib/firebase/authFunctions';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');

@@ -19,7 +19,7 @@ import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 import { TournamentContext } from '@/context/TournamentContext';
 import { useAuth } from '@/context/AuthContext';
 import Spinner from '@/components/common/Spinner/Spinner';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 import {
   RiFilter2Line,
   RiFilter2Fill,
@@ -326,7 +326,7 @@ const Skis = () => {
           {loading && !skis.length ? (
             <div className="flex justify-center items-center mt-10"><Spinner /></div>
           ) : viewMode === 'card' ? (
-            <div className={gloveMode ? 'grid grid-cols-2 gap-4' : 'flex flex-col space-y-2'}>
+            <div className={gloveMode ? 'grid grid-cols-2 gap-2' : 'flex flex-col space-y-2'}>
               {displayedSkis.map(ski => (
                 <SkiItem
                   key={ski.id}

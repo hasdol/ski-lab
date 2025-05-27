@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import Button from '@/components/common/Button';
-import Input from '@/components/common/Input';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 
 export default function TeamsJoinForm() {
   const { user } = useAuth();

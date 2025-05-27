@@ -1,5 +1,5 @@
 'use client';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 import React from 'react';
 
 export default function EventTabs({ activeTab, setActiveTab }) {

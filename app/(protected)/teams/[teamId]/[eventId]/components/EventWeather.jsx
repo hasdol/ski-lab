@@ -8,7 +8,7 @@ import {
   RiRainyLine,
   RiSnowyLine,
 } from 'react-icons/ri';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 
 /* ————— endpoint selection ————— */
 const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'ski-lab-dev';

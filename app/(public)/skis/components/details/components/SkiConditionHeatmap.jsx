@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 import { MdInfoOutline } from 'react-icons/md';
 import { formatSnowTypeLabel, formatSourceLabel } from '@/helpers/helpers';
 

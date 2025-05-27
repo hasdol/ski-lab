@@ -7,7 +7,7 @@ import { TournamentContext } from '@/context/TournamentContext';
 import { RiDeleteBinLine, RiQuestionLine } from 'react-icons/ri';
 import { VscGrabber } from 'react-icons/vsc';
 import TestingSkiMatchup from './components/TestingSkiMatchup';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 
 const Testing = () => {
   const router = useRouter();

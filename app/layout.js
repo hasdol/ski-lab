@@ -3,7 +3,7 @@
 
 import './globals.css';
 import React from 'react';
-import CookieConsent from '@/components/common/CookieConcent';
+import CookieConsent from '@/components/CookieConcent/CookieConcent';
 import { AuthProvider } from '@/context/AuthContext';
 import { UserPreferencesProvider } from '@/context/UserPreferencesContext';
 import { TournamentProvider } from '@/context/TournamentContext';

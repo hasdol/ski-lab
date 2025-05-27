@@ -6,7 +6,7 @@ import SelectSeason from './components/PerformanceChart/SkiSelectSeason';
 import GrindHistory from '@/app/(public)/skis/components/details/components/GrindHistory';
 import { formatDate, getTimestamp, getSeason } from '@/helpers/helpers';
 import useSkiTests from '@/hooks/useSkiTests';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 
 const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
   const { tests, loading: testsLoading, error: testsError } = useSkiTests(ski.id);

@@ -1,5 +1,6 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import { UserPreferencesContext } from '@/context/UserPreferencesContext';
+import React, { useContext, useEffect, useState } from 'react';
 import { RiSearchLine } from 'react-icons/ri';
 import { useDebounce } from 'use-debounce';
 
@@ -8,6 +9,8 @@ const MIN_CHARS = 3;
 const Search = ({ onSearch }) => {
   const [local, setLocal] = useState('');
   const [debounced] = useDebounce(local, 300);
+  const { gloveMode } = useContext(UserPreferencesContext);
+
 
   useEffect(() => {
     if (debounced.length >= MIN_CHARS || debounced === '') {
@@ -17,7 +20,7 @@ const Search = ({ onSearch }) => {
 
   return (
     <div className="flex flex-col relative w-full mr-5">
-      <div className="bg-white flex items-center rounded-md md:w-fit border border-gray-300 overflow-hidden focus-within:outline outline-gray-500">
+      <div className={`bg-white flex items-center rounded-md md:w-fit border border-gray-300 overflow-hidden focus-within:outline outline-gray-500 ${gloveMode && 'p-2'}`}>
         <input
           id="search-input"
           type="text"

@@ -9,7 +9,7 @@ import {
 
 import { useAuth } from '@/context/AuthContext';
 import Spinner from '@/components/common/Spinner/Spinner';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 import DeleteTestModal from '@/components/DeleteTestModal/DeleteTestModal';
 import {
   getTournamentResult,

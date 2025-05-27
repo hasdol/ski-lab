@@ -6,8 +6,8 @@ import { useAuth } from '@/context/AuthContext'
 import { formatDateForInputWithTime } from '@/helpers/helpers'
 import { Timestamp } from 'firebase/firestore'
 import { useSingleResult } from '@/hooks/useSingleResult'
-import Input from '@/components/common/Input'
-import Button from '@/components/common/Button'
+import Input from '@/components/ui/Input'
+import Button from '@/components/ui/Button'
 import ShareWithEventSelector from '@/components/ShareWithEvents/ShareWithEvents'
 import {
   shareTestResult,

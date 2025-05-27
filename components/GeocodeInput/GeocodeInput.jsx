@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import Input from '../common/Input';
+import Input from '../ui/Input';
 const GEOAPIFY_KEY = process.env.NEXT_PUBLIC_GEOAPIFY_KEY;
 
 export default function GeocodeInput({ label, initialValue = '', onLocationSelect }) {

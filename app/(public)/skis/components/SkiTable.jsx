@@ -12,7 +12,7 @@ import {
   RiCollapseDiagonalLine
 } from "react-icons/ri";
 
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 import SkiDetails from './details/SkiDetails';
 import { highlightSearchTerm } from '@/helpers/helpers';
 

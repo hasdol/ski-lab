@@ -3,11 +3,11 @@ import React from 'react';
 import { RiVerifiedBadgeFill, RiDeleteBinLine } from "react-icons/ri";
 import { useAuth } from '@/context/AuthContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
-import ProfileImage from '@/app/(protected)/account/components/AccountProfileImage';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
 import ManageSubscription from '@/app/(protected)/account/components/AccountManageSubscription';
 import Spinner from '@/components/common/Spinner/Spinner';
+import UploadableImage from '@/components/UploadableImage/UploadableImage';
 
 const Account = () => {
   const { user, userData } = useAuth();
@@ -22,7 +22,7 @@ const Account = () => {
   };
 
   const handleRemoveImage = async () => {
-    if (window.confirm(t('confirmRemoveImage'))) {
+    if (window.confirm('Are you sure you want to remove the image?')) {
       await deleteProfileImage();
     }
   };
@@ -35,27 +35,29 @@ const Account = () => {
         </h1>
         <div className="mt-10">
           <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
-            <div className="relative text-center">
-              <ProfileImage
+            <div className="relative text-center mx-auto">  {/* Added mx-auto */}
+              <UploadableImage
                 photoURL={userData?.photoURL}
-                isChangingImg={isChangingImg}
                 handleImageChange={updateProfileImage}
+                variant="profile"
+                clickable={true}
               />
+
               {userData?.photoURL && (
                 <Button
                   onClick={handleRemoveImage}
                   variant='danger'
-                  disabled={isChangingImg}  // Add disabled state
-                  className="mt-2"  // Add some margin-top
+                  disabled={isChangingImg}
+                  className="mt-2"
                 >
                   {isChangingImg ? (
-                    <Spinner />  // Show spinner only in button when loading
+                    <Spinner className="mx-auto" />  
                   ) : (
-                    <span className='flex items-center text-xs'>
-                      <RiDeleteBinLine className="mr-1" />
-                      Remove
-                    </span>
-                  )}
+                  <span className='flex items-center justify-center text-xs'>  {/* Centered content */}
+                    <RiDeleteBinLine className="mr-1" />
+                    Remove
+                  </span>
+      )}
                 </Button>
               )}
             </div>
@@ -64,7 +66,7 @@ const Account = () => {
               <div className="mb-6">
                 <p className="text-gray-500 text-lg mb-1">Hello</p>
                 <h1 className="font-bold text-3xl text-gray-800 mb-3">
-                  {userData?.displayName || t('guest')}
+                  {userData?.displayName || 'Guest'}
                 </h1>
 
                 {userData && (

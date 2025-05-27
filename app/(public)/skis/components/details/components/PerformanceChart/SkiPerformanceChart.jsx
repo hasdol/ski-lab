@@ -19,7 +19,7 @@ import {
 } from 'recharts';
 import { useRouter } from 'next/navigation';
 import { formatSnowTypeLabel, formatSourceLabel, getTimestamp } from '@/helpers/helpers';
-import Button from '@/components/common/Button';
+import Button from '@/components/ui/Button';
 
 /* ───────────────────────────────────────────────
    Helpers

@@ -3,10 +3,9 @@ import React, { useContext } from 'react';
 import { Draggable, Droppable } from '@hello-pangea/dnd';
 import { MdDragIndicator, MdOutlineClose } from 'react-icons/md';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
-import Input from '@/components/common/Input';
+import Input from '@/components/ui/Input';
 
 const TestingSkiMatchup = ({ match, scores, onScoreChange, potentialSwapTarget }) => {
-  const { gloveMode } = useContext(UserPreferencesContext);
 
   const handleScoreChange = (skiId, e) => {
     let score;
@@ -33,9 +32,9 @@ const TestingSkiMatchup = ({ match, scores, onScoreChange, potentialSwapTarget }
   return (
     <Droppable droppableId={`match-${match.id}`}>
       {(provided) => (
-        <div 
-          {...provided.droppableProps} 
-          ref={provided.innerRef} 
+        <div
+          {...provided.droppableProps}
+          ref={provided.innerRef}
           className="match-white mt-5 w-full"
         >
           {match.skis.map((ski, index) => (
@@ -49,7 +48,7 @@ const TestingSkiMatchup = ({ match, scores, onScoreChange, potentialSwapTarget }
                     ${draggableSnapshot.isDragging ? 'border shadow' : ''} 
                     ${scores[ski.id] > 0 ? 'bg-sbtn opacity-50' : ''} 
                     ${ski.id === potentialSwapTarget?.id ? 'bg-sbtn' : ''} 
-                    ${gloveMode ? 'text-xl' : ''}`}
+                    `}
                 >
                   <span className="w-1/3">{ski.serialNumber}</span>
                   {ski.id === potentialSwapTarget?.id ? (

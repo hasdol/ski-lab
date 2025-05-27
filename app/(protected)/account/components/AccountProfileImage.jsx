@@ -12,7 +12,7 @@ const AccountProfileImage = ({ photoURL, isChangingImg, handleImageChange }) => 
             <img
               src={photoURL}
               alt="Profile"
-              className="w-full h-full rounded-full border-4 border-sbtn object-cover"
+              className="w-full h-full rounded-full border-4 border-border-gray-300 object-cover"
             />
           ) : (
             <FaCircleUser size={100} className="w-full h-full text-gray-300" />

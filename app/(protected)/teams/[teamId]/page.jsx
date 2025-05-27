@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import useSingleTeam from '@/hooks/useSingleTeam';
-import Button from '@/components/common/Button';
-import UploadableImage from '@/components/common/UploadableImage';
+import Button from '@/components/ui/Button';
+import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import TeamMemberListItem from './components/TeamMemberListItem';
 import { removeTeamMember } from '@/lib/firebase/teamFunctions';
 import Spinner from '@/components/common/Spinner/Spinner';
@@ -33,7 +33,7 @@ export default function TeamDetailPage() {
       </div>
     </div>
   );
-  if (!team) return (
+  if (!team && !loading) return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="bg-yellow-50 text-yellow-800 rounded-md p-6">
         No team found

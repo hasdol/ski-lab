@@ -4,9 +4,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { updateTeam, deleteTeam } from '@/lib/firebase/teamFunctions';
 import { deleteTeamImage, uploadTeamImage } from '@/lib/firebase/storageFunctions';
 import useSingleTeam from '@/hooks/useSingleTeam';
-import Button from '@/components/common/Button';
-import Input from '@/components/common/Input';
-import UploadableImage from '@/components/common/UploadableImage';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { useAuth } from '@/context/AuthContext';
 
@@ -19,7 +19,9 @@ export default function EditTeamPage() {
   const [name, setName] = useState('');
   const [imageURL, setImageURL] = useState('');
   const [file, setFile] = useState(null);
-  const [loadingAction, setLoadingAction] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isRemovingImage, setIsRemovingImage] = useState(false);
 
   useEffect(() => {
     if (team) {
@@ -38,7 +40,7 @@ export default function EditTeamPage() {
   };
 
   const handleUpdate = async () => {
-    setLoadingAction(true);
+    setIsUpdating(true);
     try {
       let finalImage = imageURL;
       if (file) {
@@ -51,13 +53,13 @@ export default function EditTeamPage() {
       console.error(e);
       alert('Error updating team: ' + e.message);
     } finally {
-      setLoadingAction(false);
+      setIsUpdating(false);
     }
   };
 
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete the team?')) return;
-    setLoadingAction(true);
+    setIsDeleting(true);
     try {
       await deleteTeam(teamId);
       router.push('/teams');
@@ -65,12 +67,12 @@ export default function EditTeamPage() {
       console.error(e);
       alert('Error deleting team' + e.message);
     } finally {
-      setLoadingAction(false);
+      setIsDeleting(false);
     }
   };
 
   const handleRemoveImage = async () => {
-    setLoadingAction(true);
+    setIsRemovingImage(true);
     try {
       await deleteTeamImage(teamId);
       await updateTeam(teamId, { imageURL: '' });
@@ -79,7 +81,7 @@ export default function EditTeamPage() {
       console.error(e);
       alert('Error removing image: ' + e.message);
     } finally {
-      setLoadingAction(false);
+      setIsRemovingImage(false);
     }
   };
 
@@ -137,7 +139,7 @@ export default function EditTeamPage() {
               onClick={handleRemoveImage}
               variant="danger"
               className="text-xs"
-              disabled={loadingAction}
+              loading={isRemovingImage}
             >
               Remove image
             </Button>
@@ -148,14 +150,15 @@ export default function EditTeamPage() {
           <Button
             onClick={handleUpdate}
             variant="primary"
-            loading={loadingAction}
+            loading={isUpdating}
           >
             Update
           </Button>
+
           <Button
             onClick={handleDelete}
             variant="danger"
-            loading={loadingAction}
+            loading={isDeleting}
           >
             Delete
           </Button>

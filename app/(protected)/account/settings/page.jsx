@@ -11,8 +11,8 @@ import { useRouter } from 'next/navigation';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
-import Button from '@/components/common/Button';
-import Input from '@/components/common/Input';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 
 export default function SettingsPage() {
   const { user, userData } = useAuth();
@@ -115,7 +115,7 @@ export default function SettingsPage() {
           ) : (
             <div onClick={() => setIsEditingUsername(true)}>
               <label htmlFor="username">Username</label>
-              <div className="flex items-center justify-between bg-white border border-gray-200 rounded-md px-4 py-3 mt-1 cursor-pointer hover:bg-gray-50 transition">
+              <div className={`flex items-center justify-between bg-white border border-gray-200 rounded-md px-4 py-3 mt-1 ${gloveMode && 'p-5!'} cursor-pointer hover:bg-gray-50 transition`}>
                 <RiUserLine className="text-gray-600 text-xl" />
                 <span className="flex-1 mx-4 text-gray-800">
                   {userData?.displayName ? userData.displayName : (
