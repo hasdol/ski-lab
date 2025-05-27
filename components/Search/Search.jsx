@@ -5,7 +5,7 @@ import { useDebounce } from 'use-debounce';
 
 const MIN_CHARS = 3;
 
-const ResultsSearch = ({ onSearch }) => {
+const Search = ({ onSearch }) => {
   const [local, setLocal] = useState('');
   const [debounced] = useDebounce(local, 300);
 
@@ -39,4 +39,4 @@ const ResultsSearch = ({ onSearch }) => {
   );
 };
 
-export default ResultsSearch;
+export default Search;

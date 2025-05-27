@@ -14,7 +14,7 @@ import usePaginatedResults from '@/hooks/usePaginatedResults';
 import { useAuth } from '@/context/AuthContext';
 import Filter from './components/ResultsFilter';
 import Spinner from '@/components/common/Spinner/Spinner';
-import ResultsSearch from '../../../components/Search/Search';
+import Search from '../../../components/Search/Search';
 import DeleteTestModal from '@/components/DeleteTestModal/DeleteTestModal';
 import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
 import Button from '@/components/common/Button';
@@ -107,7 +107,7 @@ const Results = () => {
 
         {/* Search + filter button */}
         <div className="flex items-end justify-between mb-2">
-          <ResultsSearch onSearch={handleSearch} />
+          <Search onSearch={handleSearch} />
           <div className="flex flex-col items-center w-fit">
             <label className="text-sm font-semibold mb-1">Filter</label>
             <Button

@@ -29,7 +29,7 @@ import {
   RiShoppingCartLine,
 } from 'react-icons/ri';
 import { MdFastForward } from 'react-icons/md';
-import ResultsSearch from '../../../components/Search/Search';
+import Search from '../../../components/Search/Search';
 
 const Skis = () => {
   const router = useRouter();
@@ -267,7 +267,7 @@ const Skis = () => {
         </div>
 
         {/* Search box */}
-        <ResultsSearch onSearch={setSearchRaw} />
+        <Search onSearch={setSearchRaw} />
 
         {/* Locked skis prompt */}
         {(hasLockedSkis || (hasReachedLimit && plan === 'free')) && (
@@ -374,7 +374,7 @@ const Skis = () => {
               <Button onClick={loadMore}>Load more</Button>
             </div>
           )}
-          {skis.length === 0 && !loading && user && <p className='mt-4'>You have no skis</p>}
+          {skis.length === 0 && !loading && user && <p>You have no skis</p>}
           {!user && <span className='mt-4 italic'>You are not signed in</span>}
         </div>
       </div>
