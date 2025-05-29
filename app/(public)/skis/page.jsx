@@ -57,7 +57,6 @@ const Skis = () => {
       ? localStorage.getItem('skiTypeFilter') || 'all'
       : 'all')
   );
-  // Change default to 'notArchived' if not set
   const [archivedFilter, setArchivedFilter] = useState(
     () => (typeof window !== 'undefined'
       ? localStorage.getItem('archivedFilter') || 'notArchived'
@@ -124,12 +123,11 @@ const Skis = () => {
     setExpandedSkiId(prev => (prev === id ? null : id));
   };
 
-  // Remove client-side filtering - we get filtered skis from hook
+  // --- build displayedSkis: matching items first, then selected extras
   const displayedSkis = useMemo(() => {
     const matched = skis;
     const matchedIds = new Set(matched.map(s => s.id));
     const extras = Array.from(selectedSkisDataMap.values()).filter(s => !matchedIds.has(s.id));
-
     if (extras.length) {
       const compare = (a, b) => {
         const aVal = a[sortField] ?? '';
@@ -239,7 +237,7 @@ const Skis = () => {
             <div className="flex flex-col items-center w-fit">
               <label className={`text-sm font-semibold mb-1 ${hasReachedLimit && 'text-red-500'}`}>
                 {skiCount === 0 ? 'Add ski' : `${skiCount}/${skiLimit}`}
-              </label>
+              </label>              
               <Button
                 onClick={handleAddSki}
                 variant='primary'
