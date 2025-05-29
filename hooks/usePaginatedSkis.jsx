@@ -44,17 +44,37 @@ export default function usePaginatedSkis({
   // Always use English keywords field
   const keywordField = 'keywords_en';
 
-  // Build base Firestore query
+  // Build base Firestore query with archived filter
   const buildBaseQuery = useCallback(() => {
     if (!user) return null;
     const colRef = collection(db, `users/${user.uid}/skis`);
-    let q = term.length >= MIN_CHARS
-      ? query(colRef, where(keywordField, 'array-contains', term))
-      : query(colRef);
+    
+    // Base conditions
+    let conditions = [];
+    
+    // Add archived filter
+    if (archived !== 'all') {
+      conditions.push(where('archived', '==', archived === 'archived'));
+    }
+    
+    // Add search term condition
+    if (term.length >= MIN_CHARS) {
+      conditions.push(where(keywordField, 'array-contains', term));
+    }
+    
+    // Start with base query
+    let q = query(colRef);
+    
+    // Add conditions if any
+    if (conditions.length) {
+      q = query(q, ...conditions);
+    }
+    
+    // Add sorting and limit
     return query(q, orderBy(sortField, sortDirection), limit(PAGE_SIZE));
-  }, [user, term, sortField, sortDirection]);
+  }, [user, term, archived, sortField, sortDirection]);
 
-  // Fetch first page
+  // Fetch first page - NO CLIENT-SIDE FILTERING
   const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -73,27 +93,17 @@ export default function usePaginatedSkis({
       const page = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       cursor.current = snap.docs[snap.docs.length - 1] || null;
 
-      // Client-side filters
-      const filtered = page.filter(d =>
-        (style === 'all' || d.style === style) &&
-        (skiType === 'all' || d.skiType === skiType) &&
-        (
-          archived === 'all' ||
-          (archived === 'archived' && d.archived) ||
-          (archived === 'notArchived' && !d.archived)
-        )
-      );
-      setDocs(filtered);
-      if (snap.docs.length < PAGE_SIZE) setExhausted(true);
+      setDocs(page);
+      setExhausted(snap.docs.length < PAGE_SIZE);
     } catch (err) {
       console.error('Error fetching skis:', err);
       setError(err);
     } finally {
       setLoading(false);
     }
-  }, [buildBaseQuery, style, skiType, archived]);
+  }, [buildBaseQuery]);
 
-  // Fetch next page
+  // Fetch next page - NO CLIENT-SIDE FILTERING
   const loadMore = useCallback(async () => {
     if (exhausted || !cursor.current) return;
     const nextQ = query(buildBaseQuery(), startAfter(cursor.current));
@@ -102,21 +112,12 @@ export default function usePaginatedSkis({
       const page = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       cursor.current = snap.docs[snap.docs.length - 1] || cursor.current;
 
-      const filtered = page.filter(d =>
-        (style === 'all' || d.style === style) &&
-        (skiType === 'all' || d.skiType === skiType) &&
-        (
-          archived === 'all' ||
-          (archived === 'archived' && d.archived) ||
-          (archived === 'notArchived' && !d.archived)
-        )
-      );
-      setDocs(prev => [...prev, ...filtered]);
-      if (snap.docs.length < PAGE_SIZE) setExhausted(true);
+      setDocs(prev => [...prev, ...page]);
+      setExhausted(snap.docs.length < PAGE_SIZE);
     } catch (err) {
       console.error('Error loading more skis:', err);
     }
-  }, [buildBaseQuery, exhausted, style, skiType, archived]);
+  }, [buildBaseQuery, exhausted]);
 
   // Auto-refresh on dependency changes
   useEffect(() => {
