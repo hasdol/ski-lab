@@ -75,7 +75,8 @@ service cloud.firestore {
         'archived',
         'skiType',
         'keywords_en',
-        'keywords_no'
+        'keywords_no',
+        'archived'
         ]));
 
         // Delete if user owns the ski

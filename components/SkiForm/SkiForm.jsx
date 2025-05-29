@@ -77,7 +77,7 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
     setIsSubmitting(true);
 
     try {
-      let preparedData = { ...formData };
+      let preparedData = { ...formData, archived: false, };
       const convertToTimestamp = (dateStr) =>
         dateStr ? Timestamp.fromDate(new Date(dateStr)) : null;
 

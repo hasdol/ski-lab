@@ -48,28 +48,29 @@ export default function usePaginatedSkis({
   const buildBaseQuery = useCallback(() => {
     if (!user) return null;
     const colRef = collection(db, `users/${user.uid}/skis`);
-    
-    // Base conditions
-    let conditions = [];
-    
-    // Add archived filter
+
+    // Base conditions array
+    const conditions = [];
+
+    // Add archived filter - FIXED LOGIC
     if (archived !== 'all') {
-      conditions.push(where('archived', '==', archived === 'archived'));
+      const archivedValue = archived === 'archived'; // true for archived, false for notArchived
+      conditions.push(where('archived', '==', archivedValue));
     }
-    
+
     // Add search term condition
     if (term.length >= MIN_CHARS) {
       conditions.push(where(keywordField, 'array-contains', term));
     }
-    
+
     // Start with base query
     let q = query(colRef);
-    
+
     // Add conditions if any
     if (conditions.length) {
       q = query(q, ...conditions);
     }
-    
+
     // Add sorting and limit
     return query(q, orderBy(sortField, sortDirection), limit(PAGE_SIZE));
   }, [user, term, archived, sortField, sortDirection]);
