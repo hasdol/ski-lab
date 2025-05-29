@@ -187,7 +187,7 @@ const Skis = () => {
         : 'Upgrade your account to add more skis'
       );
     }
-    router.push('/skis/add');
+    router.push('/skis/create');
   };
   const handleStartTournament = () => {
     const list = getSelectedList();

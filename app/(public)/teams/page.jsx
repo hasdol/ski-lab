@@ -26,7 +26,7 @@ export default function TeamsPage() {
         <div className="flex flex-col md:flex-row w-full space-x-3 gap-4 md:items-end justify-between">
           {canCreateTeam && (
             <Button
-              onClick={() => router.push('/teams/create-team')}
+              onClick={() => router.push('/teams/create')}
               variant="primary"
               className="h-fit"
             >

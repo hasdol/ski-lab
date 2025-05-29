@@ -1,9 +1,7 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../../../../../helpers/helpers';
 
 const GrindHistory = ({ grindHistory }) => {
-  const { t } = useTranslation();
 
   if (!grindHistory || grindHistory.length === 0) {
     return <i>No grind history</i>;

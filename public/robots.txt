@@ -4,12 +4,15 @@ Allow: /
 Disallow: /account
 Disallow: /settings
 Disallow: /plans
-Disallow: /skis/add
+Disallow: /skis/create
 Disallow: /skis/locked
 Disallow: /results/*/edit
 Disallow: /testing
-Disallow: /create-event
-Disallow: /edit
+Disallow: /teams/*/edit
+Disallow: /teams/*/*/edit
+Disallow: /signin
+Disallow: /signup
+Disallow: /resetPassword
 
 # Host
 Host: https://ski-lab.com

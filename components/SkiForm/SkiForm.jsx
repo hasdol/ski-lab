@@ -1,6 +1,5 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Timestamp } from 'firebase/firestore';
 import { RiArrowDownDoubleLine, RiDeleteBinLine } from "react-icons/ri";
 
@@ -9,7 +8,6 @@ import Button from '../ui/Button';
 import { useRouter } from 'next/navigation';
 
 const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
-  const { t } = useTranslation();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -155,8 +153,8 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
           placeholder='Style'
           required
           options={[
-            { label: t('classic'), value: 'classic' },
-            { label: t('skate'), value: 'skate' },
+            { label: 'Classic', value: 'classic' },
+            { label: 'Skate', value: 'skate' },
             { label: 'DP', value: 'dp' },
           ]}
         />
@@ -260,9 +258,9 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
           onChange={handleChange}
           placeholder='Ski type'
           options={[
-            { label: t('cold'), value: 'cold' },
-            { label: t('universal'), value: 'universal' },
-            { label: t('warm'), value: 'warm' },
+            { label: 'Cold', value: 'cold' },
+            { label: 'Universal', value: 'universal' },
+            { label: 'Warm', value: 'warm' },
           ]}
         />
         <Input

@@ -33,6 +33,11 @@ export const metadata = {
     images: ['/og-image.png'],
     locale: 'en_US',
   },
+  metadataBase: new URL('https://ski-lab.com'), // Ensure this is correct
+  // Add this to all layouts:
+  alternates: {
+    canonical: 'https://ski-lab.com' // Add specific URLs to page layouts
+  }
 };
 
 export default function RootLayout({ children }) {

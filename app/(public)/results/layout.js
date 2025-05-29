@@ -3,6 +3,10 @@
 export const metadata = {
   title:       'Results • Ski Lab',
   description: 'View and analyze cross-country ski test results on Ski Lab.',
+  robots: {
+    index: true, // ← ENSURE INDEXING
+    follow: true,
+  },
   alternates: { canonical: 'https://ski-lab.com/results' },
   keywords: [
     'ski test results',

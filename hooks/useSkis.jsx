@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { subscribeToUserSkis, addUserSkis, updateUserSki, deleteUserSki } from '@/lib/firebase/firestoreFunctions';
 import { useAuth } from '@/context/AuthContext';
-import { useTranslation } from 'react-i18next';
 import { Timestamp } from 'firebase/firestore';
 
 export const useSkis = () => {
@@ -10,7 +9,6 @@ export const useSkis = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { user, userData } = useAuth();
-  const { t } = useTranslation();
 
 
   useEffect(() => {
@@ -48,7 +46,7 @@ export const useSkis = () => {
       const maxTotalSkis = planLimits[userPlan];
       const totalSkis = (userData?.skiCount || 0) + (userData?.lockedSkisCount || 0);
       if (totalSkis >= maxTotalSkis) {
-        alert(`${t('max_skis_alert')}`);
+        alert(`You have reached the maximum number of skis in this plan`);
         return;
       }
 

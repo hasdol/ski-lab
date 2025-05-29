@@ -1,60 +1,47 @@
-// next-sitemap.config.js
 module.exports = {
   siteUrl: 'https://ski-lab.com',
   generateRobotsTxt: true,
-
-  // no splitting or manual additions
   changefreq: 'daily',
   priority: 0.7,
-
-  // your protected routes
+  
   exclude: [
-    '/account',
     '/account/**',
-    '/settings',
     '/settings/**',
-    '/plans',
     '/plans/**',
-    '/skis/add',
-    '/skis/add/**',
-    '/skis/locked',
+    '/skis/create/**',
     '/skis/locked/**',
-    '/results/*/edit',
-    '/testing',
+    '/results/*/edit/**',
     '/testing/**',
-    '/create-event',
-    '/create-event/**',
-    '/edit',
-    '/edit/**',
-    '/teams/create-team',
-    '/teams/create-team/**',
+    '/teams/*/edit/**',
+    '/teams/*/*/edit/**',
     '/signin',
-    '/signin/**',
     '/signup',
-    '/signup/**',
-    '/resetPassword',
-    '/resetPassword/**',
-    '/contact',
+    '/resetPassword'
   ],
 
   robotsTxtOptions: {
     policies: [
       {
         userAgent: '*',
+        allow: '/',
         disallow: [
           '/account',
           '/settings',
           '/plans',
-          '/skis/add',
+          '/skis/create',
           '/skis/locked',
           '/results/*/edit',
           '/testing',
-          '/create-event',
-          '/edit',
+          '/teams/*/edit',
+          '/teams/*/*/edit',
+          '/signin',
+          '/signup',
+          '/resetPassword'
         ],
-        allow: ['/'],
       },
     ],
-    // no additionalSitemaps
+    additionalSitemaps: [
+      'https://ski-lab.com/sitemap.xml'
+    ],
   },
 };

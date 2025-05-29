@@ -136,7 +136,7 @@ export default function TeamDetailPage() {
 
           {activeTab === 'events' && (
             <div className="space-y-6 w-full">
-              {canManage && <Button onClick={() => router.push(`/teams/${teamId}/create-event`)} variant="primary" className='w-full md:w-fit'>Create Event</Button>}
+              {canManage && <Button onClick={() => router.push(`/teams/${teamId}/create`)} variant="primary" className='w-full md:w-fit'>Create Event</Button>}
               {['live', 'upcoming', 'past'].map(cat => (
                 categorized[cat].length > 0 && (
                   <div key={cat}>
