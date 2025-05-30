@@ -323,7 +323,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
     <div className="px-5 pb-5 mx-auto animate-fade-down animate-duration-300 relative">
       <div className="mt-5">
         {/* Ski Info Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5 border-b border-gray-300 pb-6">
+        <div className="grid grid-cols-2 text-start md:grid-cols-3 gap-4 mb-5 border-b border-gray-300 pb-6">
 
 
           {/* Rest of the ski info items */}

@@ -190,10 +190,8 @@ const PerformanceChart = forwardRef(
         ref={wrapperRef}
         className="relative scroll-smooth"
         onClick={() => {
-          hideTooltip();
           setHoveredIndex(null);
         }}
-        onTouchStart={hideTooltip}
       >
         <ResponsiveContainer width={containerWidth} height={250}>
           <LineChart

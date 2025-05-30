@@ -152,7 +152,7 @@ const SkiConditionHeatmap = ({
                 key={`${row.source}-${row.snowType}`}
                 className="border-b border-gray-100 last:border-0"
               >
-                <td className="text-sm text-gray-500 py-2 pr-4">
+                <td className="text-sm text-gray-500 py-2 pr-4 text-start">
                   {formatSourceLabel(row.source)} – {formatSnowTypeLabel(row.snowType)}  </td>
 
                 {temperatureList.map((temp) => {

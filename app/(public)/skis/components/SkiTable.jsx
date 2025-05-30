@@ -31,19 +31,31 @@ const SkiTable = ({
   onArchive,
   onUnarchive
 }) => {
+  const COLUMN_COUNT = 12;
+  
+  // Define columns with proper field IDs
+  const columns = [
+    { id: 'serialNumber', label: 'snr', sortable: true },
+    { id: 'style', label: 'style', sortable: true },
+    { id: 'brand', label: 'brand', sortable: true },
+    { id: 'model', label: 'model', sortable: true },
+    { id: 'grind', label: 'grind', sortable: true },
+    { id: 'base', label: 'base', sortable: true },
+    { id: 'length', label: 'length', sortable: true },
+    { id: 'stiffness', label: 'stiffness', sortable: true },
+    { id: 'construction', label: 'construction', sortable: true },
+  ];
 
-  if (!skis || skis.length === 0) {
-    return null;
-  }
-
-  const renderSortIndicator = (column) => {
-    if (sortField === column) {
+  const renderSortIndicator = (columnId) => {
+    if (sortField === columnId) {
       return sortDirection === 'asc' ? <RiSortAsc /> : <RiSortDesc />;
     }
     return null;
   };
 
-  const COLUMN_COUNT = 12;
+  if (!skis || skis.length === 0) {
+    return null;
+  }
 
   return (
     <div className="bg-white rounded-md overflow-hidden transition-all duration-200">
@@ -52,15 +64,15 @@ const SkiTable = ({
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50 text-gray-700">
               <th className="px-4 py-3" />
-              {['snr', 'style', 'brand', 'model', 'grind', 'base', 'length', 'stiffness', 'construction'].map((field) => (
+              {columns.map((column) => (
                 <th
-                  key={field}
+                  key={column.id}
                   className="px-4 py-3 cursor-pointer hover:bg-gray-100"
-                  onClick={() => onSort(field)}
+                  onClick={() => column.sortable && onSort(column.id)}
                 >
                   <div className="flex justify-center items-center space-x-1">
-                    <span className="capitalize">{field}</span>
-                    {renderSortIndicator(field)}
+                    <span className="capitalize">{column.label}</span>
+                    {column.sortable && renderSortIndicator(column.id)}
                   </div>
                 </th>
               ))}
@@ -86,15 +98,13 @@ const SkiTable = ({
                         aria-label='Select'
                       />
                     </td>
-                    <td className="px-4 py-2">{highlightSearchTerm(ski.serialNumber, search)}</td>
-                    <td className="px-4 py-2 capitalize">{highlightSearchTerm(ski.style, search)}</td>
-                    <td className="px-4 py-2">{highlightSearchTerm(ski.brand, search)}</td>
-                    <td className="px-4 py-2">{highlightSearchTerm(ski.model, search) || '--'}</td>
-                    <td className="px-4 py-2">{highlightSearchTerm(ski.grind, search)}</td>
-                    <td className="px-4 py-2">{ski.base || '--'}</td>
-                    <td className="px-4 py-2">{ski.length || '--'}</td>
-                    <td className="px-4 py-2">{ski.stiffness || '--'}</td>
-                    <td className="px-4 py-2">{ski.construction || '--'}</td>
+
+                    {/* Render data cells using column definitions */}
+                    {columns.map(column => (
+                      <td key={column.id} className="px-4 py-2">
+                        {highlightSearchTerm(ski[column.id] || '--', search)}
+                      </td>
+                    ))}
 
                     <td className="">
                       <div className="flex justify-center items-center gap-3">
