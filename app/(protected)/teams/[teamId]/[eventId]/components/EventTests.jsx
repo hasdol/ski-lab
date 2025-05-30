@@ -63,7 +63,7 @@ export default function EventTests({ teamId, eventId }) {
       {testResults.map((result) => (
         <div
           key={result.id}
-          className="bg-white shadow rounded mb-5 animate-fade-down animate-duration-300"
+          className="bg-white border border-gray-300 rounded-md mb-5 animate-fade-down animate-duration-300"
         >
           <div className="flex justify-between p-4">
 
