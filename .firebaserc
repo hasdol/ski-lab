@@ -1,7 +1,8 @@
 {
   "projects": {
     "dev": "ski-lab-dev",
-    "live": "ski-lab-prod"
+    "live": "ski-lab-prod",
+    "default": "ski-lab-dev"
   },
   "targets": {},
   "etags": {}

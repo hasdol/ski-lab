@@ -5,6 +5,20 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
+          "fieldPath": "keywords_en",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "serialNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "skis",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
           "fieldPath": "locked",
           "order": "ASCENDING"
         },
@@ -39,6 +53,34 @@
         {
           "fieldPath": "serialNumber",
           "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "testResults",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "keywords_en",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "testResults",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "keywords_en",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
         }
       ]
     }
