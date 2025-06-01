@@ -1,11 +1,9 @@
-// next-sitemap.config.js
 module.exports = {
   siteUrl: 'https://ski-lab.com',
   generateRobotsTxt: true,
   changefreq: 'daily',
   priority: 0.7,
-  
-  // Fix: Use regex patterns for proper exclusion
+
   exclude: [
     '/account*',
     '/settings*',
@@ -14,6 +12,7 @@ module.exports = {
     '/skis/locked*',
     '/results/*/edit*',
     '/testing*',
+    '/teams/create*',
     '/teams/*/edit*',
     '/teams/*/*/edit*',
     '/signin*',
@@ -34,6 +33,7 @@ module.exports = {
           '/skis/locked',
           '/results/*/edit',
           '/testing',
+          '/teams/create*',
           '/teams/*/edit',
           '/teams/*/*/edit',
           '/signin',
@@ -42,8 +42,6 @@ module.exports = {
         ],
       },
     ],
-    additionalSitemaps: [
-      'https://ski-lab.com/sitemap.xml'
-    ],
+    // REMOVE THIS additionalSitemaps ARRAY COMPLETELY
   },
 };

@@ -8,6 +8,7 @@ Disallow: /skis/create
 Disallow: /skis/locked
 Disallow: /results/*/edit
 Disallow: /testing
+Disallow: /teams/create*
 Disallow: /teams/*/edit
 Disallow: /teams/*/*/edit
 Disallow: /signin
