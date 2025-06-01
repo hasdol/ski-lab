@@ -17,20 +17,36 @@ const EditSkisPage = () => {
     router.push('/skis');
   };
 
-
-  if (!ski) return <div className="m-2">Ski not found</div>;
-
   return (
     <div>
       <div className='p-3 md:w-2/3 mx-auto'>
         <h1 className="text-3xl font-bold text-gray-900 my-4">
           Edit Skis
         </h1>
-        {loading && <div className='flex justify-center'><Spinner /></div>}
-        <SkiForm initialData={ski} onSubmit={handleUpdateSki} isEdit={true} />
-        {error || updateError && <div className="bg-red-100 text-red-800 p-2 rounded-md">Error: {error?.message || updateError?.message}</div>}
+        
+        {loading ? (
+          <div className='flex justify-center'><Spinner /></div>
+        ) : error ? (
+          <div className="bg-red-100 text-red-800 p-2 rounded-md">
+            Error: {error.message}
+          </div>
+        ) : !ski ? (
+          <div className="m-2">Ski not found</div>
+        ) : (
+          <>
+            <SkiForm 
+              initialData={ski} 
+              onSubmit={handleUpdateSki} 
+              isEdit={true} 
+            />
+            {updateError && (
+              <div className="bg-red-100 text-red-800 p-2 rounded-md mt-4">
+                Error: {updateError.message}
+              </div>
+            )}
+          </>
+        )}
       </div>
-
     </div>
   );
 };

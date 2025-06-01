@@ -11,25 +11,24 @@ export const useSingleSki = (skiId) => {
 
   useEffect(() => {
     if (!user || !skiId) {
-      setSki(null);
       setLoading(false);
       return;
     }
+    
     const fetchSki = async () => {
       setLoading(true);
       try {
         const data = await getUserSki(user.uid, skiId);
-        if (data) {
-          setSki(data);
-        } else {
-          setError(new Error('Ski not found'));
-        }
+        setSki(data || null); // Set to null if not found
+        setError(null);
       } catch (err) {
         setError(err);
+        setSki(null);
       } finally {
         setLoading(false);
       }
     };
+    
     fetchSki();
   }, [user, skiId]);
 
