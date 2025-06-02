@@ -78,7 +78,7 @@ export default function Navigation() {
               key={item.key}
               onClick={() => router.push(item.path)}
               aria-label={item.labelKey}
-              className={`p-4 flex items-center justify-center transition ${isActive(item.path) && !isSubNavOpen ? 'text-gray-800 bg-gray-100 shadow' : 'text-gray-600'}`}
+              className={`p-4 flex items-center justify-center transition ${isActive(item.path) && !isSubNavOpen ? 'text-blue-600/80 bg-blue-100' : 'text-gray-600'}`}
             >
               {item.icon}
             </button>
@@ -159,7 +159,7 @@ export default function Navigation() {
           <ul className="grid grid-cols-4 gap-1">
             {navConfig.map(item => (
               <li key={item.key}>
-                <Link href={item.path} className={`flex items-center justify-center transition py-1 hover:bg-gray-100 rounded-md  ${isActive(item.path) ? 'bg-gray-100  text-primary' : 'text-gray-700 hover:text-primary'}`}>
+                <Link href={item.path} className={`flex items-center justify-center transition py-1 hover:bg-gray-100 rounded-md  ${isActive(item.path) ? 'bg-blue-100  text-blue-600/80' : 'text-gray-700'}`}>
                   {item.icon}
                   <span className="ml-2">{item.labelKey}</span>
                 </Link>
