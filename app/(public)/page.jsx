@@ -89,6 +89,13 @@ const HomePage = () => {
   return (
     <div className="relative flex flex-col overflow-hidden">
 
+      {/* Background layers */}
+      <div
+        className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat opacity-30 blur"
+        style={{ backgroundImage: `url(${bgUrl})` }}
+      />
+      <div className="fixed inset-0 -z-10 bg-gradient-to-b from-white/70 via-white/60 to-white/80" />
+
       <div className="container relative flex flex-col items-center max-w-5xl px-6 pt-16 mx-auto md:pt-28">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -207,7 +214,7 @@ const HomePage = () => {
             )
           ) : (
             <div className="py-5">
-              <Spinner/>
+              <Spinner />
             </div>
           )}
         </motion.div>

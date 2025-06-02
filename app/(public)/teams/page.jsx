@@ -7,7 +7,7 @@ import TeamList from './components/TeamsList';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/common/Spinner/Spinner';
-import { RiInformationLine, RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
+import { RiInformationLine, } from "react-icons/ri";
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function TeamsPage() {
