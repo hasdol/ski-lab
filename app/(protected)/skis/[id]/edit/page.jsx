@@ -6,7 +6,7 @@ import { useSkis } from '@/hooks/useSkis';
 import SkiForm from '@/components/SkiForm/SkiForm';
 import Spinner from '@/components/common/Spinner/Spinner';
 
-const EditSkisPage = () => {
+const EditSkiPage = () => {
   const { updateSki, loading: updating, error: updateError } = useSkis();
   const { id } = useParams();
   const router = useRouter();
@@ -20,8 +20,8 @@ const EditSkisPage = () => {
   return (
     <div>
       <div className='p-3 md:w-2/3 mx-auto'>
-        <h1 className="text-3xl font-bold text-gray-900 my-4">
-          Edit Skis
+        <h1 className="text-3xl font-bold text-gray-900 my-6">
+          Edit Ski
         </h1>
         
         {loading ? (
@@ -51,4 +51,4 @@ const EditSkisPage = () => {
   );
 };
 
-export default EditSkisPage;
+export default EditSkiPage;

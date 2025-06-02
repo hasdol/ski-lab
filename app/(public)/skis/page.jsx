@@ -204,7 +204,7 @@ const Skis = () => {
   return (
     <div className='p-3 md:w-2/3 mx-auto'>
       <div className="container mx-auto animate-fade animate-duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 my-4">Skis</h1>
+        <h1 className="text-3xl font-bold text-gray-900 my-6">Skis</h1>
 
         {/* Top controls row */}
         <div className="flex items-end justify-between mb-4">

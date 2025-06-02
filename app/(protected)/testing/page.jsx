@@ -230,8 +230,8 @@ const Testing = () => {
         }}
       >
       <div className='p-3 md:w-2/3 mx-auto'>
-          <div className="flex justify-between">
-            <h1 className="text-3xl font-bold text-gray-900 my-4">
+          <div className="flex justify-between my-6">
+            <h1 className="text-3xl font-bold text-gray-900">
               Round {roundNumber}/{totalRounds}
             </h1>
             <div className='space-x-2'>

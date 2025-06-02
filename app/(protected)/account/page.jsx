@@ -29,8 +29,8 @@ const Account = () => {
 
   return (
     <>
-      <div className='p-3 md:w-2/3 mx-auto'>
-        <h1 className="text-3xl font-bold text-gray-900 my-4">
+      <div className="p-3 md:w-1/2 mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 my-6">
           Account
         </h1>
         <div className="mt-10">
@@ -51,13 +51,13 @@ const Account = () => {
                   className="mt-2"
                 >
                   {isChangingImg ? (
-                    <Spinner className="mx-auto" />  
+                    <Spinner className="mx-auto" />
                   ) : (
-                  <span className='flex items-center justify-center text-xs'>  {/* Centered content */}
-                    <RiDeleteBinLine className="mr-1" />
-                    Remove
-                  </span>
-      )}
+                    <span className='flex items-center justify-center text-xs'>  {/* Centered content */}
+                      <RiDeleteBinLine className="mr-1" />
+                      Remove
+                    </span>
+                  )}
                 </Button>
               )}
             </div>

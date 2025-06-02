@@ -49,7 +49,7 @@ const HomePage = () => {
 
   return (
     <>
-      <div className='relative flex flex-col items-center min-h-screen p-6 text-text overflow-hidden'>
+      <div className='relative flex flex-col items-center min-h-screen text-text overflow-hidden'>
         {/* Background image */}
         <div
           className={`absolute inset-0 bg-cover bg-top blur-[2px] transition-opacity duration-1000 ${imageLoaded ? 'opacity-30 scale-110' : 'opacity-0'}`}
@@ -148,7 +148,7 @@ const HomePage = () => {
           </motion.div>
         </div>
         {/* Footer */}
-        <footer className='mt-auto pb-14 text-xs text-btn text-center'>
+        <footer className='mt-auto pb-20 text-xs text-btn text-center'>
           <p className='mb-1'>
             Built with <strong>Firebase</strong> & <strong>Stripe</strong>
           </p>

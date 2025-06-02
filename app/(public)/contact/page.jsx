@@ -22,8 +22,8 @@ const Contact = () => {
 
   return (
     <>
-      <div className="p-3 mt-20 md:w-1/3 md:mx-auto animate-fade-down animate-duration-300">
-        <h1 className="text-5xl mb-10 font-semibold">
+      <div className="p-3 md:w-1/2 mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 my-6">
           Contact
         </h1>
         <form className="space-y-3" onSubmit={handleSubmit}>

@@ -101,7 +101,7 @@ const Results = () => {
     <div className='p-3 md:w-2/3 mx-auto'>
 
       <div className="animate-fade animate-duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 my-4">
+        <h1 className="text-3xl font-bold text-gray-900 my-6">
           Results
         </h1>
 

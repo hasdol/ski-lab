@@ -19,7 +19,7 @@ export default function TeamsPage() {
 
       {/* Header */}
       <div className="flex flex-col items-start  justify-between">
-        <h1 className="text-3xl font-bold text-gray-900 my-4">
+        <h1 className="text-3xl font-bold text-gray-900 my-6">
           Teams
         </h1>
 

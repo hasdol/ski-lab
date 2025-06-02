@@ -186,7 +186,7 @@ const TestSummaryPage = () => {
   return (
     <div>
       <div className='p-3 md:w-2/3 mx-auto space-y-6'>
-        <h1 className="text-3xl font-bold text-gray-900 b-5">
+        <h1 className="text-3xl font-bold text-gray-900 my-6">
           Summary
         </h1>
 

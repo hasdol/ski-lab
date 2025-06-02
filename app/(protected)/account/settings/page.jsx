@@ -79,16 +79,16 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-3 md:w-2/3 mx-auto">
+    <div className="p-3 md:w-1/2 mx-auto">
       {/* Header */}
-      <div className="flex justify-between my-4">
+      <div className="flex justify-between my-6">
         <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
         <Button variant="secondary" className="text-sm" onClick={() => router.back()}>
           Back
         </Button>
       </div>
 
-      <div className="space-y-10">
+      <div className="space-y-16">
         {/* Username Section */}
         <div>
           {isEditingUsername ? (
@@ -131,22 +131,25 @@ export default function SettingsPage() {
         </div>
 
         {/* Preferences */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+        <div className="flex flex-col gap-8">
           <div className="flex flex-col items-center space-y-3">
             <h3 className="font-semibold text-lg">Glove mode</h3>
-            <label className="inline-flex relative items-center cursor-pointer">
-              <input
-                type="checkbox"
-                id="toggle-glove"
-                className="sr-only peer"
-                checked={gloveMode}
-                onChange={() => setGloveMode()}
-              />
-              <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-gray-300 transition duration-300 ease-in-out peer-checked:bg-blue-500 after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5" />
-            </label>
-            {gloveMode ? <GiWinterGloves size={20} /> : <FaHandsClapping size={20} />}
+            <div className='flex space-x-4'>
+              <label className="inline-flex relative items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="toggle-glove"
+                  className="sr-only peer"
+                  checked={gloveMode}
+                  onChange={() => setGloveMode()}
+                />
+                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-gray-300 transition duration-300 ease-in-out peer-checked:bg-blue-500 after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5" />
+              </label>
+              {gloveMode ? <GiWinterGloves size={20} /> : <FaHandsClapping size={20} />}
+
+            </div>
           </div>
-          {!gloveMode && <p className="p-2 h-fit my-auto bg-blue-100 text-blue-800 rounded-md relative">
+          {!gloveMode && <p className="p-2 h-fit w-fit mx-auto my-auto bg-blue-100 text-blue-800 rounded-md relative">
             <RiInformationLine size={25} className="mr-1 absolute -top-5 left-1/2 -translate-x-1/2" />
             Bigger input fields and buttons to make it easier to perform tests
           </p>}

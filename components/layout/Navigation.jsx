@@ -62,23 +62,23 @@ export default function Navigation() {
   const subNavItems = [
     user && { key: 'account', labelKey: 'Account', icon: <RiUser6Line size={22} />, path: '/account' },
     user && { key: 'settings', labelKey: 'Settings', icon: <RiSettings3Line size={22} />, path: '/account/settings' },
-    { key: 'contact', labelKey: 'Contact', icon: <RiMessage2Line size={22} />, path: '/contact' },
-    user && { key: 'signOut', labelKey: 'Sign Out', icon: <RiLogoutBoxLine size={22} />, onClick: () => { signOut(router.push); setIsSubNavOpen(false); } },
     !user && { key: 'signIn', labelKey: 'Sign In', icon: <RiLoginBoxLine size={22} />, path: '/signin' },
     !user && { key: 'signUp', labelKey: 'Sign Up', icon: <RiUserAddLine size={22} />, path: '/signup' },
+    { key: 'contact', labelKey: 'Contact', icon: <RiMessage2Line size={22} />, path: '/contact' },
+    user && { key: 'signOut', labelKey: 'Sign Out', icon: <RiLogoutBoxLine size={22} />, onClick: () => { signOut(router.push); setIsSubNavOpen(false); } },
   ].filter(Boolean);
 
   return (
     <>
       {/* Mobile: bottom nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white shadow z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t-1 border-gray-300 z-50">
         <div className="grid grid-cols-5 ">
           {navConfig.map(item => (
             <button
               key={item.key}
               onClick={() => router.push(item.path)}
               aria-label={item.labelKey}
-              className={`p-4 flex items-center justify-center transition ${isActive(item.path) ? 'text-gray-800 border-t-2 border-gray-500' : 'text-gray-600'}`}
+              className={`p-4 flex items-center justify-center transition ${isActive(item.path) && !isSubNavOpen ? 'text-gray-800 bg-gray-100 shadow' : 'text-gray-600'}`}
             >
               {item.icon}
             </button>
@@ -86,9 +86,9 @@ export default function Navigation() {
           <button
             onClick={() => setIsSubNavOpen(o => !o)}
             aria-label='more'
-            className={`p-4 flex items-center justify-center transition ${isSubNavOpen ? 'text-gray-800 border-t-2 border-gray-500' : 'text-gray-600'}`}
+            className={`p-4 flex items-center justify-center transition ${isSubNavOpen ? 'text-gray-800 bg-gray-100 shadow' : 'text-gray-600'}`}
           >
-            {user? <RiSettings3Line size={20} />:<RiLoginBoxLine size={20}/>}
+            {user ? <RiSettings3Line size={20} /> : <RiLoginBoxLine size={20} />}
           </button>
         </div>
       </nav>
@@ -170,8 +170,8 @@ export default function Navigation() {
         <div className="flex-1 flex items-center justify-end justify-self-end relative">
           <Weather />
           <Button onClick={() => setIsSubNavOpen(o => !o)} variant='secondary' className="ml-4 p-2!">
-            {user? <RiSettings3Line size={20} />:<RiLoginBoxLine size={20}/>}
-            
+            {user ? <RiSettings3Line size={20} /> : <RiLoginBoxLine size={20} />}
+
           </Button>
 
           {isSubNavOpen && (

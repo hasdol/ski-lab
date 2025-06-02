@@ -43,12 +43,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="min-h-screen text-text">
+      <body className="min-h-screen text-gray-600 bg-white">
         <AuthProvider>
           <UserPreferencesProvider>
             <TournamentProvider>
               <Navigation />
-              <main className="mb-auto pb-20 md:flex md:flex-col md:pb-0 md:w-full">
+              <main className="mb-auto pb-14 md:flex md:flex-col md:pb-0 md:w-full">
                 {children}
               </main>
               <CookieConsent />

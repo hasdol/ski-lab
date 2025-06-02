@@ -5,7 +5,7 @@ import { useSkis } from '@/hooks/useSkis';
 import SkiForm from '@/components/SkiForm/SkiForm';
 import Spinner from '@/components/common/Spinner/Spinner';
 
-const AddSkisPage = () => {
+const CreateSkisPage = () => {
   const { addSki, loading, error } = useSkis();
   const router = useRouter();
 
@@ -17,8 +17,8 @@ const AddSkisPage = () => {
   return (
     <div>
       <div className='p-3 md:w-2/3 mx-auto'>
-        <h1 className="text-3xl font-bold text-gray-900 my-4">
-          Add Skis
+        <h1 className="text-3xl font-bold text-gray-900 my-6">
+          Create Ski
         </h1>
         {loading && <div className='flex justify-center'><Spinner /></div>}
 
@@ -31,4 +31,4 @@ const AddSkisPage = () => {
   );
 };
 
-export default AddSkisPage;
+export default CreateSkisPage;
