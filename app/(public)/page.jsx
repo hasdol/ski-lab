@@ -66,7 +66,7 @@ const HomePage = () => {
   const features = [
     {
       icon: <FiClipboard className="w-6 h-6" />,
-      title: "Precision Testing",
+      title: "Modern Testing",
       description: "Run comprehensive ski tests with detailed analytics and performance metrics"
     },
     {

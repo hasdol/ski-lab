@@ -24,32 +24,23 @@ const SummaryResultList = ({ rankings }) => {
 
 
     return (
-        <div className="space-y-4 mb-10">
+        <div className="space-y-4 mb-10 bg-gray-50 p-5 rounded-md">
             {/* Top Three Section */}
+            <ul className={`grid grid-cols-3 items-center justify-between pb-3 border-b border-gray-300 font-semibold`}>
+                <li className="text-left">Position</li>
+                <li className="text-center">Serial number</li>
+                <li className="text-right">Difference</li>
+            </ul>
             <ul className="space-y-3">
-                {rankedList.slice(0, 1).map((item, index) => (
-
+                {rankedList.map((item, index) => (
                     <li
                         key={item.serialNumber}
-                        className={`flex items-center justify-between bg-gray-50 text-black rounded-md p-3 px-4
-                            }`}                    >
+                        className={`grid grid-cols-3 items-center justify-between bg-white shadow rounded-md p-3 px-4
+                           `}                    >
                         <div className="flex-1 text-left">P{item.rank}</div>
                         <div className="flex-1 text-center">{item.serialNumber} </div>
-                        <div className="flex-1 text-right">Diff: {item.cumulativeScore}</div>
-                    </li>
-                ))}
-            </ul>
-
-            {/* Remaining Rankings */}
-            <ul className="space-y-3">
-                {rankedList.slice(1).map((item) => (
-                    <li
-                        key={item.serialNumber}
-                        className="flex items-center justify-between bg-gray-50 rounded-md p-3 px-4"
-                    >
-                        <span className="flex-1 text-left">P{item.rank}</span>
-                        <span className="flex-1 text-center">{item.serialNumber}</span>
-                        <span className="flex-1 text-right">Diff: {item.cumulativeScore}</span>
+                        <div className={`flex-1 text-right `}>{item.cumulativeScore} <span className="text-xs">cm</span></div>
+                            
                     </li>
                 ))}
             </ul>

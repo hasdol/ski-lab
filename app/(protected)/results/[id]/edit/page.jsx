@@ -146,11 +146,12 @@ const EditResultPage = () => {
         <form onSubmit={handleSubmit} className="space-y-2 animate-fade-down animate-duration-300">
           {/* Scores */}
           {resultData.rankings.map((r, i) => (
-            <div key={i} className="flex flex-col">
+            <div key={i} className="relative flex flex-col">
               <label className="font-semibold mb-1">
                 {`${r.serialNumber || 'Deleted'} - ${r.grind || ''}`}
               </label>
               <Input type="number" name={`score-${i}`} value={r.score} onChange={handleInputChange} />
+              <span className='absolute right-2 bottom-1 text-xs'>cm</span>
             </div>
           ))}
 
@@ -159,11 +160,11 @@ const EditResultPage = () => {
             {/* Metadata fields… */}
             <Input type="text" name="location" placeholder='Location' value={resultData.location} onChange={handleInputChange} required />
             <Input type="select" name="style" placeholder='Style' value={resultData.style} onChange={handleInputChange} required options={[{ label: 'Classic', value: 'classic' }, { label: 'Skate', value: 'skate' }]} />
-            <Input type="number" name="temperature" placeholder='Temperature' value={resultData.temperature} onChange={handleInputChange} />
+            <Input type="number" name="temperature" placeholder='Temperature (°C)' value={resultData.temperature} onChange={handleInputChange} />
             <Input type="radio" name="source" placeholder='Snow source' value={resultData.snowCondition.source} onChange={handleInputChange} required options={[{ label: 'Natural', value: 'natural' }, { label: 'Artificial', value: 'artificial' }, { label: 'Mix', value: 'mix' }]} />
             <Input type="select" name="grainType" placeholder='Snow type' value={resultData.snowCondition.grainType} onChange={handleInputChange} required options={[{ label: 'Fresh', value: 'fresh' }, { label: 'Fine grained', value: 'fine_grained' }, { label: 'Coarse grained', value: 'coarse_grained' }, { label: 'Wet', value: 'wet' }, { label: 'Icy', value: 'icy' }, { label: 'Sugary', value: 'sugary' }]} />
-            <Input type="number" name="snowTemperature" placeholder='Snow temperature' value={resultData.snowTemperature} onChange={handleInputChange} />
-            <Input type="number" name="humidity" placeholder='Humidity' value={resultData.humidity} onChange={handleInputChange} />
+            <Input type="number" name="snowTemperature" placeholder='Snow temperature (°C)' value={resultData.snowTemperature} onChange={handleInputChange} />
+            <Input type="number" name="humidity" placeholder='Humidity (%)' value={resultData.humidity} onChange={handleInputChange} />
             <Input type="text" name="comment" placeholder='Comment' value={resultData.comment} onChange={handleInputChange} />
             <Input type="datetime-local" name="date" placeholder='Date' value={formatDateForInputWithTime(resultData.timestamp)} onChange={handleInputChange} required />
 

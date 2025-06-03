@@ -235,7 +235,7 @@ const TestSummaryPage = () => {
           <Input
             type="number"
             name="temperature"
-            placeholder='Temperature'
+            placeholder='Temperature (°C)'
             value={additionalData.temperature}
             onChange={handleInputChange}
             required
@@ -264,7 +264,7 @@ const TestSummaryPage = () => {
           <Input
             type="number"
             name="snowTemperature"
-            placeholder='Snow temperature'
+            placeholder='Snow temperature (°C)'
             value={additionalData.snowTemperature}
             onChange={handleInputChange}
           />
@@ -272,7 +272,7 @@ const TestSummaryPage = () => {
           <Input
             type="number"
             name="humidity"
-            placeholder='Humidity'
+            placeholder='Humidity (%)'
             value={additionalData.humidity}
             onChange={handleInputChange}
           />

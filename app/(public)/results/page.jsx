@@ -228,7 +228,7 @@ const Results = () => {
                           {highlightSearchTerm(ranking.grind, debouncedSearch)}
                         </span>
                         <span className="w-1/3 text-end">
-                          {ranking.score}
+                          {ranking.score} <span className='text-xs'>cm</span>
                         </span>
                       </li>
                     ))}

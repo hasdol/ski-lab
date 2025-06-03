@@ -22,7 +22,7 @@ import Button from '@/components/ui/Button';
 
 const navConfig = [
   { key: 'home', labelKey: 'Home', icon: <RiHome5Line size={22} />, path: '/' },
-  { key: 'skis', labelKey: 'Skipark', icon: <TiFlowParallel size={22} />, path: '/skis' },
+  { key: 'skis', labelKey: 'Skis', icon: <TiFlowParallel size={22} />, path: '/skis' },
   { key: 'results', labelKey: 'Results', icon: <BiChart size={24} />, path: '/results' },
   { key: 'teams', labelKey: 'Teams', icon: <RiTeamLine size={22} />, path: '/teams' },
 ];
