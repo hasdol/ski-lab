@@ -55,7 +55,7 @@ export default function EventTests({ teamId, eventId }) {
     return <div>Error loading results: {error.message}</div>;
   }
   if (testResults.length === 0) {
-    return <div className="my-4 italic">No test results available</div>;
+    return <div className="my-4 italic">No shared test results available</div>;
   }
 
   return (

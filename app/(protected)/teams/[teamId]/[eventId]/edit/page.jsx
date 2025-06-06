@@ -10,6 +10,7 @@ import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import { useAuth } from '@/context/AuthContext';
 import GeocodeInput from '@/components/GeocodeInput/GeocodeInput';
 import Spinner from '@/components/common/Spinner/Spinner';
+import { RiCalendarEventLine } from 'react-icons/ri';
 
 export default function EditEventPage() {
   const { teamId, eventId } = useParams();
@@ -115,55 +116,86 @@ export default function EditEventPage() {
   if (!eventData && !loading) return <div>No event found</div>;
 
   return (
-    <div className='p-3 md:w-2/3 mx-auto space-y-6'>
-      <h1 className="text-3xl font-bold text-gray-900 my-4">Edit Event</h1>
+    <div className="max-w-4xl md:min-w-xl w-full self-center p-4">
+      <div className='flex justify-between items-center mb-6'>
+        <div className="flex items-center gap-3">
+          <div className="bg-blue-100 p-2 rounded-lg">
+            <RiCalendarEventLine className="text-blue-600 text-2xl" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Edit Event</h1>
+            <p className="text-gray-600">Edit the selected event</p>
+          </div>
+        </div>
 
-      <Button onClick={() => router.push(`/teams/${teamId}/${eventId}`)} variant="secondary">
-        Back
-      </Button>
+        <Button onClick={() => router.push(`/teams/${teamId}/${eventId}`)} variant="secondary">
+          Back
+        </Button>
+      </div>
+
 
       {loading ?
         <div className="flex justify-center">
           <Spinner />
         </div> :
-        <div>
-          <div className="space-y-4">
-            <Input value={name} onChange={e => setName(e.target.value)} placeholder='Event name' />
-            <Input type="textarea" value={desc} onChange={e => setDesc(e.target.value)} placeholder='Description' />
+        <div className="bg-white border border-gray-200 rounded-md p-6 space-y-6">
+          <Input value={name} onChange={e => setName(e.target.value)} placeholder='Event name' />
+          <Input type="textarea" value={desc} onChange={e => setDesc(e.target.value)} placeholder='Description' />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input type="date" label='Start date' value={startDate} onChange={e => setStartDate(e.target.value)} />
-              <Input type="date" label='End date' value={endDate} onChange={e => setEndDate(e.target.value)} />
-            </div>
-
-            <GeocodeInput
-              label='Event location'
-              initialValue={location.address}
-              onLocationSelect={(lat, lon, addr) => setLocation({ lat, lon, address: addr })}
-            />
-
-            <div className="w-32 h-32 overflow-hidden mx-auto">
-              <UploadableImage
-                photoURL={imageURL}
-                variant="event"
-                alt="event image"
-                clickable
-                handleImageChange={handleFile}
-                className="object-cover w-full h-full"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Input
+                type="date"
+                label="Start date"
+                value={startDate}
+                onChange={e => setStartDate(e.target.value)}
               />
+              {startDate && (
+                <p className="text-sm text-gray-500">
+                  Norwegian format: {new Date(startDate).toLocaleDateString('nb-NO')}
+                </p>
+              )}
             </div>
-
-            {imageURL && (
-              <Button
-                onClick={handleRemoveImage}
-                variant="danger"
-                className="text-xs w-full"
-                loading={isRemovingImage}
-              >
-                Remove image
-              </Button>
-            )}
+            <div>
+              <Input
+                type="date"
+                label="End date"
+                value={endDate}
+                onChange={e => setEndDate(e.target.value)}
+              />
+              {endDate && (
+                <p className="text-sm text-gray-500">
+                  Norwegian format: {new Date(endDate).toLocaleDateString('nb-NO')}
+                </p>
+              )}
+            </div>
           </div>
+
+          <GeocodeInput
+            label='Event location'
+            initialValue={location.address}
+            onLocationSelect={(lat, lon, addr) => setLocation({ lat, lon, address: addr })}
+          />
+
+          <UploadableImage
+            photoURL={imageURL}
+            variant="event"
+            alt="event image"
+            clickable
+            handleImageChange={handleFile}
+            className="object-cover mx-auto w-auto max-h-42"
+          />
+
+          {imageURL && (
+            <Button
+              onClick={handleRemoveImage}
+              variant="danger"
+              className="text-xs flex justify-self-center"
+              loading={isRemovingImage}
+            >
+              Remove image
+            </Button>
+          )}
 
           <div className="flex gap-2">
             <Button onClick={handleUpdate} variant="primary" loading={isUpdating}>
@@ -174,6 +206,8 @@ export default function EditEventPage() {
             </Button>
           </div>
         </div>
+
+
       }
     </div>
   );

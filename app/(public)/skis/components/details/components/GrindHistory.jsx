@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatDate } from '../../../../../../helpers/helpers';
+import { formatDate } from '@/helpers/helpers';
 
 const GrindHistory = ({ grindHistory }) => {
 

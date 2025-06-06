@@ -13,6 +13,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import ShareWithEventSelector from '@/components/ShareWithEvents/ShareWithEvents';
 import { WEATHER_ENDPOINT } from '@/lib/firebase/weatherEndpoint';
+import { SiTestrail } from 'react-icons/si';
 
 const TestSummaryPage = () => {
   const router = useRouter();
@@ -184,20 +185,32 @@ const TestSummaryPage = () => {
 
   /* ───────────── render ───────────── */
   return (
-    <div>
-      <div className='p-3 md:w-2/3 mx-auto space-y-6'>
-        <h1 className="text-3xl font-bold text-gray-900 my-6">
-          Summary
-        </h1>
+    <div className="p-4 max-w-4xl md:min-w-xl w-full self-center">
 
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => router.push('/testing')}
-        >
-          Back
-        </Button>
-        {/* results list */}
+      <div className="flex justify-between items-center mb-6">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <div className="bg-blue-100 p-2 rounded-lg">
+            <SiTestrail className="text-blue-600 text-2xl" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Test Summary</h1>
+            <p className="text-gray-600">Review your test result</p>
+          </div>
+        </div>
+        <div>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => router.push('/testing')}
+          >
+            Back
+          </Button>
+        </div>
+
+      </div>
+      {/* results list */}
+      <div className="bg-white border border-gray-200 rounded-md p-6 space-y-6">
         <div>
           {loading ? (
             <div className="flex justify-center items-center h-40">
@@ -210,7 +223,7 @@ const TestSummaryPage = () => {
 
         {/* form */}
         <form
-          className="rounded flex flex-col text-black my-2 space-y-3"
+          className="rounded flex flex-col text-black space-y-4"
           onSubmit={handleSaveResults}
         >
           <Input
@@ -310,11 +323,12 @@ const TestSummaryPage = () => {
             </div>
           </div>
         </form>
-
-        {locationError && (
-          <div className="text-red-500">Enable location services</div>
-        )}
       </div>
+
+
+      {locationError && (
+        <div className="text-red-500">Enable location services</div>
+      )}
     </div>
   );
 };

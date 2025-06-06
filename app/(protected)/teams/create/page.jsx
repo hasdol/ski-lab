@@ -1,4 +1,3 @@
-// CreateTeamPage.jsx
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -8,10 +7,14 @@ import { uploadTeamImage } from '@/lib/firebase/storageFunctions';
 import Button from '@/components/ui/Button';
 import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import Input from '@/components/ui/Input';
+import { RiTeamLine, RiEarthLine, RiLockLine } from 'react-icons/ri';
+import Toggle from '@/components/ui/Toggle';
+
 
 export default function CreateTeamPage() {
   const { user, userData } = useAuth();
   const [teamName, setTeamName] = useState('');
+  const [isPublic, setIsPublic] = useState(false);
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [imageURL, setImageURL] = useState('');
@@ -31,13 +34,11 @@ export default function CreateTeamPage() {
     try {
       setUploading(true);
 
-      // 1. Create team without an image
-      const teamId = await createTeam(user.uid, teamName);
+      // Create team with public/private status
+      const teamId = await createTeam(user.uid, teamName, isPublic);
 
-      // 2. If an image was selected and the user is allowed, upload it using the teamId as filename
       if (file && (userData?.plan === 'coach' || userData?.plan === 'company')) {
         uploadedImageURL = await uploadTeamImage(teamId, file, user.uid);
-        // Update the team document with the image URL
         await updateTeamImage(teamId, uploadedImageURL);
       }
 
@@ -50,37 +51,83 @@ export default function CreateTeamPage() {
   };
 
   return (
-    <div className='p-3 md:w-2/3 mx-auto space-y-8'>
-      <h1 className="text-3xl font-bold text-gray-900 my-4">
-        Create Team
-      </h1>
+    <div className="max-w-4xl w-full self-center p-4">
+      <div className="flex items-center gap-3 mb-8">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <RiTeamLine className="text-blue-600 text-2xl" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Create Team</h1>
+          <p className="text-gray-600">Set up a new team for collaboration</p>
+        </div>
+      </div>
 
-      <Input
-        type="text"
-        name="teamName"
-        placeholder="Team name"
-        value={teamName}
-        onChange={(e) => setTeamName(e.target.value)}
-        required
-      />
-
-      {(userData?.plan === 'coach' || userData?.plan === 'company') && (
-        <UploadableImage
-          photoURL={imageURL}
-          handleImageChange={handleFileChange}
-          variant="team"
-          alt="Team Image"
-          clickable={true}
+      <div className="bg-white border border-gray-200 rounded-md p-6 space-y-6">
+        <Input
+          type="text"
+          name="teamName"
+          placeholder="Team name"
+          value={teamName}
+          onChange={(e) => setTeamName(e.target.value)}
+          required
+          className="w-full"
         />
-      )}
 
-      <div className="flex gap-3 mt-4">
-        <Button onClick={handleCreateTeam} variant="primary" loading={uploading}>
-          Create
-        </Button>
-        <Button onClick={() => router.push('/teams')} variant="secondary">
-          Cancel
-        </Button>
+        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="flex items-center gap-3">
+            {isPublic ? (
+              <RiEarthLine className="text-blue-600 text-xl" />
+            ) : (
+              <RiLockLine className="text-gray-600 text-xl" />
+            )}
+            <div>
+              <h3 className="font-medium text-gray-900">
+                {isPublic ? 'Public Team' : 'Private Team'}
+              </h3>
+              <p className="text-sm text-gray-600">
+                {isPublic 
+                  ? 'Anyone can discover and request to join' 
+                  : 'Only invited members can join'}
+              </p>
+            </div>
+          </div>
+          <Toggle 
+            enabled={isPublic} 
+            setEnabled={setIsPublic} 
+            label="Team visibility"
+          />
+        </div>
+
+        {(userData?.plan === 'coach' || userData?.plan === 'company') && (
+          <div className="space-y-2">
+            <p className="text-sm text-gray-600">Team image (optional)</p>
+            <UploadableImage
+              photoURL={imageURL}
+              handleImageChange={handleFileChange}
+              variant="team"
+              alt="Team Image"
+              clickable={true}
+            />
+          </div>
+        )}
+
+        <div className="flex gap-3 mt-6">
+          <Button 
+            onClick={handleCreateTeam} 
+            variant="primary" 
+            loading={uploading}
+            className="flex-1"
+          >
+            Create Team
+          </Button>
+          <Button 
+            onClick={() => router.push('/teams')} 
+            variant="secondary"
+            className="flex-1"
+          >
+            Cancel
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -6,7 +6,6 @@ import React from 'react';
 const SelectSeason = ({ selectedSeason, handleSeasonChange, availableSeasons }) => {
   // Prepare options for the Input component, including an "All Seasons" choice
   const options = [
-    { label: 'All seasons', value: '' },
     ...availableSeasons.map(season => ({ label: season, value: season })),
   ];
 
@@ -20,7 +19,6 @@ const SelectSeason = ({ selectedSeason, handleSeasonChange, availableSeasons }) 
         onChange={handleSeasonChange}
         options={options}
         placeholder='All seasons'
-        className="bg-sbtn "
       />
     </div>
   );

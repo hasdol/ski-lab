@@ -43,7 +43,7 @@ const SkiItem = ({
 
   return (
     <div
-      className={`animate-fade-down animate-duration-300 transition-all rounded-md duration-200 border border-gray-300 ${showDetails
+      className={`rounded-md border border-gray-300 ${showDetails
           ? ''
           : ' hover:bg-gray-50'
         }`}
@@ -91,7 +91,7 @@ const SkiItem = ({
                 toggleDetails(ski.id);
               }}
               variant='secondary'
-              className="ml-auto z-100 p-2!"
+              className="ml-auto z-10 p-2!"
             >
               {showDetails ? <RiCollapseDiagonalLine /> : <RiExpandDiagonalFill />}
 

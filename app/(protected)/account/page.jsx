@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { RiVerifiedBadgeFill, RiDeleteBinLine } from "react-icons/ri";
+import { RiVerifiedBadgeFill, RiDeleteBinLine, RiUser6Line } from "react-icons/ri";
 import { useAuth } from '@/context/AuthContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
 import Button from '@/components/ui/Button';
@@ -29,10 +29,16 @@ const Account = () => {
 
   return (
     <>
-      <div className="p-3 md:w-1/2 mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 my-6">
-          Account
-        </h1>
+      <div className="p-4 max-w-4xl w-full self-center">
+        <div className="flex items-center gap-3">
+          <div className="bg-blue-100 p-2 rounded-lg">
+            <RiUser6Line className="text-blue-600 text-2xl" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Account</h1>
+            <p className="text-gray-600">Manage your account</p>
+          </div>
+        </div>
         <div className="mt-10">
           <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
             <div className="relative text-center mx-auto">  {/* Added mx-auto */}

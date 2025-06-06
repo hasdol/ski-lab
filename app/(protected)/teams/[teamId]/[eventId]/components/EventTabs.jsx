@@ -1,25 +1,25 @@
 'use client';
-import Button from '@/components/ui/Button';
 import React from 'react';
 
 export default function EventTabs({ activeTab, setActiveTab }) {
   const tabs = ['Overview', 'Tests', 'Weather'];
 
   return (
-    <div className="flex space-x-2 my-4">
+    <div className="flex border-b border-gray-200 mb-6">
       {tabs.map((tab) => {
         const isActive = activeTab === tab;
-
-
         return (
-          <Button
+          <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            variant='tab'
-            className={` text-sm ${isActive && 'bg-gray-200'}`}
+            className={`px-4 py-2 font-medium text-sm ${
+              isActive
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
           >
             {tab}
-          </Button>
+          </button>
         );
       })}
     </div>

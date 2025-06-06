@@ -154,7 +154,7 @@ export default function EventWeather({ eventData }) {
       {/* ───────────── Hourly modal ───────────── */}
       {selectedDay !== null && (
         <div className="fixed inset-0 backdrop-blur flex items-center justify-center z-50">
-          <div className="bg-white rounded-md p-4 mx-2 shadow-md w-full max-w-2xl relative">
+          <div className="bg-white border border-gray-300 rounded-md p-4 mx-2 shadow-md w-full max-w-2xl relative">
             <h3 className="flex space-x-1 text-lg font-semibold mb-4">
               <span>{forecast[selectedDay].date.slice(0, 3)}</span>
               <span>-</span>

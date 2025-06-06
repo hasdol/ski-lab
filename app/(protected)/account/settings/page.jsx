@@ -5,7 +5,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { getAuth, signOut as firebaseSignOut } from 'firebase/auth';
 import { GiWinterGloves } from 'react-icons/gi';
 import { FaHandsClapping } from 'react-icons/fa6';
-import { RiEditLine, RiUserLine, RiErrorWarningLine, RiInformationLine } from 'react-icons/ri';
+import { RiEditLine, RiUserLine, RiErrorWarningLine, RiInformationLine, RiSettings3Line } from 'react-icons/ri';
 import { useRouter } from 'next/navigation';
 
 import Spinner from '@/components/common/Spinner/Spinner';
@@ -79,16 +79,18 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-3 md:w-1/2 mx-auto">
-      {/* Header */}
-      <div className="flex justify-between my-6">
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <Button variant="secondary" className="text-sm" onClick={() => router.back()}>
-          Back
-        </Button>
+    <div className="p-4 max-w-4xl w-full self-center">
+      <div className="flex items-center gap-3">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <RiSettings3Line className="text-blue-600 text-2xl" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+          <p className="text-gray-600">Manage your account</p>
+        </div>
       </div>
 
-      <div className="space-y-16">
+      <div className="space-y-16 mt-10">
         {/* Username Section */}
         <div>
           {isEditingUsername ? (

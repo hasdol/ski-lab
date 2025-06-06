@@ -584,75 +584,112 @@ exports.cancelUserDeletion = onCall(async (request) => {
 });
 
 exports.joinTeamByCode = onCall(async (request) => {
-  // Must be signed in.
-  if (!request.auth) {
+  if (!request.auth)
     throw new HttpsError('unauthenticated', 'User must be authenticated.');
-  }
 
   const userId = request.auth.uid;
-  const code = request.data.code; // The code from the client
-
-  if (!code) {
-    throw new HttpsError('invalid-argument', 'Missing team code.');
-  }
+  const code = request.data.code;
+  if (!code) throw new HttpsError('invalid-argument', 'Missing team code.');
 
   const teamsRef = db.collection('teams');
   const snap = await teamsRef.where('joinCode', '==', code).limit(1).get();
+  if (snap.empty) throw new HttpsError('not-found', 'No team found with the given code.');
 
-  if (snap.empty) {
-    throw new HttpsError('not-found', 'No team found with the given code.');
-  }
-
-  // We only take the first matching doc
   const teamDoc = snap.docs[0];
-  const teamId = teamDoc.id;
-
-  // We can optionally check if user is already in the team.
   const teamData = teamDoc.data() || {};
   const members = teamData.members || [];
 
+  // Check if the user is already a member or has a pending join request.
   if (members.includes(userId)) {
-    // They’re already in the team – optional or you can allow no-op
     throw new HttpsError('already-exists', 'You are already in this team.');
   }
+  const joinRequestsRef = teamDoc.ref.collection('joinRequests');
+  const existingRequest = await joinRequestsRef.where('userId', '==', userId).get();
+  if (!existingRequest.empty) {
+    throw new HttpsError('already-exists', 'Join request already pending.');
+  }
 
-  // Now add user to members
-  await teamDoc.ref.update({
-    members: admin.firestore.FieldValue.arrayUnion(userId),
-  });
-
-  return { teamId };
+  if (teamData.isPublic) {
+    // Create a pending join request for public teams.
+    await joinRequestsRef.add({
+      userId,
+      status: 'pending',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      email: request.auth.token.email || null,
+    });
+    return { teamId: teamDoc.id, pending: true };
+  } else {
+    // For private teams, perform an immediate join.
+    await teamDoc.ref.update({
+      members: admin.firestore.FieldValue.arrayUnion(userId),
+    });
+    return { teamId: teamDoc.id, pending: false };
+  }
 });
 
-exports.leaveTeamById = onCall(async (request) => {
-  if (!request.auth) {
+exports.acceptJoinRequest = onCall(async (request) => {
+  if (!request.auth)
     throw new HttpsError('unauthenticated', 'User must be authenticated.');
-  }
 
-  const userId = request.auth.uid;
-  const teamId = request.data.teamId;
-
-  if (!teamId) {
-    throw new HttpsError('invalid-argument', 'Missing team ID.');
-  }
+  const { teamId, requestId } = request.data;
+  if (!teamId || !requestId)
+    throw new HttpsError('invalid-argument', 'Team ID and request ID are required.');
 
   const teamRef = db.collection('teams').doc(teamId);
   const teamSnap = await teamRef.get();
-
-  if (!teamSnap.exists) {
+  if (!teamSnap.exists)
     throw new HttpsError('not-found', 'Team not found.');
-  }
-
   const teamData = teamSnap.data();
+  if (request.auth.uid !== teamData.createdBy)
+    throw new HttpsError('permission-denied', 'Only the team creator can accept join requests.');
 
-  if (teamData.createdBy === userId) {
-    throw new HttpsError('failed-precondition', 'You cannot leave a team you created.');
-  }
+  const joinRequestRef = teamRef.collection('joinRequests').doc(requestId);
+  const joinRequestSnap = await joinRequestRef.get();
+  if (!joinRequestSnap.exists)
+    throw new HttpsError('not-found', 'Join request not found.');
+  const joinRequestData = joinRequestSnap.data();
+  if (joinRequestData.status !== 'pending')
+    throw new HttpsError('failed-precondition', 'Join request is not pending.');
 
-  // Remove the user from the members array
+  // Add the user to the team and mark the request as accepted.
   await teamRef.update({
-    members: admin.firestore.FieldValue.arrayRemove(userId),
+    members: admin.firestore.FieldValue.arrayUnion(joinRequestData.userId),
   });
+  await joinRequestRef.update({
+    status: 'accepted',
+    respondedAt: admin.firestore.FieldValue.serverTimestamp()
+  });
+  return { message: 'Join request accepted.' };
+});
 
-  return { message: 'Left the team successfully.' };
+exports.declineJoinRequest = onCall(async (request) => {
+  if (!request.auth)
+    throw new HttpsError('unauthenticated', 'User must be authenticated.');
+    
+  const { teamId, requestId } = request.data;
+  if (!teamId || !requestId)
+    throw new HttpsError('invalid-argument', 'Team ID and request ID are required.');
+
+  const teamRef = db.collection('teams').doc(teamId);
+  const teamSnap = await teamRef.get();
+  if (!teamSnap.exists)
+    throw new HttpsError('not-found', 'Team not found.');
+  const teamData = teamSnap.data();
+  if (request.auth.uid !== teamData.createdBy)
+    throw new HttpsError('permission-denied', 'Only the team creator can decline join requests.');
+
+  const joinRequestRef = teamRef.collection('joinRequests').doc(requestId);
+  const joinRequestSnap = await joinRequestRef.get();
+  if (!joinRequestSnap.exists)
+    throw new HttpsError('not-found', 'Join request not found.');
+  const joinRequestData = joinRequestSnap.data();
+  if (joinRequestData.status !== 'pending')
+    throw new HttpsError('failed-precondition', 'Join request is not pending.');
+
+  // Mark the request as declined.
+  await joinRequestRef.update({
+    status: 'declined',
+    respondedAt: admin.firestore.FieldValue.serverTimestamp()
+  });
+  return { message: 'Join request declined.' };
 });

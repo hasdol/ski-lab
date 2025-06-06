@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
-import { formatDateForInputWithTime } from '@/helpers/helpers'
+import { formatDateForInputWithTime, formatDate } from '@/helpers/helpers'
 import { Timestamp } from 'firebase/firestore'
 import { useSingleResult } from '@/hooks/useSingleResult'
 import Input from '@/components/ui/Input'
@@ -16,6 +16,7 @@ import {
 } from '@/lib/firebase/teamFunctions'
 import Spinner from '@/components/common/Spinner/Spinner'
 import { updateTestResultBothPlaces } from '@/lib/firebase/firestoreFunctions'
+import { RiBarChart2Line } from 'react-icons/ri'
 
 
 const EditResultPage = () => {
@@ -138,37 +139,133 @@ const EditResultPage = () => {
 
   return (
     <>
-      <div className='p-3 md:w-2/3 mx-auto'>
-        <h1 className="text-3xl font-bold text-gray-900 my-6">
-          Edit Result
-        </h1>
+      <div className="p-4 max-w-4xl w-full self-center">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-blue-100 p-2 rounded-lg">
+            <RiBarChart2Line className="text-blue-600 text-2xl" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Edit Test Result</h1>
+            <p className="text-gray-600">Review and manage test result</p>
+          </div>
+        </div>
         {loading && <div className='flex justify-center'><Spinner /></div>}
-        <form onSubmit={handleSubmit} className="space-y-2 animate-fade-down animate-duration-300">
+
+        <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-md p-6 space-y-6">
           {/* Scores */}
           {resultData.rankings.map((r, i) => (
             <div key={i} className="relative flex flex-col">
               <label className="font-semibold mb-1">
                 {`${r.serialNumber || 'Deleted'} - ${r.grind || ''}`}
               </label>
-              <Input type="number" name={`score-${i}`} value={r.score} onChange={handleInputChange} />
-              <span className='absolute right-2 bottom-1 text-xs'>cm</span>
+              <Input
+                type="number"
+                name={`score-${i}`}
+                value={r.score}
+                onChange={handleInputChange}
+              />
+              <span className="absolute right-2 bottom-1 text-xs">cm</span>
             </div>
           ))}
 
           <h3 className="mt-10 mb-2 text-2xl font-semibold text-gray-800">Test details</h3>
           <div className="space-y-4">
-            {/* Metadata fields… */}
-            <Input type="text" name="location" placeholder='Location' value={resultData.location} onChange={handleInputChange} required />
-            <Input type="select" name="style" placeholder='Style' value={resultData.style} onChange={handleInputChange} required options={[{ label: 'Classic', value: 'classic' }, { label: 'Skate', value: 'skate' }]} />
-            <Input type="number" name="temperature" placeholder='Temperature (°C)' value={resultData.temperature} onChange={handleInputChange} />
-            <Input type="radio" name="source" placeholder='Snow source' value={resultData.snowCondition.source} onChange={handleInputChange} required options={[{ label: 'Natural', value: 'natural' }, { label: 'Artificial', value: 'artificial' }, { label: 'Mix', value: 'mix' }]} />
-            <Input type="select" name="grainType" placeholder='Snow type' value={resultData.snowCondition.grainType} onChange={handleInputChange} required options={[{ label: 'Fresh', value: 'fresh' }, { label: 'Fine grained', value: 'fine_grained' }, { label: 'Coarse grained', value: 'coarse_grained' }, { label: 'Wet', value: 'wet' }, { label: 'Icy', value: 'icy' }, { label: 'Sugary', value: 'sugary' }]} />
-            <Input type="number" name="snowTemperature" placeholder='Snow temperature (°C)' value={resultData.snowTemperature} onChange={handleInputChange} />
-            <Input type="number" name="humidity" placeholder='Humidity (%)' value={resultData.humidity} onChange={handleInputChange} />
-            <Input type="text" name="comment" placeholder='Comment' value={resultData.comment} onChange={handleInputChange} />
-            <Input type="datetime-local" name="date" placeholder='Date' value={formatDateForInputWithTime(resultData.timestamp)} onChange={handleInputChange} required />
+            <Input
+              type="text"
+              name="location"
+              placeholder="Location"
+              value={resultData.location}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              type="select"
+              name="style"
+              placeholder="Style"
+              value={resultData.style}
+              onChange={handleInputChange}
+              required
+              options={[
+                { label: 'Classic', value: 'classic' },
+                { label: 'Skate', value: 'skate' },
+              ]}
+            />
+            <Input
+              type="number"
+              name="temperature"
+              placeholder="Temperature (°C)"
+              value={resultData.temperature}
+              onChange={handleInputChange}
+            />
+            <Input
+              type="radio"
+              name="source"
+              placeholder="Snow source"
+              value={resultData.snowCondition.source}
+              onChange={handleInputChange}
+              required
+              options={[
+                { label: 'Natural', value: 'natural' },
+                { label: 'Artificial', value: 'artificial' },
+                { label: 'Mix', value: 'mix' },
+              ]}
+            />
+            <Input
+              type="select"
+              name="grainType"
+              placeholder="Snow type"
+              value={resultData.snowCondition.grainType}
+              onChange={handleInputChange}
+              required
+              options={[
+                { label: 'Fresh', value: 'fresh' },
+                { label: 'Fine grained', value: 'fine_grained' },
+                { label: 'Coarse grained', value: 'coarse_grained' },
+                { label: 'Wet', value: 'wet' },
+                { label: 'Icy', value: 'icy' },
+                { label: 'Sugary', value: 'sugary' },
+              ]}
+            />
+            <Input
+              type="number"
+              name="snowTemperature"
+              placeholder="Snow temperature (°C)"
+              value={resultData.snowTemperature}
+              onChange={handleInputChange}
+            />
+            <Input
+              type="number"
+              name="humidity"
+              placeholder="Humidity (%)"
+              value={resultData.humidity}
+              onChange={handleInputChange}
+            />
+            <Input
+              type="text"
+              name="comment"
+              placeholder="Comment"
+              value={resultData.comment}
+              onChange={handleInputChange}
+            />
+            <div>
+              <Input
+                type="datetime-local"
+                name="date"
+                placeholder="Date"
+                value={formatDateForInputWithTime(resultData.timestamp)}
+                onChange={handleInputChange}
+                required
+              />
+              {resultData.timestamp && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Norwegian format: {formatDate(resultData.timestamp)}
+                </p>
+              )}
+            </div>
 
-            {/* Shared events selector, pre-check from result.sharedIn */}
+
+            {/* Shared events selector */}
             <ShareWithEventSelector
               userId={user.uid}
               isVisible={true}
@@ -179,8 +276,12 @@ const EditResultPage = () => {
           </div>
 
           <div className="flex space-x-4 my-5">
-            <Button type="submit" variant="primary" loading={isSubmitting}>Save</Button>
-            <Button variant="secondary" onClick={() => router.back()}>Back</Button>
+            <Button type="submit" variant="primary" loading={isSubmitting}>
+              Save
+            </Button>
+            <Button variant="secondary" onClick={() => router.back()}>
+              Back
+            </Button>
           </div>
         </form>
       </div>

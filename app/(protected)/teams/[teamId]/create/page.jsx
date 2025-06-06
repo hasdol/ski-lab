@@ -8,6 +8,8 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import GeocodeInput from '@/components/GeocodeInput/GeocodeInput';
+import { RiCalendarEventLine } from "react-icons/ri";
+
 
 export default function CreateEventPage() {
   const { teamId } = useParams();
@@ -73,62 +75,74 @@ export default function CreateEventPage() {
   };
 
   return (
-    <div className='p-3 md:w-2/3 mx-auto space-y-4'>
-      <h1 className="text-3xl font-bold text-gray-900 my-4">
-        Create Event
-      </h1>
+    <div className="max-w-4xl md:min-w-xl w-full self-center p-4">
+      <div className="flex items-center gap-3 mb-8">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <RiCalendarEventLine className="text-blue-600 text-2xl" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Create Event</h1>
+          <p className="text-gray-600">Create a new event for your team</p>
+        </div>
+      </div>
 
-      <Input
-        type="text"
-        name="eventName"
-        placeholder="Event name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-      />
-      <Input
-        type="textarea"
-        name="description"
-        placeholder="Description"
-        value={desc}
-        onChange={(e) => setDesc(e.target.value)}
-      />
-      <Input
-        type="date"
-        name="startDate"
-        label='Start date'
-        value={startDate}
-        onChange={(e) => setStartDate(e.target.value)}
-        required
-      />
-      <Input
-        type="date"
-        name="endDate"
-        label='End date'
-        value={endDate}
-        onChange={(e) => setEndDate(e.target.value)}
-        required
-      />
+      <div className="bg-white border border-gray-200 rounded-md p-6 space-y-6">
 
-      <GeocodeInput
-        label="Event Location"
-        onLocationSelect={(lat, lon, address) => setLocation({ lat, lon, address })}
-      />
+        <Input
+          type="text"
+          name="eventName"
+          placeholder="Event name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <Input
+          type="textarea"
+          name="description"
+          placeholder="Description"
+          value={desc}
+          onChange={(e) => setDesc(e.target.value)}
+        />
+        <Input
+          type="date"
+          name="startDate"
+          label='Start date'
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          required
+        />
+        <Input
+          type="date"
+          name="endDate"
+          label='End date'
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          required
+        />
 
-      <UploadableImage
-        photoURL={imageURL}
-        handleImageChange={handleFileChange}
-        variant="event"
-        clickable={true}
-      />
+        <GeocodeInput
+          label="Event Location"
+          onLocationSelect={(lat, lon, address) => setLocation({ lat, lon, address })}
+        />
 
-      <div className="flex gap-3 mt-4">
-        <Button onClick={handleCreate} variant="primary" loading={uploading}>
-          Create
-        </Button>
-        <Button onClick={() => router.push(`/teams/${teamId}`)} variant="secondary">
-          Cancel
-        </Button>
+        <div className="space-y-2">
+          <p className="text-sm text-gray-600">Event image (optional)</p>
+          <UploadableImage
+            photoURL={imageURL}
+            handleImageChange={handleFileChange}
+            variant="event"
+            clickable={true}
+          />
+        </div>
+        
+        <div className="flex gap-3 mt-6">
+          <Button onClick={handleCreate} variant="primary" loading={uploading}>
+            Create
+          </Button>
+          <Button onClick={() => router.push(`/teams/${teamId}`)} variant="secondary">
+            Cancel
+          </Button>
+        </div>
       </div>
     </div>
   );

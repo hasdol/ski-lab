@@ -1,14 +1,14 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useDebounce } from 'use-debounce';
 import {
   RiFilter2Fill,
   RiFilter2Line,
-  RiEditLine,
-  RiDeleteBinLine,
   RiCloseLine,
+  RiBarChart2Line,
 } from 'react-icons/ri';
-import { useDebounce } from 'use-debounce';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import usePaginatedResults from '@/hooks/usePaginatedResults';
 import { useAuth } from '@/context/AuthContext';
@@ -16,14 +16,11 @@ import Filter from './components/ResultsFilter';
 import Spinner from '@/components/common/Spinner/Spinner';
 import Search from '../../../components/Search/Search';
 import DeleteTestModal from '@/components/DeleteTestModal/DeleteTestModal';
-import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
 import Button from '@/components/ui/Button';
-import { formatSnowTypeLabel, formatSourceLabel, highlightSearchTerm } from '@/helpers/helpers';
+
+import ResultCard from './components/ResultCard';
 
 const Results = () => {
-  // ------------------------------------------------------------
-  // Local UI state
-  // ------------------------------------------------------------
   const [searchTermRaw, setSearchTermRaw] = useState('');
   const [debouncedSearch] = useDebounce(searchTermRaw.toLowerCase(), 300);
   const [tempRange, setTempRange] = useState([-30, 30]);
@@ -37,9 +34,6 @@ const Results = () => {
   const { user } = useAuth();
   const router = useRouter();
 
-  // ------------------------------------------------------------
-  // Data hook – pulls a page at a time
-  // ------------------------------------------------------------
   const {
     docs: resultsToShow,
     loadMore,
@@ -53,12 +47,7 @@ const Results = () => {
     sortOrder,
   });
 
-  // ------------------------------------------------------------
-  // Handlers
-  // ------------------------------------------------------------
-  const handleSearch = (val) => {
-    setSearchTermRaw(val);
-  };
+  const handleSearch = (val) => setSearchTermRaw(val);
   const handleTempCommit = (newVal) => setTempRange(newVal);
   const toggleFilter = () => setIsFilterOpen((prev) => !prev);
   const resetFilter = () => {
@@ -66,11 +55,6 @@ const Results = () => {
     setTempRange(defaultTempRange);
     setStyleFilter('all');
   };
-  const isFilterActive =
-    tempRange[0] !== defaultTempRange[0] ||
-    tempRange[1] !== defaultTempRange[1] ||
-    styleFilter !== 'all';
-
   const handleEdit = (id) => router.push(`/results/${id}/edit`);
   const handleDelete = (id) => {
     if (!user?.uid) return;
@@ -93,235 +77,154 @@ const Results = () => {
     refresh();
   };
 
+  const isFilterActive =
+    tempRange[0] !== defaultTempRange[0] ||
+    tempRange[1] !== defaultTempRange[1] ||
+    styleFilter !== 'all';
 
-  // ------------------------------------------------------------
-  // Render
-  // ------------------------------------------------------------
   return (
-    <div className='p-3 md:w-2/3 mx-auto'>
-
-      <div className="animate-fade animate-duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 my-6">
-          Results
-        </h1>
-
-        {/* Search + filter button */}
-        <div className="flex items-end justify-between mb-2">
-          <Search onSearch={handleSearch} />
-          <div className="flex flex-col items-center w-fit">
-            <label className="text-sm font-semibold mb-1">Filter</label>
-            <Button
-              onClick={toggleFilter}
-              variant="secondary"
-              className={isFilterActive ? 'text-gray-800' : ''}
-            >
-              {isFilterActive ? <RiFilter2Fill /> : <RiFilter2Line />}
-            </Button>
-          </div>
+    <div className="p-4 max-w-4xl w-full mx-auto">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <RiBarChart2Line className="text-blue-600 text-2xl" />
         </div>
-
-        {/* Active filter chips */}
-        {isFilterActive && (
-          <div className="flex space-x-2 text-sm">
-            {styleFilter !== 'all' && (
-              <Button
-                variant="tab"
-                onClick={() => setStyleFilter('all')}
-              >
-                <span className="flex">
-                  {styleFilter} <RiCloseLine />
-                </span>
-              </Button>
-            )}
-            {(tempRange[0] !== defaultTempRange[0] ||
-              tempRange[1] !== defaultTempRange[1]) && (
-                <Button variant="secondary" onClick={resetFilter}>
-                  <span className="flex">
-                    Temperature filter <RiCloseLine />
-                  </span>
-                </Button>
-              )}
-          </div>
-        )}
-
-        {/* Filter drawer */}
-        <Filter
-          open={isFilterOpen}
-          onClose={toggleFilter}
-          tempRange={tempRange}
-          onTempCommit={handleTempCommit}
-          styleFilter={styleFilter}
-          setStyleFilter={setStyleFilter}
-          sortOrder={sortOrder}
-          setSortOrder={setSortOrder}
-          resetFilter={resetFilter}
-        />
-
-        {/* Results list */}
-        <div className="my-5">
-          {loading && resultsToShow.length === 0 ? (
-            <div className="flex justify-center items-center h-64">
-              <Spinner />
-            </div>
-          ) : resultsToShow.length === 0 && user ? (
-            <p className="mt-4">
-              You have no results
-            </p>
-          ) : (
-            <div className="grid gap-4">
-              {resultsToShow.map((result) => (
-                <div
-                  key={result.id}
-                  className="border border-gray-300 rounded-md p-5 flex flex-col justify-between animate-fade-down animate-duration-300 space-y-5"
-                >
-                  {/* header */}
-                  <div className="flex justify-between">
-                    <div>
-                      <h3 className="font-semibold text-xl">
-                        {highlightSearchTerm(
-                          result.style.charAt(0).toUpperCase() + result.style.slice(1),
-                          debouncedSearch
-                        )} /{' '}
-                        {highlightSearchTerm(`${result.temperature}°C`, debouncedSearch)}
-                      </h3>
-                      <i className="text-sm">
-                        {highlightSearchTerm(result.location, debouncedSearch)}
-                      </i>
-                    </div>
-                    <div className="space-x-2 shrink-0">
-                      <Button
-                        onClick={() => handleEdit(result.id)}
-                        variant="secondary"
-                      >
-                        <RiEditLine />
-                      </Button>
-                      <Button
-                        onClick={() => handleDelete(result.id)}
-                        variant="danger"
-                      >
-                        <RiDeleteBinLine />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* ranking table */}
-                  <ul className="space-y-2">
-                    {result.rankings.map((ranking, idx) => (
-                      <li
-                        key={idx}
-                        className="flex py-1 text-sm"
-                      >
-                        <span className="flex items-center w-1/3">
-                          {highlightSearchTerm(
-                            ranking.skiId
-                              ? ranking.serialNumber
-                              : 'Deleted',
-                            debouncedSearch
-                          )}
-                          {ranking.score === 0 && (
-                            <span className="mx-2 text-highlight text-xs">
-                              - New
-                            </span>
-                          )}
-                        </span>
-                        <span className="w-1/3 text-center">
-                          {highlightSearchTerm(ranking.grind, debouncedSearch)}
-                        </span>
-                        <span className="w-1/3 text-end">
-                          {ranking.score} <span className='text-xs'>cm</span>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className='border-t border-gray-300'></div>
-
-                  {/* extra meta */}
-                  <ul className="grid grid-cols-2 gap-4 text-sm">
-                    <li className="flex flex-col">
-                      <span className="text-gray-700">Humidity:</span>
-                      <span className="font-semibold">
-                        {result.humidity != ""
-                          ? `${result.humidity}%`
-                          : '--'}
-                      </span>
-                    </li>
-                    <li className="flex flex-col">
-                      <span className="text-gray-700">Snow temperature:</span>
-                      <span className="font-semibold">
-
-                        {result.snowTemperature != ""
-                          ? `${result.snowTemperature}°C`
-                          : '--'}
-                      </span>
-                    </li>
-                    <li className="flex flex-col">
-                      <span className="text-gray-700">Snow source:</span>
-                      <span className="font-semibold">
-                        {result.snowCondition?.source
-                          ? highlightSearchTerm(
-                            formatSourceLabel(result.snowCondition.source),
-                            debouncedSearch
-                          )
-                          : '--'}
-                      </span>
-                    </li>
-                    <li className="flex flex-col">
-                      <span className="text-gray-700">Snow type:</span>
-                      <span className="font-semibold">
-                        {result.snowCondition?.grainType
-                          ? highlightSearchTerm(
-                            formatSnowTypeLabel(result.snowCondition.grainType),
-                            debouncedSearch
-                          )
-                          : '--'}
-                      </span>
-                    </li>
-                    <li className="col-span-2 flex flex-col">
-                      <span className="text-gray-700">Comment:</span>
-                      <span className="font-semibold">
-                        {result.comment
-                          ? highlightSearchTerm(result.comment, debouncedSearch)
-
-                          : '--'}
-                      </span>
-                    </li>
-                  </ul>
-
-
-                  {/* timestamp */}
-                  <div className="flex justify-end mt-2 text-xs text-gray-600">
-                    <span>
-                      {new Date(
-                        result.timestamp.seconds * 1000
-                      ).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
-                    <span className="ml-2">
-                      {new Date(
-                        result.timestamp.seconds * 1000
-                      ).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Load more button */}
-          {!exhausted && !loading && (
-            <div className="flex justify-center my-4">
-              <Button onClick={loadMore}>Load more</Button>
-            </div>
-          )}
-          {!user && <div className='mt-4 italic'>You are not signed in</div>}
-
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Test Results</h1>
+          <p className="text-gray-600">Manage and view your test results</p>
         </div>
       </div>
 
-      {/* Delete-confirmation modal */}
+      {/* Style Filter Tabs */}
+      <div className="flex justify-between items-end border-b border-gray-200 pb-2 mb-6">
+        <div>
+          {['all', 'classic', 'skate'].map((style) => (
+            <button
+              key={style}
+              onClick={() => setStyleFilter(style)}
+              className={`px-4 py-2 font-medium text-sm capitalize ${styleFilter === style
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+                }`}
+            >
+              {style}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={toggleFilter}
+            variant="secondary"
+            className={`flex items-center ${isFilterActive ? 'text-gray-800' : ''}`}
+          >
+            {isFilterActive ? <RiFilter2Fill /> : <RiFilter2Line />}
+            <span className="ml-1">Filter</span>
+          </Button>
+        </div>
+      </div>
+
+      {/* Search and Filter */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-4">
+        <Search onSearch={handleSearch} />
+      </div>
+
+      {/* Active Filter Tags */}
+      {isFilterActive && (
+        <div className="flex space-x-2 text-sm mb-4">
+          {(tempRange[0] !== defaultTempRange[0] ||
+            tempRange[1] !== defaultTempRange[1]) && (
+              <Button variant="secondary" onClick={resetFilter}>
+                <span className="flex items-center gap-1">
+                  Temperature filter <RiCloseLine />
+                </span>
+              </Button>
+            )}
+        </div>
+      )}
+
+      {/* Filter Drawer */}
+      <Filter
+        open={isFilterOpen}
+        onClose={toggleFilter}
+        tempRange={tempRange}
+        onTempCommit={handleTempCommit}
+        styleFilter={styleFilter}
+        setStyleFilter={setStyleFilter}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+        resetFilter={resetFilter}
+      />
+
+      {/* Results Section */}
+      <section>
+        {loading && resultsToShow.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12">
+            <Spinner size="lg" className="text-indigo-600" />
+            <p className="mt-4 text-gray-600 font-medium">
+              Loading your results...
+            </p>
+          </div>
+        )}
+
+        {!loading && resultsToShow.length === 0 && user && (
+          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-md">
+            <div className="bg-gray-100 w-16 h-16 rounded-md flex items-center justify-center mx-auto mb-4">
+              <RiBarChart2Line className="text-gray-500 text-2xl" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No Results Yet
+            </h3>
+            <p className="text-gray-600 max-w-md mx-auto">
+              Try adjusting your filters or start a new test to see results here.
+            </p>
+          </div>
+        )}
+
+        {!user && (
+          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-md">
+            <div className="bg-gray-100 w-16 h-16 rounded-md flex items-center justify-center mx-auto mb-4">
+              <RiBarChart2Line className="text-gray-500 text-2xl" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Sign In Required
+            </h3>
+            <p className="text-gray-600 max-w-md mx-auto">
+              Please sign in to view and manage your results.
+            </p>
+            <Button onClick={() => router.push('/login')} variant="primary">
+              Sign In
+            </Button>
+          </div>
+        )}
+
+        {/* Result Cards */}
+        <AnimatePresence>
+          <div className="grid gap-6">
+            {resultsToShow.map((result) => (
+              <motion.div
+                key={result.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <ResultCard
+                  result={result}
+                  debouncedSearch={debouncedSearch}
+                  handleEdit={handleEdit}
+                  handleDelete={handleDelete}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </AnimatePresence>
+
+        {!exhausted && !loading && resultsToShow.length > 0 && (
+          <div className="flex justify-center mt-6">
+            <Button onClick={loadMore}>Load More</Button>
+          </div>
+        )}
+      </section>
+
       <DeleteTestModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}

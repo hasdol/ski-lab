@@ -1,6 +1,5 @@
 'use client';
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import useEvent from '@/hooks/useEvent';
@@ -11,6 +10,7 @@ import EventOverview from './components/EventOverview';
 import EventTests from './components/EventTests';
 import EventWeather from './components/EventWeather';
 import Spinner from '@/components/common/Spinner/Spinner';
+import { formatDate } from '@/helpers/helpers';
 
 export default function EventPage() {
   const { teamId, eventId } = useParams();
@@ -19,7 +19,7 @@ export default function EventPage() {
   const { userData } = useAuth();
 
   const canManage = ['coach', 'company'].includes(userData?.plan);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('Overview');
 
   const handleBack = () => router.push(`/teams/${teamId}`);
   const handleEdit = () => router.push(`/teams/${teamId}/${eventId}/edit`);
@@ -53,41 +53,41 @@ export default function EventPage() {
   // Format dates
   const start = eventData.startDate?.seconds && new Date(eventData.startDate.seconds * 1000);
   const end = eventData.endDate?.seconds && new Date(eventData.endDate.seconds * 1000);
-  const startFmt = start?.toLocaleDateString();
-  const endFmt = end?.toLocaleDateString();
+  const startFmt = formatDate(start);
+  const endFmt = formatDate(end);
 
   return (
-    <div className='p-3 md:w-2/3 mx-auto'>
-      <div className="flex items-center justify-between mb-6">
-        <Button onClick={handleBack} variant="secondary" >Back</Button>
+    <div className="max-w-4xl md:min-w-xl mx-auto bg-white p-6  space-y-6">
+      <div className="flex items-center justify-between">
+        <Button onClick={handleBack} variant="secondary">
+          Back
+        </Button>
         {canManage && (
-          <Button onClick={handleEdit} variant="primary">Edit Event</Button>
+          <Button onClick={handleEdit} variant="primary">
+            Edit Event
+          </Button>
         )}
       </div>
 
-      <div className="space-y-4">
-        <div className="text-center">
-          <UploadableImage
-            photoURL={eventData.imageURL}
-            variant="event"
-            clickable={false}
-            className="w-auto mx-auto mb-4 md:h-52 h-40 object-contain"
-          />
+      <div className="text-center">
+        <UploadableImage
+          photoURL={eventData.imageURL}
+          variant="event"
+          clickable={false}
+          className="mx-auto mb-4 w-full max-h-40 object-contain"
+        />
+        <h1 className="text-3xl font-semibold text-gray-800 mb-1">
+          {eventData.name}
+        </h1>
+        <p className="text-sm text-gray-600">{startFmt} - {endFmt}</p>
+      </div>
 
-          <h1 className="text-3xl font-semibold text-gray-800 mb-1">{eventData.name}</h1>
-          <p className="text-sm text-gray-600">{startFmt} - {endFmt}</p>
-        </div>
+      <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-        {console.log(activeTab)
-        }
-
-        <div className="pt-4">
-          {activeTab === 'Overview' && <EventOverview eventData={eventData} />}
-          {activeTab === 'Tests' && <EventTests teamId={teamId} eventId={eventId} />}
-          {activeTab === 'Weather' && <EventWeather eventData={eventData} />}
-        </div>
+      <div className="m-4">
+        {activeTab === 'Overview' && <EventOverview eventData={eventData} />}
+        {activeTab === 'Tests' && <EventTests teamId={teamId} eventId={eventId} />}
+        {activeTab === 'Weather' && <EventWeather eventData={eventData} />}
       </div>
     </div>
   );

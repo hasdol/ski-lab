@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { Timestamp } from 'firebase/firestore';
 import { RiArrowDownDoubleLine, RiDeleteBinLine } from "react-icons/ri";
-
-import Input from '@/components/ui/Input'; // Updated import: using the unified Input component
-import Button from '../ui/Button';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
+// Import the helper instead of using a local version
+import { formatDate } from '@/helpers/helpers';
 
 const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
   const router = useRouter();
@@ -15,7 +16,7 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
     brand: '',
     model: '',
     style: '',
-    length: '',
+    length: 200, // Default length value
     grind: '',
     grindDate: '',
     stiffness: '',
@@ -39,7 +40,6 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
             ? entry.grindDate.toDate().toISOString().split('T')[0]
             : entry.grindDate,
         })),
-        // Format the main grindDate
         grindDate: initialData.grindDate.toDate
           ? initialData.grindDate.toDate().toISOString().split('T')[0]
           : initialData.grindDate,
@@ -77,7 +77,7 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
     setIsSubmitting(true);
 
     try {
-      let preparedData = { ...formData, archived: false, };
+      let preparedData = { ...formData, archived: false };
       const convertToTimestamp = (dateStr) =>
         dateStr ? Timestamp.fromDate(new Date(dateStr)) : null;
 
@@ -133,8 +133,8 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
   };
 
   return (
-    <div className='mx-auto animate-fade-down animate-duration-300'>
-      <form onSubmit={handleSubmit} className="space-y-2">
+    <div className="bg-white border border-gray-200 rounded-md p-6 space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           label='Serial number'
           type="number"
@@ -175,12 +175,13 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
           onChange={handleChange}
           placeholder='Model'
         />
-        <div className={`${isEdit && 'bg-white border border-gray-300 rounded-md my-4 p-4'}`}>
+        <div className={`${isEdit && 'bg-gray-50 rounded-md my-4 p-4'}`}>
           {isEdit && (
-            <h3 className="self-start text-xl mb-4 font-semibold">Change grind</h3>
+            <h3 className="text-xl font-semibold mb-4">Change Grind</h3>
           )}
-          <div className="flex flex-col justify-between items-center">
-            <div className="w-full grid grid-cols-2 gap-2 items-center">
+          <div className="space-y-4">
+            {/* Existing grind info */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
               <Input
                 label='Grind'
                 type="text"
@@ -191,51 +192,71 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
                 required
                 disabled={isEdit}
               />
-              <Input
-                label='Grind date'
-                type="date"
-                name="grindDate"
-                value={formData.grindDate}
-                onChange={handleChange}
-                placeholder='Grind date'
-                required
-                disabled={isEdit}
-              />
-            </div>
-            {isEdit && (
-              <div className="my-4">
-                <RiArrowDownDoubleLine size={30} />
-              </div>
-            )}
-            {isEdit && (
-              <div className="w-full grid grid-cols-2 gap-2 items-center">
-                <Input
-                  label='New grind'
-                  type="text"
-                  name="newGrind"
-                  value={formData.newGrind || ''}
-                  onChange={handleChange}
-                  placeholder='New grind'
-                />
+              <div className="relative flex flex-col">
                 <Input
                   label='Grind date'
                   type="date"
-                  name="newGrindDate"
-                  value={formData.newGrindDate || ''}
+                  name="grindDate"
+                  value={formData.grindDate}
                   onChange={handleChange}
                   placeholder='Grind date'
+                  required
+                  disabled={isEdit}
                 />
+                {formData.grindDate && (
+                  <p className="absolute -bottom-4 text-xs text-gray-500 mt-1">
+                    Norwegian format: {formatDate(formData.grindDate)}
+                  </p>
+                )}
               </div>
+            </div>
+
+            {isEdit && (
+              <>
+                <div className="flex justify-center mb-4 mt-8">
+                  <RiArrowDownDoubleLine size={30} />
+                </div>
+                {/* New grind info */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                  <Input
+                    label='New grind'
+                    type="text"
+                    name="newGrind"
+                    value={formData.newGrind || ''}
+                    onChange={handleChange}
+                    placeholder='New grind'
+                  />
+                  <div className="relative flex flex-col">
+                    <Input
+                      label='New grind date'
+                      type="date"
+                      name="newGrindDate"
+                      value={formData.newGrindDate || ''}
+                      onChange={handleChange}
+                      placeholder='New grind date'
+                    />
+                    {formData.newGrindDate && (
+                      <p className="absolute -bottom-4 text-xs text-gray-500 mt-1">
+                        Norwegian format: {formatDate(formData.newGrindDate)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </>
             )}
           </div>
+
           {isEdit && formData.grindHistory.length > 0 && (
-            <div className="p-4 flex flex-col items-center">
-              <h3 className="text-xl font-semibold mb-4">Grind history</h3>
+            <div>
+              <h3 className="text-xl font-semibold my-8">Grind History</h3>
               <ul className="space-y-2">
                 {formData.grindHistory.map((entry, index) => (
-                  <li key={index} className="flex justify-between items-center space-x-2">
-                    <p>
-                      {entry.grind} - {new Date(entry.grindDate).toLocaleDateString()}
+                  <li
+                    key={index}
+                    className="flex  justify-between items-center space-y-1 border-b border-gray-300 pb-2"
+                  >
+                    <p className="text-sm">
+                      {entry.grind} - {formatDate(entry.grindDate)}
                     </p>
                     <Button
                       type="button"
@@ -317,7 +338,6 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
         </div>
       </form>
     </div>
-
   );
 };
 

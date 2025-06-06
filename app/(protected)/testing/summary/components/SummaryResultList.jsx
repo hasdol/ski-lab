@@ -24,18 +24,18 @@ const SummaryResultList = ({ rankings }) => {
 
 
     return (
-        <div className="space-y-4 mb-10 bg-gray-50 p-5 rounded-md">
+        <div className="space-y-4 mb-10">
             {/* Top Three Section */}
             <ul className={`grid grid-cols-3 items-center justify-between pb-3 border-b border-gray-300 font-semibold`}>
                 <li className="text-left">Position</li>
                 <li className="text-center">Serial number</li>
                 <li className="text-right">Difference</li>
             </ul>
-            <ul className="space-y-3">
+            <ul className="space-y-4 ">
                 {rankedList.map((item, index) => (
                     <li
                         key={item.serialNumber}
-                        className={`grid grid-cols-3 items-center justify-between bg-white shadow rounded-md p-3 px-4
+                        className={`grid grid-cols-3 items-center justify-between bg-gray-50 text-black rounded-md p-3 px-4
                            `}                    >
                         <div className="flex-1 text-left">P{item.rank}</div>
                         <div className="flex-1 text-center">{item.serialNumber} </div>

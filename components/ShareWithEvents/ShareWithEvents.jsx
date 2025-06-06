@@ -108,7 +108,7 @@ export default function ShareWithEventSelector({
 
   return (
     <div className="p-4 border border-gray-300 rounded-lg bg-white">
-      <h2 className='font-semibold text-lg mb-5'>{includePast?'Shared in events':'Share with live events'}</h2>
+      <h2 className='font-semibold text-lg text-gray-700 mb-5'>{includePast?'Shared in events':'Share with live events'}</h2>
       <div className="mb-4">
         <Input
           type="text"

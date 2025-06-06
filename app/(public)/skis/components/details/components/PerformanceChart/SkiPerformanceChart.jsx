@@ -18,7 +18,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { useRouter } from 'next/navigation';
-import { formatSnowTypeLabel, formatSourceLabel, getTimestamp } from '@/helpers/helpers';
+import { formatDate, formatSnowTypeLabel, formatSourceLabel, getTimestamp } from '@/helpers/helpers';
 import Button from '@/components/ui/Button';
 
 /* ───────────────────────────────────────────────
@@ -88,31 +88,27 @@ const FloatingTooltip = ({ point, hideTooltip }) => {
     { key: 'Location', value: location },
     { key: 'Temperature', value: temp },
     { key: 'Snow type', value: formatSnowTypeLabel(snowType) },
-    { key: 'Snow source', value: formatSourceLabel(snowSource)},
+    { key: 'Snow source', value: formatSourceLabel(snowSource) },
   ].filter(({ value }) => value !== undefined && value !== null && value !== '');
 
   return (
     <div
-      className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-2/3 rounded-lg bg-white shadow-lg p-4 md:text-base text-sm transition-opacity duration-150"
+      className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-2/3 rounded-lg bg-white border border-gray-200 shadow-lg p-4 text-sm transition-opacity duration-150"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="font-medium mb-2 flex justify-between">
-        <span className='font-semibold'>
-          Rank: {rank}
-        </span>
-        <span className="text-muted-foreground">
-          {new Date(testDate).toLocaleDateString()}
-        </span>
+      <div className="font-semibold mb-2 flex justify-between text-gray-800">
+        <span>Rank: {rank}</span>
+        <span className="text-gray-600">{formatDate(testDate)}</span>
       </div>
 
       {rows.map(({ key, value }) => (
-        <div key={key} className="flex justify-between mb-1">
-          <span className="mr-2 ">{key}</span>
+        <div key={key} className="flex justify-between mb-1 text-gray-700">
+          <span className="mr-2">{key}</span>
           <span>{String(value)}</span>
         </div>
       ))}
 
-      <div className="mt-4 flex justify-end space-x-2">
+      <div className="mt-3 flex justify-end space-x-2">
         <Button type="button" variant="secondary" onClick={hideTooltip}>
           Close
         </Button>
@@ -154,14 +150,7 @@ const PerformanceChart = forwardRef(
     /* ───────────────────────────────────────────────
        X-axis ticks & season bounds
     ─────────────────────────────────────────────── */
-    const xTicks = useMemo(() => {
-      const testDates = data.map((d) => d.testDate);
-      const grindDates = filteredGrindHistory
-        .map((d) => getTimestamp(d.grindDate))
-        .filter(Boolean);
-      return [...new Set([...testDates, ...grindDates])].sort((a, b) => a - b);
-    }, [data, filteredGrindHistory]);
-
+    // Calculate ticks normally, then remove the boundary values.
     const { seasonStart, seasonEnd } = useMemo(() => {
       if (!selectedSeason) return { seasonStart: null, seasonEnd: null };
       if (selectedSeason.startsWith('Summer')) {
@@ -178,6 +167,27 @@ const PerformanceChart = forwardRef(
       };
     }, [selectedSeason]);
 
+    // Define startValue and endValue before computing xTicks
+    const startValue = selectedSeason ? seasonStart : minDate;
+    const endValue = selectedSeason ? seasonEnd : maxDate;
+
+    const xTicks = useMemo(() => {
+      let ticks = [
+        ...new Set([
+          ...data.map((d) => d.testDate),
+          ...filteredGrindHistory.map((d) => getTimestamp(d.grindDate)),
+        ]),
+      ].sort((a, b) => a - b);
+
+      if (startValue != null) {
+        ticks = ticks.filter((t) => t !== startValue);
+      }
+      if (endValue != null) {
+        ticks = ticks.filter((t) => t !== endValue);
+      }
+      return ticks;
+    }, [data, filteredGrindHistory, startValue, endValue]);
+
     const xAxisDomain = useMemo(() => {
       return selectedSeason ? [seasonStart, seasonEnd] : [minDate, maxDate];
     }, [selectedSeason, seasonStart, seasonEnd, minDate, maxDate]);
@@ -188,7 +198,7 @@ const PerformanceChart = forwardRef(
     return (
       <div
         ref={wrapperRef}
-        className="relative scroll-smooth"
+        className="relative scroll-smooth bg-white"
         onClick={() => {
           setHoveredIndex(null);
         }}
@@ -196,30 +206,24 @@ const PerformanceChart = forwardRef(
         <ResponsiveContainer width={containerWidth} height={250}>
           <LineChart
             data={data}
-            margin={{ top: 50, right: 50, left: 20, bottom: 20 }}
+            margin={{ top: 40, right: 20, left: 20, bottom: 20 }}
           >
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis
               dataKey="testDate"
               type="number"
               domain={xAxisDomain}
-              tickFormatter={(tick) =>
-                new Date(tick).toLocaleDateString(undefined, {
-                  year: '2-digit',
-                  month: 'short',
-                  day: 'numeric',
-                })
-              }
+              tickFormatter={(tick) => formatDate(tick)}
               ticks={xTicks}
               label={{
                 value: 'Test date',
                 position: 'insideBottom',
                 offset: -30,
                 fontSize: 14,
-                fill: 'var(--color-text)',
+                fill: '#4a5568',
               }}
-              stroke="var(--color-text)"
-              tickMargin={20}
+              stroke="#4a5568"
+              tickMargin={25}
             />
             <YAxis
               type="number"
@@ -230,15 +234,21 @@ const PerformanceChart = forwardRef(
                 angle: -90,
                 position: 'insideLeft',
                 fontSize: 14,
-                fill: 'var(--color-text)',
+                fill: '#4a5568',
               }}
-              stroke="var(--color-text)"
+              stroke="#4a5568"
             />
-            <Legend align="left" verticalAlign="bottom" />
+            <Legend
+              align="left"
+              verticalAlign="top"
+              wrapperStyle={{ top: 0, left: 0 }}
+              iconSize={10}
+              wrapperClassName="text-gray-700 font-medium"
+            />
             <Line
               type="monotone"
               dataKey="rank"
-              name='rank'
+              name="rank"
               stroke="var(--color-line)"
               strokeWidth={2}
               dot={({ key: dotKey, ...dotProps }) => (
@@ -256,36 +266,38 @@ const PerformanceChart = forwardRef(
               <ReferenceLine
                 key={i}
                 x={getTimestamp(grind.grindDate)}
-                stroke="var(--color-reference)"
+                stroke="#68d391"
                 strokeWidth={2}
                 label={{
                   value: `${grind.grind}`,
                   position: 'top',
-                  offset: 15,
+                  offset: 20,
                   fontSize: 12,
-                  fill: 'var(--color-text)',
+                  fill: '#4a5568',
                 }}
               />
             ))}
-            {seasonStart && (
+            {startValue && (
               <ReferenceLine
-                x={seasonStart}
+                x={startValue}
                 label={{
-                  value: new Date(seasonStart).toLocaleDateString(),
+                  value: formatDate(new Date(startValue)),
                   position: 'bottom',
                   offset: 12,
                   fontSize: 12,
+                  fill: '#4a5568',
                 }}
               />
             )}
-            {seasonEnd && (
+            {endValue && (
               <ReferenceLine
-                x={seasonEnd}
+                x={endValue}
                 label={{
-                  value: new Date(seasonEnd).toLocaleDateString(),
+                  value: formatDate(new Date(endValue)),
                   position: 'bottom',
                   offset: 12,
                   fontSize: 12,
+                  fill: '#4a5568',
                 }}
               />
             )}

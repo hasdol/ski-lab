@@ -57,7 +57,7 @@ export const useProfileActions = (user) => {
   const signOut = async (navigate) => {
     try {
       await signOutUser();
-      navigate('/signin');
+      navigate('/login');
     } catch (error) {
       console.error('Sign Out Failed:', error.message);
     }

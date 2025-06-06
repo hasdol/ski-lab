@@ -8,6 +8,8 @@ import { RiDeleteBinLine, RiQuestionLine } from 'react-icons/ri';
 import { VscGrabber } from 'react-icons/vsc';
 import TestingSkiMatchup from './components/TestingSkiMatchup';
 import Button from '@/components/ui/Button';
+import { SiTestrail } from "react-icons/si";
+
 
 const Testing = () => {
   const router = useRouter();
@@ -229,11 +231,20 @@ const Testing = () => {
           else onDragEndNonMatch(result);
         }}
       >
-      <div className='p-3 md:w-2/3 mx-auto'>
-          <div className="flex justify-between my-6">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Round {roundNumber}/{totalRounds}
-            </h1>
+        <div className="p-4 max-w-4xl md:min-w-xl w-full self-center">
+          <div className="flex justify-between">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="bg-blue-100 p-2 rounded-lg">
+                <SiTestrail className="text-blue-600 text-2xl" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Testing</h1>
+                <p className="text-gray-600">Round {roundNumber}/{totalRounds}</p>
+              </div>
+            </div>
+
+
             <div className='space-x-2'>
               <Button
                 type="button"

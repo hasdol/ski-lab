@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { registerWithEmailAndPassword } from '@/lib/firebase/authFunctions';
 import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+import { RiUserAddLine } from 'react-icons/ri';
 
 const SignUp = () => {
   const router = useRouter();
@@ -21,50 +23,59 @@ const SignUp = () => {
       router.push('/account/settings');
     } catch (error) {
       setError(error.message);
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <>
-      <div className="p-3 mt-20 md:w-1/3 md:mx-auto animate-fade-down animate-duration-300">
-        <h1 className="text-5xl mb-10 font-semibold">Sign Up</h1>
-        {error && <p className="bg-red-100 text-red-700 p-3 rounded">{error}</p>}
-        <form onSubmit={handleSignUp} className="space-y-3 text-black">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            className="w-full px-4 py-2 border border-gray-300 rounded"
-            required
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            className="w-full px-4 py-2 border border-gray-300 rounded"
-            required
-          />
-          <Button
-            type="submit"
-            loading={isLoading}
-            variant="primary"
-          >
-            Sign Up
-          </Button>
-        </form>
-        <div className="mt-6 text-sm">
-          <p>
-            Already have an account?{' '}
-            <button onClick={() => router.push('/signin')} className="underline">
-              Sign In
-            </button>
-          </p>
+    <main className="p-4 max-w-xl w-full self-center mt-10">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <RiUserAddLine className="text-blue-600 text-2xl" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Sign Up</h1>
+          <p className="text-gray-600">Create a new user</p>
         </div>
       </div>
-    </>
+      {error && <p className="bg-red-100 text-red-700 p-3 rounded-md">{error}</p>}
+      <form onSubmit={handleSignUp} className="bg-white border border-gray-200 rounded-md p-6 space-y-4">
+        <Input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          autoFocus
+          autoComplete="email"
+          className="w-full"
+          required
+        />
+        <Input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          autoComplete="current-password"
+          className="w-full"
+          required
+        />
+        <Button type="submit" loading={isLoading} variant="primary">
+          Sign Up
+        </Button>
+      </form>
+      <div className="mt-6 text-sm">
+        <p>
+          Already have an account?{' '}
+          <button onClick={() => router.push('/login')} className="underline" aria-label="Login">
+            Login
+          </button>
+        </p>
+      </div>
+    </main>
   );
 };
 

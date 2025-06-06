@@ -94,7 +94,7 @@ const Input = ({
           className={`w-full bg-white text-text border border-gray-300 rounded-md ${gloveClasses} ${className}`}
           {...props}
         />
-        <span className="text-text mt-1">
+        <span className="text-text">
           {value} {unit || ''}
         </span>
       </div>
@@ -111,7 +111,7 @@ const Input = ({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        className={`w-full bg-white text-text border border-gray-300 rounded-md ${gloveClasses} ${className} ${disabled && 'bg-gray-50'}`}
+        className={`w-full bg-white text-text border border-gray-300 rounded-md ${gloveClasses} ${className} ${disabled && 'bg-gray-100!'}`}
         {...props}
       />
     );

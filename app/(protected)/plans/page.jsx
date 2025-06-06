@@ -5,7 +5,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import getStripe from '@/helpers/stripe';
 import Spinner from '@/components/common/Spinner/Spinner';
 import Button from '@/components/ui/Button';
-import { RiCheckFill } from 'react-icons/ri';
+import { RiCheckFill, RiShoppingCartLine } from 'react-icons/ri';
 
 const PlansPage = () => {
   const [plans, setPlans] = useState([]);
@@ -84,93 +84,97 @@ const PlansPage = () => {
   }
 
   return (
-    <div className='p-3 md:w-1/2 mx-auto'>
-      <div className="">
-        <h1 className="text-3xl text-center mb-5 font-bold text-gray-900 my-4">
-          Pick a Plan
-        </h1>
+    <div className="p-4 max-w-4xl w-full self-center">
+      <div className="flex items-center gap-3 mb-10">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <RiShoppingCartLine className="text-blue-600 text-2xl" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Plans</h1>
+          <p className="text-gray-600">Select a plan</p>
+        </div>
+      </div>
 
-        {plans.length === 0 ? (
-          <p className="text-center text-gray-600">No plans available at the moment.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {plans.map((plan) => {
-              const isCurrent = plan.plan === currentPlan;
-              const isUpgrade = planRank[plan.plan] > planRank[currentPlan];
-              const isDowngrade = planRank[plan.plan] < planRank[currentPlan];
-              const buttonText = getButtonText(plan, isCurrent, isUpgrade);
+      {plans.length === 0 ? (
+        <p className="text-center text-gray-600">No plans available at the moment.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {plans.map((plan) => {
+            const isCurrent = plan.plan === currentPlan;
+            const isUpgrade = planRank[plan.plan] > planRank[currentPlan];
+            const isDowngrade = planRank[plan.plan] < planRank[currentPlan];
+            const buttonText = getButtonText(plan, isCurrent, isUpgrade);
 
-              return (
-                <div
-                  key={plan.productId}
-                  className="rounded-md relative border border-gray-300 overflow-hidden flex flex-col"
-                >
-                  {isCurrent && (
-                    <span className="absolute top-3 right-3 bg-gradient-to-br from-blue-500 to-indigo-500 text-white text-xs px-2 py-1 rounded">
-                      Current
-                    </span>
-                  )}
+            return (
+              <div
+                key={plan.productId}
+                className="rounded-md relative border border-gray-300 overflow-hidden flex flex-col"
+              >
+                {isCurrent && (
+                  <span className="absolute top-3 right-3 bg-blue-50 text-blue-600 text-sm px-2 py-1 rounded-md">
+                    Current
+                  </span>
+                )}
 
-                  <div className="px-6 pt-6">
-                    <h2 className="text-xl font-semibold text-gray-800">
-                      {plan.name}
-                    </h2>
-                    <p className="text-sm text-gray-500 italic mt-1">
-                      {plan.name === 'Company' && 'Industry Leader'}
-                      {plan.name === 'Coach' && '"Puppet-Master"'}
-                      {plan.name === 'Senior Pluss' && 'Value pack'}
-                      {plan.name === 'Senior' && 'Professional'}
+                <div className="px-6 pt-6">
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    {plan.name}
+                  </h2>
+                  <p className="text-sm text-gray-500 italic mt-1">
+                    {plan.name === 'Company' && 'Industry Leader'}
+                    {plan.name === 'Coach' && '"Puppet-Master"'}
+                    {plan.name === 'Senior Pluss' && 'Value pack'}
+                    {plan.name === 'Senior' && 'Professional'}
+                  </p>
+                </div>
+
+                <div className="flex-1 px-6 pt-4 space-y-2">
+                  {plan.description.split(';').map((feat, idx) => (
+                    <div key={idx} className="flex items-center space-x-2">
+                      <RiCheckFill className="text-blue-500 w-5 h-5" />
+                      <span className="text-gray-700 font-medium">{feat.trim()}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {plan.amount && (
+                  <div className="px-6 pt-4">
+                    <p className="text-4xl font-bold text-gray-800">
+                      {(plan.amount / 100).toFixed(0)}{' '}
+                      <span className="text-lg font-medium text-gray-600">
+                        {plan.currency.toUpperCase()}
+                      </span>
+                    </p>
+                    <p className="text-sm text-gray-500 italic">
+                      per {plan.interval}
                     </p>
                   </div>
+                )}
 
-                  <div className="flex-1 px-6 pt-4 space-y-2">
-                    {plan.description.split(';').map((feat, idx) => (
-                      <div key={idx} className="flex items-center space-x-2">
-                        <RiCheckFill className="text-blue-500 w-5 h-5" />
-                        <span className="text-gray-700 font-medium">{feat.trim()}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {plan.amount && (
-                    <div className="px-6 pt-4">
-                      <p className="text-4xl font-bold text-gray-800">
-                        {(plan.amount / 100).toFixed(0)}{' '}
-                        <span className="text-lg font-medium text-gray-600">
-                          {plan.currency.toUpperCase()}
-                        </span>
-                      </p>
-                      <p className="text-sm text-gray-500 italic">
-                        per {plan.interval}
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="px-6 py-6">
-                    <Button
-                      loading={loadingCheckout === plan.priceId}
-                      disabled={currentPlan === 'free' && isCurrent}
-                      onClick={() =>
-                        handlePlanSelect(
-                          plan.priceId,
-                          plan.plan,
-                          isDowngrade
-                        )
-                      }
-                      className={`${isCurrent && currentPlan === 'free'
-                          ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-95 focus:ring-2 focus:ring-indigo-300/50 shadow-sm'
-                        } w-full py-2 rounded-md text-sm`}
-                    >
-                      {buttonText}
-                    </Button>
-                  </div>
+                <div className="px-6 py-6">
+                  <Button
+                    loading={loadingCheckout === plan.priceId}
+                    disabled={currentPlan === 'free' && isCurrent}
+                    onClick={() =>
+                      handlePlanSelect(
+                        plan.priceId,
+                        plan.plan,
+                        isDowngrade
+                      )
+                    }
+                    className={`${isCurrent && currentPlan === 'free'
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-95 focus:ring-2 focus:ring-indigo-300/50 shadow-sm'
+                      } w-full py-2 rounded-md`}
+                  >
+                    {buttonText}
+                  </Button>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

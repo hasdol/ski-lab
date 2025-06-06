@@ -3,7 +3,7 @@ import { db } from '@/lib/firebase/firebaseConfig';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
 
-const useTeams = () => {
+const useUserTeams = () => {
   const { user } = useAuth();
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,4 +38,4 @@ const useTeams = () => {
   return { teams, loading, error };
 };
 
-export default useTeams;
+export default useUserTeams;

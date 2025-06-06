@@ -7,27 +7,28 @@ const useContactForm = () => {
   const { user } = useAuth();
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  const submitContactForm = async (subject, message) => {
+  const submitContactForm = async (email, subject, message) => {
     setLoading(true);
     setStatus('');
-    setError(null);
     try {
-      const docId = await addContactFormSubmission(subject, message, user.uid);
-      setStatus('Success!');
-      return docId;
+      await addContactFormSubmission({
+        email,
+        subject,
+        message,
+        userId: user?.uid || null  // Include UID if logged in
+      });
+      setStatus('Success! Your message has been sent. We will get back to you soon.');
     } catch (err) {
-      console.error("Error adding document: ", err);
-      setError(err);
-      setStatus('Error sending message: ' + err.message);
+      console.error("Submission error: ", err);
+      setStatus('Error sending message: ' + (err.message || 'Please try again later'));
       throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  return { submitContactForm, status, loading, error };
+  return { submitContactForm, status, loading };
 };
 
 export default useContactForm;

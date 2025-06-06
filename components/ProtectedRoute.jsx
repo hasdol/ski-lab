@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Spinner from '@/components/common/Spinner/Spinner';
 
-export default function ProtectedRoute({ children, redirectTo = '/signin' }) {
+export default function ProtectedRoute({ children, redirectTo = '/login' }) {
   const { user, checkingStatus } = useAuth();
   const router = useRouter();
 

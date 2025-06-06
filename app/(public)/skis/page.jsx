@@ -9,6 +9,7 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDebounce } from 'use-debounce';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import usePaginatedSkis from '@/hooks/usePaginatedSkis';
 import { useSkis } from '@/hooks/useSkis';
@@ -26,9 +27,9 @@ import {
   RiAddLine,
   RiLockLine,
   RiCloseLine,
-  RiShoppingCartLine,
 } from 'react-icons/ri';
-import { MdFastForward } from 'react-icons/md';
+import { TiFlowParallel } from "react-icons/ti";
+import { VscDebugContinue } from "react-icons/vsc";
 import Search from '../../../components/Search/Search';
 
 const Skis = () => {
@@ -202,181 +203,207 @@ const Skis = () => {
   if (error) return <div className="m-2">Error: {error.message}</div>;
 
   return (
-    <div className='p-3 md:w-2/3 mx-auto'>
-      <div className="container mx-auto animate-fade animate-duration-300">
-        <h1 className="text-3xl font-bold text-gray-900 my-6">Skis</h1>
+    <div className="p-4 max-w-4xl w-full self-center">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="bg-blue-100 p-2 rounded-lg">
+          <TiFlowParallel className="text-blue-600 text-2xl" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Skis</h1>
+          <p className="text-gray-600">Manage and test your skis</p>
+        </div>
+      </div>
 
-        {/* Top controls row */}
-        <div className="flex items-end justify-between mb-4">
-          <div className="flex flex-col justify-end">
-            <h3 className="text-sm font-semibold mb-1">{
-              getSelectedList().length > 1
-                ? `${getSelectedList().length} skis selected`
-                : 'Select skis to test'
-            }</h3>
-            <div className="flex space-x-3 items-end">
-              <Button
-                onClick={handleStartTournament}
-                variant="primary"
-                disabled={getSelectedList().length < 2}
-              >New Test</Button>
-              {!!currentRound.length && (
-                <Button onClick={handleContinueTest} variant="primary"><MdFastForward /></Button>
-              )}
-            </div>
-          </div>
-
+      {/* Top controls row */}
+      <div className="flex items-end justify-between mb-4">
+        <div className="flex flex-col justify-end">
+          <h3 className="text-sm font-semibold mb-1">{
+            getSelectedList().length > 1
+              ? `${getSelectedList().length} skis selected`
+              : 'Select skis to test'
+          }</h3>
           <div className="flex space-x-3 items-end">
-            <div className="flex flex-col items-center w-fit">
-              <label className="text-sm font-semibold mb-1">Plans</label>
-              <Button onClick={() => router.push('/plans')} variant="secondary" className='text-indigo-500!'>
-                <RiShoppingCartLine />
-              </Button>
-            </div>
-
-            <div className="flex flex-col items-center w-fit">
-              <label className={`text-sm font-semibold mb-1 ${hasReachedLimit && 'text-red-500'}`}>
-                {skiCount === 0 ? 'Add ski' : `${skiCount}/${skiLimit}`}
-              </label>              
-              <Button
-                onClick={handleAddSki}
-                variant='primary'
-                disabled={hasReachedLimit}
-              >
-                {hasReachedLimit ? <RiLockLine /> : <RiAddLine />}
-              </Button>
-            </div>
-
-            <div className="flex flex-col items-center w-fit">
-              <label className="text-sm font-semibold mb-1">Filter</label>
-              <Button
-                onClick={toggleFilterDrawer}
-                variant="secondary"
-                className={
-                  styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived'
-                    ? 'text-gray-800'
-                    : ''
-                }
-              >
-                {styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived'
-                  ? <RiFilter2Fill />
-                  : <RiFilter2Line />}
-              </Button>
-            </div>
+            <Button
+              onClick={handleStartTournament}
+              variant="primary"
+              disabled={getSelectedList().length < 2}
+            >New Test</Button>
+            {!!currentRound.length && (
+              <Button onClick={handleContinueTest} variant="primary"><VscDebugContinue /></Button>
+            )}
           </div>
         </div>
 
-        {/* Search box */}
-        <Search onSearch={setSearchRaw} />
-
-        {/* Locked skis prompt */}
-        {(hasLockedSkis || (hasReachedLimit && plan === 'free')) && (
-          <div className="flex my-4 space-x-4">
-            {hasLockedSkis && (
-              <div className="flex space-x-5 border border-orange-400 py-4 rounded-md items-center justify-center w-full">
-                <div className="space-y-1">
-                  <h3 className="text-sm flex items-center"><RiLockLine /> {lockedSkisCount} locked ski(s)</h3>
-                  <Button onClick={() => router.push('/skis/locked')} variant="secondary">View skis</Button>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm">Upgrade to unlock</h3>
-                  <Button variant="primary" onClick={() => router.push('/plans')}>Upgrade</Button>
-                </div>
-              </div>
-            )}
+        <div className="flex space-x-3 items-end">
+          <div className="flex flex-col items-center w-fit">
+            <label className={`text-sm font-semibold mb-1 ${hasReachedLimit && 'text-red-500'}`}>
+              {skiCount === 0 ? 'Add ski' : `${skiCount}/${skiLimit}`}
+            </label>
+            <Button
+              onClick={handleAddSki}
+              variant='primary'
+              disabled={hasReachedLimit}
+            >
+              {hasReachedLimit ? <RiLockLine /> : <RiAddLine />}
+            </Button>
           </div>
-        )}
 
-        {/* Filter drawer */}
-        <SkiFilter
-          open={isFilterOpen}
-          onClose={toggleFilterDrawer}
-          styleFilter={styleFilter}
-          setStyleFilter={setStyleFilter}
-          skiTypeFilter={skiTypeFilter}
-          setSkiTypeFilter={setSkiTypeFilter}
-          archivedFilter={archivedFilter}
-          setArchivedFilter={setArchivedFilter}
-          resetFilter={resetFilter}
-          sortField={sortField}
-          setSortField={setSortField}
-          sortDirection={sortDirection}
-          setSortDirection={setSortDirection}
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-        />
-
-        {/* Active filter chips */}
-        {(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && (
-          <div className="flex space-x-2 text-sm mt-2">
-            {styleFilter !== 'all' && (
-              <Button variant="tab" onClick={() => setStyleFilter('all')}><span className="flex">{styleFilter} <RiCloseLine /></span></Button>
-            )}
-            {skiTypeFilter !== 'all' && (
-              <Button variant="tab" onClick={() => setSkiTypeFilter('all')}><span className="flex">{skiTypeFilter} <RiCloseLine /></span></Button>
-            )}
-            {archivedFilter !== 'notArchived' && (
-              <Button variant="tab" onClick={() => setArchivedFilter('notArchived')}><span className="flex">{archivedFilter} <RiCloseLine /></span></Button>
-            )}
+          <div className="flex flex-col items-center w-fit">
+            <label className="text-sm font-semibold mb-1">Filter</label>
+            <Button
+              onClick={toggleFilterDrawer}
+              variant="secondary"
+              className={
+                styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived'
+                  ? 'text-gray-800'
+                  : ''
+              }
+            >
+              {styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived'
+                ? <RiFilter2Fill />
+                : <RiFilter2Line />}
+            </Button>
           </div>
-        )}
+        </div>
+      </div>
 
-        {/* Ski list (cards or table) */}
-        <div className="my-5">
-          {loading && !skis.length ? (
-            <div className="flex justify-center items-center mt-10"><Spinner /></div>
-          ) : viewMode === 'card' ? (
+      {/* Search box */}
+      <Search onSearch={setSearchRaw} />
+
+      {/* Locked skis or plan upgrade prompt */}
+      {hasLockedSkis ? (
+        <div className="flex my-4 space-x-4">
+          <div className="flex space-x-5 border border-orange-400 py-4 rounded-md items-center justify-center w-full">
+            <div className="space-y-1">
+              <h3 className="text-sm flex items-center"><RiLockLine /> {lockedSkisCount} locked ski(s)</h3>
+              <Button onClick={() => router.push('/skis/locked')} variant="secondary">View skis</Button>
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-sm">Upgrade to unlock</h3>
+              <Button variant="primary" onClick={() => router.push('/plans')}>Upgrade</Button>
+            </div>
+          </div>
+        </div>
+      ) : hasReachedLimit && plan !== 'company' ? (
+        <div className="flex my-4">
+          <div className="flex border border-orange-400 py-4 rounded-md items-center justify-between px-4 w-full">
+            <h3 className="text-sm">You’ve reached your limit. Upgrade to add more skis.</h3>
+            <Button variant="primary" onClick={() => router.push('/plans')}>Upgrade</Button>
+          </div>
+        </div>
+      ) : null}
+
+
+      {/* Filter drawer */}
+      <SkiFilter
+        open={isFilterOpen}
+        onClose={toggleFilterDrawer}
+        styleFilter={styleFilter}
+        setStyleFilter={setStyleFilter}
+        skiTypeFilter={skiTypeFilter}
+        setSkiTypeFilter={setSkiTypeFilter}
+        archivedFilter={archivedFilter}
+        setArchivedFilter={setArchivedFilter}
+        resetFilter={resetFilter}
+        sortField={sortField}
+        setSortField={setSortField}
+        sortDirection={sortDirection}
+        setSortDirection={setSortDirection}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      />
+
+      {/* Active filter chips */}
+      {(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && (
+        <div className="flex space-x-2 text-sm mt-2">
+          {styleFilter !== 'all' && (
+            <Button variant="tab" onClick={() => setStyleFilter('all')}><span className="flex">{styleFilter} <RiCloseLine /></span></Button>
+          )}
+          {skiTypeFilter !== 'all' && (
+            <Button variant="tab" onClick={() => setSkiTypeFilter('all')}><span className="flex">{skiTypeFilter} <RiCloseLine /></span></Button>
+          )}
+          {archivedFilter !== 'notArchived' && (
+            <Button variant="tab" onClick={() => setArchivedFilter('notArchived')}><span className="flex">{archivedFilter} <RiCloseLine /></span></Button>
+          )}
+        </div>
+      )}
+
+      {/* Ski list (cards or table) */}
+      <div className="my-5">
+        {loading && !skis.length ? (
+          <div className="flex justify-center items-center mt-10"><Spinner /></div>
+        ) : viewMode === 'card' ? (
+          <AnimatePresence>
             <div className={gloveMode ? 'grid grid-cols-2 gap-2' : 'flex flex-col space-y-2'}>
               {displayedSkis.map(ski => (
-                <SkiItem
+                <motion.div
                   key={ski.id}
-                  ski={ski}
-                  search={debouncedTerm}
-                  handleCheckboxChange={toggleSelect}
-                  selectedSkis={selectedMap}
-                  expandedSkiId={expandedSkiId}
-                  toggleDetails={toggleDetails}
-                  handleArchive={handleArchive}
-                  handleUnarchive={handleUnarchive}
-                  handleDelete={handleDelete}
-                  handleEdit={() => router.push(`/skis/${ski.id}/edit`)}
-                />
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <SkiItem
+                    ski={ski}
+                    search={debouncedTerm}
+                    handleCheckboxChange={toggleSelect}
+                    selectedSkis={selectedMap}
+                    expandedSkiId={expandedSkiId}
+                    toggleDetails={toggleDetails}
+                    handleArchive={handleArchive}
+                    handleUnarchive={handleUnarchive}
+                    handleDelete={handleDelete}
+                    handleEdit={() => router.push(`/skis/${ski.id}/edit`)}
+                  />
+                </motion.div>
               ))}
             </div>
-          ) : (
-            <SkiTable
-              skis={displayedSkis}
-              search={debouncedTerm}
-              selectedSkis={selectedMap}
-              onToggleSelect={toggleSelect}
-              expandedSkiId={expandedSkiId}
-              onToggleDetails={toggleDetails}
-              sortField={sortField}
-              sortDirection={sortDirection}
-              onSort={(field) => {
-                if (field === sortField) {
-                  setSortDirection(d => (d === 'asc' ? 'desc' : 'asc'));
-                } else {
-                  setSortField(field);
-                  setSortDirection('asc');
-                }
-              }}
-              onEdit={ski => router.push(`/skis/${ski.id}/edit`)}
-              onDelete={handleDelete}
-              onArchive={handleArchive}
-              onUnarchive={handleUnarchive}
-            />
-          )}
+          </AnimatePresence>
+        ) : (
+          <SkiTable
+            skis={displayedSkis}
+            search={debouncedTerm}
+            selectedSkis={selectedMap}
+            onToggleSelect={toggleSelect}
+            expandedSkiId={expandedSkiId}
+            onToggleDetails={toggleDetails}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={(field) => {
+              if (field === sortField) {
+                setSortDirection(d => (d === 'asc' ? 'desc' : 'asc'));
+              } else {
+                setSortField(field);
+                setSortDirection('asc');
+              }
+            }}
+            onEdit={ski => router.push(`/skis/${ski.id}/edit`)}
+            onDelete={handleDelete}
+            onArchive={handleArchive}
+            onUnarchive={handleUnarchive}
+          />
+        )}
 
-          {/* Load more button */}
-          {!exhausted && !loading && user && (
-            <div className="flex justify-center my-4">
-              <Button onClick={loadMore}>Load more</Button>
+        {/* Load more button */}
+        {!exhausted && !loading && user && (
+          <div className="flex justify-center my-4">
+            <Button onClick={loadMore}>Load more</Button>
+          </div>
+        )}
+        {skis.length === 0 && !loading && user && <p>You have no skis</p>}
+        {!user && (
+          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-md mt-4">
+            <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <TiFlowParallel className="text-gray-500 text-2xl" />
             </div>
-          )}
-          {skis.length === 0 && !loading && user && <p>You have no skis</p>}
-          {!user && <span className='mt-4 italic'>You are not signed in</span>}
-        </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Sign In Required</h3>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              Please sign in to view and manage your skis.
+            </p>
+            <Button onClick={() => router.push('/login')} variant="primary">
+              Sign In
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

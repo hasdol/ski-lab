@@ -1,4 +1,3 @@
-
 export const mapRankingsToTournamentData = (rankings, selectedSkis) => {
   // Map each ranking to include the necessary ski data
   return {
@@ -65,10 +64,22 @@ export const formatDateForInputWithTime = (date) => {
 
 
 
-export const formatDate = (date) => {
-  if (!date) return '--';
-  const timestamp = getTimestamp(date);
-  return new Date(timestamp).toLocaleDateString();
+export const formatDate = (dateInput) => {
+  if (!dateInput) return '--';
+  
+  let date;
+  // If dateInput is a Firestore Timestamp, use its toDate() method.
+  if (dateInput.toDate) {
+    date = dateInput.toDate();
+  } else if (dateInput instanceof Date) {
+    date = dateInput;
+  } else {
+    date = new Date(dateInput);
+  }
+  
+  if (isNaN(date.getTime())) return '--';
+  
+  return date.toLocaleDateString('nb-NO');
 };
 
 export const getTimestamp = (date) => {

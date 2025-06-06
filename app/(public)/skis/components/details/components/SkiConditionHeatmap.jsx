@@ -2,7 +2,7 @@ import React, { useMemo, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import { MdInfoOutline } from 'react-icons/md';
-import { formatSnowTypeLabel, formatSourceLabel } from '@/helpers/helpers';
+import { formatSnowTypeLabel, formatSourceLabel, formatDate } from '@/helpers/helpers';
 
 const SkiConditionHeatmap = ({
   temperatureList,
@@ -52,7 +52,7 @@ const SkiConditionHeatmap = ({
     return map;
   }, [combinedPerformanceData]);
 
-  // Count non-unknown dots per source
+  // Count non-unknown dots per source for the tabs
   const categoryDotCounts = useMemo(() => {
     const counts = { natural: 0, artificial: 0, mix: 0 };
     combinedPerformanceData.forEach((item) => {
@@ -64,7 +64,7 @@ const SkiConditionHeatmap = ({
     return counts;
   }, [combinedPerformanceData]);
 
-  // Rows filtered by active source
+  // Filter rows by active tab (source)
   const rows = useMemo(
     () =>
       allSnowCombos
@@ -93,20 +93,28 @@ const SkiConditionHeatmap = ({
   return (
     <div className="relative mt-5" ref={containerRef}>
       {/* Tabs */}
-      <div className="flex space-x-2 overflow-x-auto py-1 pb-3 mb-4">
-        {['natural', 'artificial', 'mix'].map(tab => (
-          <Button
-            key={tab}
-            variant='tab'
-            onClick={() => setActiveTab(tab)}
-            className={`${activeTab === tab && 'bg-gray-200'} text-sm`}
-          >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            {categoryDotCounts[tab] > 0 && (
-              <span className="ml-1 opacity-90">({categoryDotCounts[tab]})</span>
-            )}
-          </Button>
-        ))}
+      <div className="flex border-b border-gray-200 mb-6">
+        {['Natural', 'Artificial', 'Mix'].map((tabLabel) => {
+          const tab = tabLabel.toLowerCase();
+          const isActive = activeTab === tab;
+          return (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 font-medium text-sm focus:outline-none ${
+                isActive
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              {tabLabel}
+              {categoryDotCounts[tab] > 0 && (
+                <span className="ml-1 opacity-90">({categoryDotCounts[tab]})</span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Legend */}
@@ -129,9 +137,7 @@ const SkiConditionHeatmap = ({
         ))}
       </div>
 
-
-
-      {/* Heatmap table */}
+      {/* Heatmap Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
@@ -153,7 +159,8 @@ const SkiConditionHeatmap = ({
                 className="border-b border-gray-100 last:border-0"
               >
                 <td className="text-sm text-gray-500 py-2 pr-4 text-start">
-                  {formatSourceLabel(row.source)} – {formatSnowTypeLabel(row.snowType)}  </td>
+                  {formatSourceLabel(row.source)} – {formatSnowTypeLabel(row.snowType)}
+                </td>
 
                 {temperatureList.map((temp) => {
                   const key = `${temp}___${row.source.toLowerCase()}___${row.snowType.toLowerCase()}`;
@@ -183,44 +190,41 @@ const SkiConditionHeatmap = ({
       </div>
 
       {/* Small-tests info */}
-      {chartData.some(d => d.total < 4) && (
+      {chartData.some((d) => d.total < 4) && (
         <div className="flex items-center bg-blue-50 text-blue-800 p-2 rounded-md text-sm mt-4">
           <MdInfoOutline className="w-5 h-5 mr-2 flex-shrink-0" />
           <span>
-            {chartData.filter(d => d.total < 4).length}{' '}
-            tests are ignored. Tests with only two skis are ignored
+            {chartData.filter((d) => d.total < 4).length} tests are ignored. Tests with only two skis are ignored.
           </span>
         </div>
       )}
 
-      {/* Click-triggered popup */}
+      {/* Popup */}
       {showPopup && popupData && (
         <div
-          className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-2/3 rounded-md bg-white shadow-lg p-4 md:text-base text-sm transition-opacity duration-150"
-
+          className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-2/3 rounded-md bg-white shadow-lg border border-gray-300 p-4 md:text-base text-sm transition-opacity duration-150"
           onClick={(e) => e.stopPropagation()}
         >
-          <h3 className='font-semibold'>
+          <h3 className="font-semibold text-gray-800">
             {popupData.temp}°C • {formatSourceLabel(popupData.source)} • {formatSnowTypeLabel(popupData.snowType)}
-
           </h3>
-          <span className="">
+          <span className="block text-gray-600">
             Number of tests: {popupData.tests.length}
           </span>
 
-          <ul className=" space-y-4 my-4">
+          <ul className="space-y-4 my-4">
             {popupData.tests
               .sort((a, b) => b.testDate - a.testDate)
               .map((test) => (
                 <li key={test.testId} className="flex bg-gray-50 p-2 rounded-md flex-col sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <div className="text-sm font-semibold">
-                      {new Date(test.testDate).toLocaleDateString()}
+                    <div className="text-sm font-semibold text-gray-800">
+                      {formatDate(new Date(test.testDate))}
                     </div>
-                    <div className="text-sm">
+                    <div className="text-sm text-gray-700">
                       Rank: {test.rank}/{test.total}
                     </div>
-                    <div className="text-sm mb-1">{test.location}</div>
+                    <div className="text-sm text-gray-600 mb-1">{test.location}</div>
                   </div>
                   <Button
                     type="button"
