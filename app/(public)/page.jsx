@@ -213,7 +213,7 @@ const HomePage = () => {
               </p>
             </div>
             <div className="max-w-xs flex flex-col items-center">
-              <img src={iphone} alt="Ski-Lab mobile interface" className="w-2/3" />
+              <img src={iphone} alt="Ski-Lab mobile interface" className="w-1/2" />
               <p className="mt-3 text-sm text-center text-gray-500">
                 Optimized for field testing
               </p>
