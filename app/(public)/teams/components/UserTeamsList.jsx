@@ -49,7 +49,7 @@ export default function UserTeamsList({ teams, onTeamUpdate }) {
   return (
     <div className="grid gap-4 my-4">
       {teams.map((team) => {
-        const isCreator = team.createdBy === user.uid;
+        const isCreator = team.createdBy === user?.uid;
         return (
           <TeamCard
             key={team.id}

@@ -7,7 +7,7 @@ export default function TeamMemberListItem({ userId }) {
   if (!user) return <div className="text-sm italic opacity-50">Loading…</div>;
 
   return (
-    <div className="flex items-center  p-2">
+    <div className="flex items-center">
       {user.photoURL ? (
         <img
           src={user.photoURL}

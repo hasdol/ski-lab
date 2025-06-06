@@ -200,9 +200,12 @@ export default function TeamDetailPage() {
               {team.members.map((id) => (
                 <div
                   key={id}
-                  className="flex items-center justify-between space-x-4 border-b border-gray-300"
+                  className="flex items-center justify-between space-x-4 border-b p-2 border-gray-300"
                 >
                   <TeamMemberListItem userId={id} />
+                  {id === user.uid && (
+                    <span className='text-xs flex pt-1'>- Creator</span>
+                  )}
                   {id !== user.uid && (
                     <Button
                       variant="danger"

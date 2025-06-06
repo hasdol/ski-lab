@@ -8,8 +8,7 @@ import { motion } from 'framer-motion';
 import { RiTeamLine } from 'react-icons/ri';
 import { useAuth } from '@/context/AuthContext';
 
-const PublicTeamsList = ({ teams, loading, error, hasMore, onLoadMore, onRefresh, onJoin, pendingTeams }) => {
-  const router = useRouter();
+const PublicTeamsList = ({ teams, loading, error, hasMore, onLoadMore, onRefresh, onJoin }) => {
   const { user } = useAuth();
 
   if (error) {
@@ -44,7 +43,6 @@ const PublicTeamsList = ({ teams, loading, error, hasMore, onLoadMore, onRefresh
       <div className="grid md:grid-cols-2 gap-4 my-4">
         {teams.map((team) => {
           const isJoined = team.members?.includes(user?.uid);
-          const isPending = pendingTeams && pendingTeams.includes(team.id);
           return (
             <motion.div
               key={team.id}
@@ -63,11 +61,10 @@ const PublicTeamsList = ({ teams, loading, error, hasMore, onLoadMore, onRefresh
                 </div>
                 <Button
                   onClick={() => !isJoined && onJoin && onJoin(team)}
-                  disabled={isJoined || (pendingTeams && pendingTeams.includes(team.id))}
                   variant="secondary"
                   className="text-sm px-3 py-1.5"
                 >
-                  {isJoined || (pendingTeams && pendingTeams.includes(team.id)) ? 'Pending' : 'Join'}
+                  Join
                 </Button>
               </div>
             </motion.div>
