@@ -134,7 +134,7 @@ export default function TeamDetailPage() {
             variant="team"
             alt="team image"
             clickable={false}
-            className="w-full max-h-20 object-fit rounded-lg shadow-md mb-2"
+            className="max-h-40 object-fit rounded-lg shadow-md mb-2"
           />
           <h1 className="text-2xl font-semibold text-gray-900 mb-1 text-center flex items-center justify-center gap-2">
             {team.name}
