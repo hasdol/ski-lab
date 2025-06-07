@@ -67,14 +67,11 @@ export default function PendingJoinRequests({ teamId }) {
 
 
   return (
-    <div className="p-6 border border-gray-300 rounded-lg bg-white">
-      <h2 className="text-xl font-semibold mb-4">Pending Join Requests</h2>
+    <div className="flex items-center">
       <ul>
         {requests.map((req) => (
-          <li key={req.id} className="flex flex-col items-center space-y-2 p-2 border-b border-gray-300">
-            <div>
+          <li key={req.id} className="flex items-center space-x-2 p-2 border-b border-gray-300">
               <p className="font-medium">{req.email || req.userId}</p>
-            </div>
             <div className="flex gap-2 text-xs">
               <Button variant="primary" onClick={() => handleAccept(req.id)}>
                 Accept

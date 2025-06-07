@@ -22,7 +22,7 @@ export default function TeamMemberListItem({ userId }) {
         </div>
       )}
       <div>
-        <span className="text-sm font-medium text-gray-900">
+        <span className="font-medium">
           {user.displayName}
         </span>
         {user.email && (

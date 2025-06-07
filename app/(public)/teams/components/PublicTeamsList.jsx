@@ -41,7 +41,7 @@ const PublicTeamsList = ({ teams, loading, error, hasMore, onLoadMore, onRefresh
 
   return (
     <>
-      <div className="grid md:grid-cols-2 gap-4 my-4">
+      <div className="grid gap-4 my-4">
         {teams.map((team) => {
           const isJoined = team.members?.includes(user?.uid);
           return (

@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import Button from '@/components/ui/Button';
 import { getUserTeamsWithLiveEvents } from '@/lib/firebase/firestoreFunctions';
 import { motion, AnimatePresence } from 'framer-motion';
-import SkiLogoAnimated from './components/SkiLogoAnimation';
+import SkiLogoAnimation from './components/SkiLogoAnimation';
 import { FiArrowRight, FiClipboard, FiBarChart2, FiUsers, FiShield } from 'react-icons/fi';
 import Spinner from '@/components/common/Spinner/Spinner';
 
@@ -87,14 +87,14 @@ const HomePage = () => {
         style={{ backgroundImage: `url(${bgUrl})` }}
       />
       <div className="fixed inset-0 -z-10 bg-gradient-to-b from-white/70 via-white/60 to-white/80" />
-      
+
       <div className="container relative flex flex-col items-center max-w-5xl px-6 pt-16 mx-auto md:pt-28">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center text-center"
         >
-          <SkiLogoAnimated />
+          <SkiLogoAnimation />
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -111,7 +111,7 @@ const HomePage = () => {
             </p>
           </motion.div>
         </motion.div>
-        
+
         <motion.div
           className="flex flex-col items-center w-full mt-12"
           initial={{ opacity: 0 }}
@@ -140,8 +140,6 @@ const HomePage = () => {
                 </Button>
                 {hasLiveEvents && (
                   <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    whileInView={{ opacity: 1, height: 'auto' }}
                     className="mt-12 overflow-hidden"
                   >
                     <h3 className="mb-4 text-sm font-semibold tracking-wide text-center text-gray-500 uppercase">
@@ -199,7 +197,7 @@ const HomePage = () => {
             </div>
           )}
         </motion.div>
-        
+
         <motion.div
           className="relative w-full mt-20 md:mt-28"
           initial={{ opacity: 0, y: 40 }}
@@ -220,7 +218,7 @@ const HomePage = () => {
             </div>
           </div>
         </motion.div>
-        
+
         <motion.div
           className="w-full py-16"
           initial={{ opacity: 0 }}
@@ -254,7 +252,7 @@ const HomePage = () => {
           </div>
         </motion.div>
       </div>
-      
+
       <motion.footer
         className="py-10 mt-auto text-center bg-gray-50"
         initial={{ opacity: 0 }}

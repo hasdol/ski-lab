@@ -274,7 +274,7 @@ const Skis = () => {
       {/* Locked skis or plan upgrade prompt */}
       {hasLockedSkis ? (
         <div className="flex my-4 space-x-4">
-          <div className="flex space-x-5 border border-dashed border-gray-300 p-4 rounded-md items-center justify-center w-full">
+          <div className="flex space-x-5 border border-dashed border-gray-300 p-4 rounded-lg items-center justify-center w-full">
             <div className="space-y-1">
               <h3 className="text-sm flex items-center"><RiLockLine /> {lockedSkisCount} locked ski(s)</h3>
               <Button onClick={() => router.push('/skis/locked')} variant="secondary">View skis</Button>
@@ -287,7 +287,7 @@ const Skis = () => {
         </div>
       ) : hasReachedLimit && plan !== 'company' ? (
         <div className="flex my-4">
-          <div className="flex space-x-5 border border-dashed border-gray-300 p-4 rounded-md items-center justify-center w-full">
+          <div className="flex space-x-5 border border-dashed border-gray-300 p-4 rounded-lg items-center justify-center w-full">
             <h3 className="text-sm">You’ve reached your limit. Upgrade to add more skis.</h3>
             <Button variant="primary" onClick={() => router.push('/plans')}>Upgrade</Button>
           </div>
@@ -389,9 +389,14 @@ const Skis = () => {
             <Button onClick={loadMore}>Load more</Button>
           </div>
         )}
-        {skis.length === 0 && !loading && user && <p>You have no skis</p>}
+        {skis.length === 0 && !loading && user && (
+          <GettingStartedGuide
+            onAddSki={handleAddSki}
+            onLearnMore={() => router.push('/about')}
+          />
+        )}
         {!user && (
-          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-md mt-4">
+          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg mt-4">
             <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
               <TiFlowParallel className="text-gray-500 text-2xl" />
             </div>
@@ -408,5 +413,26 @@ const Skis = () => {
     </div>
   );
 };
+
+// Add this new component near the top of the file
+function GettingStartedGuide({ onAddSki, onLearnMore }) {
+  return (
+    <div className="flex flex-col items-center p-6 border border-dashed border-gray-300 rounded-lg">
+      <h2 className="text-xl font-bold mb-2">Welcome to Ski Lab!</h2>
+      <p className="text-gray-600 text-center mb-4">
+        Let's get started! Follow these simple steps:
+      </p>
+      <ol className="list-decimal list-inside text-gray-700 mb-4 space-y-1">
+        <li>Click on the "Add Ski" button below to add your first ski.</li>
+        <li>Fill in your ski's details.</li>
+        <li>Once added, start testing and managing your skis.</li>
+      </ol>
+      <div className="flex space-x-4">
+        <Button onClick={onAddSki} variant="primary">Add Ski</Button>
+        <Button onClick={onLearnMore} variant="secondary">Learn More</Button>
+      </div>
+    </div>
+  );
+}
 
 export default Skis;

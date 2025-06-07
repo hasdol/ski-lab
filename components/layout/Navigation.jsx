@@ -13,7 +13,9 @@ import {
   RiLoginBoxLine,
   RiLogoutBoxLine,
   RiShoppingCartLine,
-  RiBarChart2Line
+  RiBarChart2Line,
+  RiInformationLine,
+  RiMenuLine
 } from 'react-icons/ri';
 import { TiFlowParallel } from 'react-icons/ti';
 import { useAuth } from '@/context/AuthContext';
@@ -37,29 +39,7 @@ export default function Navigation() {
 
   const isActive = path => path === pathname;
   const [isSubNavOpen, setIsSubNavOpen] = useState(false);
-
-  // Drag-to-close state
-  const [dragOffset, setDragOffset] = useState(0);
-  const dragStartY = useRef(0);
-  const isDragging = useRef(false);
-
-  const handleTouchStart = e => {
-    dragStartY.current = e.touches[0].clientY;
-    isDragging.current = false;
-  };
-
-  const handleTouchMove = e => {
-    const deltaY = e.touches[0].clientY - dragStartY.current;
-    if (deltaY > 5) isDragging.current = true;
-    if (deltaY > 0) setDragOffset(deltaY);
-  };
-
-  const handleTouchEnd = () => {
-    const threshold = 100;
-    if (dragOffset > threshold) setIsSubNavOpen(false);
-    setDragOffset(0);
-    isDragging.current = false;
-  };
+  
 
   const subNavItems = [
     user && { key: 'account', labelKey: 'Account', icon: <RiUser6Line size={22} />, path: '/account' },
@@ -68,6 +48,7 @@ export default function Navigation() {
     !user && { key: 'login', labelKey: 'Login', icon: <RiLoginBoxLine size={22} />, path: '/login' },
     !user && { key: 'signUp', labelKey: 'Sign Up', icon: <RiUserAddLine size={22} />, path: '/signup' },
     { key: 'contact', labelKey: 'Contact', icon: <RiMessage2Line size={22} />, path: '/contact' },
+    { key: 'about', labelKey: 'About', icon: <RiInformationLine size={22} />, path: '/about' },
     user && { key: 'signOut', labelKey: 'Sign Out', icon: <RiLogoutBoxLine size={22} />, onClick: () => { signOut(router.push); setIsSubNavOpen(false); } },
   ].filter(Boolean);
 
@@ -91,7 +72,7 @@ export default function Navigation() {
             aria-label='more'
             className={`p-4 flex items-center justify-center transition ${isSubNavOpen ? 'text-gray-800 bg-gray-100 shadow' : 'text-gray-600'}`}
           >
-            {user ? <RiSettings3Line size={20} /> : <RiLoginBoxLine size={20} />}
+            {user ? <RiMenuLine size={20} /> : <RiLoginBoxLine size={20} />}
           </button>
         </div>
       </nav>
@@ -177,7 +158,7 @@ export default function Navigation() {
         <div className="flex-1 flex items-center justify-end justify-self-end relative">
           <Weather />
           <Button onClick={() => setIsSubNavOpen(o => !o)} variant='secondary' className="ml-4 p-2!">
-            {user ? <RiSettings3Line size={20} /> : <RiLoginBoxLine size={20} />}
+            {user ? <RiMenuLine size={20} /> : <RiLoginBoxLine size={20} />}
 
           </Button>
 

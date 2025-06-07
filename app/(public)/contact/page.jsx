@@ -28,13 +28,13 @@ const Contact = () => {
 
   return (
     <div className="p-4 max-w-4xl w-full self-center">
-      <div className="flex items-center gap-3 mb-10">
+      <div className="flex items-center gap-3 mb-6">
         <div className="bg-blue-100 p-2 rounded-lg">
           <RiMessage2Line className="text-blue-600 text-2xl" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Contact</h1>
-          <p className="text-gray-600">Feedback or other issues? Send us a message</p>
+          <p className="text-gray-600">Send us a message</p>
         </div>
       </div>
 
