@@ -57,7 +57,7 @@ export default function EventPage() {
   const endFmt = formatDate(end);
 
   return (
-    <div className="max-w-4xl md:min-w-xl mx-auto bg-white p-6  space-y-6">
+    <div className="max-w-4xl md:min-w-xl mx-auto p-6  space-y-6">
       <div className="flex items-center justify-between">
         <Button onClick={handleBack} variant="secondary">
           Back

@@ -108,7 +108,7 @@ export default function ShareWithEventSelector({
 
   return (
     <div className="p-4 border border-gray-300 rounded-lg bg-white">
-      <h2 className='font-semibold text-lg text-gray-700 mb-5'>{includePast?'Shared in events':'Share with live events'}</h2>
+      <h2 className='font-semibold text-lg text-gray-700 mb-5'>{includePast ? 'Shared in events' : 'Share with live events'}</h2>
       <div className="mb-4">
         <Input
           type="text"
@@ -130,12 +130,10 @@ export default function ShareWithEventSelector({
           className="mb-3"
         >
           <summary className="cursor-pointer p-2 bg-gray-100 rounded">
-            {highlight(team.name, search) || t('unnamed_team')}
+            {highlight(team.name, search) || 'Unnamed Team'}
           </summary>
           <div className="mt-2 pl-4 space-y-1">
-            {(
-              teamEvents[team.id] || []
-            )
+            {(teamEvents[team.id] || [])
               // only include events that have started
               .filter(evt => evt.startDate <= today)
               // if not includePast, also require still live
@@ -152,7 +150,7 @@ export default function ShareWithEventSelector({
                   <div>
                     <div className="font-medium">{highlight(evt.name, search)}</div>
                     <div className="text-xs text-gray-500">
-                      {evt.startDate.toLocaleDateString()} – {evt.endDate.toLocaleDateString()}
+                      {evt.startDate.toLocaleDateString('nb-NO')} – {evt.endDate.toLocaleDateString('nb-NO')}
                     </div>
                   </div>
                 </label>

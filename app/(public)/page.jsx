@@ -150,8 +150,8 @@ const HomePage = () => {
                     <div className="grid gap-4 md:grid-cols-2">
                       {teams.map(team =>
                         teamEvents[team.id]?.map(event => {
-                          const start = event.startDate?.toLocaleDateString();
-                          const end = event.endDate?.toLocaleDateString();
+                          const start = event.startDate?.toLocaleDateString('nb-NO');
+                          const end = event.endDate?.toLocaleDateString('nb-NO');
                           return (
                             <motion.div
                               key={event.id}

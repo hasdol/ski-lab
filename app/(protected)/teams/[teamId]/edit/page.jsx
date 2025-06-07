@@ -9,7 +9,7 @@ import Input from '@/components/ui/Input';
 import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { useAuth } from '@/context/AuthContext';
-import { RiEarthLine, RiLockLine } from 'react-icons/ri';
+import { RiEarthLine, RiLockLine, RiTeamLine } from 'react-icons/ri';
 import Toggle from '@/components/ui/Toggle';
 
 export default function EditTeamPage() {
@@ -52,7 +52,6 @@ export default function EditTeamPage() {
         finalImage = await uploadTeamImage(teamId, file, user.uid);
         setImageURL(finalImage);
       }
-      // Pass in the isPublic field to update the team's privacy
       await updateTeam(teamId, { name, imageURL: finalImage, isPublic });
       router.push(`/teams/${teamId}`);
     } catch (e) {
@@ -110,10 +109,18 @@ export default function EditTeamPage() {
   }
 
   return (
-    <div className="max-w-4xl md:min-w-xl mx-auto p-4">
-      <div className="flex items-center justify-between mb-6">
-        <Button onClick={handleBack} variant="secondary">Back to Team</Button>
-        <h1 className="text-2xl font-bold text-gray-900">Edit Team</h1>
+    <div className="max-w-4xl md:min-w-xl w-full self-center p-4">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-3">
+          <div className="bg-blue-100 p-2 rounded-lg">
+            <RiTeamLine className="text-blue-600 text-2xl" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Edit Team</h1>
+            <p className="text-gray-600">Edit the selected team</p>
+          </div>
+        </div>
+        <Button onClick={handleBack} variant="secondary">Back</Button>
       </div>
 
       <div className="bg-white border border-gray-200 rounded-md p-6 space-y-6">
@@ -121,7 +128,7 @@ export default function EditTeamPage() {
           type="text"
           label="Team name"
           value={name}
-          onChange={e => setName(e.target.value)}
+          onChange={(e) => setName(e.target.value)}
           required
           className="w-full"
         />
@@ -160,7 +167,7 @@ export default function EditTeamPage() {
               alt="team image"
               clickable
               handleImageChange={handleFile}
-              className=" w-full mx-auto max-h-40 rounded-lg border-4 border-white"
+              className="w-full mx-auto max-h-40 rounded-lg border-4 border-white"
             />
             {imageURL && (
               <Button
@@ -176,21 +183,10 @@ export default function EditTeamPage() {
         </div>
 
         <div className="flex gap-3 pt-4">
-          <Button
-            onClick={handleUpdate}
-            variant="primary"
-            loading={isUpdating}
-            className="flex-1"
-          >
+          <Button onClick={handleUpdate} variant="primary" loading={isUpdating} className="flex-1">
             Update
           </Button>
-
-          <Button
-            onClick={handleDelete}
-            variant="danger"
-            loading={isDeleting}
-            className="flex-1"
-          >
+          <Button onClick={handleDelete} variant="danger" loading={isDeleting} className="flex-1">
             Delete
           </Button>
         </div>
