@@ -19,6 +19,7 @@ import DeleteTestModal from '@/components/DeleteTestModal/DeleteTestModal';
 import Button from '@/components/ui/Button';
 
 import ResultCard from './components/ResultCard';
+import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
 
 const Results = () => {
   const [searchTermRaw, setSearchTermRaw] = useState('');
@@ -61,11 +62,18 @@ const Results = () => {
     setCurrentTestId(id);
     setModalOpen(true);
   };
-  const handleModalConfirm = async () => {
+  const handleModalConfirm = async (scope) => {
     try {
+      // When no event context, always delete the private copy
+      const options =
+        scope === 'all'
+          ? { deletePrivate: true, deleteShared: true, deleteCurrentEvent: true }
+          : { deletePrivate: true, deleteShared: false, deleteCurrentEvent: false };
+
       const response = await deleteTestResultEverywhere({
         userId: user.uid,
         testId: currentTestId,
+        options
       });
       alert(response.message);
     } catch (err) {

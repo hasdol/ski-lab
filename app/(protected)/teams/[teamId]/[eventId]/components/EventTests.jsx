@@ -13,8 +13,6 @@ import Button from '@/components/ui/Button';
 export default function EventTests({ teamId, eventId }) {
   const { user } = useAuth();
   const router = useRouter();
-
-  // Subscribe to event test results using our custom hook
   const { testResults, loading, error } = useEventTestResults(teamId, eventId);
 
   // State for delete modal and related info
@@ -29,20 +27,25 @@ export default function EventTests({ teamId, eventId }) {
   };
 
   // Confirm deletion using our unified deletion function
-  const handleModalConfirm = async () => {
+  const handleModalConfirm = async (scope) => {
     if (!currentTestId) return;
     try {
+      const options = scope === 'all'
+        ? { deletePrivate: true, deleteShared: true, deleteCurrentEvent: true }
+        : { deletePrivate: false, deleteShared: false, deleteCurrentEvent: true };
+
       const response = await deleteTestResultEverywhere({
         userId: user.uid,
         testId: currentTestId,
         currentTeamId: teamId,
-        currentEventId: eventId
+        currentEventId: eventId,
+        options
       });
       alert(response.message);
-      // Optionally, update UI state to remove the deleted test result.
+      // Optionally update UI state to remove the deleted test result.
     } catch (err) {
       console.error('Error deleting test result:', err);
-      alert(t('error_deleting_result'));
+      alert('Error deleting test result');
     }
     setModalOpen(false);
     setCurrentTestId(null);
@@ -59,117 +62,87 @@ export default function EventTests({ teamId, eventId }) {
   }
 
   return (
-    <div className="my-4">
+    <div className="my-4 space-y-6">
       {testResults.map((result) => (
         <div
           key={result.id}
-          className="bg-white border border-gray-300 rounded-md mb-5 animate-fade-down animate-duration-300"
+          className="bg-white border border-gray-200 rounded-md p-6 mb-4 animate-fade-down animate-duration-300"
         >
-          <div className="flex justify-between p-4">
-
+          <div className="flex justify-between items-center mb-4">
             <div>
-              <h3 className="flex font-semibold text-xl items-center">
-                {result.style} / {result.temperature}°C
+              <h3 className="font-semibold text-lg">
+                {result.style.charAt(0).toUpperCase() + result.style.slice(1)} / {result.temperature}°C
               </h3>
-              <i className="text-sm">{result.location}</i>
-
+              <p className="text-sm text-gray-500">{result.location}</p>
             </div>
             {user?.uid === result.userId && (
-              <div className="flex items-center space-x-3">
-                <div className="flex space-x-3">
-                  <Button
-                    variant="secondary"
-                    onClick={() => router.push(`/results/${result.id}/edit`)}
-                  >
-                    <RiEditLine />
-                  </Button>
-                  <Button
-                    variant="danger"
-                    title='delete'
-                    onClick={() => handleDelete(result.id)}
-                  >
-                    <RiDeleteBinLine />
-                  </Button>
-                </div>
+              <div className="flex space-x-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => router.push(`/results/${result.id}/edit`)}
+                >
+                  <RiEditLine />
+                </Button>
+                <Button
+                  variant="danger"
+                  title="delete"
+                  onClick={() => handleDelete(result.id)}
+                >
+                  <RiDeleteBinLine />
+                </Button>
               </div>
             )}
           </div>
 
-          {/* Rankings list */}
-          <ul className="my-2 px-4 space-y-2">
+          <ul className="divide-y divide-gray-200 text-sm my-4">
             {result.rankings?.map((ranking, index) => (
-              <li key={index} className="flex py-1">
-                <span className="flex items-center w-1/3">
-                  {ranking.serialNumber || t('deleted')}
+              <li key={index} className="py-1 flex justify-between">
+                <span className="w-1/3">
+                  {ranking.serialNumber || 'Deleted'}
                 </span>
                 <span className="w-1/3 text-center">
                   {ranking.grind}
                 </span>
-                <span className="w-1/3 text-end">
-                  {ranking.score}
+                <span className="w-1/3 text-right">
+                  {ranking.score} <span className="text-xs">cm</span>
                 </span>
               </li>
             ))}
           </ul>
 
-          {/* Additional details */}
-          <div className="my-5 px-4">
-            <p className="border-t border-sbtn mb-4"></p>
-            <ul className="text-sm grid grid-cols-2 gap-2">
-              <li className="flex flex-col">
-                Snow type
-                <div className="font-semibold text-base">
-                  {result.snowCondition?.grainType || '--'}
-                </div>
-              </li>
-              <li className="flex flex-col">
-                Snow source
-                <div className="font-semibold text-base">
-                  {result.snowCondition?.source || '--'}
-                </div>
-              </li>
-              <li className="flex flex-col">
-                Snow temperature
-                <div className="font-semibold text-base">
-                  {result.snowTemperature ?? '--'}
-                </div>
-              </li>
-              <li className="flex flex-col">
-                Humidity
-                <div className="font-semibold text-base">
-                  {result.humidity ?? '--'}
-                </div>
-              </li>
-              <li className="flex flex-col col-span-2">
-                Comment
-                <div className="font-semibold text-base">
-                  {result.comment || '--'}
-                </div>
-              </li>
-            </ul>
+          <div className="grid grid-cols-2 gap-4 text-sm mb-2">
+            <div>
+              <span className="text-gray-700">Snow type:</span>{' '}
+              <strong>{result.snowCondition?.grainType || '--'}</strong>
+            </div>
+            <div>
+              <span className="text-gray-700">Snow source:</span>{' '}
+              <strong>{result.snowCondition?.source || '--'}</strong>
+            </div>
+            <div>
+              <span className="text-gray-700">Snow temp:</span>{' '}
+              <strong>{result.snowTemperature != null ? `${result.snowTemperature}°C` : '--'}</strong>
+            </div>
+            <div>
+              <span className="text-gray-700">Humidity:</span>{' '}
+              <strong>{result.humidity != null ? `${result.humidity}%` : '--'}</strong>
+            </div>
+            <div className="col-span-2">
+              <span className="text-gray-700">Comment:</span>{' '}
+              <strong>{result.comment || '--'}</strong>
+            </div>
           </div>
 
-          {/* Timestamp display */}
-          {result.timestamp &&
-            typeof result.timestamp === 'object' &&
-            result.timestamp.seconds && (
-              <div className="flex justify-end mt-2 p-4">
-                <div className="flex items-center">
-                  <span className="px-2 border-r">
-                    {new Date(result.timestamp.seconds * 1000).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                  <span className="px-2">
-                    {new Date(result.timestamp.seconds * 1000).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            )}
-          <p className="text-xs font-bold text-highlight absolute bottom-0 left-0 p-4">
-            {result.displayName}
-          </p>
+          <div className="flex justify-between items-center text-xs text-gray-500 mt-4">
+            <span>
+              {result.timestamp && typeof result.timestamp === 'object' && result.timestamp.seconds 
+                ? new Date(result.timestamp.seconds * 1000).toLocaleDateString()
+                : ''}
+            </span>
+            <span className="italic">
+              {result.displayName ? `By ${result.displayName}` : ''}
+            </span>
+          </div>
         </div>
       ))}
 
