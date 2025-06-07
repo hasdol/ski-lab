@@ -10,6 +10,7 @@ import { useAuth } from '@/context/AuthContext';
 
 const PublicTeamsList = ({ teams, loading, error, hasMore, onLoadMore, onRefresh, onJoin }) => {
   const { user } = useAuth();
+  const router = useRouter();
 
   if (error) {
     return (
@@ -60,7 +61,13 @@ const PublicTeamsList = ({ teams, loading, error, hasMore, onLoadMore, onRefresh
                   </p>
                 </div>
                 <Button
-                  onClick={() => !isJoined && onJoin && onJoin(team)}
+                  onClick={() => {
+                    if (!user) {
+                      router.push('/login');
+                    } else if (!isJoined && onJoin) {
+                      onJoin(team);
+                    }
+                  }}
                   variant="secondary"
                   className="text-sm px-3 py-1.5"
                 >
