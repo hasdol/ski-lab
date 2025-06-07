@@ -5,7 +5,7 @@ const Overlay = ({ isVisible }) => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-20 backdrop-blur"></div>
+    <div className="fixed top-0 left-0 w-full h-full z-20 backdrop-blur"></div>
   );
 };
 

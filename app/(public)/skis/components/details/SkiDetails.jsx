@@ -62,41 +62,6 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
     setSelectedSeason(event.target.value);
   }, []);
 
-  // Custom tooltip for performance chart
-  const CustomTooltip = useCallback(
-    ({ active, payload, label }) => {
-      if (!active || !payload?.length) return null;
-      const d = payload[0].payload;
-
-      return (
-        <div className="bg-white border border-gray-300 shadow-lg rounded-md p-4 text-xs max-w-xs">
-          <p className="font-semibold text-base mb-2">
-            {d.rank}/{d.total}
-          </p>
-
-          <div className="space-y-[2px] leading-snug">
-            <p>
-              <strong>Test date:</strong>{' '}
-              {new Date(label).toLocaleDateString()}
-            </p>
-            <p>
-              <strong>Location:</strong> {d.location}
-            </p>
-            <p>
-              <strong>Temerature:</strong> {d.temp}°C
-            </p>
-            <p>
-              <strong>Snow source:</strong> {d.snowSource}
-            </p>
-            <p>
-              <strong>Snow type:</strong> {d.snowType}
-            </p>
-          </div>
-        </div>
-      );
-    },
-  );
-
   // Get unique temperatures from chartData
   const dynamicTemperatureList = useMemo(() => {
     const temps = [...new Set(chartData.map((data) => data.temp))];
@@ -390,7 +355,6 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
                 minDate={seasonMinDate}
                 maxDate={seasonMaxDate}
                 maxRank={maxRank}
-                CustomTooltip={CustomTooltip}
                 containerWidth={containerWidth}
               />
             )

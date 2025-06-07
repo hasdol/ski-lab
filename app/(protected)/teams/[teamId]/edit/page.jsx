@@ -101,7 +101,7 @@ export default function EditTeamPage() {
   if (error) {
     return (
       <div className="max-w-4xl mx-auto p-4">
-        <div className="bg-red-50 text-red-800 border border-red-200 rounded-md p-6">
+        <div className="bg-red-50 text-red-800 border border-red-200 rounded-lg p-6">
           Error loading team: {error.message}
         </div>
       </div>
@@ -123,7 +123,7 @@ export default function EditTeamPage() {
         <Button onClick={handleBack} variant="secondary">Back</Button>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-md p-6 space-y-6">
+      <div className="bg-white shadow rounded-lg p-6 space-y-6">
         <Input
           type="text"
           label="Team name"

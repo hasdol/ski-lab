@@ -463,13 +463,20 @@ async function wipeEventsOfTeam(teamId, uid = null) {
 // Helper: deep-delete an entire team and everything under it
 // ------------------------------------------------------------------
 async function wipeWholeTeam(teamId) {
-  // delete all events (whoever created them)
+  // 1) Delete all events (and their images & testResults) in the team.
   await wipeEventsOfTeam(teamId);
 
-  // delete team-level image
+  // 2) Delete all joinRequests documents in the team.
+  const joinRequestsRef = db.collection(`teams/${teamId}/joinRequests`);
+  const joinRequestsSnap = await joinRequestsRef.get();
+  for (const doc of joinRequestsSnap.docs) {
+    await doc.ref.delete();
+  }
+
+  // 3) Delete the team-level image.
   await deleteFileIfExists(`teams/${teamId}/team.jpg`);
 
-  // delete the team document itself
+  // 4) Delete the team document itself.
   await db.collection('teams').doc(teamId).delete();
 }
 

@@ -12,7 +12,7 @@ const TeamCard = ({ team, isCreator, onView }) => {
       key={team.id}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex items-center justify-between bg-white border border-gray-200 rounded-md p-4"
+      className="flex items-center justify-between bg-white shadow rounded-lg p-4"
     >
       <div className="relative flex items-center space-x-4">
         <div className="flex items-center justify-center w-12 h-12 bg-gray-50 rounded-full">

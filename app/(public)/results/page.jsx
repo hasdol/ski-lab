@@ -176,8 +176,8 @@ const Results = () => {
         )}
 
         {!loading && resultsToShow.length === 0 && user && (
-          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-md">
-            <div className="bg-gray-100 w-16 h-16 rounded-md flex items-center justify-center mx-auto mb-4">
+          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+            <div className="bg-gray-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
               <RiBarChart2Line className="text-gray-500 text-2xl" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -190,8 +190,8 @@ const Results = () => {
         )}
 
         {!user && (
-          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-md">
-            <div className="bg-gray-100 w-16 h-16 rounded-md flex items-center justify-center mx-auto mb-4">
+          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+            <div className="bg-gray-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
               <RiBarChart2Line className="text-gray-500 text-2xl" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">

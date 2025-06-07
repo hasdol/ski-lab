@@ -86,7 +86,7 @@ export default function CreateEventPage() {
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-md p-6 space-y-6">
+      <div className="bg-white shadow rounded-lg p-6 space-y-6">
 
         <Input
           type="text"

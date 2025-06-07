@@ -40,8 +40,8 @@ const SignUp = () => {
           <p className="text-gray-600">Create a new user</p>
         </div>
       </div>
-      {error && <p className="bg-red-100 text-red-700 p-3 rounded-md">{error}</p>}
-      <form onSubmit={handleSignUp} className="bg-white border border-gray-200 rounded-md p-6 space-y-4">
+      
+      <form onSubmit={handleSignUp} className="bg-white shadow rounded-lg p-6 space-y-4">
         <Input
           id="email"
           type="email"
@@ -63,6 +63,7 @@ const SignUp = () => {
           className="w-full"
           required
         />
+        {error && <p className="bg-red-100 text-red-700 p-3 rounded-lg">{error}</p>}
         <Button type="submit" loading={isLoading} variant="primary">
           Sign Up
         </Button>

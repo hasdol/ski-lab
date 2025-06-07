@@ -1,5 +1,4 @@
 'use client';
-
 import React, {
   useMemo,
   forwardRef,
@@ -20,6 +19,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { formatDate, formatSnowTypeLabel, formatSourceLabel, getTimestamp } from '@/helpers/helpers';
 import Button from '@/components/ui/Button';
+import Overlay from '@/components/ui/Overlay';
 
 /* ───────────────────────────────────────────────
    Helpers
@@ -93,7 +93,7 @@ const FloatingTooltip = ({ point, hideTooltip }) => {
 
   return (
     <div
-      className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-2/3 rounded-lg bg-white border border-gray-200 shadow-lg p-4 text-sm transition-opacity duration-150"
+      className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-2/3 rounded-lg bg-white shadow-lg p-4 text-sm transition-opacity duration-150"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="font-semibold mb-2 flex justify-between text-gray-800">
@@ -304,6 +304,7 @@ const PerformanceChart = forwardRef(
           </LineChart>
         </ResponsiveContainer>
 
+        {activePoint && <Overlay isVisible={true} />}
         {activePoint && <FloatingTooltip point={activePoint} hideTooltip={hideTooltip} />}
       </div>
     );

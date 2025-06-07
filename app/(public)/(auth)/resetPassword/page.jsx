@@ -46,8 +46,8 @@ const PasswordReset = () => {
           <p className="text-gray-600">Reset your password</p>
         </div>
       </div>
-      {resetError && <p className="bg-red-100 text-red-700 p-3 rounded-md">{resetError}</p>}
-      <form onSubmit={handleResetPassword} className="bg-white border border-gray-200 rounded-md p-6 space-y-4">
+      
+      <form onSubmit={handleResetPassword} className="bg-white shadow rounded-lg p-6 space-y-4">
         <Input
           id="resetEmail"
           type="email"
@@ -58,6 +58,7 @@ const PasswordReset = () => {
           className="w-full"
           required
         />
+        {resetError && <p className="bg-red-100 text-red-700 p-3 rounded-lg">{resetError}</p>}
         <div className="flex gap-2">
           <Button type="submit" loading={isResetting} variant="primary">
             Reset Password
@@ -66,6 +67,7 @@ const PasswordReset = () => {
             Back
           </Button>
         </div>
+        
       </form>
     </main>
   );

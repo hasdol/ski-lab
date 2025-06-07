@@ -1,6 +1,11 @@
 // ./components/SkiItem/SkiItem.jsx
+'use client';
 import React, { useContext } from 'react';
-import { RiHistoryLine, RiExpandDiagonalFill, RiCollapseDiagonalLine } from "react-icons/ri";
+import {
+  RiHistoryLine,
+  RiExpandDiagonalFill,
+  RiCollapseDiagonalLine
+} from "react-icons/ri";
 
 import SkiDetail from './details/SkiDetails';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
@@ -21,7 +26,6 @@ const SkiItem = ({
   allExpanded = false,
 }) => {
   const { gloveMode } = useContext(UserPreferencesContext);
-
   const showDetails = allExpanded || (ski.id === expandedSkiId);
 
   const handleEditClick = async (e) => {
@@ -42,37 +46,31 @@ const SkiItem = ({
   };
 
   return (
-    <div
-      className={`rounded-md border border-gray-300 ${showDetails
-          ? ''
-          : ' hover:bg-gray-50'
-        }`}
-    >
-      {/* Main clickable row - now controls checkbox */}
+    <div className={`bg-white shadow rounded-lg overflow-hidden transition-colors duration-200 ${showDetails ? '' : 'hover:bg-gray-50'}`}>
+      {/* Main clickable row */}
       <div
-        className="p-3 w-full cursor-pointer"
-        variant='secondary'
+        className="py-2 px-3 flex items-center cursor-pointer"
         onClick={() => handleCheckboxChange(ski.id)}
       >
-        <div className={`flex items-center space-x-1 ${showDetails && 'font-semibold'}`}>
-          <input
-            type="checkbox"
-            checked={selectedSkis[ski.id] || false}
-            readOnly
-            className={`mr-2 accent-btn ${gloveMode ? 'w-10 h-10' : 'w-4 h-4'}`}
-            aria-label='select ski'
-          />
-
+        <input
+          type="checkbox"
+          checked={selectedSkis[ski.id] || false}
+          readOnly
+          className={`mr-3 accent-btn ${gloveMode ? 'w-10 h-10' : 'w-4 h-4'}`}
+          aria-label="select ski"
+        />
+        <div className="flex-grow">
           {!gloveMode ? (
-            <div className='flex space-x-1 items-center'>
+            <div className={`flex items-center space-x-2 ${showDetails && 'font-semibold'}`}>
               <span>{highlightSearchTerm(ski.serialNumber, search)}</span>
-              <span>•</span>
+              <span className="text-gray-400">•</span>
               <span>{highlightSearchTerm(ski.grind, search)}</span>
-              <span>•</span>
+              <span className="text-gray-400">•</span>
               <span>{highlightSearchTerm(ski.style.charAt(0).toUpperCase() + ski.style.slice(1), search)}</span>
-              {/* Archive or New indicators */}
-              {ski.archived && <RiHistoryLine />}
-              {isNew(ski) && !gloveMode && <p className="text-highlight text-xs"> - New</p>}
+              {ski.archived && <RiHistoryLine className="ml-2 text-gray-500" />}
+              {isNew(ski) && !gloveMode && (
+                <span className="ml-1 text-xs text-blue-600">New</span>
+              )}
             </div>
           ) : (
             <div className="flex flex-col">
@@ -80,36 +78,31 @@ const SkiItem = ({
               <span>{ski.style}</span>
             </div>
           )}
-
-
-
-          {/* Magnifying glass button for details */}
-          {!gloveMode && !allExpanded && (
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleDetails(ski.id);
-              }}
-              variant='secondary'
-              className="ml-auto z-10 p-2!"
-            >
-              {showDetails ? <RiCollapseDiagonalLine /> : <RiExpandDiagonalFill />}
-
-            </Button>
-          )}
-
         </div>
+        {!gloveMode && !allExpanded && (
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleDetails(ski.id);
+            }}
+            variant="secondary"
+          >
+            {showDetails ? <RiCollapseDiagonalLine /> : <RiExpandDiagonalFill />}
+          </Button>
+        )}
       </div>
 
-      {/* Detailed info if expanded */}
+      {/* Detailed info */}
       {showDetails && !gloveMode && (
-        <SkiDetail
-          ski={ski}
-          onEdit={handleEditClick}
-          onArchive={handleArchiveClick}
-          onUnarchive={handleUnarchiveClick}
-          onDelete={handleDeleteFinalClick}
-        />
+        <div className="border-t border-gray-200 p-4">
+          <SkiDetail
+            ski={ski}
+            onEdit={handleEditClick}
+            onArchive={handleArchiveClick}
+            onUnarchive={handleUnarchiveClick}
+            onDelete={handleDeleteFinalClick}
+          />
+        </div>
       )}
     </div>
   );

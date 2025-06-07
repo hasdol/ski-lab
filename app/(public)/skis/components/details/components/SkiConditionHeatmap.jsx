@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import { MdInfoOutline } from 'react-icons/md';
 import { formatSnowTypeLabel, formatSourceLabel, formatDate } from '@/helpers/helpers';
+import Overlay from '@/components/ui/Overlay';
 
 const SkiConditionHeatmap = ({
   temperatureList,
@@ -191,7 +192,7 @@ const SkiConditionHeatmap = ({
 
       {/* Small-tests info */}
       {chartData.some((d) => d.total < 4) && (
-        <div className="flex items-center bg-blue-50 text-blue-800 p-2 rounded-md text-sm mt-4">
+        <div className="flex items-center bg-blue-50 text-blue-800 p-2 rounded-lg text-sm mt-4">
           <MdInfoOutline className="w-5 h-5 mr-2 flex-shrink-0" />
           <span>
             {chartData.filter((d) => d.total < 4).length} tests are ignored. Tests with only two skis are ignored.
@@ -201,49 +202,52 @@ const SkiConditionHeatmap = ({
 
       {/* Popup */}
       {showPopup && popupData && (
-        <div
-          className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-2/3 rounded-md bg-white shadow-lg border border-gray-300 p-4 md:text-base text-sm transition-opacity duration-150"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <h3 className="font-semibold text-gray-800">
-            {popupData.temp}°C • {formatSourceLabel(popupData.source)} • {formatSnowTypeLabel(popupData.snowType)}
-          </h3>
-          <span className="block text-gray-600">
-            Number of tests: {popupData.tests.length}
-          </span>
+        <>
+          <Overlay isVisible={true} />
+          <div
+            className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-2/3 rounded-lg bg-white shadow-lg p-4 md:text-base text-sm transition-opacity duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-semibold text-gray-800">
+              {popupData.temp}°C • {formatSourceLabel(popupData.source)} • {formatSnowTypeLabel(popupData.snowType)}
+            </h3>
+            <span className="block text-gray-600">
+              Number of tests: {popupData.tests.length}
+            </span>
 
-          <ul className="space-y-4 my-4">
-            {popupData.tests
-              .sort((a, b) => b.testDate - a.testDate)
-              .map((test) => (
-                <li key={test.testId} className="flex bg-gray-50 p-2 rounded-md flex-col sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <div className="text-sm font-semibold text-gray-800">
-                      {formatDate(new Date(test.testDate))}
+            <ul className="space-y-4 my-4">
+              {popupData.tests
+                .sort((a, b) => b.testDate - a.testDate)
+                .map((test) => (
+                  <li key={test.testId} className="flex bg-gray-50 p-2 rounded-lg flex-col sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <div className="text-sm font-semibold text-gray-800">
+                        {formatDate(new Date(test.testDate))}
+                      </div>
+                      <div className="text-sm text-gray-700">
+                        Rank: {test.rank}/{test.total}
+                      </div>
+                      <div className="text-sm text-gray-600 mb-1">{test.location}</div>
                     </div>
-                    <div className="text-sm text-gray-700">
-                      Rank: {test.rank}/{test.total}
-                    </div>
-                    <div className="text-sm text-gray-600 mb-1">{test.location}</div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="primary"
-                    size="xs"
-                    onClick={() => router.push(`/results/${test.testId}`)}
-                  >
-                    Go to test
-                  </Button>
-                </li>
-              ))}
-          </ul>
+                    <Button
+                      type="button"
+                      variant="primary"
+                      size="xs"
+                      onClick={() => router.push(`/results/${test.testId}`)}
+                    >
+                      Go to test
+                    </Button>
+                  </li>
+                ))}
+            </ul>
 
-          <div className="mt-3 flex justify-end">
-            <Button variant="secondary" size="xs" onClick={() => setShowPopup(false)}>
-              Close
-            </Button>
+            <div className="mt-3 flex justify-end">
+              <Button variant="secondary" size="xs" onClick={() => setShowPopup(false)}>
+                Close
+              </Button>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

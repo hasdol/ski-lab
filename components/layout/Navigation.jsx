@@ -132,7 +132,7 @@ export default function Navigation() {
                       key={item.key}
                       href={item.path}
                       onClick={() => setIsSubNavOpen(false)}
-                      className="border rounded-md flex justify-between items-center w-full px-4 py-3 border-gray-200 text-gray-700 hover:bg-gray-100"
+                      className="border rounded-lg flex justify-between items-center w-full px-4 py-3 border-gray-200 text-gray-700 hover:bg-gray-100"
                     >
                       <span>{item.labelKey}</span>
                       {item.icon}
@@ -141,7 +141,7 @@ export default function Navigation() {
                     <button
                       key={item.key}
                       onClick={item.onClick}
-                      className="border rounded-md flex justify-between items-center w-full px-4 py-3 border-gray-200 text-gray-700 hover:bg-gray-100"
+                      className="border rounded-lg flex justify-between items-center w-full px-4 py-3 border-gray-200 text-gray-700 hover:bg-gray-100"
                     >
                       <span>{item.labelKey}</span>
                       {item.icon}
@@ -166,7 +166,7 @@ export default function Navigation() {
           <ul className="grid grid-cols-4 gap-1">
             {navConfig.map(item => (
               <li key={item.key}>
-                <Link href={item.path} className={`flex items-center justify-center transition py-1 hover:bg-gray-100 rounded-md  ${isActive(item.path) ? 'bg-blue-100  text-blue-600/80' : 'text-gray-700'}`}>
+                <Link href={item.path} className={`flex items-center justify-center transition py-1 hover:bg-gray-100 rounded-lg  ${isActive(item.path) ? 'bg-blue-100  text-blue-600/80' : 'text-gray-700'}`}>
                   {item.icon}
                   <span className="ml-2">{item.labelKey}</span>
                 </Link>
@@ -184,16 +184,16 @@ export default function Navigation() {
           {isSubNavOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setIsSubNavOpen(false)} />
-              <div className="absolute right-0 top-10 w-58 mt-2 bg-white rounded-md shadow-lg overflow-hidden z-50 animate-fade-down animate-duration-300">
+              <div className="absolute right-0 top-10 w-58 mt-2 bg-white rounded-lg shadow-lg overflow-hidden z-50 animate-fade-down animate-duration-300">
                 <div className="space-y-3 p-5  ">
                   {subNavItems.map(item =>
                     item.path ? (
-                      <Link key={item.key} href={item.path} onClick={() => setIsSubNavOpen(false)} className="border rounded-md flex items-center w-full px-4 py-2  border-gray-300 text-gray-700 hover:bg-gray-100">
+                      <Link key={item.key} href={item.path} onClick={() => setIsSubNavOpen(false)} className="border rounded-lg flex items-center w-full px-4 py-2  border-gray-300 text-gray-700 hover:bg-gray-100">
                         {item.icon}
                         <span className="ml-2">{item.labelKey}</span>
                       </Link>
                     ) : (
-                      <button key={item.key} onClick={item.onClick} className="border rounded-md flex items-center w-full px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-100">
+                      <button key={item.key} onClick={item.onClick} className="border rounded-lg flex items-center w-full px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-100">
                         {item.icon}
                         <span className="ml-2">{item.labelKey}</span>
                       </button>

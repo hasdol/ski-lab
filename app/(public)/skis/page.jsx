@@ -274,7 +274,7 @@ const Skis = () => {
       {/* Locked skis or plan upgrade prompt */}
       {hasLockedSkis ? (
         <div className="flex my-4 space-x-4">
-          <div className="flex space-x-5 border border-orange-400 py-4 rounded-md items-center justify-center w-full">
+          <div className="flex space-x-5 border border-dashed border-gray-300 p-4 rounded-md items-center justify-center w-full">
             <div className="space-y-1">
               <h3 className="text-sm flex items-center"><RiLockLine /> {lockedSkisCount} locked ski(s)</h3>
               <Button onClick={() => router.push('/skis/locked')} variant="secondary">View skis</Button>
@@ -287,7 +287,7 @@ const Skis = () => {
         </div>
       ) : hasReachedLimit && plan !== 'company' ? (
         <div className="flex my-4">
-          <div className="flex border border-orange-400 py-4 rounded-md items-center justify-between px-4 w-full">
+          <div className="flex space-x-5 border border-dashed border-gray-300 p-4 rounded-md items-center justify-center w-full">
             <h3 className="text-sm">You’ve reached your limit. Upgrade to add more skis.</h3>
             <Button variant="primary" onClick={() => router.push('/plans')}>Upgrade</Button>
           </div>

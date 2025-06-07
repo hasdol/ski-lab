@@ -35,7 +35,7 @@ const EditSkiPage = () => {
         {loading ? (
           <div className='flex justify-center'><Spinner /></div>
         ) : error ? (
-          <div className="bg-red-100 text-red-800 p-2 rounded-md">
+          <div className="bg-red-100 text-red-800 p-2 rounded-lg">
             Error: {error.message}
           </div>
         ) : !ski ? (
@@ -48,7 +48,7 @@ const EditSkiPage = () => {
               isEdit={true}
             />
             {updateError && (
-              <div className="bg-red-100 text-red-800 p-2 rounded-md mt-4">
+              <div className="bg-red-100 text-red-800 p-2 rounded-lg mt-4">
                 Error: {updateError.message}
               </div>
             )}

@@ -34,7 +34,7 @@ export default function EventPage() {
   if (error) {
     return (
       <div className="mx-auto">
-        <div className="bg-red-50 text-red-700 rounded-md p-6">
+        <div className="bg-red-50 text-red-700 rounded-lg p-6">
           Error: {error.message}
         </div>
       </div>
@@ -43,7 +43,7 @@ export default function EventPage() {
   if (!eventData) {
     return (
       <div className="mx-auto">
-        <div className="bg-yellow-50 text-yellow-800 rounded-md p-6">
+        <div className="bg-yellow-50 text-yellow-800 rounded-lg p-6">
           No event found
         </div>
       </div>
@@ -57,7 +57,7 @@ export default function EventPage() {
   const endFmt = formatDate(end);
 
   return (
-    <div className="max-w-4xl md:min-w-xl mx-auto p-6  space-y-6">
+    <div className="max-w-4xl md:min-w-xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <Button onClick={handleBack} variant="secondary">
           Back
@@ -69,26 +69,29 @@ export default function EventPage() {
         )}
       </div>
 
-      <div className="text-center">
-        <UploadableImage
-          photoURL={eventData.imageURL}
-          variant="event"
-          clickable={false}
-          className="mx-auto mb-4 w-full max-h-40 object-contain"
-        />
-        <h1 className="text-3xl font-semibold text-gray-800 mb-1">
-          {eventData.name}
-        </h1>
-        <p className="text-sm text-gray-600">{startFmt} - {endFmt}</p>
+      <div className=" space-y-6">
+        <div className="text-center">
+          <UploadableImage
+            photoURL={eventData.imageURL}
+            variant="event"
+            clickable={false}
+            className="mx-auto mb-4 w-full max-h-40 object-contain"
+          />
+          <h1 className="text-3xl font-semibold text-gray-800 mb-1">
+            {eventData.name}
+          </h1>
+          <p className="text-sm text-gray-600">{startFmt} - {endFmt}</p>
+        </div>
+
+        <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+
+        <div className="m-4">
+          {activeTab === 'Overview' && <EventOverview eventData={eventData} />}
+          {activeTab === 'Tests' && <EventTests teamId={teamId} eventId={eventId} />}
+          {activeTab === 'Weather' && <EventWeather eventData={eventData} />}
+        </div>
       </div>
 
-      <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      <div className="m-4">
-        {activeTab === 'Overview' && <EventOverview eventData={eventData} />}
-        {activeTab === 'Tests' && <EventTests teamId={teamId} eventId={eventId} />}
-        {activeTab === 'Weather' && <EventWeather eventData={eventData} />}
-      </div>
     </div>
   );
 }

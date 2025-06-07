@@ -32,7 +32,7 @@ const CreateSkisPage = () => {
 
         <SkiForm onSubmit={handleAddSki} />
 
-        {error && <div className="bg-red-100 text-red-800 p-2 rounded-md">Error: {error.message}</div>}
+        {error && <div className="bg-red-100 text-red-800 p-2 rounded-lg">Error: {error.message}</div>}
       </div>
 
     </div>

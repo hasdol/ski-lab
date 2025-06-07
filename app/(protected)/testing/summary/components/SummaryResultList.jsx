@@ -35,7 +35,7 @@ const SummaryResultList = ({ rankings }) => {
                 {rankedList.map((item, index) => (
                     <li
                         key={item.serialNumber}
-                        className={`grid grid-cols-3 items-center justify-between bg-gray-50 text-black rounded-md p-3 px-4
+                        className={`grid grid-cols-3 items-center justify-between bg-gray-50 text-black rounded-lg p-3 px-4
                            `}                    >
                         <div className="flex-1 text-left">P{item.rank}</div>
                         <div className="flex-1 text-center">{item.serialNumber} </div>

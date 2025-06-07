@@ -67,7 +67,7 @@ export default function PendingJoinRequests({ teamId }) {
 
 
   return (
-    <div className="p-6 border border-gray-300 rounded-md bg-white">
+    <div className="p-6 border border-gray-300 rounded-lg bg-white">
       <h2 className="text-xl font-semibold mb-4">Pending Join Requests</h2>
       <ul>
         {requests.map((req) => (

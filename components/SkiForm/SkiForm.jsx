@@ -133,7 +133,7 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-md p-6 space-y-6">
+    <div className="bg-white shadow rounded-lg p-6 space-y-6">
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           label='Serial number'
@@ -175,7 +175,7 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
           onChange={handleChange}
           placeholder='Model'
         />
-        <div className={`${isEdit && 'bg-gray-50 rounded-md my-4 p-4'}`}>
+        <div className={`${isEdit && ''}`}>
           {isEdit && (
             <h3 className="text-xl font-semibold mb-4">Change Grind</h3>
           )}
@@ -248,12 +248,12 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
 
           {isEdit && formData.grindHistory.length > 0 && (
             <div>
-              <h3 className="text-xl font-semibold my-8">Grind History</h3>
-              <ul className="space-y-2">
+              <h3 className="text-xl font-semibold my-4">Grind History</h3>
+              <ul className="divide-y divide-gray-300">
                 {formData.grindHistory.map((entry, index) => (
                   <li
                     key={index}
-                    className="flex  justify-between items-center space-y-1 border-b border-gray-300 pb-2"
+                    className="flex py-1 justify-between items-center"
                   >
                     <p className="text-sm">
                       {entry.grind} - {formatDate(entry.grindDate)}

@@ -11,7 +11,7 @@ import {
 
 const ResultCard = ({ result, debouncedSearch, handleEdit, handleDelete }) => {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <div className="bg-white shadow rounded-lg p-6">
       <div className="flex justify-between items-center mb-4">
         <div>
           <h3 className="font-semibold text-lg">

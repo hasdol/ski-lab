@@ -10,7 +10,7 @@ const LockedSkiItem = ({ ski, handleDelete }) => {
   const confirmDelete = (e) => {
     e.stopPropagation(); // Prevent triggering any parent click events
     const isConfirmed = window.confirm(
-      t('delete_ski_promt') + " " + t('delete_ski_promt_2')
+      "Are you sure you want to delete this locked ski?"
     );
     if (isConfirmed) {
       handleDelete(ski.id);
@@ -18,19 +18,18 @@ const LockedSkiItem = ({ ski, handleDelete }) => {
   };
 
   return (
-    <div className="flex items-center border border-gray-300 rounded-md justify-between p-2">
-      <RiLockLine className='ml-2' />
-      <div className="flex items-center space-x-2">
-        <span className="font-semibold">Serial number </span>
-        <span>{ski.serialNumber}</span>
+    <div className="flex items-center justify-between bg-gray-50 border border-dashed border-gray-400 py-4 px-4 rounded-md shadow-sm">
+      <div className="flex items-center space-x-3">
+        <RiLockLine className="text-gray-700 text-3xl" />
+        <div>
+          <div className="font-semibold text-gray-800">Serial Number</div>
+          <div className="text-gray-600">{ski.serialNumber}</div>
+        </div>
       </div>
-      <Button
-        onClick={confirmDelete}
-        variant="danger"
-      >
-        <RiDeleteBinLine />
+      <Button onClick={confirmDelete} variant="danger" className="flex items-center text-sm">
+        <RiDeleteBinLine className="mr-1" />
+        Delete
       </Button>
-
     </div>
   );
 };

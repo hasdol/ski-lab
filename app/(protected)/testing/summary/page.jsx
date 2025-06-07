@@ -210,7 +210,7 @@ const TestSummaryPage = () => {
 
       </div>
       {/* results list */}
-      <div className="bg-white border border-gray-200 rounded-md p-6 space-y-6">
+      <div className="bg-white shadow rounded-lg p-6 space-y-6">
         <div>
           {loading ? (
             <div className="flex justify-center items-center h-40">
@@ -223,7 +223,7 @@ const TestSummaryPage = () => {
 
         {/* form */}
         <form
-          className="rounded flex flex-col text-black space-y-4"
+          className="rounded-lg flex flex-col text-black space-y-4"
           onSubmit={handleSaveResults}
         >
           <Input

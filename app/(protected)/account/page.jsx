@@ -110,7 +110,7 @@ const Account = () => {
                 </Button>
               </div>
 
-              <div className="mt-6 border-t pt-4">
+              <div>
                 <p className="text-sm text-gray-500">
                   Joined: {' '}
                   <span className="font-medium">

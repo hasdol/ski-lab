@@ -54,7 +54,7 @@ export default function GeocodeInput({ label, initialValue = '', onLocationSelec
         placeholder={label}
       />
       {focused && suggestions.length > 0 && (
-        <div className="absolute z-10 w-full bg-white border rounded shadow-lg mt-1 max-h-60 overflow-auto">
+        <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
           {suggestions.map((place, i) => (
             <div
               key={i}

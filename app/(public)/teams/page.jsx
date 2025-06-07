@@ -109,7 +109,7 @@ export default function TeamsPage() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
           >
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <div className="flex items-start gap-3">
                 <RiInformationLine className="text-blue-500 mt-0.5 flex-shrink-0" />
                 <p className="text-blue-800">
@@ -160,7 +160,7 @@ export default function TeamsPage() {
           )}
           {error && (
             <div
-              className="bg-red-50 text-red-800 border border-red-200 px-4 py-3 rounded-md mb-6"
+              className="bg-red-50 text-red-800 border border-red-200 px-4 py-3 rounded-lg mb-6"
               role="alert"
             >
               <strong className="font-medium">Failed to load teams</strong>
@@ -174,7 +174,7 @@ export default function TeamsPage() {
             <UserTeamsList teams={teams} />
           )}
           {!loading && !error && teams.length === 0 && user && (
-            <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-md">
+            <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
               <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <RiTeamLine className="text-gray-500 text-2xl" />
               </div>
@@ -188,7 +188,7 @@ export default function TeamsPage() {
             </div>
           )}
           {!user && (
-            <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-md">
+            <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
               <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <RiTeamLine className="text-gray-500 text-2xl" />
               </div>

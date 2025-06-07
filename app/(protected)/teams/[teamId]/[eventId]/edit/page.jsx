@@ -138,7 +138,7 @@ export default function EditEventPage() {
         <div className="flex justify-center">
           <Spinner />
         </div> :
-        <div className="bg-white border border-gray-200 rounded-md p-6 space-y-6">
+        <div className="bg-white shadow rounded-lg p-6 space-y-6">
           <Input value={name} onChange={e => setName(e.target.value)} placeholder='Event name' />
           <Input type="textarea" value={desc} onChange={e => setDesc(e.target.value)} placeholder='Description' />
 

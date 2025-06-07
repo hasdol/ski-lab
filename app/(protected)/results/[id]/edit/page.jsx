@@ -152,7 +152,7 @@ const EditResultPage = () => {
         </div>
         {loading && <div className='flex justify-center'><Spinner /></div>}
 
-        <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-md p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6 space-y-6">
           {/* Scores */}
           {resultData.rankings.map((r, i) => (
             <div key={i} className="relative flex flex-col">

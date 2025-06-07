@@ -96,7 +96,7 @@ const ResultDetailsPage = () => {
 
 
       {/* Result Card */}
-      <div className="bg-white border border-gray-300 rounded-md p-6 space-y-6">
+      <div className="bg-white shadow rounded-lg p-6 space-y-6">
         {/* Header section */}
         <div className="flex justify-between items-center">
           <div>

@@ -26,12 +26,17 @@ const Login = () => {
         case 'auth/invalid-login-credentials':
           setError('Wrong email or password');
           break;
+        case 'auth/invalid-credential':
+          setError('Wrong email or password');
+          break;
         case 'auth/too-many-requests':
           setError(
             'Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later'
           );
           break;
         default:
+          console.log('Login error:', error);
+          
           setError('An error occurred. Please try again later.');
           break;
       }
@@ -52,9 +57,9 @@ const Login = () => {
           <p className="text-gray-600">Enter your credentials</p>
         </div>
       </div>
-      {error && <p className="bg-red-100 text-red-700 p-3 rounded-md">{error}</p>}
+      
 
-      <form onSubmit={handleSignIn} className="bg-white border border-gray-200 rounded-md p-6 space-y-4">
+      <form onSubmit={handleSignIn} className="bg-white shadow rounded-lg p-6 space-y-4">
         <Input
           id="email"
           type="email"
@@ -76,6 +81,7 @@ const Login = () => {
           className="w-full"
           required
         />
+        {error && <p className="bg-red-100 text-red-700 p-3 rounded-lg">{error}</p>}
         <Button
           type="submit"
           loading={isLoading}
@@ -84,6 +90,7 @@ const Login = () => {
         >
           Login
         </Button>
+        
       </form>
       <div className="mt-6 text-sm flex flex-col space-y-2">
         <p>

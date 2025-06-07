@@ -129,7 +129,7 @@ export default function ShareWithEventSelector({
           onToggle={e => setOpenMap(prev => ({ ...prev, [team.id]: e.target.open }))}
           className="mb-3"
         >
-          <summary className="cursor-pointer p-2 bg-gray-100 rounded">
+          <summary className="cursor-pointer p-2 bg-gray-100 rounded-lg">
             {highlight(team.name, search) || 'Unnamed Team'}
           </summary>
           <div className="mt-2 pl-4 space-y-1">

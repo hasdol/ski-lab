@@ -108,10 +108,10 @@ const PlansPage = () => {
             return (
               <div
                 key={plan.productId}
-                className="rounded-md relative border border-gray-300 overflow-hidden flex flex-col"
+                className="rounded-lg relative shadow overflow-hidden flex flex-col"
               >
                 {isCurrent && (
-                  <span className="absolute top-3 right-3 bg-blue-50 text-blue-600 text-sm px-2 py-1 rounded-md">
+                  <span className="absolute top-3 right-3 bg-blue-50 text-blue-600 text-sm px-2 py-1 rounded-lg">
                     Current
                   </span>
                 )}

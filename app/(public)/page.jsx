@@ -47,7 +47,7 @@ const HomePage = () => {
   // Simplified GlassCard with consistent motion properties
   const GlassCard = ({ children }) => (
     <motion.div
-      className="bg-white rounded-md border border-gray-300 hover:bg-gray-50"
+      className="bg-white rounded-lg shadow-lg hover:bg-gray-50"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
     >

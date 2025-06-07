@@ -48,7 +48,7 @@ const PublicTeamsList = ({ teams, loading, error, hasMore, onLoadMore, onRefresh
               key={team.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white border border-gray-200 rounded-md p-4"
+              className="bg-white shadow rounded-lg p-4"
             >
               <div className="flex justify-between items-center">
                 <div>

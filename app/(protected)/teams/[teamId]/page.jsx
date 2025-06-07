@@ -126,7 +126,7 @@ export default function TeamDetailPage() {
         </div>
       </div>
 
-      <div className="bg-white pt-6">
+      <div className="">
         {/* Team Header */}
         <div className="flex flex-col items-center mb-8">
           <UploadableImage
@@ -134,7 +134,7 @@ export default function TeamDetailPage() {
             variant="team"
             alt="team image"
             clickable={false}
-            className="max-h-40 object-fit rounded-lg shadow-md mb-2"
+            className="max-h-40 object-fit rounded-lg  mb-2"
           />
           <h1 className="text-2xl font-semibold text-gray-900 mb-1 text-center flex items-center justify-center gap-2">
             {team.name}
@@ -150,7 +150,7 @@ export default function TeamDetailPage() {
           {canManage && (
             <div className="mb-6 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800 text-center">
               <span className="font-medium">Join code:</span>
-              <span className="font-mono ml-2 bg-blue-100 px-2 py-1 rounded-md">
+              <span className="font-mono ml-2 bg-blue-100 px-2 py-1 rounded-lg">
                 {team.joinCode}
               </span>
             </div>
@@ -252,7 +252,7 @@ export default function TeamDetailPage() {
                             key={evt.id}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="border border-gray-200 rounded-lg p-4"
+                            className="shadow rounded-lg p-6"
                           >
                             <div className="flex justify-between items-center space-x-4">
                               <div>
