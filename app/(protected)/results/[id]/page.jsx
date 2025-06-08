@@ -70,15 +70,14 @@ const ResultDetailsPage = () => {
   return (
     <div className="p-4 max-w-4xl w-full mx-auto">
       {/* Header */}
-
-      <div className='flex justify-between items-center mb-6'>
+      <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
           <div className="bg-blue-100 p-2 rounded-lg">
             <RiBarChart2Line className="text-blue-600 text-2xl" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Test Result</h1>
-            <p className="text-gray-600">Review this spesific test result</p>
+            <p className="text-gray-600">Review this specific test result</p>
           </div>
         </div>
         <div>
@@ -90,20 +89,18 @@ const ResultDetailsPage = () => {
             Back
           </Button>
         </div>
-
       </div>
 
-
-
-      {/* Result Card */}
-      <div className="bg-white shadow rounded-lg p-6 space-y-6">
-        {/* Header section */}
-        <div className="flex justify-between items-center">
+      {/* Result Card styled similar to ResultCard.jsx */}
+      <div className="bg-white shadow rounded-lg p-6">
+        <div className="flex justify-between items-center mb-4">
           <div>
-            <h1 className="font-semibold text-2xl">
+            <h3 className="font-semibold text-lg">
               {result.style.charAt(0).toUpperCase() + result.style.slice(1)} / {result.temperature}°C
-            </h1>
-            <p className="text-sm text-gray-500">{result.location}</p>
+            </h3>
+            <p className="text-sm text-gray-500">
+              {result.location}
+            </p>
           </div>
           <div className="flex space-x-2">
             <Button
@@ -122,7 +119,7 @@ const ResultDetailsPage = () => {
         </div>
 
         {/* Ranking table */}
-        <ul className="divide-y divide-gray-200 text-sm">
+        <ul className="divide-y divide-gray-200 text-sm my-6">
           {result.rankings
             .sort((a, b) => a.score - b.score)
             .map((ranking, idx) => (
@@ -140,8 +137,6 @@ const ResultDetailsPage = () => {
               </li>
             ))}
         </ul>
-
-        <div className="border-t border-gray-300 pt-4" />
 
         {/* Extra meta data */}
         <div className="grid grid-cols-2 gap-4 text-sm">
@@ -184,16 +179,8 @@ const ResultDetailsPage = () => {
         </div>
 
         {/* Timestamp */}
-        <div className="flex justify-end mt-2 text-xs text-gray-600">
-          <span>
-            {new Date(result.timestamp.seconds * 1000).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </span>
-          <span className="ml-2">
-            {formatDate(new Date(result.timestamp.seconds * 1000))}
-          </span>
+        <div className="text-right text-xs text-gray-500 mt-2">
+          {formatDate(new Date(result.timestamp.seconds * 1000), true)}
         </div>
       </div>
 

@@ -64,11 +64,10 @@ export const formatDateForInputWithTime = (date) => {
 
 
 
-export const formatDate = (dateInput) => {
+export const formatDate = (dateInput, withTime = false) => {
   if (!dateInput) return '--';
   
   let date;
-  // If dateInput is a Firestore Timestamp, use its toDate() method.
   if (dateInput.toDate) {
     date = dateInput.toDate();
   } else if (dateInput instanceof Date) {
@@ -79,7 +78,9 @@ export const formatDate = (dateInput) => {
   
   if (isNaN(date.getTime())) return '--';
   
-  return date.toLocaleDateString('nb-NO');
+  return withTime 
+    ? date.toLocaleString('nb-NO') 
+    : date.toLocaleDateString('nb-NO');
 };
 
 export const getTimestamp = (date) => {

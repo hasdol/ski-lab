@@ -87,7 +87,7 @@ export default function CreateTeamPage() {
               <p className="text-sm text-gray-600">
                 {isPublic 
                   ? 'Anyone can discover and request to join' 
-                  : 'Only invited members can join'}
+                  : 'Hidden from discover, users need the team code to join'}
               </p>
             </div>
           </div>

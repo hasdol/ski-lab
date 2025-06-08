@@ -36,7 +36,7 @@ const ResultCard = ({ result, debouncedSearch, handleEdit, handleDelete }) => {
         </div>
       </div>
 
-      <ul className="divide-y divide-gray-200 text-sm my-4">
+      <ul className="divide-y divide-gray-200 text-sm my-6">
         {result.rankings.map((ranking, idx) => (
           <li key={idx} className="flex justify-between py-1">
             <span className="w-1/3 truncate">
@@ -59,19 +59,19 @@ const ResultCard = ({ result, debouncedSearch, handleEdit, handleDelete }) => {
         ))}
       </ul>
 
-      <div className="grid grid-cols-2 gap-4 text-sm mt-4">
+      <div className="grid grid-cols-2 gap-4 text-sm">
         <div>
-          <span className="text-gray-700">Humidity:</span>{' '}
+          <div className="text-gray-700">Humidity</div>{' '}
           <strong>{result.humidity ? `${result.humidity}%` : '--'}</strong>
         </div>
         <div>
-          <span className="text-gray-700">Snow temp:</span>{' '}
+          <div className="text-gray-700">Snow temp</div>{' '}
           <strong>
             {result.snowTemperature ? `${result.snowTemperature}°C` : '--'}
           </strong>
         </div>
         <div>
-          <span className="text-gray-700">Snow source:</span>{' '}
+          <div className="text-gray-700">Snow source</div>{' '}
           <strong>
             {result.snowCondition?.source
               ? highlightSearchTerm(
@@ -82,7 +82,7 @@ const ResultCard = ({ result, debouncedSearch, handleEdit, handleDelete }) => {
           </strong>
         </div>
         <div>
-          <span className="text-gray-700">Snow type:</span>{' '}
+          <div className="text-gray-700">Snow type</div>{' '}
           <strong>
             {result.snowCondition?.grainType
               ? highlightSearchTerm(
@@ -93,7 +93,7 @@ const ResultCard = ({ result, debouncedSearch, handleEdit, handleDelete }) => {
           </strong>
         </div>
         <div className="col-span-2">
-          <span className="text-gray-700">Comment:</span>{' '}
+          <div className="text-gray-700">Comment</div>{' '}
           <strong>
             {result.comment
               ? highlightSearchTerm(result.comment, debouncedSearch)
@@ -103,7 +103,7 @@ const ResultCard = ({ result, debouncedSearch, handleEdit, handleDelete }) => {
       </div>
 
       <div className="text-right text-xs text-gray-500 mt-2">
-        {formatDate(new Date(result.timestamp.seconds * 1000))}
+        {formatDate(new Date(result.timestamp.seconds * 1000), true)}
       </div>
     </div>
   );

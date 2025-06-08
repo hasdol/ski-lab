@@ -147,7 +147,7 @@ export default function EditTeamPage() {
               <p className="text-sm text-gray-600">
                 {isPublic
                   ? 'Anyone can discover and request to join'
-                  : 'Hidden from discover, you need the team code to join'}
+                  : 'Hidden from discover, users need the team code to join'}
               </p>
             </div>
           </div>
