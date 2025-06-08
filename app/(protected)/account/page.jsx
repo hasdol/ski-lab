@@ -9,121 +9,139 @@ import ManageSubscription from '@/app/(protected)/account/components/AccountMana
 import Spinner from '@/components/common/Spinner/Spinner';
 import UploadableImage from '@/components/UploadableImage/UploadableImage';
 
-const Account = () => {
-  const { user, userData } = useAuth();
-  const { isChangingImg, errorMessage, updateProfileImage, deleteProfileImage } = useProfileActions(user);
-  const router = useRouter();
-
-
-  const formatDate = (dateString) => {
+const formatDate = (dateString) => {
     const date = new Date(dateString);
     const options = { day: '2-digit', month: 'long', year: 'numeric' };
     return date.toLocaleDateString('nb-NO', options);
-  };
+};
 
-  const handleRemoveImage = async () => {
-    if (window.confirm('Are you sure you want to remove the image?')) {
-      await deleteProfileImage();
-    }
-  };
+const ProfileImageSection = ({ userData, updateProfileImage, deleteProfileImage, isChangingImg }) => {
+    const handleRemoveImage = async () => {
+        if (window.confirm('Are you sure you want to remove the image?')) {
+            await deleteProfileImage();
+        }
+    };
 
-  return (
-    <>
-      <div className="p-4 max-w-4xl w-full self-center">
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-100 p-2 rounded-lg">
-            <RiUser6Line className="text-blue-600 text-2xl" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Account</h1>
-            <p className="text-gray-600">Manage your account</p>
-          </div>
-        </div>
-        <div className="mt-10">
-          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
-            <div className="relative text-center mx-auto">  {/* Added mx-auto */}
-              <UploadableImage
+    return (
+        <div className="relative text-center mx-auto">
+            <UploadableImage
                 photoURL={userData?.photoURL}
                 handleImageChange={updateProfileImage}
                 variant="profile"
                 clickable={true}
-              />
-
-              {userData?.photoURL && (
+            />
+            {userData?.photoURL && (
                 <Button
-                  onClick={handleRemoveImage}
-                  variant='danger'
-                  disabled={isChangingImg}
-                  className="mt-2"
+                    onClick={handleRemoveImage}
+                    variant="danger"
+                    disabled={isChangingImg}
+                    className="mt-2"
                 >
-                  {isChangingImg ? (
-                    <Spinner className="mx-auto" />
-                  ) : (
-                    <span className='flex items-center justify-center text-xs'>  {/* Centered content */}
-                      <RiDeleteBinLine className="mr-1" />
-                      Remove
-                    </span>
-                  )}
+                    {isChangingImg ? (
+                        <Spinner className="mx-auto" />
+                    ) : (
+                        <span className="flex items-center justify-center text-xs">
+                            <RiDeleteBinLine className="mr-1" />
+                            Remove
+                        </span>
+                    )}
                 </Button>
-              )}
-            </div>
+            )}
+        </div>
+    );
+};
 
-            <div className="space-y-4 text-center md:text-left">
-              <div className="mb-6">
+const ProfileInfoSection = ({ user, userData, errorMessage, router }) => {
+    return (
+        <div className="space-y-4 text-center md:text-left">
+            <div className="mb-6">
                 <p className="text-gray-500 text-lg mb-1">Hello</p>
                 <h1 className="font-bold text-3xl text-gray-800 mb-3">
-                  {userData?.displayName || 'Guest'}
+                    {userData?.displayName || 'Guest'}
                 </h1>
-
                 {userData && (
-                  <div className="mb-6">
-                    {userData.plan === 'free' ? (
-                      <p className="text-gray-600 font-medium">
-                        Free user
-                      </p>
-                    ) : (
-                      <p className="inline-flex items-center justify-center gap-1.5
-                                  bg-blue-100 text-blue-600  font-semibold
-                                   px-4 py-1.5 rounded-full text-sm">
-                        {`${userData.plan} plan`}
-                        <RiVerifiedBadgeFill className="w-4 h-4" />
-                      </p>
-                    )}
-                  </div>
+                    <div className="mb-6">
+                        {userData.plan === 'free' ? (
+                            <p className="inline-flex items-center justify-center gap-1.5 bg-gray-100 text-gray-600 font-semibold px-4 py-1.5 rounded-full text-sm">
+                                Free user
+                            </p>
+                        ) : (
+                            <p className="inline-flex items-center justify-center gap-1.5 bg-blue-100 text-blue-600 font-semibold px-4 py-1.5 rounded-full text-sm">
+                                {`${userData.plan} plan`}
+                                <RiVerifiedBadgeFill className="w-4 h-4" />
+                            </p>
+                        )}
+                    </div>
                 )}
-              </div>
+                {user?.email && (
+                    <p className="text-gray-600 text-sm">
+                        Email: {user.email}
+                    </p>
+                )}
+            </div>
 
-              {errorMessage && (
+            {errorMessage && (
                 <div className="bg-red-50 text-red-700 px-4 py-2 rounded-lg">
-                  {errorMessage}
+                    {errorMessage}
                 </div>
-              )}
+            )}
 
-              <div className="flex flex-col md:flex-row gap-4 justify-center md:justify-start">
+            <div className="flex flex-col md:flex-row gap-4 justify-center md:justify-start">
                 <ManageSubscription />
                 <Button
-                  onClick={() => router.push('/account/settings')}
-                  variant="secondary"
-                  className="w-full md:w-auto"
+                    onClick={() => router.push('/account/settings')}
+                    variant="secondary"
+                    className="w-full md:w-auto"
                 >
-                  Settings
+                    Settings
                 </Button>
-              </div>
-
-              <div>
-                <p className="text-sm text-gray-500">
-                  Joined: {' '}
-                  <span className="font-medium">
-                    {user?.metadata.creationTime ? formatDate(user.metadata.creationTime) : ''}
-                  </span>
-                </p>
-              </div>
             </div>
-          </div>
+
+            <div>
+                <p className="text-sm text-gray-500">
+                    Joined: <span className="font-medium">
+                        {user?.metadata.creationTime ? formatDate(user.metadata.creationTime) : ''}
+                    </span>
+                </p>
+            </div>
         </div>
-      </div>
-    </>
-  );
+    );
+};
+
+const Account = () => {
+    const { user, userData } = useAuth();
+    const { isChangingImg, errorMessage, updateProfileImage, deleteProfileImage } = useProfileActions(user);
+    const router = useRouter();
+
+    return (
+        <div className="p-4 max-w-4xl w-full self-center">
+            <div className="flex items-center gap-3">
+                <div className="bg-blue-100 p-2 rounded-lg">
+                    <RiUser6Line className="text-blue-600 text-2xl" />
+                </div>
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">Account</h1>
+                    <p className="text-gray-600">Manage your account</p>
+                </div>
+            </div>
+            <div className="mt-10">
+                <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
+                    <ProfileImageSection
+                        userData={userData}
+                        updateProfileImage={updateProfileImage}
+                        deleteProfileImage={deleteProfileImage}
+                        isChangingImg={isChangingImg}
+                    />
+                    <ProfileInfoSection
+                        user={user}
+                        userData={userData}
+                        errorMessage={errorMessage}
+                        router={router}
+                    />
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default Account;

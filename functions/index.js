@@ -598,6 +598,10 @@ exports.joinTeamByCode = onCall(async (request) => {
   const code = request.data.code;
   if (!code) throw new HttpsError('invalid-argument', 'Missing team code.');
 
+  // Fetch the user's display name from the users collection.
+  const userDoc = await db.collection('users').doc(userId).get();
+  const username = userDoc.exists ? userDoc.data().displayName : null;
+
   const teamsRef = db.collection('teams');
   const snap = await teamsRef.where('joinCode', '==', code).limit(1).get();
   if (snap.empty) throw new HttpsError('not-found', 'No team found with the given code.');
@@ -606,14 +610,25 @@ exports.joinTeamByCode = onCall(async (request) => {
   const teamData = teamDoc.data() || {};
   const members = teamData.members || [];
 
-  // Check if the user is already a member or has a pending join request.
+  // Check if the user is already a member.
   if (members.includes(userId)) {
     throw new HttpsError('already-exists', 'You are already in this team.');
   }
+
   const joinRequestsRef = teamDoc.ref.collection('joinRequests');
-  const existingRequest = await joinRequestsRef.where('userId', '==', userId).get();
-  if (!existingRequest.empty) {
+  const requestsSnap = await joinRequestsRef.where('userId', '==', userId).get();
+
+  // Check if any pending request exists
+  const pendingRequest = requestsSnap.docs.find(doc => doc.data().status === 'pending');
+  if (pendingRequest) {
     throw new HttpsError('already-exists', 'Join request already pending.');
+  }
+
+  // Cleanup any past join request documents (e.g. declined ones)
+  for (const doc of requestsSnap.docs) {
+    if (doc.data().status !== 'pending') {
+      await doc.ref.delete();
+    }
   }
 
   if (teamData.isPublic) {
@@ -623,6 +638,7 @@ exports.joinTeamByCode = onCall(async (request) => {
       status: 'pending',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       email: request.auth.token.email || null,
+      username, // store the username from the user's document
     });
     return { teamId: teamDoc.id, pending: true };
   } else {

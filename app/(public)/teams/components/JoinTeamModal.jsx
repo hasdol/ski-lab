@@ -45,10 +45,10 @@ export default function JoinTeamModal({ isOpen, onClose, onJoinSuccess, preFille
         setMessage('Successfully joined the team!');
       }
       setCode('');
-      // Delay closing the modal by 3 seconds for the user to read the message
+      // Delay closing the modal by 5 seconds for the user to read the message
       setTimeout(() => {
         onJoinSuccess(result.data);
-      }, 3000);
+      }, 5000);
     } catch (err) {
       console.error('Join team error:', err);
       setError(err.message || 'Failed to join team. Please check the code and try again.');
@@ -104,10 +104,10 @@ export default function JoinTeamModal({ isOpen, onClose, onJoinSuccess, preFille
                 />
 
                 {error && (
-                  <div className="text-red-500 text-sm mt-1">{error}</div>
+                  <div className="bg-red-100 text-red-600 p-2 rounded-lg text-sm mt-1">{error}</div>
                 )}
                 {message && (
-                  <div className="text-green-500 text-sm mt-1">{message}</div>
+                  <div className="bg-green-100 text-green-600 p-2 rounded-lg text-sm mt-1">{message}</div>
                 )}
 
                 <div className="flex justify-end gap-3 pt-2">

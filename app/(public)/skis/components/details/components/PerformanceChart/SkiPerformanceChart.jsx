@@ -20,6 +20,7 @@ import { useRouter } from 'next/navigation';
 import { formatDate, formatSnowTypeLabel, formatSourceLabel, getTimestamp } from '@/helpers/helpers';
 import Button from '@/components/ui/Button';
 import Overlay from '@/components/ui/Overlay';
+import { motion } from 'framer-motion';
 
 /* ───────────────────────────────────────────────
    Helpers
@@ -92,7 +93,10 @@ const FloatingTooltip = ({ point, hideTooltip }) => {
   ].filter(({ value }) => value !== undefined && value !== null && value !== '');
 
   return (
-    <div
+    <motion.div
+      initial={{ scale: 0.9, y: 20 }}
+      animate={{ scale: 1, y: 0 }}
+      exit={{ scale: 0.9, y: 20 }}
       className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 md:w-2/3 rounded-lg bg-white shadow-lg p-4 text-sm transition-opacity duration-150"
       onClick={(e) => e.stopPropagation()}
     >
@@ -120,7 +124,7 @@ const FloatingTooltip = ({ point, hideTooltip }) => {
           Go to test
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

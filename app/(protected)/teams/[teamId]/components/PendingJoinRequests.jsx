@@ -38,6 +38,7 @@ export default function PendingJoinRequests({ teamId }) {
   }, [teamId]);
 
   const handleAccept = async (requestId) => {
+    setLoading(true);
     try {
       const acceptJoinRequest = httpsCallable(functions, 'acceptJoinRequest');
       await acceptJoinRequest({ teamId, requestId });
@@ -46,10 +47,13 @@ export default function PendingJoinRequests({ teamId }) {
     } catch (err) {
       console.error('Error accepting join request:', err);
       alert(err.message || 'Failed to accept request.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDecline = async (requestId) => {
+    setLoading(true);
     try {
       const declineJoinRequest = httpsCallable(functions, 'declineJoinRequest');
       await declineJoinRequest({ teamId, requestId });
@@ -58,25 +62,27 @@ export default function PendingJoinRequests({ teamId }) {
     } catch (err) {
       console.error('Error declining join request:', err);
       alert(err.message || 'Failed to decline request.');
+    } finally {
+      setLoading(false);
     }
   };
 
   if (loading) return <p>Loading join requests...</p>;
   if (requests.length === 0) return <p>No pending join requests.</p>;
-  
+
 
 
   return (
     <div className="flex items-center">
       <ul>
         {requests.map((req) => (
-          <li key={req.id} className="flex items-center space-x-2 p-2 border-b border-gray-300">
-              <p className="font-medium">{req.email || req.userId}</p>
+          <li key={req.id} className="flex items-center space-x-6 p-2 border-b border-gray-300">
+            <p className="font-medium">{req.username || 'Unknown'}</p>
             <div className="flex gap-2 text-xs">
-              <Button variant="primary" onClick={() => handleAccept(req.id)}>
+              <Button variant="primary" loading={loading} onClick={() => handleAccept(req.id)}>
                 Accept
               </Button>
-              <Button variant="danger" onClick={() => handleDecline(req.id)}>
+              <Button variant="danger" loading={loading} onClick={() => handleDecline(req.id)}>
                 Decline
               </Button>
             </div>

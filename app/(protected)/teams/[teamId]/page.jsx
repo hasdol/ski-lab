@@ -13,7 +13,7 @@ import PendingJoinRequests from '@/app/(protected)/teams/[teamId]/components/Pen
 import { RiEarthLine, RiLockLine } from 'react-icons/ri';
 
 // Import Firestore functions to fetch pending join requests count
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase/firebaseConfig';
 
 export default function TeamDetailPage() {
@@ -28,17 +28,12 @@ export default function TeamDetailPage() {
 
   // Fetch pending join requests count
   useEffect(() => {
-    async function fetchPendingCount() {
-      try {
-        const requestsRef = collection(db, 'teams', teamId, 'joinRequests');
-        const q = query(requestsRef, where('status', '==', 'pending'));
-        const snapshot = await getDocs(q);
-        setPendingRequestCount(snapshot.docs.length);
-      } catch (err) {
-        console.error('Error fetching pending join requests:', err);
-      }
-    }
-    fetchPendingCount();
+    const requestsRef = collection(db, 'teams', teamId, 'joinRequests');
+    const q = query(requestsRef, where('status', '==', 'pending'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setPendingRequestCount(snapshot.docs.length);
+    });
+    return () => unsubscribe();
   }, [teamId]);
 
   const handleBack = () => router.push('/teams');
@@ -147,7 +142,7 @@ export default function TeamDetailPage() {
             <span>{events.length} events</span>
           </div>
 
-          {canManage && (
+          {canManage || team.isPublic && (
             <div className="mb-6 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800 text-center">
               <span className="font-medium">Join code:</span>
               <span className="font-mono ml-2 bg-blue-100 px-2 py-1 rounded-lg">

@@ -1,11 +1,21 @@
 // Overlay.js
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+
 
 const Overlay = ({ isVisible }) => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full z-20 backdrop-blur"></div>
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 bg-opacity-50"
+      >
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
