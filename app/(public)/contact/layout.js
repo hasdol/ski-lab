@@ -1,18 +1,12 @@
+/**
+ * SEO: Contact — indexable.
+ * @type {import('next').Metadata}
+ */
 export const metadata = {
-  title: 'Contact • Ski Lab',
-  description: 'Get in touch with our ski experts',
-  alternates: { canonical: 'https://ski-lab.com/contact' },
-  robots: {
-    index: true, // Ensure indexing
-    follow: true,
-  },
-  openGraph: {
-    title: 'Contact Ski Lab Experts',
-    url: 'https://ski-lab.com/contact',
-    images: [{ url: '/og-image-contact.png' }],
-  },
+  title: 'Contact | Ski Lab',
+  description: 'Contact the Ski Lab team for support, collaboration, or inquiries.',
 };
 
 export default function ContactLayout({ children }) {
-  return children;
+  return <>{children}</>;
 }

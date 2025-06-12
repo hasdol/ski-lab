@@ -1,3 +1,4 @@
+/** @type {import('next-sitemap').IConfig} */
 module.exports = {
   siteUrl: 'https://ski-lab.com',
   generateRobotsTxt: true,
@@ -5,19 +6,27 @@ module.exports = {
   priority: 0.7,
 
   exclude: [
-    '/account*',
-    '/settings*',
-    '/plans*',
-    '/skis/create*',
-    '/skis/locked*',
-    '/results/*/edit*',
-    '/testing*',
-    '/teams/create*',
-    '/teams/*/edit*',
-    '/teams/*/*/edit*',
-    '/signin*',
-    '/signup*',
-    '/resetPassword*'
+    // Private/protected routes
+    '/account',
+    '/account/*',
+    '/settings',
+    '/settings/*',
+    '/plans',
+    '/plans/*',
+    '/skis/create',
+    '/skis/locked',
+    '/skis/*/edit',
+    '/results/*/edit',
+    '/testing',
+    '/testing/*',
+    '/teams/create',
+    '/teams/*/edit',
+    '/teams/*/*/edit',
+
+    // Auth and reset
+    '/login',
+    '/signup',
+    '/resetPassword',
   ],
 
   robotsTxtOptions: {
@@ -27,21 +36,25 @@ module.exports = {
         allow: '/',
         disallow: [
           '/account',
+          '/account/*',
           '/settings',
+          '/settings/*',
           '/plans',
+          '/plans/*',
           '/skis/create',
           '/skis/locked',
+          '/skis/*/edit',
           '/results/*/edit',
           '/testing',
-          '/teams/create*',
+          '/testing/*',
+          '/teams/create',
           '/teams/*/edit',
           '/teams/*/*/edit',
-          '/signin',
+          '/login',
           '/signup',
-          '/resetPassword'
+          '/resetPassword',
         ],
       },
     ],
-    // REMOVE THIS additionalSitemaps ARRAY COMPLETELY
   },
 };

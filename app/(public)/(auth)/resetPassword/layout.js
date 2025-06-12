@@ -1,12 +1,15 @@
+/**
+ * SEO: Prevent indexing password reset page.
+ * @type {import('next').Metadata}
+ */
 export const metadata = {
-  title: 'Reset password • Ski Lab',
+  title: 'Reset Password | Ski Lab',
   robots: {
-    index: false, // Block indexing
+    index: false,
     follow: false,
-    nocache: true
-  }
+  },
 };
 
 export default function ResetPasswordLayout({ children }) {
-  return children;
+  return <>{children}</>;
 }

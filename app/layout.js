@@ -1,6 +1,3 @@
-// app/layout.js
-// ── Global metadata for all public pages (single-language: EN) ───────────────
-
 import './globals.css';
 import React from 'react';
 import CookieConsent from '@/components/CookieConcent/CookieConcent';
@@ -10,6 +7,8 @@ import { TournamentProvider } from '@/context/TournamentContext';
 import Navigation from '@/components/layout/Navigation';
 
 /**
+ * Global metadata applied to all public pages (default, EN).
+ * Override or extend in child layouts/pages as needed.
  * @type {import('next').Metadata}
  */
 export const metadata = {
@@ -33,11 +32,9 @@ export const metadata = {
     images: ['/og-image.png'],
     locale: 'en_US',
   },
-  metadataBase: new URL('https://ski-lab.com'), // Ensure this is correct
-  // Add this to all layouts:
   alternates: {
-    canonical: 'https://ski-lab.com' // Add specific URLs to page layouts
-  }
+    canonical: 'https://ski-lab.com', // Override in pages with dynamic content
+  },
 };
 
 export default function RootLayout({ children }) {

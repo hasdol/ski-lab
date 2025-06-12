@@ -2,16 +2,21 @@
 User-agent: *
 Allow: /
 Disallow: /account
+Disallow: /account/*
 Disallow: /settings
+Disallow: /settings/*
 Disallow: /plans
+Disallow: /plans/*
 Disallow: /skis/create
 Disallow: /skis/locked
+Disallow: /skis/*/edit
 Disallow: /results/*/edit
 Disallow: /testing
-Disallow: /teams/create*
+Disallow: /testing/*
+Disallow: /teams/create
 Disallow: /teams/*/edit
 Disallow: /teams/*/*/edit
-Disallow: /signin
+Disallow: /login
 Disallow: /signup
 Disallow: /resetPassword
 

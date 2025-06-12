@@ -1,15 +1,15 @@
 /**
- * SEO: Prevent indexing signup page.
+ * SEO: Create team — internal use only.
  * @type {import('next').Metadata}
  */
 export const metadata = {
-  title: 'Sign Up | Ski Lab',
+  title: 'Create Team | Ski Lab',
   robots: {
     index: false,
     follow: false,
   },
 };
 
-export default function SignupLayout({ children }) {
+export default function CreateTeamLayout({ children }) {
   return <>{children}</>;
 }

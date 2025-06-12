@@ -1,15 +1,15 @@
 /**
- * SEO: Prevent indexing signup page.
+ * SEO: Account settings — block indexing.
  * @type {import('next').Metadata}
  */
 export const metadata = {
-  title: 'Sign Up | Ski Lab',
+  title: 'Account Settings | Ski Lab',
   robots: {
     index: false,
     follow: false,
   },
 };
 
-export default function SignupLayout({ children }) {
+export default function SettingsLayout({ children }) {
   return <>{children}</>;
 }

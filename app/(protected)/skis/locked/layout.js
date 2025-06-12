@@ -1,15 +1,15 @@
 /**
- * SEO: Prevent indexing signup page.
+ * SEO: Locked skis — block crawlers.
  * @type {import('next').Metadata}
  */
 export const metadata = {
-  title: 'Sign Up | Ski Lab',
+  title: 'Locked Skis | Ski Lab',
   robots: {
     index: false,
     follow: false,
   },
 };
 
-export default function SignupLayout({ children }) {
+export default function LockedSkisLayout({ children }) {
   return <>{children}</>;
 }

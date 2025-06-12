@@ -1,18 +1,12 @@
+/**
+ * SEO: About Ski Lab — indexable.
+ * @type {import('next').Metadata}
+ */
 export const metadata = {
-  title: 'About • Ski Lab',
-  description: 'Learn more about Ski Lab, your hub for cross-country ski testing and management.',
-  alternates: { canonical: 'https://ski-lab.com/about' },
-  robots: {
-    index: true, // Ensure indexing
-    follow: true,
-  },
-  openGraph: {
-    title: 'About Ski Lab',
-    url: 'https://ski-lab.com/about',
-    images: [{ url: '/og-image-about.png' }],
-  },
+  title: 'About | Ski Lab',
+  description: 'Learn about Ski Lab — a platform for athletes, coaches, and brands to manage and analyze ski testing.',
 };
 
 export default function AboutLayout({ children }) {
-  return children ;
+  return <>{children}</>;
 }

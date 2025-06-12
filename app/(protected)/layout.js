@@ -1,8 +1,14 @@
 import ProtectedRoute from '@/components/ProtectedRoute';
 
-/** @type {import('next').Metadata} */
+/**
+ * SEO: Prevent indexing of any protected route
+ * @type {import('next').Metadata}
+ */
 export const metadata = {
-  robots: { index: false, follow: false },   // still block crawlers
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function ProtectedLayout({ children }) {

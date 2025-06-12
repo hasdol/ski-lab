@@ -1,12 +1,15 @@
+/**
+ * SEO: Prevent indexing login page.
+ * @type {import('next').Metadata}
+ */
 export const metadata = {
-  title: 'Sign In • Ski Lab',
+  title: 'Login | Ski Lab',
   robots: {
-    index: false, // Block indexing
+    index: false,
     follow: false,
-    nocache: true
-  }
+  },
 };
 
-export default function SigninLayout({ children }) {
-  return children;
+export default function LoginLayout({ children }) {
+  return <>{children}</>;
 }
