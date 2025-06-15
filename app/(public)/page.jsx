@@ -19,7 +19,6 @@ const HomePage = () => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [teams, setTeams] = useState([]);
   const [teamEvents, setTeamEvents] = useState({});
-  const featuresRef = useRef(null);
 
   useEffect(() => {
     const img = new window.Image();
@@ -134,9 +133,9 @@ const HomePage = () => {
                   onClick={() => handleNavigation('/skis')}
                   variant="primary"
                   size="xl"
-                  className="flex mx-auto"
+                  className="flex items-center mx-auto"
                 >
-                  Start Test
+                  New Test
                 </Button>
                 {hasLiveEvents && (
                   <motion.div
