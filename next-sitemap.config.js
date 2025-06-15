@@ -6,7 +6,6 @@ module.exports = {
   priority: 0.7,
 
   exclude: [
-    // Private/protected routes
     '/account',
     '/account/*',
     '/settings',
@@ -22,8 +21,6 @@ module.exports = {
     '/teams/create',
     '/teams/*/edit',
     '/teams/*/*/edit',
-
-    // Auth and reset
     '/login',
     '/signup',
     '/resetPassword',
@@ -50,9 +47,7 @@ module.exports = {
           '/teams/create',
           '/teams/*/edit',
           '/teams/*/*/edit',
-          '/login',
-          '/signup',
-          '/resetPassword',
+          // ❌ DO NOT include /signup, /login, /resetPassword here
         ],
       },
     ],

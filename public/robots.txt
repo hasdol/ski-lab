@@ -16,9 +16,6 @@ Disallow: /testing/*
 Disallow: /teams/create
 Disallow: /teams/*/edit
 Disallow: /teams/*/*/edit
-Disallow: /login
-Disallow: /signup
-Disallow: /resetPassword
 
 # Host
 Host: https://ski-lab.com
