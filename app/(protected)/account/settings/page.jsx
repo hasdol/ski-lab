@@ -90,9 +90,9 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 divide-y-1 divide-gray-300 gap-6">
+        <div className="mt-6 grid grid-cols-1 gap-6">
           {/* Username Section - spans both columns */}
-          <div className=" bg-white p-6">
+          <div className=" bg-white shadow rounded-lg p-6">
             <h2 className="text-xl font-medium text-gray-800 mb-6">Your Username</h2>
             {isEditingUsername ? (
               <div className="space-y-4">
@@ -139,7 +139,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Preferences Section */}
-          <div className="bg-white p-6 flex flex-col space-y-4">
+          <div className="bg-white shadow rounded-lg p-6 flex flex-col space-y-4">
             <h2 className="text-xl font-medium text-gray-800 mb-6">Preferences</h2>
             <div className="flex items-center space-x-4">
               <label 
@@ -168,7 +168,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Management Section */}
-          <div className="bg-white p-6 flex flex-col space-y-4">
+          <div className="bg-white shadow rounded-lg p-6 flex flex-col space-y-4">
             <h2 className="flex text-xl font-medium text-gray-800 items-center mb-6">
               Management <MdOutlineSecurity className="ml-2 text-2xl" />
             </h2>

@@ -124,7 +124,7 @@ const Account = () => {
                     <p className="text-gray-600">Manage your account</p>
                 </div>
             </div>
-            <div className="mt-10">
+            <div className="bg-white shadow rounded-lg p-6 mt-6">
                 <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
                     <ProfileImageSection
                         userData={userData}

@@ -261,7 +261,7 @@ const HomePage = () => {
           <p className="mb-1">
             Built with <span className="font-medium">Firebase</span> & <span className="font-medium">Stripe</span>
           </p>
-          <span className="text-gray-400">© Ski-Lab 2025</span>
+          <span className="text-gray-400">© {new Date().getFullYear()} Ski Lab. All rights reserved.</span>
         </div>
       </motion.footer>
     </div>

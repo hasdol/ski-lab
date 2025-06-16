@@ -11,36 +11,32 @@ import Navigation from '@/components/layout/Navigation';
  * Override or extend in child layouts/pages as needed.
  * @type {import('next').Metadata}
  */
+
 export const metadata = {
+  title: 'Ski-Lab',
+  description: 'Cross-country ski testing & organisation for athletes, coaches & brands.',
+  keywords: [
+    'ski testing',
+    'cross-country skis',
+    'ski inventory',
+    'ski lab',
+    'ski equipment management',
+    'athlete tools',
+    'sports technology'
+  ],
+  authors: [{ name: 'Ski-Lab', url: 'https://ski-lab.com',}],
+  creator: 'Ski Lab',
   metadataBase: new URL('https://ski-lab.com'),
-  title: {
-    default: 'Ski Lab',
-  },
-  description:
-    'Cross-country ski testing & organisation for athletes, coaches & brands.',
-  robots: {
-    index: true,
-    follow: true,
-  },
-  twitter: {
-    card: 'summary_large_image',
-    creator: '@skilab',
-  },
-  openGraph: {
-    type: 'website',
-    siteName: 'Ski Lab',
-    images: ['/og-image.png'],
-    locale: 'en_US',
-  },
-  alternates: {
-    canonical: 'https://ski-lab.com', // Override in pages with dynamic content
-  },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="min-h-screen text-gray-600 bg-white">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+      </head>
+      <body className="min-h-screen text-gray-600 bg-[#fcfcfc] ">
         <AuthProvider>
           <UserPreferencesProvider>
             <TournamentProvider>
