@@ -20,13 +20,24 @@ export const AuthProvider = ({ children }) => {
 
       if (currentUser) {
         const userRef = doc(db, 'users', currentUser.uid);
-        const unsubscribeUser = onSnapshot(userRef, (docSnapshot) => {
-          setUserData(docSnapshot.data());
-        });
+        const unsubscribeUser = onSnapshot(
+          userRef,
+          (docSnapshot) => {
+            setUserData(docSnapshot.data());
+          },
+          (error) => {
+            console.error('Firestore listener error:', error);
+            // Optionally, set userData to null or trigger sign out
+            if (error.code === 'permission-denied') {
+              setUserData(null);
+              // Trigger sign-out if needed
+            }
+          }
+        );
         return unsubscribeUser;
       } else {
         setUserData(null);
-        return () => {}; 
+        return () => {};
       }
     });
 

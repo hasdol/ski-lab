@@ -60,9 +60,6 @@ export default function SettingsPage() {
       const result = await callable({ confirmDeleteSubscription: hasSubscription });
       setSuccess(result.data.message);
       await firebaseSignOut(getAuth());
-      setTimeout(() => {
-        router.push('/');
-      }, 2000);
     } catch (err) {
       setError('Error deleting your account: ' + err.message);
     } finally {
