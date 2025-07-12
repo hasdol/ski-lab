@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 
 export const TournamentContext = createContext();
 
@@ -16,6 +16,8 @@ export const TournamentProvider = ({ children }) => {
   const [roundNumber, setRoundNumber] = useState(1);
   const [potentialSwapTarget, setPotentialSwapTarget] = useState(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [currentDuelResults, setCurrentDuelResults] = useState({});
+  const [futureRounds, setFutureRounds] = useState([]); // New state for future rounds
 
   // If we have some data in progress, consider the tournament active
   const isTournamentInProgress =
@@ -42,6 +44,8 @@ export const TournamentProvider = ({ children }) => {
         if (parsed.roundNumber) setRoundNumber(parsed.roundNumber);
         if (parsed.potentialSwapTarget) setPotentialSwapTarget(parsed.potentialSwapTarget);
         if (typeof parsed.isHelpOpen === 'boolean') setIsHelpOpen(parsed.isHelpOpen);
+        if (parsed.currentDuelResults) setCurrentDuelResults(parsed.currentDuelResults);
+        if (parsed.futureRounds) setFutureRounds(parsed.futureRounds); // Restore future rounds
       } catch (err) {
         console.error('Error parsing localStorage data:', err);
       }
@@ -69,6 +73,8 @@ export const TournamentProvider = ({ children }) => {
       roundNumber,
       potentialSwapTarget,
       isHelpOpen,
+      currentDuelResults,
+      futureRounds // Save future rounds
     };
 
     try {
@@ -86,6 +92,8 @@ export const TournamentProvider = ({ children }) => {
     roundNumber,
     potentialSwapTarget,
     isHelpOpen,
+    currentDuelResults,
+    futureRounds,
     isTournamentInProgress,
   ]);
 
@@ -109,12 +117,61 @@ export const TournamentProvider = ({ children }) => {
     setRoundNumber(1);
     setPotentialSwapTarget(null);
     setIsHelpOpen(false);
+    setCurrentDuelResults({});
+    setFutureRounds([]); // Reset future rounds
 
     // Make sure localStorage also clears so we don't reload stale data
     if (typeof window !== 'undefined') {
       localStorage.removeItem('tournamentState');
     }
   };
+
+  // Add this new function to set round state properly
+  const setRoundState = useCallback((round, roundNum, duelResults) => {
+    setCurrentRound(round);
+    setRoundNumber(roundNum);
+    setCurrentDuelResults(duelResults);
+  }, []);
+
+  // ------------------------------
+  // Restore round from history
+  // ------------------------------
+  const restoreRoundFromHistory = useCallback(() => {
+    if (roundsHistory.length === 0) return;
+
+    // Save current round to future rounds before restoring
+    setFutureRounds(prev => [
+      ...prev,
+      {
+        round: currentRound,
+        duelResults: currentDuelResults,
+        roundNumber: roundNumber
+      }
+    ]);
+
+    // Get last round from history
+    const lastRoundData = roundsHistory[roundsHistory.length - 1];
+
+    // Set state to previous round
+    setCurrentRound(lastRoundData.round);
+    setCurrentDuelResults(lastRoundData.duelResults || {});
+    setRoundNumber(lastRoundData.roundNumber);
+
+    // Remove losses from the undone round
+    const updatedLoss = { ...lossPath };
+    lastRoundData.round.forEach(match => {
+      if (match.skis.length === 2) {
+        const loser = match.skis.find(
+          ski => ski.id !== lastRoundData.duelResults[match.id]?.winnerId
+        );
+        if (loser) delete updatedLoss[loser.id];
+      }
+    });
+    setLossPath(updatedLoss);
+
+    // Remove from history
+    setRoundsHistory(prev => prev.slice(0, -1));
+  }, [roundsHistory, lossPath, currentRound, currentDuelResults, roundNumber]);
 
   // ------------------------------
   // Helper: Pair Skis for Matches
@@ -154,16 +211,15 @@ export const TournamentProvider = ({ children }) => {
     setSkiSerialNumbers(serialNumbers);
   };
 
-  // ------------------------------
-  // Initialize Tournament
-  // ------------------------------
-  const initializeTournament = (skis) => {
+  // Update initializeTournament to use setRoundState
+  const initializeTournament = useCallback((skis) => {
     if (skis.length === 0) return;
     const pairs = pairSkisForMatches(skis);
-    setCurrentRound(pairs);
+    setRoundState(pairs, 1, {});
     initializeScores(pairs);
     mapSerialNumbers(skis);
-  };
+    setFutureRounds([]); // Clear future rounds when initializing
+  }, [setRoundState]);
 
   // ------------------------------
   // Calculate Cumulative Score
@@ -243,6 +299,12 @@ export const TournamentProvider = ({ children }) => {
         calculateRankings,
         decideTiebreaker,
         resetTournament,
+        currentDuelResults,
+        setCurrentDuelResults,
+        setRoundState,
+        restoreRoundFromHistory,
+        futureRounds, // Expose futureRounds
+        setFutureRounds // Expose setFutureRounds
       }}
     >
       {children}

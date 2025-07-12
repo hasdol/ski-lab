@@ -18,8 +18,12 @@ import { SiTestrail } from 'react-icons/si';
 const TestSummaryPage = () => {
   const router = useRouter();
   const { user } = useAuth();
-  const { selectedSkis, calculateRankings, resetTournament } =
-    useContext(TournamentContext);
+  const { 
+    selectedSkis, 
+    calculateRankings, 
+    resetTournament,
+    restoreRoundFromHistory
+  } = useContext(TournamentContext);
 
   const [loading, setLoading] = useState(false);
   const [locationError, setLocationErr] = useState(false);
@@ -81,7 +85,6 @@ const TestSummaryPage = () => {
         const data = await res.json();
 
         const instant = data.properties.timeseries[0].data.instant.details;
-
 
         /* Optional reverse‑geo for prettier place‑name */
         let place = '';
@@ -162,6 +165,11 @@ const TestSummaryPage = () => {
     if (window.confirm('Do you want to delete the test')) resetTournament();
   };
 
+  const handleBackToTesting = () => {
+    restoreRoundFromHistory();
+    router.push('/testing');
+  };
+
   const styleOptions = [
     { label: 'Classic', value: 'classic' },
     { label: 'Skate', value: 'skate' },
@@ -186,7 +194,6 @@ const TestSummaryPage = () => {
   /* ───────────── render ───────────── */
   return (
     <div className="p-4 max-w-4xl md:min-w-xl w-full self-center">
-
       <div className="flex justify-between items-center mb-6">
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -194,7 +201,7 @@ const TestSummaryPage = () => {
             <SiTestrail className="text-blue-600 text-2xl" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Test Summary</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Summary</h1>
             <p className="text-gray-600">Review your test result</p>
           </div>
         </div>
@@ -202,13 +209,13 @@ const TestSummaryPage = () => {
           <Button
             type="button"
             variant="secondary"
-            onClick={() => router.push('/testing')}
+            onClick={handleBackToTesting}
           >
-            Back
+            Back to Testing
           </Button>
         </div>
-
       </div>
+      
       {/* results list */}
       <div className="bg-white shadow rounded-lg p-6 space-y-6">
         <div>
@@ -324,7 +331,6 @@ const TestSummaryPage = () => {
           </div>
         </form>
       </div>
-
 
       {locationError && (
         <div className="text-red-500">Enable location services</div>
