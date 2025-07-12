@@ -10,7 +10,7 @@ import { FiArrowRight, FiClipboard, FiBarChart2, FiUsers, FiShield } from 'react
 import Spinner from '@/components/common/Spinner/Spinner';
 
 const bgUrl = '/bg6.jpg';
-const iphone = '/ski-lab-phone-transparent.png';
+const iphone = '/ski-lab-testing-iphone.png';
 const desktop = '/ski-lab-desktop-transparent.png';
 
 const HomePage = () => {
