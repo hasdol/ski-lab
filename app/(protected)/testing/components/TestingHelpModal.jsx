@@ -1,17 +1,15 @@
 import Button from '@/components/ui/Button';
 import React from 'react';
 
-
 const TestingHelpModal = ({ isOpen, onClose, help }) => {
-
-    if (!isOpen) return null; // Don't render the modal if it's not open
+    if (!isOpen) return null;
 
     const handleOverlayClick = () => {
         onClose();
     };
 
     const handleModalClick = (event) => {
-        event.stopPropagation(); // Prevent click from propagating to the overlay
+        event.stopPropagation();
     };
 
     return (
@@ -20,12 +18,12 @@ const TestingHelpModal = ({ isOpen, onClose, help }) => {
             onClick={handleOverlayClick}
         >
             <div
-                className="bg-background p-8 rounded-lg bg-white w-full mx-4 md:w-1/2 lg:w-1/3 shadow-lg"
+                className="bg-background p-8 rounded-lg bg-white w-full mx-4 md:w-1/2 lg:w-1/3 shadow-lg max-h-[80vh] overflow-y-auto"
                 onClick={handleModalClick}
             >
                 <div className='mb-4'>
                     <div className='flex justify-between items-start'>
-                        <h2 className='text-2xl font-semibold mb-8'>Test guide</h2>
+                        <h2 className='text-2xl font-semibold mb-4'>Tournament Guide</h2>
                         <Button
                             onClick={onClose}
                             className='text-sm'
@@ -36,21 +34,35 @@ const TestingHelpModal = ({ isOpen, onClose, help }) => {
                         </Button>
                     </div>
 
-                    <ol className='grid gap-5 list-decimal px-4 mb-5'>
-                        <li>Find a suitable downhill and select the first two skis with a partner</li>
-                        <li>Gain some speed side by side</li>
-                        <li>Hold on to each other, and release when you have the exact same speed</li>
-                        <li>Find a second mark where you see the difference between you and you partner</li>
-                    </ol>
-                    <h2 className="text-xl font-semibold">Tips</h2>
-                    <ul className='list-disc px-4'>
-                        {help.map((tip, index) => (
-                            <li key={index} className="my-2">{tip}</li>
-                        ))}
-                    </ul>
+                    <div className="mb-6">
+                        <h3 className="text-lg font-semibold mb-3">Tournament Navigation</h3>
+                        <ul className='list-disc px-4 space-y-2'>
+                            <li>Use "Next Round →" to advance after completing all duels</li>
+                            <li>Use "← Previous Round" to go back and make changes</li>
+                            <li>Your inputs are saved when navigating between rounds</li>
+                            <li>Reset tournament anytime to start over</li>
+                        </ul>
+                    </div>
+
+                    <div className="mb-6">
+                        <h3 className="text-lg font-semibold mb-3">Ski Testing Process</h3>
+                        <ol className='grid gap-3 list-decimal px-4 mb-3'>
+                            <li>Find a suitable downhill and select two skis to compare</li>
+                            <li>Gain speed side by side with your partner</li>
+                            <li>Release when you have matching speed</li>
+                            <li>Measure the distance difference at the stopping point</li>
+                        </ol>
+                    </div>
+
+                    <div>
+                        <h3 className="text-lg font-semibold mb-3">App Features</h3>
+                        <ul className='list-disc px-4'>
+                            {help.map((tip, index) => (
+                                <li key={index} className="my-2">{tip}</li>
+                            ))}
+                        </ul>
+                    </div>
                 </div>
-
-
             </div>
         </div>
     );
