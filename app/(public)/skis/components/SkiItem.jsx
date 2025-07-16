@@ -46,7 +46,7 @@ const SkiItem = ({
   };
 
   return (
-    <div className={`bg-white shadow rounded-lg overflow-hidden transition-colors duration-200 ${showDetails ? '' : 'hover:bg-gray-50'}`}>
+    <div className={`bg-white shadow rounded-lg overflow-hidden transition-colors duration-200 ${showDetails ? '' : 'hover:bg-blue-50'}`}>
       {/* Main clickable row */}
       <div
         className="py-2 px-3 flex items-center cursor-pointer"
@@ -80,15 +80,15 @@ const SkiItem = ({
           )}
         </div>
         {!gloveMode && !allExpanded && (
-          <Button
+          <button
             onClick={(e) => {
               e.stopPropagation();
               toggleDetails(ski.id);
             }}
-            variant="secondary"
+            className='py-3 px-2'
           >
-            {showDetails ? <RiCollapseDiagonalLine /> : <RiExpandDiagonalFill />}
-          </Button>
+            {showDetails ? <RiCollapseDiagonalLine size={18}/> : <RiExpandDiagonalFill size={18}/>}
+          </button>
         )}
       </div>
 

@@ -90,9 +90,9 @@ export default function Navigation() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.18 }}
             />
-            {/* Drop-up subnav with slide and drag-to-close */}
+            {/* Drop-up subnav with glassmorphism, header, divider, and improved styling */}
             <motion.div
-              className="md:hidden fixed inset-x-0 bottom-0 z-30 h-fit pb-20 bg-white rounded-t-xl shadow-lg"
+              className="md:hidden fixed inset-x-0 bottom-0 z-30 h-fit pb-20 bg-white/80 backdrop-blur-lg rounded-t-2xl shadow-2xl"
               style={{ touchAction: 'none' }}
               initial={{ y: 80, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -105,30 +105,39 @@ export default function Navigation() {
                 if (info.point.y > 100) setIsSubNavOpen(false);
               }}
             >
-              <div className="p-5 space-y-3">
-                <div className="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mb-5" />
-                {subNavItems.map(item =>
-                  item.path ? (
-                    <Link
-                      key={item.key}
-                      href={item.path}
-                      onClick={() => setIsSubNavOpen(false)}
-                      className="border rounded-lg flex justify-between items-center w-full px-4 py-3 border-gray-200 text-gray-700 hover:bg-gray-100"
-                    >
-                      <span>{item.labelKey}</span>
-                      {item.icon}
-                    </Link>
-                  ) : (
-                    <button
-                      key={item.key}
-                      onClick={item.onClick}
-                      className="border rounded-lg flex justify-between items-center w-full px-4 py-3 border-gray-200 text-gray-700 hover:bg-gray-100"
-                    >
-                      <span>{item.labelKey}</span>
-                      {item.icon}
-                    </button>
-                  )
-                )}
+              <div className="px-6 pt-4 pb-6">
+                <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-5" />
+                <div className="mb-3 flex items-center gap-2 justify-center">
+                  <RiMenuLine size={22} />
+                  <span className="font-semibold text-lg text-gray-900 tracking-tight">Menu</span>
+                </div>
+                <div className="border-b border-gray-200 mb-4" />
+                <ul className="space-y-2">
+                  {subNavItems.map(item =>
+                    item.path ? (
+                      <li key={item.key}>
+                        <Link
+                          href={item.path}
+                          onClick={() => setIsSubNavOpen(false)}
+                          className="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-transparent hover:bg-blue-50  hover:text-blue-600 hover:scale-[1.03] transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        >
+                          <span>{item.labelKey}</span>
+                          {item.icon}
+                        </Link>
+                      </li>
+                    ) : (
+                      <li key={item.key}>
+                        <button
+                          onClick={item.onClick}
+                          className="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-transparent hover:bg-blue-50 hover:text-blue-600  hover:scale-[1.03] transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        >
+                          <span>{item.labelKey}</span>
+                          {item.icon}
+                        </button>
+                      </li>
+                    )
+                  )}
+                </ul>
               </div>
             </motion.div>
           </>
@@ -157,29 +166,43 @@ export default function Navigation() {
         </nav>
         <div className="flex-1 flex items-center justify-end justify-self-end relative">
           <Weather />
-          <Button onClick={() => setIsSubNavOpen(o => !o)} variant='secondary' className="ml-4 p-2!">
+          <button onClick={() => setIsSubNavOpen(o => !o)} variant='secondary' className="ml-4 p-2! hover:bg-gray-100 rounded-xl">
             {user ? <RiMenuLine size={20} /> : <RiLoginBoxLine size={20} />}
 
-          </Button>
+          </button>
 
           {isSubNavOpen && (
             <>
-              <div className="fixed inset-0 z-40" onClick={() => setIsSubNavOpen(false)} />
-              <div className="absolute right-0 top-10 w-58 mt-2 bg-white rounded-lg shadow-lg overflow-hidden z-50 animate-fade-down animate-duration-300">
-                <div className="space-y-3 p-5  ">
-                  {subNavItems.map(item =>
-                    item.path ? (
-                      <Link key={item.key} href={item.path} onClick={() => setIsSubNavOpen(false)} className="border rounded-lg flex items-center w-full px-4 py-2  border-gray-300 text-gray-700 hover:bg-gray-100">
-                        {item.icon}
-                        <span className="ml-2">{item.labelKey}</span>
-                      </Link>
-                    ) : (
-                      <button key={item.key} onClick={item.onClick} className="border rounded-lg flex items-center w-full px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-100">
-                        {item.icon}
-                        <span className="ml-2">{item.labelKey}</span>
-                      </button>
-                    )
-                  )}
+              {/* Desktop overlay for subnav (no blur) */}
+              <div className="hidden md:block fixed inset-0 z-40 bg-black/10" onClick={() => setIsSubNavOpen(false)} />
+              <div className="absolute right-0 top-14 w-80 mt-2 bg-white/80 backdrop-blur-lg border border-gray-100 rounded-xl shadow overflow-hidden z-50 animate-fade-down animate-duration-300">
+                <div className="px-7 py-6">
+                  <div className="mb-3 flex items-center gap-2">
+                    <RiMenuLine size={22} />
+                    <span className="font-semibold text-xl text-gray-900 tracking-tight">Menu</span>
+                  </div>
+                  <div className="border-b border-gray-200 mb-4" />
+                  <ul className="space-y-2">
+                    {subNavItems.map(item =>
+                      item.path ? (
+                        <li key={item.key}>
+                          <Link href={item.path} onClick={() => setIsSubNavOpen(false)}
+                            className="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-transparent hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200">
+                            <span>{item.labelKey}</span>
+                            {item.icon}
+                          </Link>
+                        </li>
+                      ) : (
+                        <li key={item.key}>
+                          <button onClick={item.onClick}
+                            className="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-transparent hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200">
+                            <span>{item.labelKey}</span>
+                            {item.icon}
+                          </button>
+                        </li>
+                      )
+                    )}
+                  </ul>
                 </div>
               </div>
             </>

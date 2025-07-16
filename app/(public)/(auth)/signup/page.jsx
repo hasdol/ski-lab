@@ -29,7 +29,7 @@ const SignUp = () => {
   };
 
   return (
-    <main className="p-4 max-w-xl w-full self-center mt-10">
+    <main className="max-w-xl w-full self-center mt-10 bg-white shadow rounded-xl p-10">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="bg-blue-100 p-2 rounded-lg">
@@ -41,7 +41,7 @@ const SignUp = () => {
         </div>
       </div>
       
-      <form onSubmit={handleSignUp} className="bg-white shadow rounded-lg p-6 space-y-4">
+      <form onSubmit={handleSignUp} className="space-y-4">
         <Input
           id="email"
           type="email"
