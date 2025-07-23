@@ -104,30 +104,36 @@ const Results = () => {
       </div>
 
       {/* Style Filter Tabs */}
-      <div className="flex justify-between items-end border-b border-gray-200 pb-2 mb-6">
-        <div>
-          {['all', 'classic', 'skate'].map((style) => (
-            <button
-              key={style}
-              onClick={() => setStyleFilter(style)}
-              className={`px-4 py-2 font-medium text-sm capitalize ${styleFilter === style
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
-                }`}
-            >
-              {style}
-            </button>
-          ))}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex space-x-2">
+          {['all', 'classic', 'skate', 'dp'].map((style) => {
+            const tabColors = {
+              all: 'bg-gray-100 text-gray-700  border-gray-300',
+              classic: 'bg-emerald-50 text-emerald-700 border-emerald-300',
+              skate: 'bg-blue-50 text-blue-700 border-blue-300',
+              dp: 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-300'
+            };
+            const active = styleFilter === style;
+            return (
+              <button
+                key={style}
+                onClick={() => setStyleFilter(style)}
+                className={`px-4 py-2 font-medium text-sm capitalize rounded-lg border transition
+                  ${active ? `${tabColors[style]} ` : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'}
+                `}
+              >
+                {style}
+              </button>
+            );
+          })}
         </div>
-
         <div className="flex items-center gap-2">
           <Button
             onClick={toggleFilter}
             variant="secondary"
-            className={`flex items-center ${isFilterActive ? 'text-gray-800' : ''}`}
+            className={`ml-2 ${isFilterActive ? 'text-gray-800' : ''}`}
           >
             {isFilterActive ? <RiFilter2Fill /> : <RiFilter2Line />}
-            <span className="ml-1">Filter</span>
           </Button>
         </div>
       </div>

@@ -204,6 +204,7 @@ const Skis = () => {
 
   return (
     <div className="p-4 max-w-4xl w-full self-center">
+
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="bg-blue-100 p-2 rounded-lg">
@@ -211,65 +212,105 @@ const Skis = () => {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Skis</h1>
-          <p className="text-gray-600">Manage and test your skis</p>
+          <div className="text-xs text-gray-600 mt-1 flex flex-col  gap-2">
+            <span>
+              <span className="font-semibold text-gray-700">{skiCount}</span> / {skiLimit} skis
+              <span className="ml-2">({plan.charAt(0).toUpperCase() + plan.slice(1)} plan)</span>
+            </span>
+            {hasReachedLimit && plan !== 'company' && (
+              <Button variant="primary" onClick={() => router.push('/plans')} >
+                Upgrade
+              </Button>
+            )}
+          </div>
         </div>
+        {!hasReachedLimit &&
+          <Button
+            onClick={handleAddSki}
+            variant='primary'
+            disabled={hasReachedLimit}
+            className="ml-auto flex items-center gap-2"
+          >
+            <RiAddLine />
+            <span>Add Ski</span>
+          </Button>
+        }
+
       </div>
 
-      {/* Top controls row */}
-      <div className="flex items-end justify-between mb-4">
-        <div className="flex flex-col justify-end">
-          <h3 className="text-sm font-semibold mb-1">{
-            getSelectedList().length > 1
-              ? `${getSelectedList().length} skis selected`
-              : 'Select skis to test'
-          }</h3>
-          <div className="flex space-x-3 items-end">
+      {/* Search */}
+      <div className="flex items-center gap-2">
+        <Search onSearch={setSearchRaw} />
+        <Button
+          onClick={toggleFilterDrawer}
+          variant="secondary"
+          className={`${styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived' ? 'text-gray-800' : ''}`}
+        >
+          {styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived'
+            ? <RiFilter2Fill />
+            : <RiFilter2Line />}
+        </Button>
+      </div>
+
+
+      {/* Style tabs + Filter */}
+      <div className="flex items-center justify-between mt-4">
+        <div className="flex space-x-2">
+          {['all', 'classic', 'skate', 'dp'].map((style) => {
+            const tabColors = {
+              all: 'bg-gray-100 text-gray-700  border-gray-300',
+              classic: 'bg-emerald-50 text-emerald-700 border-emerald-300',
+              skate: 'bg-blue-50 text-blue-700 border-blue-300',
+              dp: 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-300'
+            };
+            const active = styleFilter === style;
+            return (
+              <button
+                key={style}
+                onClick={() => setStyleFilter(style)}
+                className={`px-4 py-2 font-medium text-sm capitalize rounded-lg border transition
+                  ${active ? `${tabColors[style]} ` : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'}
+                `}
+              >
+                {style}
+              </button>
+            );
+          })}
+        </div>
+
+      </div>
+
+
+
+      {/* Selection controls - only show if skis selected */}
+      {getSelectedList().length > 0 && (
+        <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-lg z-50 flex items-center justify-between px-4 py-3">
+          <div className="text-sm font-semibold">
+            {getSelectedList().length} ski{getSelectedList().length > 1 ? 's' : ''} selected
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setSelectedMap({});
+                setSelectedSkisDataMap(new Map());
+              }}
+            >
+              Reset
+            </Button>
             <Button
               onClick={handleStartTournament}
               variant="primary"
               disabled={getSelectedList().length < 2}
-            >New Test</Button>
+            >
+              New Test
+            </Button>
             {!!currentRound.length && (
               <Button onClick={handleContinueTest} variant="primary"><VscDebugContinue /></Button>
             )}
           </div>
         </div>
-
-        <div className="flex space-x-3 items-end">
-          <div className="flex flex-col items-center w-fit">
-            <label className={`text-sm font-semibold mb-1 ${hasReachedLimit && 'text-red-500'}`}>
-              {skiCount === 0 ? 'Add ski' : `${skiCount}/${skiLimit}`}
-            </label>
-            <Button
-              onClick={handleAddSki}
-              variant='primary'
-              disabled={hasReachedLimit}
-            >
-              {hasReachedLimit ? <RiLockLine /> : <RiAddLine />}
-            </Button>
-          </div>
-
-          <div className="flex flex-col items-center w-fit">
-            <label className="text-sm font-semibold mb-1">Filter</label>
-            <Button
-              onClick={toggleFilterDrawer}
-              variant="secondary"
-              className={
-                styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived'
-                  ? 'text-gray-800'
-                  : ''
-              }
-            >
-              {styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived'
-                ? <RiFilter2Fill />
-                : <RiFilter2Line />}
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Search box */}
-      <Search onSearch={setSearchRaw} />
+      )}
 
       {/* Locked skis or plan upgrade prompt */}
       {hasLockedSkis ? (
@@ -315,11 +356,9 @@ const Skis = () => {
       />
 
       {/* Active filter chips */}
-      {(styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && (
+      {(skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && (
         <div className="flex space-x-2 text-sm mt-2">
-          {styleFilter !== 'all' && (
-            <Button variant="tab" onClick={() => setStyleFilter('all')}><span className="flex">{styleFilter} <RiCloseLine /></span></Button>
-          )}
+
           {skiTypeFilter !== 'all' && (
             <Button variant="tab" onClick={() => setSkiTypeFilter('all')}><span className="flex">{skiTypeFilter} <RiCloseLine /></span></Button>
           )}
@@ -330,32 +369,46 @@ const Skis = () => {
       )}
 
       {/* Ski list (cards or table) */}
-      <div className="my-5">
+      <div className="mb-5">
         {loading && !skis.length ? (
           <div className="flex justify-center items-center mt-10"><Spinner /></div>
         ) : viewMode === 'card' ? (
           <AnimatePresence>
             <div className={gloveMode ? 'grid grid-cols-2 gap-2' : 'flex flex-col space-y-2'}>
-              {displayedSkis.map(ski => (
-                <motion.div
-                  key={ski.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  <SkiItem
-                    ski={ski}
-                    search={debouncedTerm}
-                    handleCheckboxChange={toggleSelect}
-                    selectedSkis={selectedMap}
-                    expandedSkiId={expandedSkiId}
-                    toggleDetails={toggleDetails}
-                    handleArchive={handleArchive}
-                    handleUnarchive={handleUnarchive}
-                    handleDelete={handleDelete}
-                    handleEdit={() => router.push(`/skis/${ski.id}/edit`)}
-                  />
-                </motion.div>
-              ))}
+              {Object.entries(groupSkisByStyle(displayedSkis)).map(([style, skis]) =>
+                skis.length > 0 && (
+                  <React.Fragment key={style}>
+                    <div className={`mt-5 mb-2 flex items-center gap-2 px-2 py-1 rounded font-semibold
+                      ${style === 'classic' ? 'text-emerald-700' : ''}
+                      ${style === 'skate' ? 'text-blue-700' : ''}
+                      ${style === 'dp' ? 'text-fuchsia-700' : ''}
+                    `}>
+                      <span className="capitalize">{style}</span>
+                      <span className="text-xs text-gray-400 font-normal">{skis.length} ski{skis.length > 1 ? 's' : ''}</span>
+                    </div>
+                    {skis.map(ski => (
+                      <motion.div
+                        key={ski.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                      >
+                        <SkiItem
+                          ski={ski}
+                          search={debouncedTerm}
+                          handleCheckboxChange={toggleSelect}
+                          selectedSkis={selectedMap}
+                          expandedSkiId={expandedSkiId}
+                          toggleDetails={toggleDetails}
+                          handleArchive={handleArchive}
+                          handleUnarchive={handleUnarchive}
+                          handleDelete={handleDelete}
+                          handleEdit={() => router.push(`/skis/${ski.id}/edit`)}
+                        />
+                      </motion.div>
+                    ))}
+                  </React.Fragment>
+                )
+              )}
             </div>
           </AnimatePresence>
         ) : (
@@ -434,5 +487,20 @@ function GettingStartedGuide({ onAddSki, onLearnMore }) {
     </div>
   );
 }
+
+function groupSkisByStyle(skis) {
+  const groups = { classic: [], skate: [], dp: [] };
+  skis.forEach(ski => {
+    if (groups[ski.style]) groups[ski.style].push(ski);
+  });
+  return groups;
+}
+
+const styleColors = {
+  classic: 'bg-blue-50',
+  skate: 'bg-green-50',
+  dp: 'bg-yellow-50',
+  all: 'bg-white'
+};
 
 export default Skis;

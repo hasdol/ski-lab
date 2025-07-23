@@ -19,7 +19,7 @@ const Search = ({ onSearch }) => {
   }, [debounced, onSearch]);
 
   return (
-    <div className="flex flex-col relative w-full mr-5">
+    <div className="flex flex-col relative w-full">
       <div className={`bg-white flex items-center rounded-lg md:w-fit border border-gray-300 overflow-hidden focus-within:outline outline-gray-500 ${gloveMode && 'p-2'}`}>
         <input
           id="search-input"

@@ -4,7 +4,10 @@ import React, { useContext } from 'react';
 import {
   RiHistoryLine,
   RiExpandDiagonalFill,
-  RiCollapseDiagonalLine
+  RiCollapseDiagonalLine,
+  RiRunLine,
+  RiRoadsterLine,
+  RiFlashlightLine
 } from "react-icons/ri";
 
 import SkiDetail from './details/SkiDetails';
@@ -45,9 +48,20 @@ const SkiItem = ({
     await handleUnarchive(ski.id);
   };
 
+  const styleIcons = {
+    classic: <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-600 text-xs font-bold" title="Classic">C</span>,
+    skate: <span className="px-2 py-0.5 rounded bg-green-100 text-green-600 text-xs font-bold" title="Skate">S</span>,
+    dp: <span className="px-2 py-0.5 rounded bg-yellow-100 text-yellow-600 text-xs font-bold" title="DP">DP</span>
+  };
+
+  const styleCheckboxColors = {
+    classic: 'accent-emerald-700',
+    skate: 'accent-blue-700',
+    dp: 'accent-fuchsia-700'
+  };
+
   return (
     <div className={`bg-white shadow rounded-lg overflow-hidden transition-colors duration-200 ${showDetails ? '' : 'hover:bg-blue-50'}`}>
-      {/* Main clickable row */}
       <div
         className="py-2 px-3 flex items-center cursor-pointer"
         onClick={() => handleCheckboxChange(ski.id)}
@@ -56,28 +70,14 @@ const SkiItem = ({
           type="checkbox"
           checked={selectedSkis[ski.id] || false}
           readOnly
-          className={`mr-3 accent-btn ${gloveMode ? 'w-10 h-10' : 'w-4 h-4'}`}
+          className={`mr-3 accent-btn border-2 rounded ${gloveMode ? 'w-10 h-10' : 'w-4 h-4'} ${styleCheckboxColors[ski.style] || 'accent-gray-400 border-gray-300'}`}
           aria-label="select ski"
         />
-        <div className="flex-grow">
-          {!gloveMode ? (
-            <div className={`flex items-center space-x-2 ${showDetails && 'font-semibold'}`}>
-              <span>{highlightSearchTerm(ski.serialNumber, search)}</span>
-              <span className="text-gray-400">•</span>
-              <span>{highlightSearchTerm(ski.grind, search)}</span>
-              <span className="text-gray-400">•</span>
-              <span>{highlightSearchTerm(ski.style.charAt(0).toUpperCase() + ski.style.slice(1), search)}</span>
-              {ski.archived && <RiHistoryLine className="ml-2 text-gray-500" />}
-              {isNew(ski) && !gloveMode && (
-                <span className="ml-1 text-xs text-blue-600">New</span>
-              )}
-            </div>
-          ) : (
-            <div className="flex flex-col">
-              <span className="text-lg font-bold">{ski.serialNumber}</span>
-              <span>{ski.style}</span>
-            </div>
-          )}
+        <div className="flex items-center gap-2 flex-grow">
+          {/* Remove styleIcons[ski.style] here */}
+          <span className="font-medium">{highlightSearchTerm(ski.serialNumber, search)}</span>
+          <span className="text-gray-400">•</span>
+          <span className="text-gray-600">{highlightSearchTerm(ski.grind, search)}</span>
         </div>
         {!gloveMode && !allExpanded && (
           <button
@@ -91,8 +91,7 @@ const SkiItem = ({
           </button>
         )}
       </div>
-
-      {/* Detailed info */}
+      {/* Only show extra info when expanded */}
       {showDetails && !gloveMode && (
         <div className="border-t border-gray-200 p-4">
           <SkiDetail

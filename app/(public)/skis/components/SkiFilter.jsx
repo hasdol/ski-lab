@@ -166,9 +166,9 @@ const SkiFilter = ({
               px: 4,
               py: 1,
             }}
-            onClick={resetFilter}
+            onClick={onClose}
           >
-            Reset
+            Apply
           </Button>
           <Button
             sx={{
@@ -178,9 +178,9 @@ const SkiFilter = ({
               px: 2,
               py: 1,
             }}
-            onClick={onClose}
+            onClick={resetFilter}
           >
-            Close
+            Reset
           </Button>
         </Box>
       </Box>

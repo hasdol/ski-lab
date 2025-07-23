@@ -397,7 +397,7 @@ const Testing = () => {
         </DragDropContext>
 
         {/* Footer actions */}
-        <div className="fixed bg-slate-100 w-full p-4 left-0 bottom-13 border-t border-gray-300 shadow flex justify-center space-x-4">
+        <div className="fixed bg-slate-100 z-300 w-full p-4 left-0 bottom-13 border-t border-gray-300 shadow flex justify-center space-x-4">
           <Button variant="secondary" onClick={goBack} disabled={roundsHistory.length === 0}>
             ← Previous Round
           </Button>
