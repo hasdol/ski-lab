@@ -31,6 +31,7 @@ import {
 import { TiFlowParallel } from "react-icons/ti";
 import { VscDebugContinue } from "react-icons/vsc";
 import Search from '../../../components/Search/Search';
+import { PLAN_LIMITS } from '@/lib/constants/planLimits';
 
 const Skis = () => {
   const router = useRouter();
@@ -48,29 +49,24 @@ const Skis = () => {
   const [debouncedTerm] = useDebounce(searchRaw.toLowerCase(), 300);
 
   // --- filters & sort
-  const [styleFilter, setStyleFilter] = useState(
-    () => (typeof window !== 'undefined'
-      ? localStorage.getItem('styleFilter') || 'all'
-      : 'all')
-  );
-  const [skiTypeFilter, setSkiTypeFilter] = useState(
-    () => (typeof window !== 'undefined'
-      ? localStorage.getItem('skiTypeFilter') || 'all'
-      : 'all')
-  );
-  const [archivedFilter, setArchivedFilter] = useState(
-    () => (typeof window !== 'undefined'
-      ? localStorage.getItem('archivedFilter') || 'notArchived'
-      : 'notArchived')
-  );
+  const [styleFilter, setStyleFilter] = useState('all');
+  const [skiTypeFilter, setSkiTypeFilter] = useState('all');
+  const [archivedFilter, setArchivedFilter] = useState('notArchived');
   const [sortField, setSortField] = useState('serialNumber');
   const [sortDirection, setSortDirection] = useState('asc');
-  const [viewMode, setViewMode] = useState(
-    () => (typeof window !== 'undefined'
-      ? localStorage.getItem('viewMode') || 'card'
-      : 'card')
-  );
+  const [viewMode, setViewMode] = useState('card');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setStyleFilter(localStorage.getItem('styleFilter') || 'all');
+      setSkiTypeFilter(localStorage.getItem('skiTypeFilter') || 'all');
+      setArchivedFilter(localStorage.getItem('archivedFilter') || 'notArchived');
+      setSortField(localStorage.getItem('sortField') || 'serialNumber');
+      setSortDirection(localStorage.getItem('sortDirection') || 'asc');
+      setViewMode(localStorage.getItem('viewMode') || 'card');
+    }
+  }, []);
 
   // --- data fetching
   const {
@@ -166,11 +162,7 @@ const Skis = () => {
   // --- plan limits
   const skiCount = userData?.skiCount || 0;
   const plan = userData?.plan || 'free';
-  const skiLimit =
-    plan === 'senior' ? 16 :
-      plan === 'senior_pluss' ? 32 :
-        plan === 'coach' ? 64 :
-          plan === 'company' ? 5000 : 8;
+  const skiLimit = PLAN_LIMITS[plan] ?? PLAN_LIMITS['free'];
   const hasReachedLimit = skiCount >= skiLimit;
   const hasLockedSkis = lockedSkisCount > 0;
 
@@ -254,7 +246,7 @@ const Skis = () => {
 
 
       {/* Style tabs + Filter */}
-      <div className="flex items-center justify-between mt-4">
+      <div className="flex items-center justify-between my-4">
         <div className="flex space-x-2">
           {['all', 'classic', 'skate', 'dp'].map((style) => {
             const tabColors = {
@@ -378,7 +370,7 @@ const Skis = () => {
               {Object.entries(groupSkisByStyle(displayedSkis)).map(([style, skis]) =>
                 skis.length > 0 && (
                   <React.Fragment key={style}>
-                    <div className={`mt-5 mb-2 flex items-center gap-2 px-2 py-1 rounded font-semibold
+                    <div className={`my-2 flex items-center gap-2 px-2 py-1 rounded font-semibold
                       ${style === 'classic' ? 'text-emerald-700' : ''}
                       ${style === 'skate' ? 'text-blue-700' : ''}
                       ${style === 'dp' ? 'text-fuchsia-700' : ''}
@@ -495,12 +487,5 @@ function groupSkisByStyle(skis) {
   });
   return groups;
 }
-
-const styleColors = {
-  classic: 'bg-blue-50',
-  skate: 'bg-green-50',
-  dp: 'bg-yellow-50',
-  all: 'bg-white'
-};
 
 export default Skis;
