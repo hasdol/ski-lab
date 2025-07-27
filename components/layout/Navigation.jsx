@@ -15,7 +15,8 @@ import {
   RiShoppingCartLine,
   RiBarChart2Line,
   RiInformationLine,
-  RiMenuLine
+  RiMenuLine,
+  RiLineChartLine
 } from 'react-icons/ri';
 import { TiFlowParallel } from 'react-icons/ti';
 import { useAuth } from '@/context/AuthContext';
@@ -27,6 +28,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const navConfig = [
   { key: 'home', labelKey: 'Home', icon: <RiHome5Line size={22} />, path: '/' },
   { key: 'skis', labelKey: 'Skis', icon: <TiFlowParallel size={22} />, path: '/skis' },
+  { key: 'compare', labelKey: 'Compare', icon: <RiLineChartLine size={22} />, path: '/skis/compare' },
   { key: 'results', labelKey: 'Results', icon: <RiBarChart2Line size={22} />, path: '/results' },
   { key: 'teams', labelKey: 'Teams', icon: <RiTeamLine size={22} />, path: '/teams' },
 ];
@@ -56,7 +58,7 @@ export default function Navigation() {
     <>
       {/* Mobile: bottom nav */}
       <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t-1 border-gray-300 z-50">
-        <div className="grid grid-cols-5 ">
+        <div className="grid grid-cols-6 ">
           {navConfig.map(item => (
             <button
               key={item.key}
@@ -153,7 +155,7 @@ export default function Navigation() {
         </div>
 
         <nav className="flex-1">
-          <ul className="grid grid-cols-4 gap-1">
+          <ul className="grid grid-cols-5 gap-1">
             {navConfig.map(item => (
               <li key={item.key}>
                 <Link href={item.path} className={`flex items-center justify-center transition py-1 hover:bg-gray-100 rounded-lg  ${isActive(item.path) ? 'bg-blue-100  text-blue-600/80' : 'text-gray-700'}`}>
