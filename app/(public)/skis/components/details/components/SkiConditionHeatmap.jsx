@@ -172,12 +172,16 @@ const SkiConditionHeatmap = ({
                     <td key={temp} className="px-2 py-1 text-center">
                       {category !== 'unknown' ? (
                         <div
-                          className="w-6 h-6 mx-auto rounded-full cursor-pointer transition-transform hover:scale-125 shadow-sm"
+                          className="w-6 h-6 mx-auto rounded-full cursor-pointer transition-transform hover:scale-125 shadow-sm flex items-center justify-center text-xs font-semibold text-white"
                           style={{ backgroundColor: bgColor }}
                           onClick={(e) =>
                             handleCellClick(e, temp, row.source, row.snowType, category)
                           }
-                        />
+                        >
+                          {item?.averageScore !== null && item?.averageScore !== undefined
+                            ? (item.averageScore * 100).toFixed(0) / 10 // Show as 0.0–1.0, one decimal
+                            : ''}
+                        </div>
                       ) : (
                         <span className="text-sm">--</span>
                       )}
