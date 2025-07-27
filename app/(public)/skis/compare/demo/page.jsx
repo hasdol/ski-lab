@@ -2,34 +2,56 @@
 
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import { useSkis } from '@/hooks/useSkis';
-import useSkisTestsComparison from '@/hooks/useSkisTestsComparison';
 import Button from '@/components/ui/Button';
-import Spinner from '@/components/common/Spinner/Spinner';
-import { TiFlowParallel } from "react-icons/ti";
-import { RiLineChartLine, RiFilter2Line, RiCloseLine } from 'react-icons/ri';
+import { RiLineChartLine } from 'react-icons/ri';
 import ComparisonHeatmap from '@/components/compare/ComparisonHeatmap';
 import ComparisonLineChart from '@/components/compare/ComparisonLineChart';
 
-const CompareSkis = () => {
+// Mock ski data for demonstration
+const mockSkis = [
+  {
+    id: '1',
+    brand: 'Salomon',
+    model: 'S/Race Skate',
+    serialNumber: 'SAL001',
+    style: 'skate'
+  },
+  {
+    id: '2',
+    brand: 'Fischer',
+    model: 'Speedmax 3D',
+    serialNumber: 'FIS002',
+    style: 'skate'
+  },
+  {
+    id: '3',
+    brand: 'Rossignol',
+    model: 'X-IUM Classic',
+    serialNumber: 'ROS003',
+    style: 'classic'
+  },
+  {
+    id: '4',
+    brand: 'Atomic',
+    model: 'Redster C9',
+    serialNumber: 'ATO004',
+    style: 'classic'
+  }
+];
+
+const CompareSkisDemo = () => {
   const router = useRouter();
-  const { user } = useAuth();
-  const { skis, loading: skisLoading } = useSkis();
   
   // Selected skis for comparison
-  const [selectedSkiIds, setSelectedSkiIds] = useState([]);
+  const [selectedSkiIds, setSelectedSkiIds] = useState(['1', '2']);
   
   // Filters
   const [seasonFilter, setSeasonFilter] = useState('all');
   const [snowSourceFilter, setSnowSourceFilter] = useState('all');
   const [grainTypeFilter, setGrainTypeFilter] = useState('all');
   
-  // Ski visibility toggles
-  const [visibleSkis, setVisibleSkis] = useState({});
-
-  // Fetch tests for selected skis
-  const { allSkisTests, loading: testsLoading } = useSkisTestsComparison(selectedSkiIds);
+  // Ski visibility toggles - initialized with selected skis visible
+  const [visibleSkis, setVisibleSkis] = useState({ '1': true, '2': true });
 
   // Handle ski selection
   const handleSkiToggle = (skiId) => {
@@ -58,40 +80,11 @@ const CompareSkis = () => {
 
   // Get selected skis data
   const selectedSkis = useMemo(() => {
-    return skis.filter(ski => selectedSkiIds.includes(ski.id));
-  }, [skis, selectedSkiIds]);
+    return mockSkis.filter(ski => selectedSkiIds.includes(ski.id));
+  }, [selectedSkiIds]);
 
   // Filter applied count
   const activeFiltersCount = [seasonFilter, snowSourceFilter, grainTypeFilter].filter(f => f !== 'all').length;
-
-  if (!user) {
-    return (
-      <div className="p-4 max-w-4xl w-full self-center">
-        <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg mt-4">
-          <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-            <RiLineChartLine className="text-gray-500 text-2xl" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Sign In Required</h3>
-          <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            Please sign in to compare your skis.
-          </p>
-          <Button onClick={() => router.push('/login')} variant="primary">
-            Sign In
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (skisLoading) {
-    return (
-      <div className="p-4 max-w-4xl w-full self-center">
-        <div className="flex justify-center items-center mt-10">
-          <Spinner />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="p-4 max-w-6xl w-full self-center">
@@ -108,39 +101,39 @@ const CompareSkis = () => {
         </div>
       </div>
 
+      {/* Demo Notice */}
+      <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h3 className="text-sm font-medium text-yellow-900 mb-2">🚀 Demo Mode</h3>
+        <p className="text-sm text-yellow-800">
+          This is a demonstration of the ski comparison feature with mock data. 
+          In the real app, this would show your actual ski inventory and test results.
+        </p>
+      </div>
+
       {/* Ski Selection */}
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-3">Select Skis to Compare</h2>
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          {skis.length === 0 ? (
-            <div className="text-center py-6">
-              <p className="text-gray-600 mb-4">You don't have any skis yet.</p>
-              <Button onClick={() => router.push('/skis')} variant="primary">
-                Go to Skis
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {skis.map(ski => (
-                <label key={ski.id} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedSkiIds.includes(ski.id)}
-                    onChange={() => handleSkiToggle(ski.id)}
-                    className="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-900 truncate">
-                      {ski.brand} {ski.model}
-                    </div>
-                    <div className="text-xs text-gray-500 truncate">
-                      {ski.serialNumber} • {ski.style}
-                    </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {mockSkis.map(ski => (
+              <label key={ski.id} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={selectedSkiIds.includes(ski.id)}
+                  onChange={() => handleSkiToggle(ski.id)}
+                  className="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 truncate">
+                    {ski.brand} {ski.model}
                   </div>
-                </label>
-              ))}
-            </div>
-          )}
+                  <div className="text-xs text-gray-500 truncate">
+                    {ski.serialNumber} • {ski.style}
+                  </div>
+                </div>
+              </label>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -294,4 +287,4 @@ const CompareSkis = () => {
   );
 };
 
-export default CompareSkis;
+export default CompareSkisDemo;
