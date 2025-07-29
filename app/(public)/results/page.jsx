@@ -103,7 +103,12 @@ const Results = () => {
         </div>
       </div>
 
-      {/* Style Filter Tabs */}
+      {/* Search */}
+      <div className="mb-4">
+        <Search onSearch={handleSearch} />
+      </div>
+
+      {/* Style tabs + Filter */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex space-x-2">
           {['all', 'classic', 'skate', 'dp'].map((style) => {
@@ -127,20 +132,13 @@ const Results = () => {
             );
           })}
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={toggleFilter}
-            variant="secondary"
-            className={`ml-2 ${isFilterActive ? 'text-gray-800' : ''}`}
-          >
-            {isFilterActive ? <RiFilter2Fill /> : <RiFilter2Line />}
-          </Button>
-        </div>
-      </div>
-
-      {/* Search and Filter */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-4">
-        <Search onSearch={handleSearch} />
+        <Button
+          onClick={toggleFilter}
+          variant="secondary"
+          className={`ml-2 ${isFilterActive ? 'text-gray-800' : ''}`}
+        >
+          {isFilterActive ? <RiFilter2Fill /> : <RiFilter2Line />}
+        </Button>
       </div>
 
       {/* Active Filter Tags */}
