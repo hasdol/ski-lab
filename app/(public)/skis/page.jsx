@@ -27,6 +27,7 @@ import {
   RiAddLine,
   RiLockLine,
   RiCloseLine,
+  RiDeleteBinLine
 } from 'react-icons/ri';
 import { TiFlowParallel } from "react-icons/ti";
 import { VscDebugContinue } from "react-icons/vsc";
@@ -231,22 +232,12 @@ const Skis = () => {
       </div>
 
       {/* Search */}
-      <div className="flex items-center gap-2">
+      <div className="mb-4">
         <Search onSearch={setSearchRaw} />
-        <Button
-          onClick={toggleFilterDrawer}
-          variant="secondary"
-          className={`${styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived' ? 'text-gray-800' : ''}`}
-        >
-          {styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived'
-            ? <RiFilter2Fill />
-            : <RiFilter2Line />}
-        </Button>
       </div>
 
-
       {/* Style tabs + Filter */}
-      <div className="flex items-center justify-between my-4">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex space-x-2">
           {['all', 'classic', 'skate', 'dp'].map((style) => {
             const tabColors = {
@@ -269,10 +260,28 @@ const Skis = () => {
             );
           })}
         </div>
-
+        <Button
+          onClick={toggleFilterDrawer}
+          variant="secondary"
+          className={`ml-2 ${styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived' ? 'text-gray-800' : ''}`}
+        >
+          {styleFilter !== 'all' || skiTypeFilter !== 'all' || archivedFilter !== 'notArchived'
+            ? <RiFilter2Fill />
+            : <RiFilter2Line />}
+        </Button>
       </div>
 
-
+      {/* Active filter chips */}
+      {(skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && (
+        <div className="flex space-x-2 text-sm mb-4">
+          {skiTypeFilter !== 'all' && (
+            <Button variant="tab" onClick={() => setSkiTypeFilter('all')}><span className="flex">{skiTypeFilter} <RiCloseLine /></span></Button>
+          )}
+          {archivedFilter !== 'notArchived' && (
+            <Button variant="tab" onClick={() => setArchivedFilter('notArchived')}><span className="flex">{archivedFilter} <RiCloseLine /></span></Button>
+          )}
+        </div>
+      )}
 
       {/* Selection controls - only show if skis selected */}
       {getSelectedList().length > 0 && (
@@ -282,13 +291,13 @@ const Skis = () => {
           </div>
           <div className="flex gap-2">
             <Button
-              variant="secondary"
+              variant="danger"
               onClick={() => {
                 setSelectedMap({});
                 setSelectedSkisDataMap(new Map());
               }}
             >
-              Reset
+              <RiDeleteBinLine/>
             </Button>
             <Button
               onClick={handleStartTournament}
