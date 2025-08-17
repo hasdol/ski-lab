@@ -7,11 +7,11 @@
   --color-highlight: #677dcd ; 
   --color-line: #6781df ;
   --color-reference: #ffb300;
-  --color-great: #677dcd;
-  --color-good: #4bbd5c;
-  --color-average: #acc2b7;
-  --color-bad: #ea7704;
-  --color-veryBad: #d7191c;
+  --color-great: #08306B;
+  --color-good: #2166AC;
+  --color-average: #4393C3;
+  --color-bad: #92C5DE;
+  --color-veryBad: #D9EAF6;
 }
 
 @layer base {

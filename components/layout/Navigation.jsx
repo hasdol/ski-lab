@@ -148,7 +148,6 @@ export default function Navigation() {
       <header className="hidden md:flex md:justify-between items-center w-full bg-white shadow z-50 px-5 p-3">
         <div className="flex-1 flex items-baseline cursor-pointer" onClick={() => router.push('/')}>
           <h1 className="text-2xl font-semibold">Ski-Lab</h1>
-          <h5 className="ml-2 text-sm">beta</h5>
 
         </div>
 

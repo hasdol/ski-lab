@@ -291,15 +291,6 @@ const Skis = () => {
           </div>
           <div className="flex gap-2">
             <Button
-              variant="danger"
-              onClick={() => {
-                setSelectedMap({});
-                setSelectedSkisDataMap(new Map());
-              }}
-            >
-              <RiDeleteBinLine/>
-            </Button>
-            <Button
               onClick={handleStartTournament}
               variant="primary"
               disabled={getSelectedList().length < 2}

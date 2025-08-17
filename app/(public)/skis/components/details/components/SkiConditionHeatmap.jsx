@@ -23,14 +23,104 @@ const SkiConditionHeatmap = ({
   // Active tab: 'natural' | 'artificial' | 'mix'
   const [activeTab, setActiveTab] = useState('natural');
 
-  // Color scale by category
-  const categoryColors = {
-    great: 'var(--color-great)',
-    good: 'var(--color-good)',
-    average: 'var(--color-average)',
-    bad: 'var(--color-bad)',
-    very_bad: 'var(--color-veryBad)',
-    unknown: '#BDC3C7',
+  // Color scale by category (fallback single-colors kept for 'unknown')
+  // will derive category colors from the spectre below
+  let categoryColors = {};
+
+  // Dynamic perceptual spectre: pale (worst) → teal/green (best)
+  const lowHex = '#f1f7fb';   // very pale (worst)
+  const highHex = '#155dfc';  // teal/green (best)
+
+  const hexToRgb = (hex) => {
+    const c = hex.replace('#', '');
+    return [parseInt(c.substring(0, 2), 16), parseInt(c.substring(2, 4), 16), parseInt(c.substring(4, 6), 16)];
+  };
+  const rgbToHex = (r, g, b) =>
+    `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+
+  // RGB <-> HSL helpers for perceptual interpolation
+  const rgbToHsl = (r, g, b) => {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0;
+    const l = (max + min) / 2;
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    return [h * 360, s, l];
+  };
+
+  const hslToRgb = (h, s, l) => {
+    h = h / 360;
+    let r, g, b;
+    if (s === 0) {
+      r = g = b = l; // achromatic
+    } else {
+      const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+      };
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1 / 3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1 / 3);
+    }
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+  };
+
+  // Interpolate in HSL space for a smoother perceptual gradient
+  const scoreToHex = (score) => {
+    const s = Math.max(0, Math.min(1, Number(score) || 0));
+    const [r1, g1, b1] = hexToRgb(lowHex);
+    const [r2, g2, b2] = hexToRgb(highHex);
+    const [h1, s1, l1] = rgbToHsl(r1, g1, b1);
+    const [h2, s2, l2] = rgbToHsl(r2, g2, b2);
+
+    // Interpolate hue taking shortest direction around the circle
+    let dh = h2 - h1;
+    if (dh > 180) dh -= 360;
+    if (dh < -180) dh += 360;
+    const h = (h1 + dh * s + 360) % 360;
+    const sat = s1 + (s2 - s1) * s;
+    const light = l1 + (l2 - l1) * s;
+    const [r, g, b] = hslToRgb(h, sat, light);
+    return rgbToHex(r, g, b);
+  };
+
+  // contrast color for readable text on dots (keeps existing luminance test)
+  const getContrastColor = (hex) => {
+    if (!hex) return '#000';
+    const [r, g, b] = hexToRgb(hex);
+    const rs = r / 255;
+    const gs = g / 255;
+    const bs = b / 255;
+    const lum =
+      0.2126 * (rs <= 0.03928 ? rs / 12.92 : Math.pow((rs + 0.055) / 1.055, 2.4)) +
+      0.7152 * (gs <= 0.03928 ? gs / 12.92 : Math.pow((gs + 0.055) / 1.055, 2.4)) +
+      0.0722 * (bs <= 0.03928 ? bs / 12.92 : Math.pow((bs + 0.055) / 1.055, 2.4));
+    // raise threshold a bit so mid-tone colours prefer dark text for clarity
+    return lum > 0.4 ? '#000' : '#fff';
+  };
+
+  // derive discrete category colors from the same spectre so visual language is consistent
+  categoryColors = {
+    very_bad: scoreToHex(0),
+    bad: scoreToHex(0.25),
+    average: scoreToHex(0.5),
+    good: scoreToHex(0.75),
+    great: scoreToHex(1),
   };
 
   // Group raw chart data by key
@@ -79,8 +169,9 @@ const SkiConditionHeatmap = ({
   const handleCellClick = (e, temp, source, snowType, category) => {
     if (category === 'unknown') return;
     const key = `${temp}___${source.toLowerCase()}___${snowType.toLowerCase()}`;
-    const tests = groupedChartData[key] || [];
-
+    // exclude tests with unknown category from the popup list
+    const allTests = groupedChartData[key] || [];
+    const tests = allTests.filter((t) => ((t.category || '').toLowerCase() !== 'unknown'));
     // compute position
     const containerRect = containerRef.current.getBoundingClientRect();
     const cellRect = e.currentTarget.getBoundingClientRect();
@@ -120,22 +211,21 @@ const SkiConditionHeatmap = ({
 
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-3 mb-4 px-1">
-        {[
-          { key: 'great', label: 'Great' },
-          { key: 'good', label: 'Good' },
-          { key: 'average', label: 'Average' },
-          { key: 'bad', label: 'Bad' },
-          { key: 'very_bad', label: 'Very Bad' },
-          { key: 'unknown', label: 'Unknown' },
-        ].map(({ key, label }) => (
-          <div key={key} className="flex items-center gap-2">
+        {/* Dynamic gradient legend */}
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col items-center text-sm text-gray-700">
             <div
-              className="w-4 h-4 rounded-full flex-shrink-0"
-              style={{ backgroundColor: categoryColors[key] }}
+              className="w-40 h-4 rounded-md shadow-sm"
+              role="img"
+              aria-label="Performance gradient from bad to great"
+              style={{ background: `linear-gradient(to right, ${lowHex}, ${highHex})` }}
             />
-            <span className="text-sm text-gray-700 whitespace-nowrap">{label}</span>
+            <div className="w-40 flex justify-between text-xs mt-1 text-gray-600">
+              <span>Bad</span>
+              <span>Great</span>
+            </div>
           </div>
-        ))}
+        </div>
       </div>
 
       {/* Heatmap Table */}
@@ -167,19 +257,33 @@ const SkiConditionHeatmap = ({
                   const key = `${temp}___${row.source.toLowerCase()}___${row.snowType.toLowerCase()}`;
                   const item = performanceMap[key];
                   const category = (item?.category || 'unknown').toLowerCase();
-                  const bgColor = categoryColors[category] || '#FFF';
+
+                  // prefer using the numeric averageScore to pick a colour on the spectre,
+                  // fall back to discrete category colours (unknown)
+                  const bgColor =
+                    item?.averageScore !== null && item?.averageScore !== undefined
+                      ? scoreToHex(item.averageScore)
+                      : categoryColors[category] || '#FFF';
+                  const fgColor = getContrastColor(bgColor);
+
                   return (
                     <td key={temp} className="px-2 py-1 text-center">
                       {category !== 'unknown' ? (
                         <div
-                          className="w-6 h-6 mx-auto rounded-full cursor-pointer transition-transform hover:scale-125 shadow-sm flex items-center justify-center text-xs font-semibold text-white"
-                          style={{ backgroundColor: bgColor }}
+                          className="w-6 h-6 mx-auto rounded-full cursor-pointer transition-transform hover:scale-125 shadow-sm flex items-center justify-center text-xs font-semibold"
+                          style={{
+                            backgroundColor: bgColor,
+                            color: fgColor,
+                            // improve readability: subtle text-shadow for white text, small border for separation
+                            textShadow: fgColor === '#fff' ? '0 1px 0 rgba(0,0,0,0.45)' : 'none',
+                            border: fgColor === '#fff' ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)',
+                          }}
                           onClick={(e) =>
                             handleCellClick(e, temp, row.source, row.snowType, category)
                           }
                         >
                           {item?.averageScore !== null && item?.averageScore !== undefined
-                            ? (item.averageScore * 100).toFixed(0) / 10 // Show as 0.0–1.0, one decimal
+                            ? (item.averageScore * 100).toFixed(0) / 10 // Show as 0.0–10.0, one decimal
                             : ''}
                         </div>
                       ) : (
@@ -221,6 +325,18 @@ const SkiConditionHeatmap = ({
             <span className="block text-gray-600">
               Number of tests: {popupData.tests.length}
             </span>
+
+            {/* Popup gradient scale: Bad ↔ Great */}
+            <div className="my-3">
+              <div
+                className="w-full h-3 rounded-md"
+                style={{ background: `linear-gradient(to right, ${lowHex}, ${highHex})` }}
+              />
+              <div className="w-full flex justify-between text-xs text-gray-600 mt-1">
+                <span>Bad</span>
+                <span>Great</span>
+              </div>
+            </div>
 
             <ul className="space-y-4 my-4">
               {popupData.tests

@@ -106,7 +106,7 @@ const HomePage = () => {
               Ski-Lab
             </h1>
             <p className="max-w-2xl mt-4 text-xl leading-8 text-gray-600">
-              Ski-management for athletes, coaches, and brands.
+              Ski-management for cross-country skiing and biathlon
             </p>
           </motion.div>
         </motion.div>

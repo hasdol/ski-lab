@@ -304,12 +304,12 @@ const Testing = () => {
                               <span className="font-medium text-gray-700">Duel {mi + 1}</span>
 
                             </div>
-                            {isDone && <span className="text-green-600 text-sm font-medium">Completed</span>}
+                            {isDone && <span className="text-blue-600 text-sm font-medium">Completed</span>}
                           </div>
 
                           <Droppable droppableId={`${mi}`} type="SKI">
                             {(prov) => (
-                              <div {...prov.droppableProps} ref={prov.innerRef} className="space-y-2">
+                              <div {...prov.droppableProps} ref={prov.innerRef} className="space-y-2 py-1">
                                 {match.skis.map((ski, si) => {
                                   const isWinner = res.winnerId === ski.id;
 
@@ -325,8 +325,8 @@ const Testing = () => {
                                         <div
                                           ref={p.innerRef}
                                           {...p.draggableProps}
-                                          className={`p-3 rounded-md flex justify-between items-center transition ${isWinner
-                                            ? 'bg-green-100 border-green-400'
+                                          className={`p-2 rounded-md flex justify-between items-center transition ${isWinner
+                                            ? 'bg-blue-100 border-blue-400'
                                             : 'bg-gray-50 border-gray-300'
                                             } border ${isDragTarget
                                               ? '!border-blue-400 !border-2 shadow'
@@ -346,7 +346,7 @@ const Testing = () => {
                                             <span className="font-medium">{ski.serialNumber}</span>
                                           </div>
 
-                                          {isWinner && <span className="bg-green-200 text-green-800 px-2 py-1 rounded-full text-xs">Winner</span>}
+                                          {isWinner && <span className="bg-blue-200 text-blue-800 px-2 py-1 rounded-xl text-xs">Winner</span>}
                                           {isDragTarget && (
                                             <span className="text-xs text-blue-500 ml-2">Swap</span>
                                           )}
