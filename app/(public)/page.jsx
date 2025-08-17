@@ -11,7 +11,7 @@ import Spinner from '@/components/common/Spinner/Spinner';
 
 const bgUrl = '/bg6.jpg';
 const iphone = '/ski-lab-testing-iphone.png';
-const desktop = '/ski-lab-desktop-transparent.png';
+const desktop = '/desktop.png';
 
 const HomePage = () => {
   const { user, checkingStatus } = useAuth();
