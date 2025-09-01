@@ -108,7 +108,6 @@ export default function Navigation() {
               <div className="px-6 pt-4 pb-6">
                 <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-5" />
                 <div className="mb-3 flex items-center gap-2 justify-center">
-                  <RiMenuLine size={22} />
                   <span className="font-semibold text-lg text-gray-900 tracking-tight">Menu</span>
                 </div>
                 <div className="border-b border-gray-200 mb-4" />
@@ -119,7 +118,7 @@ export default function Navigation() {
                         <Link
                           href={item.path}
                           onClick={() => setIsSubNavOpen(false)}
-                          className="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-transparent hover:bg-blue-50  hover:text-blue-600 hover:scale-[1.03] transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          className="flex items-center justify-between w-full bg-white/50 px-4 py-3 rounded-xl border border-transparent hover:bg-blue-50  hover:text-blue-600 hover:scale-[1.03] transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                         >
                           <span>{item.labelKey}</span>
                           {item.icon}
