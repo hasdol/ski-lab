@@ -11,7 +11,6 @@ import Navigation from '@/components/layout/Navigation';
  * Override or extend in child layouts/pages as needed.
  * @type {import('next').Metadata}
  */
-
 export const metadata = {
   title: 'Ski-Lab',
   description: 'Cross-country ski testing & organisation for athletes, coaches & brands.',
@@ -24,9 +23,10 @@ export const metadata = {
     'athlete tools',
     'sports technology'
   ],
-  authors: [{ name: 'Ski-Lab', url: 'https://ski-lab.com',}],
+  authors: [{ name: 'Ski-Lab', url: 'https://ski-lab.com' }],
   creator: 'Ski Lab',
   metadataBase: new URL('https://ski-lab.com'),
+  alternates: { canonical: '/' },
 };
 
 export default function RootLayout({ children }) {

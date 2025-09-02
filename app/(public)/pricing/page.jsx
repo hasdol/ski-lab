@@ -6,16 +6,18 @@ import getStripe from '@/helpers/stripe';
 import Spinner from '@/components/common/Spinner/Spinner';
 import Button from '@/components/ui/Button';
 import { RiCheckFill, RiShoppingCartLine } from 'react-icons/ri';
+import { useRouter } from 'next/navigation';
 
-const PlansPage = () => {
+const PricingPage = () => {
   const [plans, setPlans] = useState([]);
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [loadingCheckout, setLoadingCheckout] = useState('');
   const functions = getFunctions();
-  const { userData } = useAuth();
+  const { user, userData } = useAuth();
   const currentPlan = userData?.plan || 'free';
+  const router = useRouter();
 
-  // Plan ranking for upgrade/downgrade logic
+  // Plan ranking for upgrade/downgrade text
   const planRank = { free: 0, athlete: 1, coach: 2, company: 3 };
 
   useEffect(() => {
@@ -36,6 +38,14 @@ const PlansPage = () => {
   }, [functions]);
 
   const handlePlanSelect = async (priceId, planKey, isDowngrade) => {
+    // Not logged in: send to login with callback back to pricing
+    if (!user) {
+      const cb = encodeURIComponent('/pricing');
+      router.push(`/login?next=${cb}`);
+      return;
+    }
+
+    // Already has a paid plan -> open Stripe portal
     if (currentPlan !== 'free') {
       setLoadingCheckout(priceId);
       try {
@@ -49,8 +59,9 @@ const PlansPage = () => {
       return;
     }
 
+    // Free -> go to checkout
     if (isDowngrade) {
-      if (!window.confirm('Nedgradering kan medføre at enkelte funksjoner går tapt. Er du sikker?')) return;
+      if (!window.confirm('Downgrading may remove some features. Continue?')) return;
     }
 
     setLoadingCheckout(priceId);
@@ -90,8 +101,8 @@ const PlansPage = () => {
           <RiShoppingCartLine className="text-blue-600 text-2xl" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Plans</h1>
-          <p className="text-gray-600">Select a plan</p>
+          <h1 className="text-2xl font-bold text-gray-900">Pricing</h1>
+          <p className="text-gray-600">Choose the plan that fits your needs</p>
         </div>
       </div>
 
@@ -162,9 +173,10 @@ const PlansPage = () => {
                         isDowngrade
                       )
                     }
-                    className={`${isCurrent && currentPlan === 'free'
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-95 focus:ring-2 focus:ring-indigo-300/50 shadow-sm'
+                    className={`${
+                      isCurrent && currentPlan === 'free'
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-95 focus:ring-2 focus:ring-indigo-300/50 shadow-sm'
                       } w-full py-2 rounded-md`}
                   >
                     {buttonText}
@@ -179,4 +191,4 @@ const PlansPage = () => {
   );
 };
 
-export default PlansPage;
+export default PricingPage;

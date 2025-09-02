@@ -61,7 +61,7 @@ const ManageLockedSkis = () => {
             </div>
             <div className="mt-4 text-center space-y-2">
               <h3>Unlock your locked skis</h3>
-              <Button variant="primary" onClick={() => router.push('/plans')}>
+              <Button variant="primary" onClick={() => router.push('/pricing')}>
                 Upgrade Plan
               </Button>
             </div>

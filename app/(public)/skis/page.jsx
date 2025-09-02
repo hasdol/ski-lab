@@ -211,7 +211,7 @@ const Skis = () => {
               <span className="ml-2">({plan.charAt(0).toUpperCase() + plan.slice(1)} plan)</span>
             </span>
             {hasReachedLimit && plan !== 'company' && (
-              <Button variant="primary" onClick={() => router.push('/plans')} >
+              <Button variant="primary" onClick={() => router.push('/pricing')} >
                 Upgrade
               </Button>
             )}
@@ -314,7 +314,7 @@ const Skis = () => {
             </div>
             <div className="space-y-1">
               <h3 className="text-sm">Upgrade to unlock</h3>
-              <Button variant="primary" onClick={() => router.push('/plans')}>Upgrade</Button>
+              <Button variant="primary" onClick={() => router.push('/pricing')}>Upgrade</Button>
             </div>
           </div>
         </div>
@@ -322,7 +322,7 @@ const Skis = () => {
         <div className="flex my-4">
           <div className="flex space-x-5 border border-dashed border-gray-300 p-4 rounded-lg items-center justify-center w-full">
             <h3 className="text-sm">You’ve reached your limit. Upgrade to add more skis.</h3>
-            <Button variant="primary" onClick={() => router.push('/plans')}>Upgrade</Button>
+            <Button variant="primary" onClick={() => router.push('/pricing')}>Upgrade</Button>
           </div>
         </div>
       ) : null}

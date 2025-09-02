@@ -118,7 +118,7 @@ exports.onUserCreate = functionsV1.auth.user().onCreate(async (user) => {
    Stripe Callable Functions
    ------------------------------------------------------------------ */
 exports.getStripePlans = onCall({ secrets: ['STRIPE_SECRET'] }, async (event) => {
-  if (!event.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  // REMOVE: if (!event.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
   const stripe = require('stripe')(process.env.STRIPE_SECRET);
 
   try {

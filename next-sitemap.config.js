@@ -5,22 +5,20 @@ module.exports = {
   changefreq: 'daily',
   priority: 0.7,
 
+  // Exclude private/utility pages from the sitemap
   exclude: [
     '/account',
     '/account/*',
-    '/settings',
-    '/settings/*',
-    '/plans',
-    '/plans/*',
     '/skis/create',
     '/skis/locked',
     '/skis/*/edit',
-    '/results/*/edit',
+    '/results/*',
     '/testing',
     '/testing/*',
     '/teams/create',
     '/teams/*/edit',
     '/teams/*/*/edit',
+    // Auth pages will not be in the sitemap, but we do NOT disallow them.
     '/login',
     '/signup',
     '/resetPassword',
@@ -32,22 +30,20 @@ module.exports = {
         userAgent: '*',
         allow: '/',
         disallow: [
+          // Private app surfaces
           '/account',
           '/account/*',
-          '/settings',
-          '/settings/*',
-          '/plans',
-          '/plans/*',
           '/skis/create',
           '/skis/locked',
           '/skis/*/edit',
-          '/results/*/edit',
+          '/results/*',       // detail/edit pages are private
           '/testing',
           '/testing/*',
           '/teams/create',
           '/teams/*/edit',
           '/teams/*/*/edit',
-          // ❌ DO NOT include /signup, /login, /resetPassword here
+          // DO NOT disallow auth endpoints so Google can see meta noindex:
+          // '/login', '/signup', '/resetPassword'
         ],
       },
     ],
