@@ -176,7 +176,6 @@ export default function Navigation() {
               <div className="absolute right-0 top-14 w-80 mt-2 bg-white/80 backdrop-blur-lg border border-gray-100 rounded-xl shadow overflow-hidden z-50 animate-fade-down animate-duration-300">
                 <div className="px-7 py-6">
                   <div className="mb-3 flex items-center gap-2">
-                    <RiMenuLine size={22} />
                     <span className="font-semibold text-xl text-gray-900 tracking-tight">Menu</span>
                   </div>
                   <div className="border-b border-gray-200 mb-4" />

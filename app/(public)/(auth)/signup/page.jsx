@@ -6,6 +6,9 @@ import { registerWithEmailAndPassword } from '@/lib/firebase/authFunctions';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { RiUserAddLine } from 'react-icons/ri';
+import { updateProfile } from 'firebase/auth';
+import { db } from '@/lib/firebase/firebaseConfig';
+import { doc, setDoc } from 'firebase/firestore';
 
 const SignUp = () => {
   const router = useRouter();
@@ -13,14 +16,29 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [displayName, setDisplayName] = useState('');
 
   const handleSignUp = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
     try {
-      await registerWithEmailAndPassword(email, password);
-      router.push('/account/settings');
+      if (!displayName.trim()) {
+        throw new Error('Please enter a username.');
+      }
+      const userCredential = await registerWithEmailAndPassword(email, password);
+
+      // Update Auth profile
+      await updateProfile(userCredential.user, { displayName });
+
+      // Upsert Firestore user doc (avoids race with onUserCreate)
+      await setDoc(
+        doc(db, 'users', userCredential.user.uid),
+        { displayName },
+        { merge: true }
+      );
+
+      router.push('/skis');
     } catch (error) {
       setError(error.message);
     } finally {
@@ -42,13 +60,24 @@ const SignUp = () => {
       </div>
       
       <form onSubmit={handleSignUp} className="space-y-4">
+        {/* New Username field */}
+        <Input
+          id="username"
+          type="text"
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+          placeholder="Username"
+          autoFocus
+          className="w-full"
+          required
+        />
+        {/* Existing fields */}
         <Input
           id="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          autoFocus
           autoComplete="email"
           className="w-full"
           required
