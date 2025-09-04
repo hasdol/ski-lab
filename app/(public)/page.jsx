@@ -5,7 +5,6 @@ import { useAuth } from '../../context/AuthContext';
 import Button from '@/components/ui/Button';
 import { getUserTeamsWithLiveEvents } from '@/lib/firebase/firestoreFunctions';
 import { motion, AnimatePresence } from 'framer-motion';
-import SkiLogoAnimation from './components/SkiLogoAnimation';
 import { FiArrowRight, FiClipboard, FiBarChart2, FiUsers, FiShield } from 'react-icons/fi';
 import Spinner from '@/components/common/Spinner/Spinner';
 
@@ -93,7 +92,13 @@ const HomePage = () => {
           whileInView={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center text-center"
         >
-          <SkiLogoAnimation />
+          {/* Replace SkiLogoAnimation with your PNG icon */}
+          <img
+            src="/ski-lab-icon.png"
+            alt="Ski Lab Icon"
+            width={70}
+            height={70}
+          />
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}

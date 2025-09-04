@@ -39,7 +39,7 @@ export default function Navigation() {
 
   const isActive = path => path === pathname;
   const [isSubNavOpen, setIsSubNavOpen] = useState(false);
-  
+
 
   const subNavItems = [
     user && { key: 'account', labelKey: 'Account', icon: <RiUser6Line size={22} />, path: '/account' },
@@ -145,9 +145,8 @@ export default function Navigation() {
 
       {/* Desktop: header */}
       <header className="hidden md:flex md:justify-between items-center w-full bg-white shadow z-50 px-5 p-3">
-        <div className="flex-1 flex items-baseline cursor-pointer" onClick={() => router.push('/')}>
+        <div className="flex-1 flex items-center gap-3 cursor-pointer" onClick={() => router.push('/')}>
           <h1 className="text-2xl font-semibold">Ski-Lab</h1>
-
         </div>
 
         <nav className="flex-1">
