@@ -18,6 +18,9 @@ const PricingPage = () => {
   const currentPlan = userData?.plan || 'free';
   const router = useRouter();
 
+  // Hide free trial banner if the user has had a subscription before
+  const hasHadSubscription = !!(userData?.stripeCustomerId || userData?.stripeSubscriptionId);
+
   // Plan ranking for upgrade/downgrade text
   const planRank = { free: 0, athlete: 1, coach: 2, company: 3 };
 
@@ -164,7 +167,7 @@ const PricingPage = () => {
                   <h2 className="text-xl font-semibold text-gray-800">
                     {plan.name}
                   </h2>
-                  {plan.plan !== 'free' && (
+                  {plan.plan !== 'free' && !hasHadSubscription && (
                     <p className="text-sm bg-green-100 w-fit px-2 py-1 rounded text-green-700 mt-1">30-day free trial</p>
                   )}
                 </div>
