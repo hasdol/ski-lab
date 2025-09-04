@@ -6,9 +6,9 @@ import { registerWithEmailAndPassword } from '@/lib/firebase/authFunctions';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { RiUserAddLine } from 'react-icons/ri';
-import { updateProfile } from 'firebase/auth';
+import { updateProfile, deleteUser } from 'firebase/auth';
 import { db } from '@/lib/firebase/firebaseConfig';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore';
 
 const SignUp = () => {
   const router = useRouter();
@@ -28,17 +28,28 @@ const SignUp = () => {
       }
       const userCredential = await registerWithEmailAndPassword(email, password);
 
-      // Update Auth profile
-      await updateProfile(userCredential.user, { displayName });
+      try {
+        // 1) Update Auth profile
+        await updateProfile(userCredential.user, { displayName });
 
-      // Upsert Firestore user doc (avoids race with onUserCreate)
-      await setDoc(
-        doc(db, 'users', userCredential.user.uid),
-        { displayName },
-        { merge: true }
-      );
+        // 2) Upsert Firestore user doc (merge to avoid races with onUserCreate)
+        await setDoc(
+          doc(db, 'users', userCredential.user.uid),
+          { displayName },
+          { merge: true }
+        );
 
-      router.push('/skis');
+        router.push('/skis');
+      } catch (innerErr) {
+        // Best‑effort rollback: delete user doc and Auth user
+        try {
+          await deleteDoc(doc(db, 'users', userCredential.user.uid));
+        } catch (_) {}
+        try {
+          await deleteUser(userCredential.user);
+        } catch (_) {}
+        throw innerErr;
+      }
     } catch (error) {
       setError(error.message);
     } finally {

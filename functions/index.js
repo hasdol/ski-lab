@@ -93,11 +93,11 @@ exports.weatherForecast = onRequest(
 exports.onUserCreate = functionsV1.auth.user().onCreate(async (user) => {
   const userRef = db.collection('users').doc(user.uid);
   const initialData = {
+    // Do NOT set displayName here; let client set it
     preferences: {
       themePreference: 'light',
       languagePreference: 'en',
     },
-    displayName: '',
     photoURL: null,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     plan: 'free',
@@ -107,7 +107,8 @@ exports.onUserCreate = functionsV1.auth.user().onCreate(async (user) => {
     stripeSubscriptionId: null,
   };
   try {
-    await userRef.set(initialData);
+    // Use merge to avoid clobbering existing fields set by the client
+    await userRef.set(initialData, { merge: true });
     console.log(`Initialized user document for ${user.uid}`);
   } catch (error) {
     console.error(`Error initializing user document for ${user.uid}:`, error);

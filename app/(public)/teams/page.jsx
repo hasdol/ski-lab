@@ -64,9 +64,10 @@ export default function TeamsPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
-            <p className="text-gray-600">
-              Manage your teams and collaborations
-            </p>
+            <div className="text-xs text-gray-600 mt-1 flex flex-col gap-2">
+              <span>View and manage your teams</span>
+            </div>
+
           </div>
           <Button
             onClick={() => setShowInfo(prev => !prev)}
@@ -132,8 +133,8 @@ export default function TeamsPage() {
       <div className="flex border-b border-gray-200 mb-6">
         <button
           className={`px-4 py-2 font-medium text-sm ${activeTab === 'myTeams'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
+            ? 'text-blue-600 border-b-2 border-blue-600'
+            : 'text-gray-500 hover:text-gray-700'
             }`}
           onClick={() => setActiveTab('myTeams')}
         >
@@ -141,8 +142,8 @@ export default function TeamsPage() {
         </button>
         <button
           className={`px-4 py-2 font-medium text-sm ${activeTab === 'publicTeams'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
+            ? 'text-blue-600 border-b-2 border-blue-600'
+            : 'text-gray-500 hover:text-gray-700'
             }`}
           onClick={() => setActiveTab('publicTeams')}
         >

@@ -1,17 +1,18 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import getStripe from '@/helpers/stripe';
 import Spinner from '@/components/common/Spinner/Spinner';
 import Button from '@/components/ui/Button';
-import { RiCheckFill, RiShoppingCartLine } from 'react-icons/ri';
+import { RiCheckFill, RiShoppingCartLine, RiCloseLine } from 'react-icons/ri';
 import { useRouter } from 'next/navigation';
+import { PLAN_LIMITS } from '@/lib/constants/planLimits'; // NEW
 
 const PricingPage = () => {
   const [plans, setPlans] = useState([]);
   const [loadingPlans, setLoadingPlans] = useState(false);
-  const [loadingCheckout, setLoadingCheckout] = useState('');
+  const [loadingCheckout, setLoadingCheckout] = useState(null);
   const functions = getFunctions();
   const { user, userData } = useAuth();
   const currentPlan = userData?.plan || 'free';
@@ -26,7 +27,31 @@ const PricingPage = () => {
       try {
         const getStripePlans = httpsCallable(functions, 'getStripePlans');
         const result = await getStripePlans();
-        const sorted = result.data.sort((a, b) => a.amount - b.amount);
+        let fetched = (result?.data || []);
+
+        // Ensure a visible Free plan card
+        const hasFree = fetched.some((p) => p.plan === 'free');
+        if (!hasFree) {
+          fetched = [
+            {
+              productId: 'free',
+              name: 'Free',
+              plan: 'free',
+              amount: null,
+              currency: 'NOK',
+              interval: 'month',
+              description: '',
+              priceId: '',
+            },
+            ...fetched,
+          ];
+        }
+
+        const sorted = fetched.sort((a, b) => {
+          if (a.plan === 'free') return -1;
+          if (b.plan === 'free') return 1;
+          return (a.amount || 0) - (b.amount || 0);
+        });
         setPlans(sorted);
       } catch (err) {
         console.error('Error fetching plans:', err);
@@ -55,7 +80,7 @@ const PricingPage = () => {
       } catch (err) {
         console.error(err);
       }
-      setLoadingCheckout('');
+      setLoadingCheckout(null);
       return;
     }
 
@@ -73,7 +98,7 @@ const PricingPage = () => {
     } catch (err) {
       console.error(err);
     }
-    setLoadingCheckout('');
+    setLoadingCheckout(null);
   };
 
   const getButtonText = (plan, isCurrent, isUpgrade) => {
@@ -102,7 +127,10 @@ const PricingPage = () => {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Pricing</h1>
-          <p className="text-gray-600">Choose the plan that fits your needs</p>
+          <div className="text-xs text-gray-600 mt-1 flex flex-col gap-2">
+            <span>Choose the plan that fits your needs</span>
+            
+          </div>
         </div>
       </div>
 
@@ -112,9 +140,14 @@ const PricingPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {plans.map((plan) => {
             const isCurrent = plan.plan === currentPlan;
-            const isUpgrade = planRank[plan.plan] > planRank[currentPlan];
-            const isDowngrade = planRank[plan.plan] < planRank[currentPlan];
+            const isUpgrade = (planRank[plan.plan] ?? 0) > (planRank[currentPlan] ?? 0);
+            const isDowngrade = (planRank[plan.plan] ?? 0) < (planRank[currentPlan] ?? 0);
             const buttonText = getButtonText(plan, isCurrent, isUpgrade);
+
+            // NEW: Derive plan limit and team permissions
+            const skisIncluded =
+              PLAN_LIMITS[plan.plan] !== undefined ? PLAN_LIMITS[plan.plan] : '—';
+            const canCreateManageTeams = ['coach', 'company'].includes(plan.plan);
 
             return (
               <div
@@ -131,21 +164,41 @@ const PricingPage = () => {
                   <h2 className="text-xl font-semibold text-gray-800">
                     {plan.name}
                   </h2>
-                  <p className="text-sm text-gray-500 italic mt-1">
-                    {plan.name === 'Company' && 'Industry Leader'}
-                    {plan.name === 'Coach' && '"Puppet-Master"'}
-                    {plan.name === 'Senior Pluss' && 'Value pack'}
-                    {plan.name === 'Senior' && 'Professional'}
-                  </p>
+                  {plan.plan !== 'free' && (
+                    <p className="text-sm bg-green-100 w-fit px-2 py-1 rounded text-green-700 mt-1">30-day free trial</p>
+                  )}
                 </div>
 
+                {/* NEW: Only the required info per plan */}
                 <div className="flex-1 px-6 pt-4 space-y-2">
-                  {plan.description.split(';').map((feat, idx) => (
-                    <div key={idx} className="flex items-center space-x-2">
-                      <RiCheckFill className="text-blue-500 w-5 h-5" />
-                      <span className="text-gray-700 font-medium">{feat.trim()}</span>
-                    </div>
-                  ))}
+                  <div className="flex items-center space-x-2">
+                    <RiCheckFill className="text-green-500 w-5 h-5" />
+                    <span className="text-gray-800 font-medium">
+                       {skisIncluded} skis included
+                    </span>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <RiCheckFill className="text-green-500 w-5 h-5" />
+                    <span className="text-gray-800 font-medium">Join teams</span>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    {canCreateManageTeams ? (
+                      <RiCheckFill className="text-green-500 w-5 h-5" />
+                    ) : (
+                      <RiCloseLine className="text-gray-400 w-5 h-5" />
+                    )}
+                    <span
+                      className={
+                        canCreateManageTeams
+                          ? 'text-gray-800 font-medium'
+                          : 'text-gray-400'
+                      }
+                    >
+                      Create & manage teams
+                    </span>
+                  </div>
                 </div>
 
                 {plan.amount && (
@@ -156,7 +209,7 @@ const PricingPage = () => {
                         {plan.currency.toUpperCase()}
                       </span>
                     </p>
-                    <p className="text-sm text-gray-500 italic">
+                    <p className="text-sm text-gray-500 italic mt-2">
                       per {plan.interval}
                     </p>
                   </div>
@@ -167,17 +220,13 @@ const PricingPage = () => {
                     loading={loadingCheckout === plan.priceId}
                     disabled={currentPlan === 'free' && isCurrent}
                     onClick={() =>
-                      handlePlanSelect(
-                        plan.priceId,
-                        plan.plan,
-                        isDowngrade
-                      )
+                      handlePlanSelect(plan.priceId, plan.plan, isDowngrade)
                     }
                     className={`${
                       isCurrent && currentPlan === 'free'
                         ? 'bg-gray-400 cursor-not-allowed'
                         : 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-95 focus:ring-2 focus:ring-indigo-300/50 shadow-sm'
-                      } w-full py-2 rounded-md`}
+                    } w-full py-2 rounded-md`}
                   >
                     {buttonText}
                   </Button>

@@ -121,7 +121,9 @@ const Account = () => {
                 </div>
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Account</h1>
-                    <p className="text-gray-600">Manage your account</p>
+                    <div className="text-xs text-gray-600 mt-1 flex flex-col gap-2">
+                        <span>Manage your account</span>
+                    </div>
                 </div>
             </div>
             <div className="bg-white shadow rounded-lg p-6 mt-6">
