@@ -1,10 +1,10 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import Button from '@/components/ui/Button';
 import { getUserTeamsWithLiveEvents } from '@/lib/firebase/firestoreFunctions';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { FiArrowRight, FiClipboard, FiBarChart2, FiUsers, FiShield } from 'react-icons/fi';
 import InstallCard from './components/InstallCard';
 import Spinner from '@/components/common/Spinner/Spinner';
@@ -23,78 +23,8 @@ const SIMPLE_ANIM = {
 const HomePage = () => {
   const { user, checkingStatus } = useAuth();
   const router = useRouter();
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [teams, setTeams] = useState([]);
   const [teamEvents, setTeamEvents] = useState({});
-  // PWA / A2HS state
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [canInstall, setCanInstall] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
-  // iOS hint
-  const [isIos, setIsIos] = useState(false);
-  const [showIosHint, setShowIosHint] = useState(false);
-
-  useEffect(() => {
-    const img = new window.Image();
-    img.src = bgUrl;
-    img.onload = () => setImageLoaded(true);
-  }, []);
-
-  // detect iOS (Safari) and whether to show hint
-  useEffect(() => {
-    const ua = window.navigator.userAgent || '';
-    const isi = /iphone|ipad|ipod/i.test(ua) && !window.matchMedia('(display-mode: standalone)').matches;
-    setIsIos(isi);
-    const dismissed = localStorage.getItem('skiLabHideIosInstallHint') === '1';
-    setShowIosHint(isi && !dismissed);
-  }, []);
-
-  // detect standalone (installed) state
-  useEffect(() => {
-    const checkStandalone = () => {
-      const standalone =
-        window.matchMedia('(display-mode: standalone)').matches ||
-        // @ts-ignore
-        window.navigator.standalone;
-      setIsStandalone(!!standalone);
-    };
-    checkStandalone();
-    window.addEventListener('resize', checkStandalone);
-    return () => window.removeEventListener('resize', checkStandalone);
-  }, []);
-
-  // capture beforeinstallprompt and appinstalled
-  useEffect(() => {
-    const onBefore = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setCanInstall(true);
-    };
-    const onInstalled = () => {
-      setDeferredPrompt(null);
-      setCanInstall(false);
-    };
-    window.addEventListener('beforeinstallprompt', onBefore);
-    window.addEventListener('appinstalled', onInstalled);
-    return () => {
-      window.removeEventListener('beforeinstallprompt', onBefore);
-      window.removeEventListener('appinstalled', onInstalled);
-    };
-  }, []);
-
-  const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    try {
-      const choice = await deferredPrompt.userChoice;
-      // optional: react to choice.outcome ('accepted'|'dismissed')
-    } catch (err) {
-      // ignore
-    } finally {
-      setDeferredPrompt(null);
-      setCanInstall(false);
-    }
-  };
 
   useEffect(() => {
     if (!user) return;
@@ -271,9 +201,6 @@ const HomePage = () => {
 
         {/* Install card - feels like an app: icon, benefits and CTA */}
         <InstallCard />
-
-        {/* iOS hint (Share -> Add to Home Screen) */}
-        {/* InstallCard component renders iOS hint as needed */}
 
         <motion.div
           className="relative w-full mt-20 md:mt-28"

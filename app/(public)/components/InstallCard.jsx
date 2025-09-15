@@ -2,9 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
-const iphonePreview = '/ski-lab-testing-iphone.png';
-
-// SIMPLE_ANIM: consistent, simple, safe animation for mount
 const SIMPLE_ANIM = {
   initial: { opacity: 0, y: 12 },
   animate: { opacity: 1, y: 0 },
@@ -12,7 +9,6 @@ const SIMPLE_ANIM = {
 };
 
 const InstallCard = () => {
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [canInstall, setCanInstall] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIos, setIsIos] = useState(false);
@@ -41,12 +37,10 @@ const InstallCard = () => {
 
   useEffect(() => {
     const onBefore = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
+      // Do not call e.preventDefault() here — avoid "preventDefault called" warning
       setCanInstall(true);
     };
     const onInstalled = () => {
-      setDeferredPrompt(null);
       setCanInstall(false);
     };
     window.addEventListener('beforeinstallprompt', onBefore);

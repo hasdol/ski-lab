@@ -1,6 +1,6 @@
 {
-  "name": "Ski Lab",
-  "short_name": "Ski Lab",
+  "name": "Ski-Lab",
+  "short_name": "Ski-Lab",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
