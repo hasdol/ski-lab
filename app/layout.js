@@ -29,7 +29,6 @@ export const metadata = {
   metadataBase: new URL('https://ski-lab.com'),
   alternates: { canonical: '/' },
   manifest: '/manifest.json',
-  themeColor: '#0ea5e9',
   icons: {
     icon: [
       { url: '/icons/icon-192.png', sizes: '192x192' },
@@ -38,6 +37,19 @@ export const metadata = {
     apple: [{ url: '/icons/apple-icon-180.png', sizes: '180x180', type: 'image/png' }]
   }
 };
+
+// Add viewport generator that also supplies themeColor (light/dark variants)
+export function generateViewport() {
+  return {
+    // standard viewport string
+    viewport: 'width=device-width, initial-scale=1',
+    // themeColor can be a single string or an array with media queries
+    themeColor: [
+      { media: '(prefers-color-scheme: light)', color: '#0ea5e9' },
+      { media: '(prefers-color-scheme: dark)', color: '#0b1220' }
+    ]
+  };
+}
 
 export default function RootLayout({ children }) {
   return (
