@@ -83,7 +83,13 @@ const FloatingTooltip = ({ point, hideTooltip }) => {
     temp,
     snowType,
     snowSource,
+    // some payloads may use different names for total/skis count
+    total: payloadTotal,
+    numberOfSkiesInTest,
   } = point.payload;
+
+  const total =
+    payloadTotal ?? numberOfSkiesInTest ?? point.payload.totalSkis ?? null;
 
   const rows = [
     { key: 'Location', value: location },
@@ -101,7 +107,7 @@ const FloatingTooltip = ({ point, hideTooltip }) => {
       onClick={(e) => e.stopPropagation()}
     >
       <div className="font-semibold mb-2 flex justify-between text-gray-800">
-        <span>Rank: {rank}</span>
+        <span>Rank: {rank}{total ? `/${total}` : ''}</span>
         <span className="text-gray-600">{formatDate(testDate)}</span>
       </div>
 

@@ -85,6 +85,75 @@ const Results = () => {
     refresh();
   };
 
+  const handleDownloadCSV = () => {
+    if (!resultsToShow || resultsToShow.length === 0) {
+      alert('No results to export');
+      return;
+    }
+
+    const escapeCell = (v) => {
+      if (v === null || v === undefined) return '';
+      const s = String(v);
+      if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+      return s;
+    };
+
+    const rows = [];
+    // Header
+    rows.push([
+      'serialNumber',
+      'grind',
+      'score',
+      'snowSource',
+      'snowType',
+      'comment',
+      'testDate',
+    ]);
+
+    resultsToShow.forEach((result) => {
+      const snowSource = result.snowCondition?.source || '';
+      const snowType = result.snowCondition?.grainType || '';
+
+      // Normalize timestamp → ISO string (easy to understand / import)
+      let testDateIso = '';
+      const ts = result.timestamp;
+      if (ts?.seconds) {
+        testDateIso = new Date(ts.seconds * 1000).toISOString();
+      } else if (ts instanceof Date) {
+        testDateIso = ts.toISOString();
+      } else if (typeof ts === 'number') {
+        testDateIso = new Date(ts).toISOString();
+      } else if (typeof ts === 'string') {
+        const d = new Date(ts);
+        if (!isNaN(d)) testDateIso = d.toISOString();
+      }
+
+      (result.rankings || []).forEach((r) => {
+        const serial = r.skiId ? r.serialNumber : 'Deleted';
+        rows.push([
+          serial,
+          r.grind || '',
+          r.score ?? '',
+          snowSource,
+          snowType,
+          result.comment || '',
+          testDateIso,
+        ]);
+      });
+    });
+
+    const csv = rows.map((r) => r.map(escapeCell).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ski-results-export-${new Date().toISOString().slice(0,19)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
   const isFilterActive =
     tempRange[0] !== defaultTempRange[0] ||
     tempRange[1] !== defaultTempRange[1] ||
@@ -102,6 +171,13 @@ const Results = () => {
           <div className="text-xs text-gray-600 mt-1 flex flex-col gap-2">
             <span>View and manage your test results</span>
           </div>
+        </div>
+
+        {/* Export button */}
+        <div className="ml-auto">
+          <Button onClick={handleDownloadCSV} variant="secondary" className="text-sm">
+            Export CSV
+          </Button>
         </div>
       </div>
 

@@ -326,18 +326,6 @@ const SkiConditionHeatmap = ({
               Number of tests: {popupData.tests.length}
             </span>
 
-            {/* Popup gradient scale: Bad ↔ Great */}
-            <div className="my-3">
-              <div
-                className="w-full h-3 rounded-md"
-                style={{ background: `linear-gradient(to right, ${lowHex}, ${highHex})` }}
-              />
-              <div className="w-full flex justify-between text-xs text-gray-600 mt-1">
-                <span>Bad</span>
-                <span>Great</span>
-              </div>
-            </div>
-
             <ul className="space-y-4 my-4">
               {popupData.tests
                 .sort((a, b) => b.testDate - a.testDate)
@@ -354,8 +342,8 @@ const SkiConditionHeatmap = ({
                     </div>
                     <Button
                       type="button"
+                      className="text-sm" 
                       variant="primary"
-                      size="xs"
                       onClick={() => router.push(`/results/${test.testId}`)}
                     >
                       Go to test
@@ -365,7 +353,7 @@ const SkiConditionHeatmap = ({
             </ul>
 
             <div className="mt-3 flex justify-end">
-              <Button variant="secondary" size="xs" onClick={() => setShowPopup(false)}>
+              <Button variant="secondary" className="text-sm" onClick={() => setShowPopup(false)}>
                 Close
               </Button>
             </div>

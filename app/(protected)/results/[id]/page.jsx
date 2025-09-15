@@ -14,6 +14,7 @@ import {
   formatSourceLabel,
   formatDate,
 } from '@/helpers/helpers';
+import ResultCard from '../../../(public)/results/components/ResultCard';
 
 const ResultDetailsPage = () => {
   const router = useRouter();
@@ -50,6 +51,10 @@ const ResultDetailsPage = () => {
       alert('Error deleting result');
     }
   };
+
+  // wrapper for card actions
+  const handleEditFromCard = (testId) => router.push(`/results/${testId}/edit`);
+  const handleDeleteFromCard = () => setModalOpen(true);
 
   if (loading) {
     return (
@@ -91,98 +96,13 @@ const ResultDetailsPage = () => {
         </div>
       </div>
 
-      {/* Result Card styled similar to ResultCard.jsx */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h3 className="font-semibold text-lg">
-              {result.style.charAt(0).toUpperCase() + result.style.slice(1)} / {result.temperature}°C
-            </h3>
-            <p className="text-sm text-gray-500">
-              {result.location}
-            </p>
-          </div>
-          <div className="flex space-x-2">
-            <Button
-              onClick={() => router.push(`/results/${id}/edit`)}
-              variant="secondary"
-            >
-              <RiEditLine size={18} />
-            </Button>
-            <Button
-              onClick={() => setModalOpen(true)}
-              variant="danger"
-            >
-              <RiDeleteBinLine size={18} />
-            </Button>
-          </div>
-        </div>
-
-        {/* Ranking table */}
-        <ul className="divide-y divide-gray-200 text-sm my-6">
-          {result.rankings
-            .sort((a, b) => a.score - b.score)
-            .map((ranking, idx) => (
-              <li key={idx} className="flex justify-between py-1">
-                <span className="w-1/3 truncate">
-                  {ranking.skiId ? ranking.serialNumber : 'Deleted'}
-                  {ranking.score === 0 && (
-                    <span className="ml-2 text-highlight text-xs">- New</span>
-                  )}
-                </span>
-                <span className="w-1/3 text-center">{ranking.grind}</span>
-                <span className="w-1/3 text-end">
-                  {ranking.score} <span className="text-xs">cm</span>
-                </span>
-              </li>
-            ))}
-        </ul>
-
-        {/* Extra meta data */}
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="flex flex-col">
-            <span className="text-gray-700">Humidity:</span>
-            <span className="font-semibold">
-              {result.humidity !== '' ? `${result.humidity}%` : '--'}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-gray-700">Snow temp:</span>
-            <span className="font-semibold">
-              {result.snowTemperature !== ''
-                ? `${result.snowTemperature}°C`
-                : '--'}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-gray-700">Snow source:</span>
-            <span className="font-semibold">
-              {result.snowCondition?.source
-                ? formatSourceLabel(result.snowCondition.source)
-                : '--'}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-gray-700">Snow type:</span>
-            <span className="font-semibold">
-              {result.snowCondition?.grainType
-                ? formatSnowTypeLabel(result.snowCondition.grainType)
-                : '--'}
-            </span>
-          </div>
-          <div className="col-span-2 flex flex-col">
-            <span className="text-gray-700">Comment:</span>
-            <span className="font-semibold">
-              {result.comment || '--'}
-            </span>
-          </div>
-        </div>
-
-        {/* Timestamp */}
-        <div className="text-right text-xs text-gray-500 mt-2">
-          {formatDate(new Date(result.timestamp.seconds * 1000), true)}
-        </div>
-      </div>
+      {/* Use shared ResultCard component instead of duplicating markup */}
+      <ResultCard
+        result={result}
+        debouncedSearch={''}
+        handleEdit={handleEditFromCard}
+        handleDelete={handleDeleteFromCard}
+      />
 
       <DeleteTestModal
         isOpen={modalOpen}
