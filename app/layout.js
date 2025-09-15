@@ -5,6 +5,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { UserPreferencesProvider } from '@/context/UserPreferencesContext';
 import { TournamentProvider } from '@/context/TournamentContext';
 import Navigation from '@/components/layout/Navigation';
+import PWARegister from '@/components/PWARegister';
 
 /**
  * Global metadata applied to all public pages (default, EN).
@@ -12,8 +13,8 @@ import Navigation from '@/components/layout/Navigation';
  * @type {import('next').Metadata}
  */
 export const metadata = {
-  title: 'Ski-Lab',
-  description: 'Cross-country ski testing & organisation for athletes, coaches & brands.',
+  title: 'Ski Lab',
+  description: 'Ski-management for cross-country skiing and biathlon',
   keywords: [
     'ski testing',
     'cross-country skis',
@@ -27,6 +28,15 @@ export const metadata = {
   creator: 'Ski Lab',
   metadataBase: new URL('https://ski-lab.com'),
   alternates: { canonical: '/' },
+  manifest: '/manifest.json',
+  themeColor: '#0ea5e9',
+  icons: {
+    icon: [
+      { url: '/icons/icon-192.png', sizes: '192x192' },
+      { url: '/icons/icon-512.png', sizes: '512x512' }
+    ],
+    apple: [{ url: '/icons/apple-icon-180.png', sizes: '180x180', type: 'image/png' }]
+  }
 };
 
 export default function RootLayout({ children }) {
@@ -37,6 +47,7 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body className="min-h-screen text-gray-600 bg-[#fcfcfc] ">
+        <PWARegister />
         <AuthProvider>
           <UserPreferencesProvider>
             <TournamentProvider>

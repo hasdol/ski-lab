@@ -1,16 +1,15 @@
 {
-  "name": "Ski-Lab",
-  "short_name": "SkiLab",
-  "description": "Administrer og test langrennski",
+  "name": "Ski Lab",
+  "short_name": "Ski Lab",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#0d9488",
+  "theme_color": "#0ea5e9",
+  "description": "Ski-management for cross-country skiing and biathlon",
   "icons": [
-    {
-      "src": "/favicon.ico",
-      "sizes": "any",
-      "type": "image/x-icon"
-    }
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
