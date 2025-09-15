@@ -6,11 +6,19 @@ import Button from '@/components/ui/Button';
 import { getUserTeamsWithLiveEvents } from '@/lib/firebase/firestoreFunctions';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiArrowRight, FiClipboard, FiBarChart2, FiUsers, FiShield } from 'react-icons/fi';
+import InstallCard from './components/InstallCard';
 import Spinner from '@/components/common/Spinner/Spinner';
 
 const bgUrl = '/bg6.jpg';
 const iphone = '/ski-lab-testing-iphone.png';
 const desktop = '/desktop.png';
+
+// SIMPLE_ANIM: consistent, simple, safe animation for mount
+const SIMPLE_ANIM = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.45, ease: 'easeOut' },
+};
 
 const HomePage = () => {
   const { user, checkingStatus } = useAuth();
@@ -18,12 +26,75 @@ const HomePage = () => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [teams, setTeams] = useState([]);
   const [teamEvents, setTeamEvents] = useState({});
+  // PWA / A2HS state
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [canInstall, setCanInstall] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
+  // iOS hint
+  const [isIos, setIsIos] = useState(false);
+  const [showIosHint, setShowIosHint] = useState(false);
 
   useEffect(() => {
     const img = new window.Image();
     img.src = bgUrl;
     img.onload = () => setImageLoaded(true);
   }, []);
+
+  // detect iOS (Safari) and whether to show hint
+  useEffect(() => {
+    const ua = window.navigator.userAgent || '';
+    const isi = /iphone|ipad|ipod/i.test(ua) && !window.matchMedia('(display-mode: standalone)').matches;
+    setIsIos(isi);
+    const dismissed = localStorage.getItem('skiLabHideIosInstallHint') === '1';
+    setShowIosHint(isi && !dismissed);
+  }, []);
+
+  // detect standalone (installed) state
+  useEffect(() => {
+    const checkStandalone = () => {
+      const standalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        // @ts-ignore
+        window.navigator.standalone;
+      setIsStandalone(!!standalone);
+    };
+    checkStandalone();
+    window.addEventListener('resize', checkStandalone);
+    return () => window.removeEventListener('resize', checkStandalone);
+  }, []);
+
+  // capture beforeinstallprompt and appinstalled
+  useEffect(() => {
+    const onBefore = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setCanInstall(true);
+    };
+    const onInstalled = () => {
+      setDeferredPrompt(null);
+      setCanInstall(false);
+    };
+    window.addEventListener('beforeinstallprompt', onBefore);
+    window.addEventListener('appinstalled', onInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onBefore);
+      window.removeEventListener('appinstalled', onInstalled);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    try {
+      const choice = await deferredPrompt.userChoice;
+      // optional: react to choice.outcome ('accepted'|'dismissed')
+    } catch (err) {
+      // ignore
+    } finally {
+      setDeferredPrompt(null);
+      setCanInstall(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -46,8 +117,7 @@ const HomePage = () => {
   const GlassCard = ({ children }) => (
     <motion.div
       className="bg-white rounded-lg shadow-lg hover:bg-gray-50"
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      {...SIMPLE_ANIM}
     >
       {children}
     </motion.div>
@@ -68,7 +138,7 @@ const HomePage = () => {
     {
       icon: <FiUsers className="w-6 h-6" />,
       title: 'Team Collaboration',
-      description: 'Create and join teams to share results and insights.'
+      description: 'Create and join teams to share results and insights'
     },
     {
       icon: <FiShield className="w-6 h-6" />,
@@ -88,8 +158,7 @@ const HomePage = () => {
 
       <div className="container relative flex flex-col items-center max-w-5xl px-6 pt-16 mx-auto md:pt-28">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          {...SIMPLE_ANIM}
           className="flex flex-col items-center text-center"
         >
           {/* Replace SkiLogoAnimation with your PNG icon */}
@@ -100,8 +169,7 @@ const HomePage = () => {
             height={70}
           />
           <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            {...SIMPLE_ANIM}
             className="mt-8"
           >
             <div className="inline-flex items-center px-4 py-1 mb-3 text-xs font-medium tracking-wide text-blue-600 uppercase bg-blue-100 rounded-full">
@@ -118,8 +186,7 @@ const HomePage = () => {
 
         <motion.div
           className="flex flex-col items-center w-full mt-12"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          {...SIMPLE_ANIM}
         >
           {!checkingStatus ? (
             !user ? (
@@ -145,6 +212,7 @@ const HomePage = () => {
                 {hasLiveEvents && (
                   <motion.div
                     className="mt-12 overflow-hidden"
+                    {...SIMPLE_ANIM}
                   >
                     <h3 className="mb-4 text-sm font-semibold tracking-wide text-center text-gray-500 uppercase">
                       Active Events
@@ -159,8 +227,7 @@ const HomePage = () => {
                               key={event.id}
                               className="cursor-pointer"
                               onClick={() => router.push(`/teams/${team.id}/${event.id}`)}
-                              initial={{ opacity: 0, y: 20 }}
-                              whileInView={{ opacity: 1, y: 0 }}
+                              {...SIMPLE_ANIM}
                             >
                               <GlassCard>
                                 <div className="p-5">
@@ -202,10 +269,15 @@ const HomePage = () => {
           )}
         </motion.div>
 
+        {/* Install card - feels like an app: icon, benefits and CTA */}
+        <InstallCard />
+
+        {/* iOS hint (Share -> Add to Home Screen) */}
+        {/* InstallCard component renders iOS hint as needed */}
+
         <motion.div
           className="relative w-full mt-20 md:mt-28"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          {...SIMPLE_ANIM}
         >
           <div className="flex flex-col items-center justify-center space-y-12 md:flex-row md:space-y-0 md:space-x-16">
             <div className="max-w-md">
@@ -225,8 +297,7 @@ const HomePage = () => {
 
         <motion.div
           className="w-full py-16"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          {...SIMPLE_ANIM}
         >
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
@@ -241,8 +312,9 @@ const HomePage = () => {
               <motion.div
                 key={feature.title}
                 className="flex flex-col items-center text-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={SIMPLE_ANIM.initial}
+                animate={SIMPLE_ANIM.animate}
+                transition={{ duration: 0.42, delay: index * 0.06, ease: 'easeOut' }}
               >
                 <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg text-blue-600">
                   {feature.icon}
@@ -259,8 +331,7 @@ const HomePage = () => {
 
       <motion.footer
         className="py-10 mt-auto text-center bg-gray-50"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
+        {...SIMPLE_ANIM}
       >
         <div className="text-xs text-gray-500">
           <p className="mb-1">
