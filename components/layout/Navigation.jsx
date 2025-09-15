@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation';
 import {
   RiHome5Line,
@@ -39,7 +39,18 @@ export default function Navigation() {
 
   const isActive = path => path === pathname;
   const [isSubNavOpen, setIsSubNavOpen] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
 
+  useEffect(() => {
+    // Check if the app is running in standalone mode
+    const checkStandalone = () => {
+      setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
+    };
+
+    checkStandalone();
+    window.addEventListener('resize', checkStandalone);
+    return () => window.removeEventListener('resize', checkStandalone);
+  }, []);
 
   const subNavItems = [
     user && { key: 'account', labelKey: 'Account', icon: <RiUser6Line size={22} />, path: '/account' },
@@ -55,8 +66,8 @@ export default function Navigation() {
   return (
     <>
       {/* Mobile: bottom nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t-1 border-gray-300 z-50">
-        <div className="grid grid-cols-5 ">
+      <nav className={`md:hidden fixed bottom-0 left-0 w-full bg-white border-t-1 border-gray-300 z-50 ${isStandalone && 'pb-5'}`}>
+        <div className={`grid grid-cols-5 `}>
           {navConfig.map(item => (
             <button
               key={item.key}
@@ -165,7 +176,6 @@ export default function Navigation() {
           <Weather />
           <button onClick={() => setIsSubNavOpen(o => !o)} variant='secondary' className="ml-4 p-2! hover:bg-gray-100 rounded-xl">
             {user ? <RiMenuLine size={20} /> : <RiLoginBoxLine size={20} />}
-
           </button>
 
           {isSubNavOpen && (

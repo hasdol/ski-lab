@@ -41,12 +41,10 @@ export const metadata = {
 // Add viewport generator that also supplies themeColor (light/dark variants)
 export function generateViewport() {
   return {
-    // standard viewport string
     viewport: 'width=device-width, initial-scale=1',
-    // themeColor can be a single string or an array with media queries
     themeColor: [
-      { media: '(prefers-color-scheme: light)', color: '#0ea5e9' },
-      { media: '(prefers-color-scheme: dark)', color: '#0b1220' }
+      { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+      { media: '(prefers-color-scheme: dark)', color: '#ffffff' }
     ]
   };
 }
@@ -57,6 +55,9 @@ export default function RootLayout({ children }) {
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: dark)" />
+        <link rel="apple-touch-icon" href="/icons/apple-icon-180.png" />
       </head>
       <body className="min-h-screen text-gray-600 bg-[#fcfcfc] ">
         <PWARegister />
