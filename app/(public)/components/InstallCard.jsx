@@ -13,6 +13,8 @@ const InstallCard = () => {
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIos, setIsIos] = useState(false);
   const [showIosHint, setShowIosHint] = useState(false);
+  // store the beforeinstallprompt event so we can trigger it later
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
 
   useEffect(() => {
     const ua = window.navigator.userAgent || '';
@@ -37,11 +39,19 @@ const InstallCard = () => {
 
   useEffect(() => {
     const onBefore = (e) => {
-      // Do not call e.preventDefault() here — avoid "preventDefault called" warning
+      // Prevent the automatic prompt so we can call prompt() from the button.
+      // This stores the event so the user can trigger installation manually.
+      try {
+        e.preventDefault();
+      } catch (err) {
+        // ignore if preventDefault isn't allowed by the UA
+      }
+      setDeferredPrompt(e);
       setCanInstall(true);
     };
     const onInstalled = () => {
       setCanInstall(false);
+      setDeferredPrompt(null);
     };
     window.addEventListener('beforeinstallprompt', onBefore);
     window.addEventListener('appinstalled', onInstalled);
@@ -55,11 +65,33 @@ const InstallCard = () => {
   if (!canInstall && !isIos) return null;
 
   const toggleHint = () => {
-    if (showIosHint) {
-      localStorage.setItem('skiLabHideIosInstallHint', '1');
-      setShowIosHint(false);
+    // On iOS show/hide the hint.
+    if (isIos) {
+      if (showIosHint) {
+        localStorage.setItem('skiLabHideIosInstallHint', '1');
+        setShowIosHint(false);
+      } else {
+        setShowIosHint(true);
+      }
+      return;
+    }
+
+    // On supported Android/Chromium show the saved install prompt.
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      // After the prompt, clear stored prompt
+      deferredPrompt.userChoice?.then((choice) => {
+        if (choice.outcome === 'accepted') {
+          setCanInstall(false);
+        }
+        setDeferredPrompt(null);
+      }).catch(() => {
+        // ignore
+        setDeferredPrompt(null);
+      });
     } else {
-      setShowIosHint(true);
+      // fallback: hide the card if no prompt available
+      setCanInstall(false);
     }
   };
 
@@ -81,7 +113,7 @@ const InstallCard = () => {
             className="ml-3 text-xs bg-gray-100 text-gray-800 rounded-full px-3 py-1 hover:bg-gray-200"
             aria-expanded={showIosHint}
           >
-            {showIosHint ? 'Close' : 'How'}
+            {isIos ? (showIosHint ? 'Close' : 'How') : (canInstall ? 'Install' : 'How')}
           </button>
         </div>
 
