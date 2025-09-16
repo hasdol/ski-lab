@@ -15,7 +15,8 @@ import {
   RiShoppingCartLine,
   RiBarChart2Line,
   RiInformationLine,
-  RiMenuLine
+  RiMenuLine,
+  RiDownloadLine
 } from 'react-icons/ri';
 import { TiFlowParallel } from 'react-icons/ti';
 import { useAuth } from '@/context/AuthContext';
@@ -23,6 +24,7 @@ import { useProfileActions } from '@/hooks/useProfileActions';
 import Weather from '@/components/Weather/Weather';
 import Button from '@/components/ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
+import useIsStandalone from '@/hooks/useIsStandalone'; // <--- new import
 
 const navConfig = [
   { key: 'home', labelKey: 'Home', icon: <RiHome5Line size={22} />, path: '/' },
@@ -39,18 +41,7 @@ export default function Navigation() {
 
   const isActive = path => path === pathname;
   const [isSubNavOpen, setIsSubNavOpen] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
-
-  useEffect(() => {
-    // Check if the app is running in standalone mode
-    const checkStandalone = () => {
-      setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
-    };
-
-    checkStandalone();
-    window.addEventListener('resize', checkStandalone);
-    return () => window.removeEventListener('resize', checkStandalone);
-  }, []);
+  const isStandalone = useIsStandalone(); // centralized hook
 
   const subNavItems = [
     user && { key: 'account', labelKey: 'Account', icon: <RiUser6Line size={22} />, path: '/account' },
@@ -60,20 +51,22 @@ export default function Navigation() {
     { key: 'pricing', labelKey: 'Pricing', icon: <RiShoppingCartLine size={22} />, path: '/pricing' },
     { key: 'contact', labelKey: 'Contact', icon: <RiMessage2Line size={22} />, path: '/contact' },
     { key: 'about', labelKey: 'About', icon: <RiInformationLine size={22} />, path: '/about' },
+    // Export CSV: dispatches a global event the Results page listens for
+    { key: 'exportCSV', labelKey: 'Export results (CSV)', icon: <RiDownloadLine size={22} />, onClick: () => { window.dispatchEvent(new Event('downloadResultsCSV')); setIsSubNavOpen(false); } },
     user && { key: 'signOut', labelKey: 'Sign Out', icon: <RiLogoutBoxLine size={22} />, onClick: () => { signOut(router.push); setIsSubNavOpen(false); } },
   ].filter(Boolean);
 
   return (
     <>
       {/* Mobile: bottom nav */}
-      <nav className={`md:hidden fixed bottom-0 left-0 w-full bg-white border-t-1 border-gray-300 z-50 ${isStandalone && 'pb-5'}`}>
+      <nav className={`md:hidden fixed bottom-0 left-0 w-full bg-white border-t-1 border-gray-200 z-50 ${isStandalone ? 'pb-6' : ''}`}>
         <div className={`grid grid-cols-5 `}>
           {navConfig.map(item => (
             <button
               key={item.key}
               onClick={() => router.push(item.path)}
               aria-label={item.labelKey}
-              className={`p-4 flex items-center justify-center transition ${isActive(item.path) && !isSubNavOpen ? 'text-blue-600/80 bg-blue-100' : 'text-gray-600'}`}
+              className={`p-4 flex items-center justify-center transition ${isActive(item.path) && !isSubNavOpen ? 'text-blue-600/80 bg-gray-50 rounded-xl' : 'text-gray-600'}`}
             >
               {item.icon}
             </button>

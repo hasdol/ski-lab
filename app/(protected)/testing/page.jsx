@@ -8,8 +8,10 @@ import { RiDeleteBinLine, RiQuestionLine, RiDragMove2Line } from 'react-icons/ri
 import Button from '@/components/ui/Button';
 import { SiTestrail } from "react-icons/si";
 import Input from '@/components/ui/Input';
+import useIsStandalone from '@/hooks/useIsStandalone';
 
 const Testing = () => {
+  const isStandalone = useIsStandalone();
   const router = useRouter();
   const {
     selectedSkis,
@@ -38,6 +40,7 @@ const Testing = () => {
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [dragTarget, setDragTarget] = useState(null); // { matchIndex, skiIndex }
   const [dragSource, setDragSource] = useState(null); // { matchIndex, skiIndex }
+  const [draggedMatchIndex, setDraggedMatchIndex] = useState(null);
 
   useEffect(() => {
     if (shouldRedirect && currentRound.length === 1) {
@@ -56,6 +59,9 @@ const Testing = () => {
 
   const handleDragStart = (start) => {
     setIsDragging(true);
+    if (start.type === 'MATCH') {
+      setDraggedMatchIndex(start.source.index);
+    }
     setDragSource({
       matchIndex: parseInt(start.source.droppableId),
       skiIndex: start.source.index
@@ -76,6 +82,7 @@ const Testing = () => {
     setIsDragging(false);
     setDragTarget(null);
     setDragSource(null);
+    setDraggedMatchIndex(null); // Reset after drag end
 
     const { source, destination, type } = result;
     if (!destination) return;
@@ -261,7 +268,7 @@ const Testing = () => {
   const total = currentRound.length;
 
   return (
-    <div className="min-h-screen p-4">
+    <div className={`min-h-screen p-4`}>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -292,17 +299,36 @@ const Testing = () => {
                   const res = currentDuelResults[match.id] || {};
                   const isDone = res.winnerId != null;
 
+                  // Check if this match is being dragged
+                  const isMatchBeingDragged = draggedMatchIndex === mi;
+
+                  // Find if this is the drop target (where the dragged match would be dropped)
+                  const isMatchDropTarget =
+                    isDragging &&
+                    draggedMatchIndex !== null &&
+                    dragTarget &&
+                    dragTarget.matchIndex === mi &&
+                    dragSource &&
+                    dragSource.matchIndex !== mi;
+
                   return (
                     <Draggable key={match.id} draggableId={`match-${match.id}`} index={mi}>
-                      {(mProv) => (
-                        <div ref={mProv.innerRef} {...mProv.draggableProps}
-                          className={`border border-gray-300 rounded-lg p-4 transition ${isDone ? '' : 'border-gray-300 bg-white'}`}>
+                      {(mProv, mSnapshot) => (
+                        <div
+                          ref={mProv.innerRef}
+                          {...mProv.draggableProps}
+                          className={`bg-white shadow rounded-lg p-4 transition
+                            ${isDone ? '' : 'border-gray-300 bg-white'}
+                            ${isMatchBeingDragged ? 'ring-2 ring-blue-400 opacity-80' : ''}
+                            ${isMatchDropTarget ? 'ring-2 ring-green-400 bg-green-50' : ''}
+                          `}
+                        >
                           <div className="flex justify-between items-center mb-2">
                             <div className="flex items-center space-x-2">
-                              <span {...mProv.dragHandleProps} className="cursor-move text-gray-600 "><RiDragMove2Line size={20}/></span>
-
+                              <span {...mProv.dragHandleProps} className="cursor-move text-gray-600 ">
+                                <RiDragMove2Line size={20}/>
+                              </span>
                               <span className="font-medium text-gray-700">Duel {mi + 1}</span>
-
                             </div>
                             {isDone && <span className="text-blue-600 text-sm font-medium">Completed</span>}
                           </div>
@@ -326,9 +352,9 @@ const Testing = () => {
                                           ref={p.innerRef}
                                           {...p.draggableProps}
                                           className={`p-2 rounded-md flex justify-between items-center transition ${isWinner
-                                            ? 'bg-blue-100 border-blue-400'
-                                            : 'bg-gray-50 border-gray-300'
-                                            } border ${isDragTarget
+                                            ? 'bg-blue-100 '
+                                            : 'bg-gray-50 '
+                                            } ${isDragTarget
                                               ? '!border-blue-400 !border-2 shadow'
                                               : isDragSource
                                                 ? 'opacity-70'
@@ -340,7 +366,7 @@ const Testing = () => {
                                             className="flex items-center flex-grow cursor-pointer"
                                             onClick={() => handleWinnerClick(match.id, ski.id)}
                                           >
-                                            <div className="bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center mr-3">
+                                            <div className="bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center mr-3">
                                               <span className="font-medium text-gray-700">{si + 1}</span>
                                             </div>
                                             <span className="font-medium">{ski.serialNumber}</span>
@@ -397,7 +423,7 @@ const Testing = () => {
         </DragDropContext>
 
         {/* Footer actions */}
-        <div className="fixed bg-slate-100 z-300 w-full p-4 left-0 bottom-13 border-t border-gray-300 shadow flex justify-center space-x-4">
+        <div className={`fixed bg-slate-100 z-10 w-full p-4 left-0 bottom-13 md:bottom-0 border-t border-gray-300 shadow flex justify-center space-x-4 ${isStandalone ? 'mb-6' : ''}`}>
           <Button variant="secondary" onClick={goBack} disabled={roundsHistory.length === 0}>
             ← Previous Round
           </Button>
@@ -414,8 +440,7 @@ const Testing = () => {
           'Drag skis between duels to swap positions',
           'Drag the grip icon to reorder entire duels',
           'Click a ski to select winner; enter diff or leave at 0',
-          'Finish all duels before submitting the round',
-          'Blue highlight shows where ski will be placed'
+          'Finish all duels before submitting the round'
         ]}
       />
     </div>

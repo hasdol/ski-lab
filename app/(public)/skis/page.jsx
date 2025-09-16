@@ -33,8 +33,10 @@ import { TiFlowParallel } from "react-icons/ti";
 import { VscDebugContinue } from "react-icons/vsc";
 import Search from '../../../components/Search/Search';
 import { PLAN_LIMITS } from '@/lib/constants/planLimits';
+import useIsStandalone from '@/hooks/useIsStandalone';
 
 const Skis = () => {
+  const isStandalone = useIsStandalone();
   const router = useRouter();
   const { gloveMode } = useContext(UserPreferencesContext);
   const { user, userData } = useAuth();
@@ -196,7 +198,7 @@ const Skis = () => {
   if (error) return <div className="m-2">Error: {error.message}</div>;
 
   return (
-    <div className="p-4 max-w-4xl w-full self-center">
+    <div className={`p-4 max-w-4xl w-full self-center`}>
 
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
@@ -285,7 +287,7 @@ const Skis = () => {
 
       {/* Selection controls - only show if skis selected */}
       {getSelectedList().length > 0 && (
-        <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-lg z-50 flex items-center justify-between px-4 py-3">
+        <div className={`fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-lg z-50 flex items-center justify-between px-4 py-3 ${isStandalone ? 'pb-8' : ''}`}>
           <div className="text-sm font-semibold">
             {getSelectedList().length} ski{getSelectedList().length > 1 ? 's' : ''} selected
           </div>
