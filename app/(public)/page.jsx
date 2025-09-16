@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { FiArrowRight, FiClipboard, FiBarChart2, FiUsers, FiShield } from 'react-icons/fi';
 import InstallCard from './components/InstallCard';
 import Spinner from '@/components/common/Spinner/Spinner';
+import ActiveEventCard from './components/ActiveEventCard';
 
 const bgUrl = '/bg6.jpg';
 const iphone = '/ski-lab-testing-iphone.png';
@@ -42,16 +43,6 @@ const HomePage = () => {
 
   const hasLiveEvents = teams.some(team => teamEvents[team.id]?.length > 0);
   const handleNavigation = (path) => router.push(path);
-
-  // Simplified GlassCard with consistent motion properties
-  const GlassCard = ({ children }) => (
-    <motion.div
-      className="bg-white rounded-lg shadow-lg hover:bg-gray-50"
-      {...SIMPLE_ANIM}
-    >
-      {children}
-    </motion.div>
-  );
 
   // Simplified features list
   const features = [
@@ -149,43 +140,14 @@ const HomePage = () => {
                     </h3>
                     <div className="grid gap-4 md:grid-cols-2">
                       {teams.map(team =>
-                        teamEvents[team.id]?.map(event => {
-                          const start = event.startDate?.toLocaleDateString('nb-NO');
-                          const end = event.endDate?.toLocaleDateString('nb-NO');
-                          return (
-                            <motion.div
-                              key={event.id}
-                              className="cursor-pointer"
-                              onClick={() => router.push(`/teams/${team.id}/${event.id}`)}
-                              {...SIMPLE_ANIM}
-                            >
-                              <GlassCard>
-                                <div className="p-5">
-                                  <div className="flex items-center justify-between">
-                                    <h3 className="font-semibold text-gray-900">
-                                      {event.name}
-                                    </h3>
-                                    <span className="flex items-center text-xs font-bold text-red-500">
-                                      <span className="w-2 h-2 mr-1 rounded-full bg-red-500 animate-pulse" />
-                                      LIVE
-                                    </span>
-                                  </div>
-                                  <div className="mt-2 text-sm text-gray-500">
-                                    {team.name}
-                                  </div>
-                                  <div className="flex items-center justify-between mt-4">
-                                    <span className="text-xs text-gray-500">
-                                      {start} – {end}
-                                    </span>
-                                    <span className="text-xs font-medium text-blue-600">
-                                      View event →
-                                    </span>
-                                  </div>
-                                </div>
-                              </GlassCard>
-                            </motion.div>
-                          );
-                        })
+                        teamEvents[team.id]?.map(event => (
+                          <ActiveEventCard
+                            key={event.id}
+                            event={event}
+                            team={team}
+                            onClick={() => router.push(`/teams/${team.id}/${event.id}`)}
+                          />
+                        ))
                       )}
                     </div>
                   </motion.div>

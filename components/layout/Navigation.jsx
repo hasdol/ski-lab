@@ -25,6 +25,8 @@ import Weather from '@/components/Weather/Weather';
 import Button from '@/components/ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
 import useIsStandalone from '@/hooks/useIsStandalone'; // <--- new import
+import usePaginatedResults from '@/hooks/usePaginatedResults';
+import { exportResultsToCSV } from '@/helpers/helpers';
 
 const navConfig = [
   { key: 'home', labelKey: 'Home', icon: <RiHome5Line size={22} />, path: '/' },
@@ -39,9 +41,32 @@ export default function Navigation() {
   const { user } = useAuth();
   const { signOut } = useProfileActions(user);
 
+  // Fetch a page of results to export (hook handles auth / fetch)
+  const {
+    docs: resultsForExport,
+    refresh: refreshResultsForExport,
+  } = usePaginatedResults({
+    term: '',
+    temp: [-30, 30],
+    style: 'all',
+    sortOrder: 'desc',
+  });
+
   const isActive = path => path === pathname;
   const [isSubNavOpen, setIsSubNavOpen] = useState(false);
   const isStandalone = useIsStandalone(); // centralized hook
+
+  const handleExportCSV = async () => {
+    // Try to refresh to get latest data, then export whatever docs were loaded
+    try {
+      await refreshResultsForExport();
+    } catch (err) {
+      // ignore refresh errors; still try to export current docs
+      console.error('Error refreshing results for export', err);
+    }
+    exportResultsToCSV(resultsForExport || []);
+    setIsSubNavOpen(false);
+  };
 
   const subNavItems = [
     user && { key: 'account', labelKey: 'Account', icon: <RiUser6Line size={22} />, path: '/account' },
@@ -52,7 +77,7 @@ export default function Navigation() {
     { key: 'contact', labelKey: 'Contact', icon: <RiMessage2Line size={22} />, path: '/contact' },
     { key: 'about', labelKey: 'About', icon: <RiInformationLine size={22} />, path: '/about' },
     // Export CSV: dispatches a global event the Results page listens for
-    { key: 'exportCSV', labelKey: 'Export results (CSV)', icon: <RiDownloadLine size={22} />, onClick: () => { window.dispatchEvent(new Event('downloadResultsCSV')); setIsSubNavOpen(false); } },
+    { key: 'exportCSV', labelKey: 'Export results (CSV)', icon: <RiDownloadLine size={22} />, onClick: handleExportCSV },
     user && { key: 'signOut', labelKey: 'Sign Out', icon: <RiLogoutBoxLine size={22} />, onClick: () => { signOut(router.push); setIsSubNavOpen(false); } },
   ].filter(Boolean);
 

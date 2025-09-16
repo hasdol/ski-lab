@@ -31,13 +31,16 @@ const usePaginatedResults = ({ term = '', temp = [-100, 100], style = 'all', sor
   const [loading, setLoading] = useState(false);
   const cursor = useRef(null);
 
+  // Use the primitive userId instead of the whole user object to keep deps stable
+  const userId = user?.uid;
+
   // Always use English keywords field
   const keywordField = 'keywords_en';
 
   // Build the base Firestore query
   const baseQuery = useCallback(() => {
-    if (!user) return null;
-    const col = collection(db, `users/${user.uid}/testResults`);
+    if (!userId) return null;
+    const col = collection(db, `users/${userId}/testResults`);
     // Inside baseQuery construction logic:
     if (term && term.length >= MIN_CHARS) {
       // Split search term into components
@@ -56,7 +59,11 @@ const usePaginatedResults = ({ term = '', temp = [-100, 100], style = 'all', sor
       }
     }
     return query(col, orderBy('timestamp', sortOrder), limit(PAGE));
-  }, [user, term, sortOrder]);
+  }, [userId, term, sortOrder]);
+
+  // Break temp into primitives so deps are stable
+  const temp0 = temp?.[0];
+  const temp1 = temp?.[1];
 
   // Fetch first page
   const refresh = useCallback(async () => {
@@ -79,8 +86,8 @@ const usePaginatedResults = ({ term = '', temp = [-100, 100], style = 'all', sor
 
       const filtered = page.filter(d =>
         (style === 'all' || d.style === style) &&
-        d.temperature >= temp[0] &&
-        d.temperature <= temp[1]
+        d.temperature >= temp0 &&
+        d.temperature <= temp1
       );
 
       setDocs(filtered);
@@ -90,7 +97,7 @@ const usePaginatedResults = ({ term = '', temp = [-100, 100], style = 'all', sor
     } finally {
       setLoading(false);
     }
-  }, [baseQuery, style, temp]);
+  }, [baseQuery, style, temp0, temp1]);
 
   // Load next page
   const loadMore = useCallback(async () => {
@@ -103,8 +110,8 @@ const usePaginatedResults = ({ term = '', temp = [-100, 100], style = 'all', sor
 
       const filtered = page.filter(d =>
         (style === 'all' || d.style === style) &&
-        d.temperature >= temp[0] &&
-        d.temperature <= temp[1]
+        d.temperature >= temp0 &&
+        d.temperature <= temp1
       );
 
       setDocs(prev => [...prev, ...filtered]);
@@ -112,9 +119,9 @@ const usePaginatedResults = ({ term = '', temp = [-100, 100], style = 'all', sor
     } catch (err) {
       console.error('Error loading more results:', err);
     }
-  }, [baseQuery, exhausted, style, temp]);
+  }, [baseQuery, exhausted, style, temp0, temp1]);
 
-  useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => { refresh(); }, [baseQuery, style, temp0, temp1]);
 
   return { docs, loadMore, exhausted, loading, refresh };
 };
