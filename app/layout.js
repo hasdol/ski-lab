@@ -26,7 +26,6 @@ export const metadata = {
   ],
   authors: [{ name: 'Ski-Lab', url: 'https://ski-lab.com' }],
   creator: 'Ski Lab',
-  metadataBase: new URL('https://ski-lab.com'),
   alternates: { canonical: '/' },
   manifest: '/manifest.json',
   icons: {
