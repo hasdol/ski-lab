@@ -6,6 +6,7 @@ import { UserPreferencesProvider } from '@/context/UserPreferencesContext';
 import { TournamentProvider } from '@/context/TournamentContext';
 import Navigation from '@/components/layout/Navigation';
 import PWARegister from '@/components/PWARegister';
+import NetworkGuard from '@/components/NetworkGuard';
 
 /**
  * Global metadata applied to all public pages (default, EN).
@@ -64,6 +65,7 @@ export default function RootLayout({ children }) {
           <UserPreferencesProvider>
             <TournamentProvider>
               <Navigation />
+              <NetworkGuard />
               <main className="mb-auto pb-14 md:flex md:flex-col md:pb-0 md:w-full">
                 {children}
               </main>

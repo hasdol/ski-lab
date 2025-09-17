@@ -51,9 +51,10 @@ const withPWA = nextPWA({
   disable: !isProd,
   register: false,
   skipWaiting: true,
+  clientsClaim: true,             // <- ensure SW takes control promptly
+  cleanupOutdatedCaches: true,    // <- keep cache tidy on iOS
   fallbacks: { document: '/offline.html' },
-  // appDir: true, // remove: not supported by GenerateSW
-  buildExcludes: [/app-build-manifest\.json$/], // prevent 404 during precache
+  buildExcludes: [/app-build-manifest\.json$/],
   runtimeCaching,
 });
 
