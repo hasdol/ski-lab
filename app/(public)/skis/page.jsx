@@ -349,19 +349,6 @@ const Skis = () => {
         setViewMode={setViewMode}
       />
 
-      {/* Active filter chips */}
-      {(skiTypeFilter !== 'all' || archivedFilter !== 'notArchived') && (
-        <div className="flex space-x-2 text-sm mt-2">
-
-          {skiTypeFilter !== 'all' && (
-            <Button variant="tab" onClick={() => setSkiTypeFilter('all')}><span className="flex">{skiTypeFilter} <RiCloseLine /></span></Button>
-          )}
-          {archivedFilter !== 'notArchived' && (
-            <Button variant="tab" onClick={() => setArchivedFilter('notArchived')}><span className="flex">{archivedFilter} <RiCloseLine /></span></Button>
-          )}
-        </div>
-      )}
-
       {/* Ski list (cards or table) */}
       <div className="mb-5">
         {loading && !skis.length ? (
