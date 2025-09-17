@@ -49,10 +49,10 @@ const runtimeCaching = [
 const withPWA = nextPWA({
   dest: 'public',
   disable: !isProd,
-  register: true, // auto-register the service worker for more consistent SW availability
+  register: false,
   skipWaiting: true,
-  clientsClaim: true,
-  cleanupOutdatedCaches: true,
+  clientsClaim: true,             // <- ensure SW takes control promptly
+  cleanupOutdatedCaches: true,    // <- keep cache tidy on iOS
   fallbacks: { document: '/offline.html' },
   buildExcludes: [/app-build-manifest\.json$/],
   runtimeCaching,

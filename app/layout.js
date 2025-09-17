@@ -5,7 +5,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { UserPreferencesProvider } from '@/context/UserPreferencesContext';
 import { TournamentProvider } from '@/context/TournamentContext';
 import Navigation from '@/components/layout/Navigation';
-//import PWARegister from '@/components/PWARegister';
+import PWARegister from '@/components/PWARegister';
 import NetworkGuard from '@/components/NetworkGuard';
 
 /**
@@ -60,6 +60,7 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/icons/apple-icon-180.png" />
       </head>
       <body className="min-h-screen text-gray-600 bg-[#fcfcfc] ">
+        <PWARegister />
         <AuthProvider>
           <UserPreferencesProvider>
             <TournamentProvider>
