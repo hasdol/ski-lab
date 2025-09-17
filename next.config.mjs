@@ -51,7 +51,7 @@ const withPWA = nextPWA({
   disable: !isProd,
   register: false,
   skipWaiting: true,
-  fallbacks: { document: '/offline.html' },
+  fallbacks: { document: '/offline' },
   runtimeCaching,
 });
 

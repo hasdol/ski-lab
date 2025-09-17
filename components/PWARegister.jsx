@@ -10,6 +10,7 @@ export default function PWARegister() {
     (async () => {
       try {
         const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        console.log('[PWA] SW registered', reg.scope);
         reg.addEventListener('updatefound', () => {
           const sw = reg.installing;
           if (!sw) return;
