@@ -51,7 +51,9 @@ const withPWA = nextPWA({
   disable: !isProd,
   register: false,
   skipWaiting: true,
-  fallbacks: { document: '/offline' },
+  fallbacks: { document: '/offline.html' },
+  // appDir: true, // remove: not supported by GenerateSW
+  buildExcludes: [/app-build-manifest\.json$/], // prevent 404 during precache
   runtimeCaching,
 });
 
