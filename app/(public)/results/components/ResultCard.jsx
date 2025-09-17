@@ -9,7 +9,7 @@ import {
   formatDate,
 } from '@/helpers/helpers';
 
-const ResultCard = ({ result, debouncedSearch, handleEdit, handleDelete }) => {
+const ResultCard = ({ result, debouncedSearch, handleEdit, handleDelete, canEdit = true, footerLeft }) => {
   const date = result.timestamp?.seconds
     ? new Date(result.timestamp.seconds * 1000)
     : result.timestamp instanceof Date
@@ -43,14 +43,16 @@ const ResultCard = ({ result, debouncedSearch, handleEdit, handleDelete }) => {
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button onClick={() => handleEdit(result.id)} variant="secondary" className="p-2" aria-label="Edit">
-                <RiEditLine size={16} />
-              </Button>
-              <Button onClick={() => handleDelete(result.id)} variant="danger" className="p-2" aria-label="Delete">
-                <RiDeleteBinLine size={16} />
-              </Button>
-            </div>
+            {canEdit && (
+              <div className="flex items-center gap-2">
+                <Button onClick={() => handleEdit(result.id)} variant="secondary" className="p-2" aria-label="Edit">
+                  <RiEditLine size={16} />
+                </Button>
+                <Button onClick={() => handleDelete(result.id)} variant="danger" className="p-2" aria-label="Delete">
+                  <RiDeleteBinLine size={16} />
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Rankings: compact, responsive */}
@@ -104,8 +106,11 @@ const ResultCard = ({ result, debouncedSearch, handleEdit, handleDelete }) => {
         </div>
       </div>
 
-      <div className="mt-3 text-right text-xs font-medium">
-        {date ? formatDate(date, true) : '--'}
+      <div className="mt-3 flex items-center justify-between text-xs font-medium text-gray-500">
+        <span className="italic">
+          {footerLeft !== undefined ? footerLeft : (result.displayName ? `By ${result.displayName}` : '')}
+        </span>
+        <span>{date ? formatDate(date, true) : '--'}</span>
       </div>
     </div>
   );

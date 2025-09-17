@@ -16,9 +16,9 @@ const desktop = '/desktop.png';
 
 // SIMPLE_ANIM: consistent, simple, safe animation for mount
 const SIMPLE_ANIM = {
-  initial: { opacity: 0, y: 12 },
+  initial: { opacity: 0, y: 10 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.45, ease: 'easeOut' },
+  transition: { duration: 0.4 },
 };
 
 const HomePage = () => {
@@ -41,7 +41,11 @@ const HomePage = () => {
     fetchLiveEvents();
   }, [user]);
 
-  const hasLiveEvents = teams.some(team => teamEvents[team.id]?.length > 0);
+  // Flatten events for easier rendering and centering when there's only one
+  const activeEvents = teams.flatMap(team =>
+    (teamEvents[team.id] || []).map(event => ({ event, team }))
+  );
+  const hasLiveEvents = activeEvents.length > 0;
   const handleNavigation = (path) => router.push(path);
 
   // Simplified features list
@@ -77,7 +81,7 @@ const HomePage = () => {
       />
       <div className="fixed inset-0 -z-10 bg-gradient-to-b from-white/70 via-white/60 to-white/80" />
 
-      <div className="container relative flex flex-col items-center max-w-5xl px-6 pt-16 mx-auto md:pt-28">
+      <div className="container relative flex flex-col items-center max-w-5xl px-10 pt-16 mx-auto md:pt-28">
         <motion.div
           {...SIMPLE_ANIM}
           className="flex flex-col items-center text-center"
@@ -138,18 +142,31 @@ const HomePage = () => {
                     <h3 className="mb-4 text-sm font-semibold tracking-wide text-center text-gray-500 uppercase">
                       Active Events
                     </h3>
-                    <div className="grid gap-4 md:grid-cols-2">
-                      {teams.map(team =>
-                        teamEvents[team.id]?.map(event => (
+                    {/*
+                      If there's a single active event, center it.
+                      Otherwise keep the two-column grid for multiple events.
+                    */}
+                    {activeEvents.length === 1 ? (
+                      <div className="w-fit mx-auto">
+                        <ActiveEventCard
+                          key={activeEvents[0].event.id}
+                          event={activeEvents[0].event}
+                          team={activeEvents[0].team}
+                          onClick={() => router.push(`/teams/${activeEvents[0].team.id}/${activeEvents[0].event.id}`)}
+                        />
+                      </div>
+                    ) : (
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {activeEvents.map(({ event, team }) => (
                           <ActiveEventCard
                             key={event.id}
                             event={event}
                             team={team}
                             onClick={() => router.push(`/teams/${team.id}/${event.id}`)}
                           />
-                        ))
-                      )}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </div>
@@ -161,8 +178,6 @@ const HomePage = () => {
           )}
         </motion.div>
 
-        {/* Install card - feels like an app: icon, benefits and CTA */}
-        <InstallCard />
 
         <motion.div
           className="relative w-full mt-20 md:mt-28"
@@ -188,15 +203,18 @@ const HomePage = () => {
           className="w-full py-16"
           {...SIMPLE_ANIM}
         >
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Professional Ski Management
-            </h2>
-            <p className="mt-4 text-lg text-gray-600">
-              Everything you need to optimize ski performance
-            </p>
+          <div className="w-full py-8 border-t border-gray-200">
+            <div className="max-w-3xl mx-auto text-center">
+
+              <h3 className="mb-2 text-sm font-semibold tracking-wide text-gray-500 uppercase">Features</h3>
+              <h2 className="text-2xl font-bold text-gray-900">Professional Ski Management</h2>
+
+              <p className="mt-2 text-sm text-gray-600">
+                Everything you need to optimize ski performance
+              </p>
+            </div>
           </div>
-          <div className="grid grid-cols-1 gap-8 mt-16 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-8 mt-10 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -216,6 +234,17 @@ const HomePage = () => {
             ))}
           </div>
         </motion.div>
+        {/* Install card - header + subtle separator when there are live events */}
+        <div className={"w-full py-8 border-t border-gray-200"}>
+          <div className="max-w-3xl mx-auto text-center">
+            <h3 className="mb-2 text-sm font-semibold tracking-wide text-gray-500 uppercase">Install</h3>
+            <h2 className="text-2xl font-bold text-gray-900">Install Ski‑Lab</h2>
+            <p className="mt-2 text-sm text-gray-600">Get the app for the most seamless experience.</p>
+          </div>
+          <div className="mt-5">
+            <InstallCard />
+          </div>
+        </div>
       </div>
 
       <motion.footer

@@ -24,6 +24,7 @@ export default function EventPage() {
   const handleBack = () => router.push(`/teams/${teamId}`);
   const handleEdit = () => router.push(`/teams/${teamId}/${eventId}/edit`);
 
+
   if (loading) {
     return (
       <div className="flex justify-center py-16">
@@ -60,7 +61,7 @@ export default function EventPage() {
     <div className="max-w-4xl md:min-w-xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <Button onClick={handleBack} variant="secondary">
-          Back
+          Back 
         </Button>
         {canManage && (
           <Button onClick={handleEdit} variant="primary">

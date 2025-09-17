@@ -3,9 +3,11 @@
 import React from 'react';
 
 export default function EventOverview({ eventData }) {
+  if (eventData.description.length === 0) {
+    return <div className="my-4 italic">Welcome! More information will be available soon.</div>;
+  }
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-2">Overview</h2>
       <p>{eventData.description}</p>
     </div>
   );
