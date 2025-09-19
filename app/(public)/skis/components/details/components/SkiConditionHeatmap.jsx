@@ -2,6 +2,7 @@ import React, { useMemo, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import { MdInfoOutline } from 'react-icons/md';
+import { MdScreenRotation } from 'react-icons/md'; // add
 import { formatSnowTypeLabel, formatSourceLabel, formatDate } from '@/helpers/helpers';
 import Overlay from '@/components/ui/Overlay';
 import { motion } from 'framer-motion';
@@ -11,6 +12,9 @@ const SkiConditionHeatmap = ({
   allSnowCombos,
   combinedPerformanceData,
   chartData,
+  // external control (moved info button to parent)
+  showCalcInfo: showCalcInfoProp,
+  setShowCalcInfo: setShowCalcInfoProp,
 }) => {
   const router = useRouter();
   const containerRef = useRef(null);
@@ -19,6 +23,11 @@ const SkiConditionHeatmap = ({
   const [showPopup, setShowPopup] = useState(false);
   const [popupData, setPopupData] = useState(null);
   const [popupPos, setPopupPos] = useState({ x: 0, y: 0 });
+
+  // Info modal for calculation explanation
+  const [localShowCalcInfo, setLocalShowCalcInfo] = useState(false);
+  const showCalcInfo = showCalcInfoProp !== undefined ? showCalcInfoProp : localShowCalcInfo;
+  const setShowCalcInfo = setShowCalcInfoProp !== undefined ? setShowCalcInfoProp : setLocalShowCalcInfo;
 
   // Active tab: 'natural' | 'artificial' | 'mix'
   const [activeTab, setActiveTab] = useState('natural');
@@ -61,7 +70,7 @@ const SkiConditionHeatmap = ({
     h = h / 360;
     let r, g, b;
     if (s === 0) {
-      r = g = b = l; // achromatic
+      r = g = b = l;
     } else {
       const hue2rgb = (p, q, t) => {
         if (t < 0) t += 1;
@@ -183,53 +192,106 @@ const SkiConditionHeatmap = ({
     setShowPopup(true);
   };
 
-  return (
-    <div className="relative mt-5" ref={containerRef}>
-      {/* Tabs */}
-      <div className="flex border-b border-gray-200 mb-6">
-        {['Natural', 'Artificial', 'Mix'].map((tabLabel) => {
-          const tab = tabLabel.toLowerCase();
-          const isActive = activeTab === tab;
-          return (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 font-medium text-sm focus:outline-none ${isActive
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
-                }`}
-              aria-current={isActive ? 'page' : undefined}
-            >
-              {tabLabel}
-              {categoryDotCounts[tab] > 0 && (
-                <span className="ml-1 opacity-90">({categoryDotCounts[tab]})</span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+  const [showRotateHint, setShowRotateHint] = useState(false);
 
-      {/* Legend */}
-      <div className="flex flex-wrap items-center gap-3 mb-4 px-1">
-        {/* Dynamic gradient legend */}
+  React.useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const check = () => {
+      const small = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+      const portrait = typeof window !== 'undefined'
+        ? window.matchMedia && window.matchMedia('(orientation: portrait)').matches
+        : false;
+      const overflow = el.scrollWidth > el.clientWidth + 8;
+      setShowRotateHint(small && portrait && overflow);
+    };
+
+    check();
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', check);
+      window.addEventListener('orientationchange', check);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', check);
+        window.removeEventListener('orientationchange', check);
+      }
+    };
+  }, [temperatureList, combinedPerformanceData]);
+
+  return (
+    <div
+      className="relative mt-5 scroll-smooth bg-white border border-gray-200 rounded-lg p-3 md:p-4 shadow-sm"
+
+      ref={containerRef}
+    >
+      {/* Toolbar: tabs left, compact legend + info right */}
+      <div className="flex items-center justify-between border-b border-gray-200 pb-2 mb-3">
+        <div className="flex">
+          {['Natural', 'Artificial', 'Mix'].map((tabLabel) => {
+            const tab = tabLabel.toLowerCase();
+            const isActive = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 font-medium text-sm focus:outline-none ${isActive
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                {tabLabel}
+                {categoryDotCounts[tab] > 0 && (
+                  <span className="ml-1 opacity-90">({categoryDotCounts[tab]})</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
         <div className="flex items-center gap-3">
-          <div className="flex flex-col items-center text-sm text-gray-700">
+          <div className="hidden sm:flex items-center gap-2 text-xs text-gray-600">
+            <span>0 (Bad)</span>
             <div
-              className="w-40 h-4 rounded-md shadow-sm"
+              className="w-24 h-3 rounded"
               role="img"
-              aria-label="Performance gradient from bad to great"
+              aria-label="Performance gradient 0 to 10"
               style={{ background: `linear-gradient(to right, ${lowHex}, ${highHex})` }}
             />
-            <div className="w-40 flex justify-between text-xs mt-1 text-gray-600">
-              <span>Bad</span>
-              <span>Great</span>
-            </div>
+            <span>10 (Excellent)</span>
           </div>
+          {/* Info button removed from here - parent header controls modal now */}
         </div>
       </div>
 
       {/* Heatmap Table */}
-      <div className="overflow-x-auto">
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0, y: 8, scale: 0.995 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+        className="overflow-x-auto"
+      >
+        {/* Rotate hint (mobile, portrait, overflow) */}
+        {showRotateHint && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/85 text-gray-700 md:hidden">
+            <MdScreenRotation className="w-10 h-10 mb-2" />
+            <div className="text-sm font-medium">Rotate device for a better view</div>
+            <button
+              type="button"
+              className="mt-2 text-xs underline"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowRotateHint(false);
+              }}
+            >
+              Show anyway
+            </button>
+          </div>
+        )}
+
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-gray-200">
@@ -250,7 +312,7 @@ const SkiConditionHeatmap = ({
                 className="border-b border-gray-100 last:border-0"
               >
                 <td className="text-sm text-gray-500 py-2 pr-4 text-start">
-                  {formatSourceLabel(row.source)} – {formatSnowTypeLabel(row.snowType)}
+                  {formatSnowTypeLabel(row.snowType)}
                 </td>
 
                 {temperatureList.map((temp) => {
@@ -258,11 +320,10 @@ const SkiConditionHeatmap = ({
                   const item = performanceMap[key];
                   const category = (item?.category || 'unknown').toLowerCase();
 
-                  // prefer using the numeric averageScore to pick a colour on the spectre,
-                  // fall back to discrete category colours (unknown)
+                  // Use normalized value (0–1) for color mapping
                   const bgColor =
                     item?.averageScore !== null && item?.averageScore !== undefined
-                      ? scoreToHex(item.averageScore)
+                      ? scoreToHex(item.averageScore / 10)
                       : categoryColors[category] || '#FFF';
                   const fgColor = getContrastColor(bgColor);
 
@@ -283,7 +344,7 @@ const SkiConditionHeatmap = ({
                           }
                         >
                           {item?.averageScore !== null && item?.averageScore !== undefined
-                            ? (item.averageScore * 100).toFixed(0) / 10 // Show as 0.0–10.0, one decimal
+                            ? Number(item.averageScore).toFixed(1) // 0.0–10.0
                             : ''}
                         </div>
                       ) : (
@@ -296,7 +357,7 @@ const SkiConditionHeatmap = ({
             ))}
           </tbody>
         </table>
-      </div>
+      </motion.div>
 
       {/* Small-tests info */}
       {chartData.some((d) => d.total <= 2) && (
@@ -320,7 +381,7 @@ const SkiConditionHeatmap = ({
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="font-semibold text-gray-800">
-              {popupData.temp}°C • {formatSourceLabel(popupData.source)} • {formatSnowTypeLabel(popupData.snowType)}
+              {popupData.temp}°C • {formatSnowTypeLabel(popupData.snowType)}
             </h3>
             <span className="block text-gray-600">
               Number of tests: {popupData.tests.length}
@@ -336,13 +397,13 @@ const SkiConditionHeatmap = ({
                         {formatDate(new Date(test.testDate))}
                       </div>
                       <div className="text-sm text-gray-700">
-                        Rank: {test.rank}/{test.total}
+                        Position: {test.rank}{test.total ? `/${test.total}` : ''}
                       </div>
                       <div className="text-sm text-gray-600 mb-1">{test.location}</div>
                     </div>
                     <Button
                       type="button"
-                      className="text-sm" 
+                      className="text-sm"
                       variant="primary"
                       onClick={() => router.push(`/results/${test.testId}`)}
                     >
@@ -354,6 +415,39 @@ const SkiConditionHeatmap = ({
 
             <div className="mt-3 flex justify-end">
               <Button variant="secondary" className="text-sm" onClick={() => setShowPopup(false)}>
+                Close
+              </Button>
+            </div>
+          </motion.div>
+        </>
+      )}
+
+      {/* Calculation Info Modal */}
+      {showCalcInfo && (
+        <>
+          <Overlay isVisible={true} />
+          <motion.div
+            initial={{ scale: 0.95, y: 10, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.95, y: 10, opacity: 0 }}
+            className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-lg w-11/12 rounded-lg bg-white shadow-lg p-5 text-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-semibold text-gray-800 mb-2">How the heatmap is calculated</h3>
+            <div className="text-gray-700 space-y-2">
+              <p>
+                Each cell represents performance for a specific temperature, snow source and grain type. Multiple tests that match the cell are combined to produce a single performance value.
+              </p>
+              <p>
+                Recent tests are given more influence than old ones, and larger test fields (more skis in a test) are given more weight than very small tests. Tests with only two skis are excluded from the calculations.
+              </p>
+              <p>
+                Values are shown both as a numeric score (0.0–10.0) and as a simple category (Very bad → Great). Cells without enough data are shown as “--”.
+              </p>
+            </div>
+
+            <div className="mt-4 flex justify-end">
+              <Button variant="secondary" className="text-sm" onClick={() => setShowCalcInfo(false)}>
                 Close
               </Button>
             </div>

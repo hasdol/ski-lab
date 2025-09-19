@@ -52,7 +52,8 @@ const Input = ({
         className={`w-full bg-container text-text border border-gray-300 rounded-lg ${gloveClasses} ${className}`}
         {...props}
       >
-        <option value="">{placeholder}</option>
+        {/* Only render a placeholder option if provided */}
+        {placeholder ? <option value="">{placeholder}</option> : null}
         {options?.map((option, index) => (
           <option key={index} value={option.value}>
             {option.label}

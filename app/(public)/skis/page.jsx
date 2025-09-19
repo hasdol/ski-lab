@@ -142,6 +142,9 @@ const Skis = () => {
     return [...matched, ...extras];
   }, [skis, selectedSkisDataMap, sortField, sortDirection]);
 
+  // ensure we know how many skis are selected so we can add bottom padding
+  const selectionCount = getSelectedList().length;
+
   // --- persist filter/view into localStorage
   useEffect(() => { localStorage.setItem('viewMode', viewMode); }, [viewMode]);
   useEffect(() => { localStorage.setItem('styleFilter', styleFilter); }, [styleFilter]);
@@ -198,7 +201,7 @@ const Skis = () => {
   if (error) return <div className="m-2">Error: {error.message}</div>;
 
   return (
-    <div className={`p-4 max-w-4xl w-full self-center`}>
+    <div className={`p-4 max-w-4xl w-full self-center ${selectionCount > 0 ? 'pb-10 md:pb-20' : ''}`}>
 
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">

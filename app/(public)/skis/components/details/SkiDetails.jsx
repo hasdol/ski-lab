@@ -7,6 +7,8 @@ import GrindHistory from '@/app/(public)/skis/components/details/components/Grin
 import { formatDate, getTimestamp, getSeason } from '@/helpers/helpers';
 import useSkiTests from '@/hooks/useSkiTests';
 import Button from '@/components/ui/Button';
+import { MdInfoOutline } from 'react-icons/md';
+import Input from '@/components/ui/Input';
 
 const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
   const { tests, loading: testsLoading, error: testsError } = useSkiTests(ski.id);
@@ -21,10 +23,16 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
   // Additional filters for performance chart
   const [selectedSnowType, setSelectedSnowType] = useState('');
   const [selectedTemperature, setSelectedTemperature] = useState('');
-  // Toggle for the current grind and current season (heatmap only)
-  // const [showCurrentGrind, setShowCurrentGrind] = useState(false);
-  const [includeOldGrinds, setIncludeOldGrinds] = useState(false); // default: ONLY current grind
-  const [showCurrentSeason, setShowCurrentSeason] = useState(false);
+  // Heatmap: grind and season filters
+  const [selectedHeatmapSeason, setSelectedHeatmapSeason] = useState('');
+  // Default to current grind (index "0") if available, else "all"
+  const [selectedHeatmapGrind, setSelectedHeatmapGrind] = useState(() =>
+    (Array.isArray(ski.grindHistory) && ski.grindHistory.length > 0) ? '0' : 'all'
+  ); // 'all' | grindIndex
+
+  // Info modal toggles for child components (moved here)
+  const [showPerfInfo, setShowPerfInfo] = useState(false);
+  const [showHeatmapInfo, setShowHeatmapInfo] = useState(false);
 
   // Define possible sources and snow types
   const allSources = ['natural', 'artificial', 'mix'];
@@ -63,11 +71,19 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
     setSelectedSeason(event.target.value);
   }, []);
 
+  // Handle season change for heatmap (independent)
+  const handleHeatmapSeasonChange = useCallback((event) => {
+    setSelectedHeatmapSeason(event.target.value);
+  }, []);
+
   // Get unique temperatures from chartData
   const dynamicTemperatureList = useMemo(() => {
     const temps = [...new Set(chartData.map((data) => data.temp))];
     return temps.sort((a, b) => a - b);
   }, [chartData]);
+
+  // Grind history must be defined before any memo/hooks that read it
+  const grindHistory = ski.grindHistory || [];
 
   // Filter chartData for performance chart based on selected season and additional filters
   const filteredChartData = useMemo(() => {
@@ -80,29 +96,33 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
     });
   }, [chartData, selectedSeason, selectedSnowType, selectedTemperature]);
 
-  // Filter for heatmap: Use current grind and current season toggles
+  // Filter for heatmap: Use current grind and selected heatmap season
   const heatmapChartData = useMemo(() => {
     let filtered = chartData;
-    // Only current grind by default; include old grinds when toggled on
-    if (!includeOldGrinds && ski.grindDate) {
-      const grindTs = getTimestamp(ski.grindDate);
-      if (grindTs) {
-        filtered = filtered.filter((d) => d.testDate >= grindTs);
+    // Season filter for heatmap
+    if (selectedHeatmapSeason) {
+      filtered = filtered.filter((d) => getSeason(d.testDate) === selectedHeatmapSeason);
+    }
+    // Grind-period filter for heatmap
+    if (selectedHeatmapGrind && selectedHeatmapGrind !== 'all' && grindHistory.length) {
+      const idx = Number(selectedHeatmapGrind);
+      const startTs = getTimestamp(grindHistory[idx]?.grindDate);
+      const endTs =
+        idx > 0 ? getTimestamp(grindHistory[idx - 1]?.grindDate) : Number.POSITIVE_INFINITY;
+      if (startTs) {
+        filtered = filtered.filter(
+          (d) => d.testDate >= startTs && d.testDate < (endTs || Number.POSITIVE_INFINITY)
+        );
       }
     }
-    if (showCurrentSeason) {
-      const now = Date.now();
-      const currentSeason = getSeason(now);
-      filtered = filtered.filter((d) => getSeason(d.testDate) === currentSeason);
-    }
     return filtered;
-  }, [chartData, includeOldGrinds, showCurrentSeason, ski.grindDate]);
+  }, [chartData, selectedHeatmapSeason, selectedHeatmapGrind, grindHistory]);
 
   // Build combined performance data for heatmap
   const combinedPerformanceData = useMemo(() => {
     // Parameters for weighting
-    const ALPHA = 0.7;         // field-size emphasis: n^alpha
-    const HALF_LIFE_DAYS = 180; // time-decay half-life (days)
+    const ALPHA = 0.7;
+    const HALF_LIFE_DAYS = 180;
     const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
     // Pre-seed all combos so cells are present even without data
@@ -114,7 +134,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
           temperature: temp,
           source,
           snowType: grainType,
-          sumWeightedScore: 0,
+          sumWeightedScore: 0, // accumulate normalized 0–1
           sumWeights: 0,
           testCount: 0,
         };
@@ -126,10 +146,10 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
       // Ignore only strict A/Bs: 2-ski tests
       if (data.total <= 2) return;
 
-      // s in [0,1] already computed upstream (data.score)
-      const s = Number(data.score) || 0;
+      // score is 0–10 upstream → normalize to 0–1 for weighting
+      const s01 = (Number(data.score) || 0) / 10;
 
-      // Field-size weight: n^alpha (smoothly favors bigger fields)
+      // Field-size weight: n^alpha
       const wField = Math.pow(Math.max(2, data.total), ALPHA);
 
       // Recency weight: 2^(-ageDays / H)
@@ -154,7 +174,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         };
       }
 
-      performanceMap[key].sumWeightedScore += s * w;
+      performanceMap[key].sumWeightedScore += s01 * w;
       performanceMap[key].sumWeights += w;
       performanceMap[key].testCount += 1;
     });
@@ -162,13 +182,15 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
     // Convert to display rows
     return Object.values(performanceMap).map((item) => {
       if (item.sumWeights > 0) {
-        const averageScore = item.sumWeightedScore / item.sumWeights;
+        const averageScore01 = item.sumWeightedScore / item.sumWeights; // 0–1
+        const averageScore10 = averageScore01 * 10; // 0–10 for display
+
         return {
           temperature: item.temperature,
           source: item.source,
           snowType: item.snowType,
-          averageScore,
-          category: getPerformanceCategory(averageScore),
+          averageScore: averageScore10, // 0–10
+          category: getPerformanceCategory(averageScore10 / 10), // thresholds expect 0–1
           count: item.testCount
         };
       } else {
@@ -184,7 +206,29 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
     });
   }, [heatmapChartData, dynamicTemperatureList, allSnowCombos, getPerformanceCategory]);
 
-  const grindHistory = ski.grindHistory || [];
+  // Build grind options: current/newest first, then "All grinds" at the bottom
+  const heatmapGrindOptions = useMemo(() => {
+    if (!grindHistory?.length) return [{ label: 'All grinds', value: 'all' }];
+    const opts = grindHistory.map((g, idx) => {
+      const label = g.grind ? `${g.grind}` : 'Unnamed grind';
+      return { label: idx === 0 ? `${label} (current)` : label, value: String(idx) };
+    });
+    // Put "All grinds" at the bottom
+    opts.push({ label: 'All grinds', value: 'all' });
+    return opts;
+  }, [grindHistory]);
+
+  // Default to newest grind when available, else 'all'
+  useEffect(() => {
+    // Only set if not already set and options exist
+    if (
+      (!selectedHeatmapGrind || !heatmapGrindOptions.some(o => o.value === selectedHeatmapGrind)) &&
+      heatmapGrindOptions.length > 0
+    ) {
+      const newest = heatmapGrindOptions.find(o => o.value !== 'all');
+      setSelectedHeatmapGrind(newest?.value ?? 'all');
+    }
+  }, [heatmapGrindOptions, selectedHeatmapGrind]);
 
   // Filter grind history by selected season
   const filteredGrindHistory = useMemo(() => {
@@ -219,8 +263,14 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         const sorted = [...test.rankings].sort((a, b) => a.score - b.score);
         let currentRank = 1;
         let i = 0;
-        const computeRelativeScore = (rank, total) =>
-          total <= 1 ? 1 : 1 - (rank - 1) / (total - 1);
+
+        // relative score in 0–10 using average rank for ties
+        const computeRelativeScore = (rankStart, tieCount, total) => {
+          if (total <= 1) return 10;
+          const meanRank = rankStart + (tieCount - 1) / 2;
+          return 10 * (1 - (meanRank - 1) / (total - 1));
+        };
+
         while (i < sorted.length) {
           const currentScore = sorted[i].score;
           const tiedGroup = [sorted[i]];
@@ -230,12 +280,13 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
             j++;
           }
           const tiedCount = tiedGroup.length;
-          const relScore = computeRelativeScore(currentRank, sorted.length);
+          const relScore = computeRelativeScore(currentRank, tiedCount, sorted.length);
+
           tiedGroup.forEach((r) => {
             allRankings.push({
               ...r,
               rank: currentRank,
-              score: relScore,
+              score: relScore, // 0–10
               numberOfSkiesInTest: sorted.length,
               testDate: getTimestamp(test.timestamp),
               location: test.location,
@@ -249,12 +300,13 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
           i = j;
         }
       });
+
       const mySki = allRankings.filter((r) => r.skiId === ski.id);
       mySki.sort((a, b) => a.testDate - b.testDate);
       const finalData = mySki.map((r) => ({
         testDate: r.testDate,
         rank: r.rank,
-        score: r.score,
+        score: r.score, // 0–10
         total: r.numberOfSkiesInTest,
         location: r.location,
         temp: r.temp,
@@ -365,9 +417,21 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         {/* Performance Chart Section */}
         <div className="mb-5 border-b border-gray-300 pb-5">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-            <h2 className="text-2xl font-semibold mb-4 md:mb-0">
-              Performance
-            </h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-semibold mb-4 md:mb-0">
+                Performance
+              </h2>
+              {/* Info button moved here */}
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
+                onClick={() => setShowPerfInfo(true)}
+                aria-label="How the performance chart works"
+              >
+                <MdInfoOutline className="w-5 h-5" />
+              </button>
+            </div>
+
             {tests && tests.length > 0 && (
               <SelectSeason
                 selectedSeason={selectedSeason}
@@ -392,6 +456,8 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
                 maxDate={seasonMaxDate}
                 maxRank={maxRank}
                 containerWidth={containerWidth}
+                showInfo={showPerfInfo}
+                setShowInfo={setShowPerfInfo}
               />
             )
           ) : (
@@ -404,30 +470,43 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         {/* Recommended Conditions Section */}
         <div className="mb-5 border-b border-gray-300 pb-10">
           <div className="flex flex-col justify-between space-y-2">
-            <h2 className="text-2xl font-semibold mb-4">
-              Recommended conditions
-            </h2>
-            <div className="flex gap-4">
-              {ski.grindDate && (
-                <label className="flex items-center space-x-2">
-                  <input
-                    className="h-4 w-4 accent-blue-600"
-                    type="checkbox"
-                    checked={includeOldGrinds}
-                    onChange={(e) => setIncludeOldGrinds(e.target.checked)}
+            <div className="">
+              <div className="flex items-center gap-3 mb-4">
+                <h2 className="text-2xl font-semibold">
+                  Recommended conditions
+                </h2>
+                {/* Info button for heatmap moved here */}
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
+                  onClick={() => setShowHeatmapInfo(true)}
+                  aria-label="How the heatmap is calculated"
+                >
+                  <MdInfoOutline className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="flex gap-4 items-center">
+                {grindHistory.length > 0 && (
+                  <div className="min-w-[220px]">
+                    <Input
+                      type="select"
+                      name="heatmapGrind"
+                      label="Grind"
+                      value={selectedHeatmapGrind}
+                      onChange={(e) => setSelectedHeatmapGrind(e.target.value)}
+                      options={heatmapGrindOptions}
+                    />
+                  </div>
+                )}
+                {/* Independent Select Season for heatmap */}
+                {tests && tests.length > 0 && (
+                  <SelectSeason
+                    selectedSeason={selectedHeatmapSeason}
+                    handleSeasonChange={handleHeatmapSeasonChange}
+                    availableSeasons={availableSeasons}
                   />
-                  <span className="text-sm">View old grinds</span>
-                </label>
-              )}
-              <label className="flex items-center space-x-2">
-                <input
-                  className="h-4 w-4 accent-blue-600"
-                  type="checkbox"
-                  checked={showCurrentSeason}
-                  onChange={(e) => setShowCurrentSeason(e.target.checked)}
-                />
-                <span className="text-sm">Current season</span>
-              </label>
+                )}
+              </div>
             </div>
           </div>
 
@@ -438,6 +517,8 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
                 allSnowCombos={allSnowCombos}
                 combinedPerformanceData={combinedPerformanceData}
                 chartData={heatmapChartData}
+                showCalcInfo={showHeatmapInfo}
+                setShowCalcInfo={setShowHeatmapInfo}
               />
             ) : (
               <div className="text-center text-gray-500 py-4">
@@ -455,7 +536,7 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         <GrindHistory grindHistory={grindHistory} />
         {/* Action Buttons - Now inside the grid */}
         <div className="col-span-2 md:col-span-3 flex justify-between border-t border-gray-300 pt-8 pb-4">
-          <div className='space-x-3'> 
+          <div className='space-x-3'>
             <Button
               onClick={onEdit}
               variant="primary"
