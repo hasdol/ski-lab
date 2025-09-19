@@ -299,11 +299,11 @@ const SkiConditionHeatmap = ({
       </div>
 
       {/* Small-tests info */}
-      {chartData.some((d) => d.total < 4) && (
+      {chartData.some((d) => d.total <= 2) && (
         <div className="flex items-center bg-blue-50 text-blue-800 p-2 rounded-lg text-sm mt-4">
           <MdInfoOutline className="w-5 h-5 mr-2 flex-shrink-0" />
           <span>
-            {chartData.filter((d) => d.total < 4).length} tests are ignored. Tests with only two skis are ignored.
+            {chartData.filter((d) => d.total <= 2).length} tests are ignored. Tests with only two skis are ignored.
           </span>
         </div>
       )}

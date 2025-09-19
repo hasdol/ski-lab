@@ -22,7 +22,8 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
   const [selectedSnowType, setSelectedSnowType] = useState('');
   const [selectedTemperature, setSelectedTemperature] = useState('');
   // Toggle for the current grind and current season (heatmap only)
-  const [showCurrentGrind, setShowCurrentGrind] = useState(false);
+  // const [showCurrentGrind, setShowCurrentGrind] = useState(false);
+  const [includeOldGrinds, setIncludeOldGrinds] = useState(false); // default: ONLY current grind
   const [showCurrentSeason, setShowCurrentSeason] = useState(false);
 
   // Define possible sources and snow types
@@ -82,7 +83,8 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
   // Filter for heatmap: Use current grind and current season toggles
   const heatmapChartData = useMemo(() => {
     let filtered = chartData;
-    if (showCurrentGrind) {
+    // Only current grind by default; include old grinds when toggled on
+    if (!includeOldGrinds && ski.grindDate) {
       const grindTs = getTimestamp(ski.grindDate);
       if (grindTs) {
         filtered = filtered.filter((d) => d.testDate >= grindTs);
@@ -94,10 +96,16 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
       filtered = filtered.filter((d) => getSeason(d.testDate) === currentSeason);
     }
     return filtered;
-  }, [chartData, showCurrentGrind, showCurrentSeason, ski.grindDate]);
+  }, [chartData, includeOldGrinds, showCurrentSeason, ski.grindDate]);
 
   // Build combined performance data for heatmap
   const combinedPerformanceData = useMemo(() => {
+    // Parameters for weighting
+    const ALPHA = 0.7;         // field-size emphasis: n^alpha
+    const HALF_LIFE_DAYS = 180; // time-decay half-life (days)
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+    // Pre-seed all combos so cells are present even without data
     const performanceMap = {};
     dynamicTemperatureList.forEach((temp) => {
       allSnowCombos.forEach(({ source, grainType }) => {
@@ -112,18 +120,46 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         };
       });
     });
+
+    // Aggregate tests into cells with field-size and recency weighting
     heatmapChartData.forEach((data) => {
-      if (data.total < 4) return;
+      // Ignore only strict A/Bs: 2-ski tests
+      if (data.total <= 2) return;
+
+      // s in [0,1] already computed upstream (data.score)
+      const s = Number(data.score) || 0;
+
+      // Field-size weight: n^alpha (smoothly favors bigger fields)
+      const wField = Math.pow(Math.max(2, data.total), ALPHA);
+
+      // Recency weight: 2^(-ageDays / H)
+      const ageDays = data.testDate ? (Date.now() - data.testDate) / MS_PER_DAY : 0;
+      const wRecency = Math.pow(2, -(ageDays / HALF_LIFE_DAYS));
+
+      const w = wField * wRecency;
+
       const temp = data.temp;
-      const source = data.snowSource.toLowerCase();
-      const grainType = data.snowType.toLowerCase();
+      const source = (data.snowSource || '').toLowerCase();
+      const grainType = (data.snowType || '').toLowerCase();
       const key = `${temp}___${source}___${grainType}`;
-      if (performanceMap[key]) {
-        performanceMap[key].sumWeightedScore += data.score * data.total;
-        performanceMap[key].sumWeights += data.total;
-        performanceMap[key].testCount += 1;
+
+      if (!performanceMap[key]) {
+        performanceMap[key] = {
+          temperature: temp,
+          source,
+          snowType: grainType,
+          sumWeightedScore: 0,
+          sumWeights: 0,
+          testCount: 0,
+        };
       }
+
+      performanceMap[key].sumWeightedScore += s * w;
+      performanceMap[key].sumWeights += w;
+      performanceMap[key].testCount += 1;
     });
+
+    // Convert to display rows
     return Object.values(performanceMap).map((item) => {
       if (item.sumWeights > 0) {
         const averageScore = item.sumWeightedScore / item.sumWeights;
@@ -377,10 +413,10 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
                   <input
                     className="h-4 w-4 accent-blue-600"
                     type="checkbox"
-                    checked={showCurrentGrind}
-                    onChange={(e) => setShowCurrentGrind(e.target.checked)}
+                    checked={includeOldGrinds}
+                    onChange={(e) => setIncludeOldGrinds(e.target.checked)}
                   />
-                  <span className="text-sm">Current grind</span>
+                  <span className="text-sm">View old grinds</span>
                 </label>
               )}
               <label className="flex items-center space-x-2">
