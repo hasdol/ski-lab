@@ -5,6 +5,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { RiMessage2Line, RiMailLine } from 'react-icons/ri';
 import { useAuth } from '@/context/AuthContext';
+import PageHeader from '@/components/layout/PageHeader'; // Add this import
 
 const Contact = () => {
   const { user } = useAuth();
@@ -28,17 +29,12 @@ const Contact = () => {
 
   return (
     <div className="p-4 max-w-4xl w-full self-center">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="bg-blue-100 p-2 rounded-lg">
-          <RiMessage2Line className="text-blue-600 text-2xl" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Contact</h1>
-          <div className="text-xs text-gray-600 mt-1 flex flex-col gap-2">
-            <span>Send us a message</span>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={<RiMessage2Line className="text-blue-600 text-2xl" />}
+        title="Contact"
+        subtitle={<span>Send us a message</span>}
+        actions={null}
+      />
 
       <form className="bg-white shadow rounded-lg p-6 space-y-6" onSubmit={handleSubmit}>
         <Input

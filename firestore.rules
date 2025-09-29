@@ -7,7 +7,8 @@ service cloud.firestore {
     // USERS Collection
     // ----------------------------------------------------
     match /users/{userId} {
-      allow read: if request.auth != null;
+      // Restrict reads to self (avoid exposing plan/Stripe fields to other users)
+      allow read: if request.auth != null && request.auth.uid == userId;
 
       allow create, delete: if request.auth != null
         && request.auth.uid == userId;
@@ -23,69 +24,57 @@ service cloud.firestore {
         ])
         && request.resource.data.preferences is map;
 
-      // ---------------------------
-      // Skis subcollection
-      // ---------------------------
       match /skis/{skiId} {
-        // Read if user owns the ski
         allow read: if request.auth != null
           && request.auth.uid == userId;
 
-        // Create if user owns & plan-limits are satisfied
         allow create: if request.auth != null
           && request.auth.uid == userId
-        // Plan & skiCount checks from your snippet:
           && (
-        (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'athlete'
-          && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 48)
-          ||
-        (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'coach'
-          && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 200)
-          ||
-        (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'company'
-          && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 5000)
-          ||
-        (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'free'
-          && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 12)
-        )
-        // Do not try to set 'locked' manually
+            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'athlete'
+              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 48)
+            ||
+            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'coach'
+              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 200)
+            ||
+            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'company'
+              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 5000)
+            ||
+            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'free'
+              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 12)
+          )
           && !('locked' in request.resource.data);
 
-        // Update if user owns the ski & does not modify 'locked'
+        // Remove duplicate 'archived' and keep a strict allow-list
         allow update: if request.auth != null
           && request.auth.uid == userId
           && (request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-        'serialNumber',
-        'style',
-        'brand',
-        'model',
-        'length',
-        'stiffness',
-        'base',
-        'construction',
-        'grind',
-        'grindDate',
-        'comment',
-        'grindHistory',
-        'dateAdded',
-        'newGrind',
-        'newGrindDate',
-        'testIds',
-        'archived',
-        'skiType',
-        'keywords_en',
-        'keywords_no',
-        'archived'
-        ]));
+            'serialNumber',
+            'style',
+            'brand',
+            'model',
+            'length',
+            'stiffness',
+            'base',
+            'construction',
+            'grind',
+            'grindDate',
+            'comment',
+            'grindHistory',
+            'dateAdded',
+            'newGrind',
+            'newGrindDate',
+            'testIds',
+            'archived',
+            'skiType',
+            'keywords_en',
+            'keywords_no'
+          ]));
 
-        // Delete if user owns the ski
         allow delete: if request.auth != null
           && request.auth.uid == userId;
       }
 
-      // ---------------------------
-      // User-level testResults subcollection
-      // ---------------------------
       match /testResults/{testId} {
         allow read, write, delete: if request.auth != null
           && request.auth.uid == userId;
@@ -95,73 +84,84 @@ service cloud.firestore {
     // ----------------------------------------------------
     // CONTACT Collection
     // ----------------------------------------------------
+    // CONTACT — create-only; no client reads/updates/deletes
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
     match /contact/{contactId} {
-      allow read, write: if request.auth != null;
+      // If you want to allow non-auth users to submit the public form in
+      // [app/(public)/contact/page.jsx](app/(public)/contact/page.jsx) via
+      // [hooks/useContactForm.jsx](hooks/useContactForm.jsx), allow create for anyone:
+      allow create: if request.resource.data.keys().hasOnly(['email','subject','message','userId','createdAt'])
+        && request.resource.data.email is string
+        && request.resource.data.subject is string
+        && request.resource.data.message is string;
+      allow read, update, delete: if isAdmin(); // or `false` to deny to all clients
     }
 
     // ----------------------------------------------------
     // TEAMS Collection
     // ----------------------------------------------------
     match /teams/{teamId} {
-
-      // Helper for checking if user is coach or company
       function isCoachOrCompany() {
         return request.auth != null
           && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ['coach','company']);
       }
+      function isTeamCreator() {
+        return request.auth != null
+          && request.auth.uid == resource.data.createdBy;
+      }
 
-      // Because we are reading *this same doc*, we use resource.data to check membership:
       allow create: if isCoachOrCompany();
 
       allow read: if resource.data.isPublic == true
         || (request.auth != null && request.auth.uid in resource.data.members);
 
+      allow update, delete: if isTeamCreator();
 
-      // UPDATE/DELETE
-      allow update, delete: if request.auth != null 
-        && request.auth.uid == resource.data.createdBy;
-
-      // ------------------------------------------------
-      // Events subcollection
-      // ------------------------------------------------
       match /events/{eventId} {
-      // We can use a function that does *get* on /teams/{teamId},
-        // because it’s a different doc than /teams/{teamId}/events/{eventId}.
-        // This avoids recursion issues:
         function isTeamMember() {
           return request.auth != null
             && (request.auth.uid in get(/databases/$(database)/documents/teams/$(teamId)).data.members);
         }
 
         allow create: if isTeamMember() && isCoachOrCompany();
-
         allow read: if isTeamMember();
-
         allow update, delete: if isTeamMember() && isCoachOrCompany();
 
-        // testResults within an event
         match /testResults/{testId} {
-          allow read, create, update, delete: if isTeamMember();
+          allow read: if isTeamMember();
+          allow create: if isTeamMember();
+          // tighten: only coach/company can modify or delete shared results
+          allow update, delete: if isTeamMember() && isCoachOrCompany();
         }
       }
 
-      // Join Requests subcollection
       match /joinRequests/{requestId} {
-        // Only allow creation when the user is creating a join request for themselves
-        // and the status is "pending"
+        function teamCreator() {
+          return request.auth != null
+            && request.auth.uid == get(/databases/$(database)/documents/teams/$(teamId)).data.createdBy;
+        }
+
         allow create: if request.auth != null
           && request.resource.data.userId == request.auth.uid
           && request.resource.data.status == "pending";
-        
-        // Allow read, update, delete if the requester is the team manager (creator)
-        // or the user who created the request.
-        allow read, update, delete: if request.auth != null &&
-          (
-            // Request owner
-            request.auth.uid == resource.data.userId ||
-            // Team manager (creator)
-            request.auth.uid == get(/databases/$(database)/documents/teams/$(teamId)).data.createdBy
-          );
+
+        // Read by requester or team creator
+        allow read: if request.auth != null && (
+          request.auth.uid == resource.data.userId || teamCreator()
+        );
+
+        // Only team creator can change status; restrict fields strictly
+        allow update: if teamCreator()
+          && request.writeFields.hasOnly(['status','respondedAt'])
+          && (request.resource.data.status in ['approved','declined'])
+          && (request.resource.data.userId == resource.data.userId);
+
+        // Allow requester to delete their own request; team creator can also delete
+        allow delete: if request.auth != null && (
+          request.auth.uid == resource.data.userId || teamCreator()
+        );
       }
     }
   }

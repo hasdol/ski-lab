@@ -16,6 +16,7 @@ import {
   RiSearchLine
 } from 'react-icons/ri';
 import { AnimatePresence, motion } from 'framer-motion';
+import PageHeader from '@/components/layout/PageHeader';
 
 export default function TeamsPage() {
   const { user, userData } = useAuth();
@@ -54,57 +55,61 @@ export default function TeamsPage() {
     setCurrentPendingTeamId(null);
   };
 
-  return (
-    <div className="p-4 max-w-4xl w-full self-center">
-      {/* Header */}
-      <div className="flex flex-col gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-100 p-2 rounded-lg">
-            <RiTeamLine className="text-blue-600 text-2xl" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
-            <div className="text-xs text-gray-600 mt-1 flex flex-col gap-2">
-              <span>View and manage your teams</span>
-            </div>
-
-          </div>
+  // Actions for PageHeader
+  const headerActions = (
+    <div className="flex gap-3">
+      {canCreateTeam ? (
+        <>
+          <Button
+            onClick={() => router.push('/teams/create')}
+            variant="primary"
+            className="flex items-center gap-2"
+          >
+            <RiAddLine size={18} />
+            Create Team
+          </Button>
+          <Button
+            onClick={() => setShowJoinModal(true)}
+            variant="primary"
+            className="flex items-center gap-2"
+          >
+            <RiSearchLine size={18} />
+            Join a Team
+          </Button>
+        </>
+      ) : (
+        <>
+          <Button
+            onClick={() => setShowJoinModal(true)}
+            variant="primary"
+            className="flex items-center gap-2"
+          >
+            <RiSearchLine size={18} />
+            Join a Team
+          </Button>
           <Button
             onClick={() => setShowInfo(prev => !prev)}
             variant="secondary"
-            className="flex items-center gap-2 ml-auto"
+            className="flex items-center gap-2"
             aria-label={showInfo ? 'Hide information' : 'Show information'}
             aria-expanded={showInfo}
           >
             <RiInformationLine size={18} />
+            {showInfo ? 'Hide Info' : 'Show Info'}
           </Button>
-        </div>
-        {/* Action Buttons */}
-        <div className="flex gap-3">
-          {canCreateTeam && (
-            <Button
-              onClick={() => router.push('/teams/create')}
-              variant="primary"
-              className="flex items-center gap-2"
-            >
-              <RiAddLine size={18} />
-              Create Team
-            </Button>
-          )}
+        </>
+      )}
+    </div>
+  );
 
-          {user &&
-            <Button
-              onClick={() => setShowJoinModal(true)}
-              variant="primary"
-              className="flex items-center gap-2"
-            >
-              <RiSearchLine size={18} />
-              Join a Team
-            </Button>
-          }
-
-        </div>
-      </div>
+  return (
+    <div className="p-4 max-w-4xl w-full self-center">
+      <PageHeader
+        icon={<RiTeamLine className="text-blue-600 text-2xl" />}
+        title="Teams"
+        subtitle="View and manage your teams"
+        actions={headerActions}
+      />
 
       {/* Info Box */}
       <AnimatePresence>
@@ -113,7 +118,6 @@ export default function TeamsPage() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-
           >
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <div className="flex items-start gap-3">

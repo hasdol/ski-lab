@@ -10,7 +10,9 @@ import { removeTeamMember, leaveTeam } from '@/lib/firebase/teamFunctions';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { motion } from 'framer-motion';
 import PendingJoinRequests from '@/app/(protected)/teams/[teamId]/components/PendingJoinRequests';
-import { RiEarthLine, RiLockLine } from 'react-icons/ri';
+import { MdEvent, MdLock, MdPublic } from "react-icons/md";
+
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 // Import Firestore functions to fetch pending join requests count
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
@@ -25,16 +27,34 @@ export default function TeamDetailPage() {
   const [activeTab, setActiveTab] = useState('events');
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
   const canManage = ['coach', 'company'].includes(userData?.plan);
+  const isCreator = team?.createdBy === user?.uid;
+  const [memberProfiles, setMemberProfiles] = useState([]);
 
-  // Fetch pending join requests count
+  // Fetch pending join requests count — creator only
   useEffect(() => {
+    if (!teamId || !isCreator) return;
     const requestsRef = collection(db, 'teams', teamId, 'joinRequests');
     const q = query(requestsRef, where('status', '==', 'pending'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setPendingRequestCount(snapshot.docs.length);
     });
     return () => unsubscribe();
-  }, [teamId]);
+  }, [teamId, isCreator]);
+
+  // Load member profiles when owner views Members tab
+  useEffect(() => {
+    if (!isCreator || activeTab !== 'members') return;
+    (async () => {
+      try {
+        const fn = httpsCallable(getFunctions(), 'getTeamMemberProfiles');
+        const res = await fn({ teamId });
+        setMemberProfiles(res.data || []);
+      } catch (e) {
+        console.error('Load member profiles failed', e);
+        setMemberProfiles([]);
+      }
+    })();
+  }, [isCreator, activeTab, teamId]);
 
   const handleBack = () => router.push('/teams');
 
@@ -55,7 +75,7 @@ export default function TeamDetailPage() {
   const handleLeaveTeam = async () => {
     if (!window.confirm('Are you sure you want to leave this team?')) return;
     try {
-      await leaveTeam(userData.uid, team.id);
+      await leaveTeam(user.uid, team.id); // use auth uid
       router.push('/teams');
     } catch (e) {
       console.error(e);
@@ -121,6 +141,18 @@ export default function TeamDetailPage() {
         </div>
       </div>
 
+      {/* Upgrade notice for owners who can't manage events anymore */}
+      {isCreator && !canManage && (
+        <div className="flex flex-col gap-3 md:flex-row mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg p-5 items-center justify-between">
+          <span>
+            Your current plan doesn’t allow team management. Upgrade to manage teams.
+          </span>
+          <Button variant="primary" onClick={() => router.push('/pricing')}>
+            Upgrade
+          </Button>
+        </div>
+      )}
+
       <div className="">
         {/* Team Header */}
         <div className="flex flex-col items-center mb-8">
@@ -134,15 +166,21 @@ export default function TeamDetailPage() {
           <h1 className="text-2xl font-semibold text-gray-900 mb-1 text-center flex items-center justify-center gap-2">
             {team.name}
             {team.isPublic ? (
-              <RiEarthLine title="Public Team" className='text-blue-600'/>
-            ) : <RiLockLine />}
+              <MdPublic title="Public Team" className='text-blue-600'/>
+            ) : <MdLock className='text-gray-700' />}
           </h1>
           <div className="flex space-x-4 text-sm text-gray-600 mb-4">
             <span>{team.members.length} members</span>
             <span>{events.length} events</span>
           </div>
 
-          {canManage || team.isPublic && (
+          {/*
+            Show join code to:
+              - team creator (isCreator)
+              - users with manage privileges (canManage)
+              - or when the team is public
+          */}
+          {(isCreator || canManage || team.isPublic) && (
             <div className="mb-6 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800 text-center">
               <span className="font-medium">Join code:</span>
               <span className="font-mono ml-2 bg-blue-100 px-2 py-1 rounded-lg">
@@ -162,7 +200,7 @@ export default function TeamDetailPage() {
             >
               Events
             </button>
-            {canManage && (
+            {isCreator && (
               <>
                 <button
                   className={`px-4 py-2 font-medium text-sm ${activeTab === 'members'
@@ -190,22 +228,32 @@ export default function TeamDetailPage() {
           </div>
 
           {/* Tab Content */}
-          {activeTab === 'members' && canManage && (
+          {activeTab === 'members' && isCreator && (
             <div className="space-y-3 mb-6">
-              {team.members.map((id) => (
+              {memberProfiles.map((m) => (
                 <div
-                  key={id}
+                  key={m.uid}
                   className="flex items-center justify-between space-x-4 border-b p-2 border-gray-300"
                 >
-                  <TeamMemberListItem userId={id} />
-                  {id === user.uid && (
-                    <span className='text-xs flex pt-1'>- Creator</span>
-                  )}
-                  {id !== user.uid && (
+                  <div className="flex items-center">
+                    {m.photoURL ? (
+                      <img src={m.photoURL} alt={m.displayName || m.uid} className="w-8 h-8 rounded-full mr-3" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-3">
+                        <span className="text-gray-600 font-medium">
+                          {(m.displayName || m.uid).charAt(0)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="font-medium">
+                      {m.displayName || m.uid}
+                    </div>
+                  </div>
+                  {m.uid !== user.uid && (
                     <Button
                       variant="danger"
                       className="text-xs px-3 py-1"
-                      onClick={() => handleKick(id)}
+                      onClick={() => handleKick(m.uid)}
                     >
                       Remove
                     </Button>
@@ -247,12 +295,13 @@ export default function TeamDetailPage() {
                             key={evt.id}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="shadow rounded-lg p-6"
+                            className="shadow rounded-lg p-6 bg-white"
                           >
                             <div className="flex justify-between items-center space-x-4">
                               <div>
                                 <h3 className="font-semibold text-gray-800">{evt.name}</h3>
-                                <p className="text-sm text-gray-500 mt-1">
+                                <p className="flex items-center text-sm text-gray-500 mt-1">
+                                  <MdEvent className='mr-1'/>
                                   {start.toLocaleDateString('nb-NO')} - {end.toLocaleDateString('nb-NO')}
                                 </p>
                               </div>

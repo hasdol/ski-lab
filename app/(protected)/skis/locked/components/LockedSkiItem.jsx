@@ -18,9 +18,9 @@ const LockedSkiItem = ({ ski, handleDelete }) => {
   };
 
   return (
-    <div className="flex items-center justify-between bg-gray-50 border border-dashed border-gray-400 py-4 px-4 rounded-md shadow-sm">
+    <div className="flex items-center justify-between bg-gray-100 border border-gray-200 py-2.5 px-5 rounded-xl shadow">
       <div className="flex items-center space-x-3">
-        <RiLockLine className="text-gray-700 text-3xl" />
+        <RiLockLine className="text-gray-700 text-xl" />
         <div>
           <div className="font-semibold text-gray-800">Serial Number</div>
           <div className="text-gray-600">{ski.serialNumber}</div>

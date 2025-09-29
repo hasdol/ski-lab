@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase/firebaseConfig';
-import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import Button from '@/components/ui/Button';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
@@ -17,16 +17,8 @@ export default function PendingJoinRequests({ teamId }) {
         const requestsRef = collection(db, 'teams', teamId, 'joinRequests');
         const q = query(requestsRef, where('status', '==', 'pending'));
         const snapshot = await getDocs(q);
-        let reqs = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
-
-        // Fetch additional user info for each join request
-        reqs = await Promise.all(
-          reqs.map(async (req) => {
-            const userDoc = await getDoc(doc(db, 'users', req.userId));
-            const userInfo = userDoc.exists() ? userDoc.data() : {};
-            return { ...req, userInfo };
-          })
-        );
+        // username is already stored by joinTeamByCode CF
+        const reqs = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
         setRequests(reqs);
       } catch (err) {
         console.error('Error fetching join requests:', err);
@@ -77,7 +69,7 @@ export default function PendingJoinRequests({ teamId }) {
       <ul>
         {requests.map((req) => (
           <li key={req.id} className="flex items-center space-x-6 p-2 border-b border-gray-300">
-            <p className="font-medium">{req.username || 'Unknown'}</p>
+            <p className="font-medium">{req.username || req.email || req.userId}</p>
             <div className="flex gap-2 text-xs">
               <Button variant="primary" loading={loading} onClick={() => handleAccept(req.id)}>
                 Accept

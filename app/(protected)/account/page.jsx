@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import ManageSubscription from '@/app/(protected)/account/components/AccountManageSubscription';
 import Spinner from '@/components/common/Spinner/Spinner';
 import UploadableImage from '@/components/UploadableImage/UploadableImage';
+import PageHeader from '@/components/layout/PageHeader'; // Add this import
 
 const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -115,17 +116,12 @@ const Account = () => {
 
     return (
         <div className="p-4 max-w-4xl w-full self-center">
-            <div className="flex items-center gap-3">
-                <div className="bg-blue-100 p-2 rounded-lg">
-                    <RiUser6Line className="text-blue-600 text-2xl" />
-                </div>
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Account</h1>
-                    <div className="text-xs text-gray-600 mt-1 flex flex-col gap-2">
-                        <span>Manage your account</span>
-                    </div>
-                </div>
-            </div>
+            <PageHeader
+                icon={<RiUser6Line className="text-blue-600 text-2xl" />}
+                title="Account"
+                subtitle="Manage your account"
+                actions={null}
+            />
             <div className="bg-white shadow rounded-lg p-6 mt-6">
                 <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
                     <ProfileImageSection

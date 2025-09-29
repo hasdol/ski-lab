@@ -34,6 +34,7 @@ import { VscDebugContinue } from "react-icons/vsc";
 import Search from '../../../components/Search/Search';
 import { PLAN_LIMITS } from '@/lib/constants/planLimits';
 import useIsStandalone from '@/hooks/useIsStandalone';
+import PageHeader from '@/components/layout/PageHeader'; // Add this import
 
 const Skis = () => {
   const isStandalone = useIsStandalone();
@@ -115,7 +116,8 @@ const Skis = () => {
     });
   };
 
-  const getSelectedList = () => Array.from(selectedSkisDataMap.values());
+  const getSelectedList = () =>
+    Array.from(selectedSkisDataMap.values()).filter(s => s && s.locked !== true);
 
   // --- detail toggle
   const [expandedSkiId, setExpandedSkiId] = useState(null);
@@ -127,7 +129,8 @@ const Skis = () => {
   const displayedSkis = useMemo(() => {
     const matched = skis;
     const matchedIds = new Set(matched.map(s => s.id));
-    const extras = Array.from(selectedSkisDataMap.values()).filter(s => !matchedIds.has(s.id));
+    const extras = Array.from(selectedSkisDataMap.values())
+      .filter(s => s && !matchedIds.has(s.id) && s.locked !== true); // exclude locked extras
     if (extras.length) {
       const compare = (a, b) => {
         const aVal = a[sortField] ?? '';
@@ -204,37 +207,31 @@ const Skis = () => {
     <div className={`p-4 max-w-4xl w-full self-center ${selectionCount > 0 ? 'pb-10 md:pb-20' : ''}`}>
 
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="bg-blue-100 p-2 rounded-lg">
-          <TiFlowParallel className="text-blue-600 text-2xl" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Skis</h1>
-          <div className="text-xs text-gray-600 mt-1 flex flex-col  gap-2">
+      <PageHeader
+        icon={<TiFlowParallel className="text-blue-600 text-2xl" />}
+        title="Skis"
+        subtitle={
+          <>
             <span>
               <span className="font-semibold text-gray-700">{skiCount}</span> / {skiLimit} skis
               <span className="ml-2">({plan.charAt(0).toUpperCase() + plan.slice(1)} plan)</span>
             </span>
-            {hasReachedLimit && plan !== 'company' && (
-              <Button variant="primary" onClick={() => router.push('/pricing')} >
-                Upgrade
-              </Button>
-            )}
-          </div>
-        </div>
-        {!hasReachedLimit &&
-          <Button
-            onClick={handleAddSki}
-            variant='primary'
-            disabled={hasReachedLimit}
-            className="ml-auto flex items-center gap-2"
-          >
-            <RiAddLine />
-            <span>Add Ski</span>
-          </Button>
+          </>
         }
-
-      </div>
+        actions={
+          !hasReachedLimit && (
+            <Button
+              onClick={handleAddSki}
+              variant='primary'
+              disabled={hasReachedLimit}
+              className="flex items-center gap-2"
+            >
+              <RiAddLine />
+              <span>Add Ski</span>
+            </Button>
+          )
+        }
+      />
 
       {/* Search */}
       <div className="mb-4">

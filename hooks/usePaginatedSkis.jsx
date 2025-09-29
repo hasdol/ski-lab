@@ -79,8 +79,9 @@ export default function usePaginatedSkis({
       }
       localCursor = snap.docs[snap.docs.length - 1] || localCursor;
       const docsPage = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      // Client-side filter: style and skiType
+      // Client-side filter: locked, style and skiType
       const visible = docsPage.filter(doc =>
+        (doc.locked !== true) && // exclude locked skis
         (style === 'all' || doc.style === style) &&
         (skiType === 'all' || doc.skiType === skiType)
       );

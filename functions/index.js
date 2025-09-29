@@ -717,3 +717,56 @@ exports.declineJoinRequest = onCall(async (request) => {
   });
   return { message: 'Join request declined.' };
 });
+
+exports.getTeamMemberProfiles = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Auth required.');
+  const { teamId } = request.data || {};
+  if (!teamId) throw new HttpsError('invalid-argument', 'Missing teamId.');
+
+  const teamRef = db.collection('teams').doc(teamId);
+  const teamSnap = await teamRef.get();
+  if (!teamSnap.exists) throw new HttpsError('not-found', 'Team not found.');
+
+  const team = teamSnap.data();
+  if (team.createdBy !== request.auth.uid) {
+    throw new HttpsError('permission-denied', 'Only the team creator can view member profiles.');
+  }
+
+  const memberIds = Array.isArray(team.members) ? team.members : [];
+  if (memberIds.length === 0) return [];
+
+  const userSnaps = await Promise.all(
+    memberIds.map((uid) => db.collection('users').doc(uid).get())
+  );
+
+  return userSnaps.map((doc) => ({
+    uid: doc.id,
+    displayName: doc.exists ? doc.data().displayName || null : null,
+    photoURL: doc.exists ? doc.data().photoURL || null : null,
+  }));
+});
+
+exports.leaveTeam = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  const { teamId } = request.data || {};
+  if (!teamId) throw new HttpsError('invalid-argument', 'Missing teamId.');
+
+  const uid = request.auth.uid;
+  const teamRef = db.collection('teams').doc(teamId);
+  const teamSnap = await teamRef.get();
+  if (!teamSnap.exists) throw new HttpsError('not-found', 'Team not found.');
+  const team = teamSnap.data();
+
+  if (team.createdBy === uid)
+    throw new HttpsError('failed-precondition', "The team creator can't leave their own team.");
+
+  const members = Array.isArray(team.members) ? team.members : [];
+  if (!members.includes(uid)) return { ok: true, message: 'Not a member.' };
+
+  await teamRef.update({
+    members: admin.firestore.FieldValue.arrayRemove(uid),
+    memberCount: admin.firestore.FieldValue.increment(-1),
+  });
+
+  return { ok: true };
+});

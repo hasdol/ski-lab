@@ -15,6 +15,7 @@ import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import PageHeader from '@/components/layout/PageHeader'; // Add this import
 
 export default function SettingsPage() {
   const { user, userData } = useAuth();
@@ -77,17 +78,12 @@ export default function SettingsPage() {
 
   return (
     <div className="p-4 max-w-4xl w-full self-center">
-      <div className="flex items-center gap-3">
-        <div className="bg-blue-100 p-2 rounded-lg">
-          <RiSettings3Line className="text-blue-600 text-2xl" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-          <div className="text-xs text-gray-600 mt-1 flex flex-col gap-2">
-            <span>Manage your account and preferences</span>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={<RiSettings3Line className="text-blue-600 text-2xl" />}
+        title="Settings"
+        subtitle="Manage your account and preferences"
+        actions={null}
+      />
 
       <div className="mt-6 grid grid-cols-1 gap-6">
         {/* Username Section - spans both columns */}

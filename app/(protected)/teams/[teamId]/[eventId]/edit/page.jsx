@@ -10,7 +10,10 @@ import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import { useAuth } from '@/context/AuthContext';
 import GeocodeInput from '@/components/GeocodeInput/GeocodeInput';
 import Spinner from '@/components/common/Spinner/Spinner';
+import PageHeader from '@/components/layout/PageHeader'; // Add this import
 import { RiCalendarEventLine } from 'react-icons/ri';
+import { MdArrowBack } from "react-icons/md";
+
 
 export default function EditEventPage() {
   const { teamId, eventId } = useParams();
@@ -117,22 +120,16 @@ export default function EditEventPage() {
 
   return (
     <div className="max-w-4xl md:min-w-xl w-full self-center p-4">
-      <div className='flex justify-between items-center mb-6'>
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-100 p-2 rounded-lg">
-            <RiCalendarEventLine className="text-blue-600 text-2xl" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Edit Event</h1>
-            <p className="text-gray-600">Edit the selected event</p>
-          </div>
-        </div>
-
-        <Button onClick={() => router.push(`/teams/${teamId}/${eventId}`)} variant="secondary">
-          Back
-        </Button>
-      </div>
-
+      <PageHeader
+        icon={<RiCalendarEventLine className="text-blue-600 text-2xl" />}
+        title="Edit Event"
+        subtitle="Edit the selected event"
+        actions={
+          <Button onClick={() => router.push(`/teams/${teamId}/${eventId}`)} className='flex items-center' variant="secondary"><MdArrowBack className='mr-1'/>
+            Back
+          </Button>
+        }
+      />
 
       {loading ?
         <div className="flex justify-center">

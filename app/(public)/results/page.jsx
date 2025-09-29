@@ -21,6 +21,7 @@ import { exportResultsToCSV } from '@/helpers/helpers';
 
 import ResultCard from './components/ResultCard';
 import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
+import PageHeader from '@/components/layout/PageHeader';
 
 const Results = () => {
   const [searchTermRaw, setSearchTermRaw] = useState('');
@@ -101,20 +102,27 @@ const Results = () => {
     tempRange[1] !== defaultTempRange[1] ||
     styleFilter !== 'all';
 
+  const handleAddOldResult = () => {
+    router.push('/testing/summary?manual=1');
+  };
+  const handleNewTest = () => {
+    router.push('/skis');
+  };
+
   return (
     <div className="p-4 max-w-4xl w-full mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="bg-blue-100 p-2 rounded-lg">
-          <RiBarChart2Line className="text-blue-600 text-2xl" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Test Results</h1>
-          <div className="text-xs text-gray-600 mt-1 flex flex-col gap-2">
-            <span>View and manage your test results</span>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={<RiBarChart2Line className="text-blue-600 text-2xl" />}
+        title="Test Results"
+        subtitle="View and manage your test results"
+        actions={
+          <>
+            <Button variant="primary" onClick={handleNewTest}>New Test</Button>
+            <Button variant="secondary" onClick={handleAddOldResult}>Add Result</Button>
+            {/* Add more actions as needed */}
+          </>
+        }
+      />
 
       {/* Search */}
       <div className="mb-4">

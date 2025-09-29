@@ -199,19 +199,19 @@ export default function Navigation() {
           {isSubNavOpen && (
             <>
               {/* Desktop overlay for subnav (no blur) */}
-              <div className="hidden md:block fixed inset-0 z-40 bg-black/10" onClick={() => setIsSubNavOpen(false)} />
-              <div className="absolute right-0 top-14 w-80 mt-2 bg-white/80 backdrop-blur-lg border border-gray-100 rounded-xl shadow overflow-hidden z-50 animate-fade-down animate-duration-300">
+              <div className="hidden md:block fixed inset-0 z-40 bg-black/20" onClick={() => setIsSubNavOpen(false)} />
+              <div className="absolute right-0 top-14 w-80 mt-2 bg-gray-50 backdrop-blur-lg border border-gray-100 rounded-xl shadow overflow-hidden z-50 animate-fade-down animate-duration-300">
                 <div className="px-7 py-6">
                   <div className="mb-3 flex items-center gap-2">
                     <span className="font-semibold text-xl text-gray-900 tracking-tight">Menu</span>
                   </div>
                   <div className="border-b border-gray-200 mb-4" />
-                  <ul className="space-y-2">
+                  <ul className="space-y-3">
                     {subNavItems.map(item =>
                       item.path ? (
                         <li key={item.key}>
                           <Link href={item.path} onClick={() => setIsSubNavOpen(false)}
-                            className="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-transparent hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200">
+                            className="bg-white flex items-center justify-between w-full px-4 py-3 rounded-xl  hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200">
                             <span>{item.labelKey}</span>
                             {item.icon}
                           </Link>
@@ -219,7 +219,7 @@ export default function Navigation() {
                       ) : (
                         <li key={item.key}>
                           <button onClick={item.onClick}
-                            className="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-transparent hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200">
+                            className="bg-white flex items-center justify-between w-full px-4 py-3 rounded-xl  hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200">
                             <span>{item.labelKey}</span>
                             {item.icon}
                           </button>

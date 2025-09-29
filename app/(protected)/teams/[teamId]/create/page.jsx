@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import GeocodeInput from '@/components/GeocodeInput/GeocodeInput';
+import PageHeader from '@/components/layout/PageHeader';
 import { RiCalendarEventLine } from "react-icons/ri";
 
 
@@ -76,15 +77,12 @@ export default function CreateEventPage() {
 
   return (
     <div className="max-w-4xl md:min-w-xl w-full self-center p-4">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="bg-blue-100 p-2 rounded-lg">
-          <RiCalendarEventLine className="text-blue-600 text-2xl" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Create Event</h1>
-          <p className="text-gray-600">Create a new event for your team</p>
-        </div>
-      </div>
+      <PageHeader
+        icon={<RiCalendarEventLine className="text-blue-600 text-2xl" />}
+        title="Create Event"
+        subtitle="Create a new event for your team"
+        actions={null}
+      />
 
       <div className="bg-white shadow rounded-lg p-6 space-y-6">
 

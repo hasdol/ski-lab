@@ -11,6 +11,9 @@ import Spinner from '@/components/common/Spinner/Spinner';
 import { useAuth } from '@/context/AuthContext';
 import { RiEarthLine, RiLockLine, RiTeamLine } from 'react-icons/ri';
 import Toggle from '@/components/ui/Toggle';
+import PageHeader from '@/components/layout/PageHeader'; // Add this import
+import { MdArrowBack } from "react-icons/md";
+
 
 export default function EditTeamPage() {
   const { teamId } = useParams();
@@ -110,18 +113,14 @@ export default function EditTeamPage() {
 
   return (
     <div className="max-w-4xl md:min-w-xl w-full self-center p-4">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-100 p-2 rounded-lg">
-            <RiTeamLine className="text-blue-600 text-2xl" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Edit Team</h1>
-            <p className="text-gray-600">Edit the selected team</p>
-          </div>
-        </div>
-        <Button onClick={handleBack} variant="secondary">Back</Button>
-      </div>
+      <PageHeader
+        icon={<RiTeamLine className="text-blue-600 text-2xl" />}
+        title="Edit Team"
+        subtitle="Edit the selected team"
+        actions={
+          <Button onClick={handleBack} className='flex items-center' variant="secondary"><MdArrowBack className='mr-1'/> Back</Button>
+        }
+      />
 
       <div className="bg-white shadow rounded-lg p-6 space-y-6">
         <Input

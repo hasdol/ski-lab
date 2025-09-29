@@ -8,6 +8,9 @@ import Button from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
 import { TiFlowParallel } from 'react-icons/ti';
 import { RiLock2Line } from 'react-icons/ri';
+import PageHeader from '@/components/layout/PageHeader';
+import { MdArrowBack } from "react-icons/md";
+
 
 const ManageLockedSkis = () => {
   const { lockedSkis, loading, error, deleteLockedSki } = useLockedSkis();
@@ -27,48 +30,46 @@ const ManageLockedSkis = () => {
   if (error) return <div className="m-2 text-red-500">Error: {error.message}</div>;
 
   return (
-    <>
-      <div className="p-4 max-w-4xl w-full self-center">
-        <div className='flex justify-between items-center mb-4'>
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="relative bg-blue-100 p-2 rounded-lg">
-              <TiFlowParallel className="text-blue-600 text-2xl" />
-              <RiLock2Line className="text-black absolute -right-1" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Locked Skis</h1>
-              <p className="text-gray-600">Upgrade your plan or remove your locked skis</p>
-            </div>
+    <div className="p-4 max-w-4xl w-full self-center">
+      <PageHeader
+        iconBg="bg-gray-200"
+        icon={
+          <span className="relative">
+            <TiFlowParallel className="text-gray-700 text-2xl" />
+            <RiLock2Line className="text-gray-800 absolute -bottom-5 left-1/2 -translate-x-1/2 bg-gray-100 rounded-full" />
+          </span>
+        }
+        title="Locked Skis"
+        subtitle="Upgrade your plan or remove your locked skis"
+        actions={
+          <div className="flex gap-2">
+            <Button variant='secondary' className='flex items-center' onClick={() => router.back()}>
+              <MdArrowBack className='mr-1'/>
+              Back
+            </Button>
+            <Button variant="primary" onClick={() => router.push('/pricing')}>
+              Upgrade Plan
+            </Button>
           </div>
-          <Button variant='secondary' onClick={() => router.back()}>Back</Button>
-        </div>
+        }
+      />
 
-        {lockedSkis.length === 0 ? (
-          <div className="text-center">
-            No locked skis
-          </div>
-        ) : (
-          <>
-            <div className="space-y-2">
-              {lockedSkis.map((ski) => (
-                <LockedSkiItem
-                  key={ski.id}
-                  ski={ski}
-                  handleDelete={handleDelete}
-                />
-              ))}
-            </div>
-            <div className="mt-4 text-center space-y-2">
-              <h3>Unlock your locked skis</h3>
-              <Button variant="primary" onClick={() => router.push('/pricing')}>
-                Upgrade Plan
-              </Button>
-            </div>
-          </>
-        )}
-      </div>
-    </>
+      {lockedSkis.length === 0 ? (
+        <div className="text-center">
+          No locked skis
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {lockedSkis.map((ski) => (
+            <LockedSkiItem
+              key={ski.id}
+              ski={ski}
+              handleDelete={handleDelete}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

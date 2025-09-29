@@ -9,6 +9,7 @@ import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import Input from '@/components/ui/Input';
 import { RiTeamLine, RiEarthLine, RiLockLine } from 'react-icons/ri';
 import Toggle from '@/components/ui/Toggle';
+import PageHeader from '@/components/layout/PageHeader';
 
 
 export default function CreateTeamPage() {
@@ -52,15 +53,12 @@ export default function CreateTeamPage() {
 
   return (
     <div className="max-w-4xl w-full self-center p-4">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="bg-blue-100 p-2 rounded-lg">
-          <RiTeamLine className="text-blue-600 text-2xl" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Create Team</h1>
-          <p className="text-gray-600">Set up a new team for collaboration</p>
-        </div>
-      </div>
+      <PageHeader
+        icon={<RiTeamLine className="text-blue-600 text-2xl" />}
+        title="Create Team"
+        subtitle="Set up a new team for collaboration"
+        actions={null}
+      />
 
       <div className="bg-white shadow rounded-lg p-6 space-y-6">
         <Input

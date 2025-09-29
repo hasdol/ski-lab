@@ -5,10 +5,13 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import TestingHelpModal from '@/app/(protected)/testing/components/TestingHelpModal';
 import { TournamentContext } from '@/context/TournamentContext';
 import { RiDeleteBinLine, RiQuestionLine, RiDragMove2Line } from 'react-icons/ri';
+import { MdDelete } from "react-icons/md";
+
 import Button from '@/components/ui/Button';
 import { SiTestrail } from "react-icons/si";
 import Input from '@/components/ui/Input';
 import useIsStandalone from '@/hooks/useIsStandalone';
+import PageHeader from '@/components/layout/PageHeader';
 
 const Testing = () => {
   const isStandalone = useIsStandalone();
@@ -270,21 +273,31 @@ const Testing = () => {
   return (
     <div className={`min-h-screen p-4`}>
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-3">
-            <div className="bg-blue-100 p-2 rounded-lg"><SiTestrail className="text-blue-600 text-2xl" /></div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Testing</h1>
-              <p className="text-gray-600">Round {roundNumber} of {totalRounds}</p>
+        <PageHeader
+          icon={<SiTestrail className="text-blue-600 text-2xl" />}
+          title="Testing"
+          subtitle={`Round ${roundNumber} of ${totalRounds}`}
+          actions={
+            <div className="flex gap-2">
+              <Button 
+              variant='secondary' 
+              onClick={toggleHelpModal} 
+              title="Help"
+              className='flex items-center'>
+                
+                <RiQuestionLine className='mr-1'/> Show Info
+              </Button>
+              <Button
+                variant='danger'
+                onClick={() => window.confirm('Reset tournament?') && (resetTournament(), router.push('/skis'))}
+                title="Reset"
+                className='flex items-center'
+              >
+                <MdDelete className='mr-1'/> Reset Test
+              </Button>
             </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant='secondary' onClick={toggleHelpModal} title="Help" ><RiQuestionLine  /></Button>
-            <Button variant='danger' onClick={() => window.confirm('Reset tournament?') && (resetTournament(), router.push('/skis'))}
-              title="Reset"><RiDeleteBinLine /></Button>
-          </div>
-        </div>
+          }
+        />
 
         {/* Brackets */}
         <DragDropContext
@@ -431,18 +444,18 @@ const Testing = () => {
             Next Round →
           </Button>
         </div>
-      </div>
 
-      <TestingHelpModal
-        isOpen={isHelpOpen}
-        onClose={toggleHelpModal}
-        help={[
-          'Drag skis between duels to swap positions',
-          'Drag the grip icon to reorder entire duels',
-          'Click a ski to select winner; enter diff or leave at 0',
-          'Finish all duels before submitting the round'
-        ]}
-      />
+        <TestingHelpModal
+          isOpen={isHelpOpen}
+          onClose={toggleHelpModal}
+          help={[
+            'Drag skis between duels to swap positions',
+            'Drag the grip icon to reorder entire duels',
+            'Click a ski to select winner; enter diff or leave at 0',
+            'Finish all duels before submitting the round'
+          ]}
+        />
+      </div>
     </div>
   );
 };

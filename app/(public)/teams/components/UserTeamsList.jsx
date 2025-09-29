@@ -4,7 +4,9 @@ import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
-import { RiEarthLine, RiLockLine, RiVipCrownLine } from 'react-icons/ri';
+import { RiVipCrownLine } from 'react-icons/ri';
+import { MdLock, MdPublic } from "react-icons/md";
+
 
 const TeamCard = ({ team, isCreator, onView }) => {
   return (
@@ -12,23 +14,23 @@ const TeamCard = ({ team, isCreator, onView }) => {
       key={team.id}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex items-center justify-between bg-white shadow rounded-lg p-4"
+      className=" relative flex items-center justify-between bg-white shadow rounded-lg p-4"
     >
-      <div className="relative flex items-center space-x-4">
+      <div className=" flex items-center space-x-4">
         <div className="flex items-center justify-center w-12 h-12 bg-gray-50 rounded-full">
           {team.isPublic ? (
-            <RiEarthLine className="text-blue-600 text-xl" />
+            <MdPublic className="text-blue-600 text-xl" />
           ) : (
-            <RiLockLine className="text-black text-xl" />
+            <MdLock className="text-gray-700 text-xl" />
+          )}
+          {isCreator && (
+            <RiVipCrownLine className="text-gray-800 absolute left-8  -top-1"  title="Team Creator" />
           )}
         </div>
 
         <div>
           <h3 className="font-semibold text-gray-900 flex items-center gap-1">
             {team.name}
-            {isCreator && (
-              <RiVipCrownLine className="text-black" title="Team Creator" />
-            )}
           </h3>
           <p className="text-xs text-gray-500">
             {team.members.length} member{team.members.length !== 1 && 's'}

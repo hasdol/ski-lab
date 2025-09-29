@@ -8,6 +8,9 @@ import Button from '@/components/ui/Button';
 import { RiCheckFill, RiShoppingCartLine, RiCloseLine } from 'react-icons/ri';
 import { useRouter } from 'next/navigation';
 import { PLAN_LIMITS } from '@/lib/constants/planLimits'; // NEW
+import PageHeader from '@/components/layout/PageHeader'; // <-- Add this import
+import { MdOutlineTimer } from "react-icons/md";
+
 
 const PricingPage = () => {
   const [plans, setPlans] = useState([]);
@@ -124,18 +127,12 @@ const PricingPage = () => {
 
   return (
     <div className="p-4 max-w-4xl w-full self-center">
-      <div className="flex items-center gap-3 mb-10">
-        <div className="bg-blue-100 p-2 rounded-lg">
-          <RiShoppingCartLine className="text-blue-600 text-2xl" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Pricing</h1>
-          <div className="text-xs text-gray-600 mt-1 flex flex-col gap-2">
-            <span>Choose the plan that fits your needs</span>
-            
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={<RiShoppingCartLine className="text-blue-600 text-2xl" />}
+        title="Pricing"
+        subtitle={<span>Choose the plan that fits your needs</span>}
+        actions={null}
+      />
 
       {plans.length === 0 ? (
         <p className="text-center text-gray-600">No plans available at the moment.</p>
@@ -155,7 +152,7 @@ const PricingPage = () => {
             return (
               <div
                 key={plan.productId}
-                className="rounded-lg relative shadow overflow-hidden flex flex-col"
+                className="rounded-lg relative shadow overflow-hidden flex flex-col border border-gray-200"
               >
                 {isCurrent && (
                   <span className="absolute top-3 right-3 bg-blue-50 text-blue-600 text-sm px-2 py-1 rounded-lg">
@@ -168,7 +165,7 @@ const PricingPage = () => {
                     {plan.name}
                   </h2>
                   {plan.plan !== 'free' && !hasHadSubscription && (
-                    <p className="text-sm bg-green-100 w-fit px-2 py-1 rounded text-green-700 mt-1">30-day free trial</p>
+                    <p className="flex items-center text-sm bg-blue-100 w-fit px-2 py-1 rounded text-blue-600 mt-1"><MdOutlineTimer className='mr-1'/> 30-day free trial</p>
                   )}
                 </div>
 

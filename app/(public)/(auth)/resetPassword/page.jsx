@@ -6,6 +6,7 @@ import { sendPasswordReset } from '@/lib/firebase/authFunctions';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { RiResetLeftFill } from 'react-icons/ri';
+import PageHeader from '@/components/layout/PageHeader';
 
 const PasswordReset = () => {
   const router = useRouter();
@@ -35,41 +36,38 @@ const PasswordReset = () => {
   };
 
   return (
-    <main className="max-w-xl md:w-full self-center mt-10 mx-3 bg-white shadow rounded-xl p-8">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="bg-blue-100 p-2 rounded-lg">
-          <RiResetLeftFill className="text-blue-600 text-2xl" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Reset Password</h1>
-          <p className="text-gray-600">Reset your password</p>
-        </div>
-      </div>
-      
-      <form onSubmit={handleResetPassword} className="space-y-4">
-        <Input
-          id="resetEmail"
-          type="email"
-          value={resetEmail}
-          onChange={(e) => setResetEmail(e.target.value)}
-          placeholder="Email"
-          autoComplete="email"
-          className="w-full"
-          required
-        />
-        {resetError && <p className="bg-red-100 text-red-700 p-3 rounded-lg">{resetError}</p>}
-        <div className="flex gap-2">
-          <Button type="submit" loading={isResetting} variant="primary">
-            Reset Password
-          </Button>
-          <Button type="button" variant="secondary" onClick={() => router.push('/login')}>
-            Back
-          </Button>
-        </div>
-        
-      </form>
-    </main>
+    <div className="p-4 max-w-4xl w-full self-center">
+      <PageHeader
+        icon={<RiResetLeftFill className="text-blue-600 text-2xl" />}
+        title="Reset Password"
+        subtitle="Reset your password"
+        actions={null}
+      />
+
+      <main className="max-w-xl md:w-full self-center mt-5 mx-3 bg-white shadow rounded-xl p-8">
+        <form onSubmit={handleResetPassword} className="space-y-4">
+          <Input
+            id="resetEmail"
+            type="email"
+            value={resetEmail}
+            onChange={(e) => setResetEmail(e.target.value)}
+            placeholder="Email"
+            autoComplete="email"
+            className="w-full"
+            required
+          />
+          {resetError && <p className="bg-red-100 text-red-700 p-3 rounded-lg">{resetError}</p>}
+          <div className="flex gap-2">
+            <Button type="submit" loading={isResetting} variant="primary">
+              Reset Password
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => router.push('/login')}>
+              Back
+            </Button>
+          </div>
+        </form>
+      </main>
+    </div>
   );
 };
 

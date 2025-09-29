@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useSkis } from '@/hooks/useSkis'; // new import
 import { useAuth } from '@/context/AuthContext';
 import { mapRankingsToTournamentData } from '@/helpers/helpers';
 import SummaryResultList from './components/SummaryResultList';
@@ -14,16 +15,23 @@ import Input from '@/components/ui/Input';
 import ShareWithEventSelector from '@/components/ShareWithEvents/ShareWithEvents';
 import { WEATHER_ENDPOINT } from '@/lib/firebase/weatherEndpoint';
 import { SiTestrail } from 'react-icons/si';
+import { MdDelete, MdArrowBack } from "react-icons/md";
+
 
 const TestSummaryPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams(); // replaced window-based parsing
+  const isManualMode = searchParams?.get('manual') === '1';
+
   const { user } = useAuth();
-  const { 
-    selectedSkis, 
-    calculateRankings, 
+  const {
+    selectedSkis,
+    calculateRankings,
     resetTournament,
     restoreRoundFromHistory
   } = useContext(TournamentContext);
+
+  const { skis: inventorySkis } = useSkis(); // inventory hook
 
   const [loading, setLoading] = useState(false);
   const [locationError, setLocationErr] = useState(false);
@@ -32,12 +40,25 @@ const TestSummaryPage = () => {
 
   /* ───────────── redirect if no skis ───────────── */
   useEffect(() => {
-    if (!hasSubmitted && (!selectedSkis || selectedSkis.length === 0)) {
+    if (!isManualMode && !hasSubmitted && (!selectedSkis || selectedSkis.length === 0)) {
       router.push('/skis');
     }
-  }, [selectedSkis, router, hasSubmitted]);
+  }, [selectedSkis, router, hasSubmitted, isManualMode]);
 
-  const rankings = calculateRankings();
+  const [rankings, setRankings] = useState(isManualMode ? [] : calculateRankings());
+
+  useEffect(() => {
+    setRankings(calculateRankings());
+  }, [selectedSkis, calculateRankings]);
+
+  // Change handleScoreChange to use skiId
+  const handleScoreChange = (skiId, newScore) => {
+    setRankings(prev =>
+      prev.map((item) =>
+        item.skiId === skiId ? { ...item, cumulativeScore: newScore } : item
+      )
+    );
+  };
 
   /* ───────────── form state ───────────── */
   const determineInitialStyle = () => {
@@ -124,40 +145,31 @@ const TestSummaryPage = () => {
   /* ───────────── save results ───────────── */
   const handleSaveResults = async (e) => {
     e.preventDefault();
-    if (!user) return;
-
-    try {
-      setLoading(true);
-
-      const tournamentData = {
-        ...mapRankingsToTournamentData(rankings, selectedSkis),
-        skiIds: selectedSkis.map((s) => s.id),
-      };
-
-      const extendedData =
-        selectedEvents.length > 0
-          ? { ...additionalData, sharedIn: selectedEvents }
-          : additionalData;
-
-      const testId = await addTestResult(user.uid, tournamentData, extendedData);
-
-      if (selectedEvents.length > 0) {
-        const sharedData = { ...tournamentData, ...additionalData };
-        await Promise.all(
-          selectedEvents.map(({ teamId, eventId }) =>
-            shareTestResult(teamId, eventId, user.uid, testId, sharedData)
-          )
-        );
+    const resultRankings = isManualMode ? rankings : rankings;
+    if (isManualMode) {
+      if (!resultRankings.length) {
+        alert('Please add at least one ski from your inventory.');
+        return;
       }
-
-      resetTournament();
-    } catch (error) {
-      console.error('Error saving test:', error);
-    } finally {
-      setLoading(false);
-      setHasSubmitted(true);
-      router.push('/results');
+      const invalid = resultRankings.some(
+        (r) => !r.skiId || r.cumulativeScore === null || r.cumulativeScore === undefined
+      );
+      if (invalid) {
+        alert('Please select a ski from your inventory and enter a score for each entry.');
+        return;
+      }
     }
+
+    const payloadRankings = resultRankings.map((r) => ({
+      skiId: r.skiId,
+      score: Number(r.cumulativeScore),
+      serialNumber: r.serialNumber,
+      grind: r.grind,
+    }));
+
+    // Save using addTestResult (existing helper)
+    await addTestResult(user.uid, { rankings: payloadRankings }, additionalData);
+    router.push('/results');
   };
 
   /* ───────────── misc helpers ───────────── */
@@ -191,46 +203,166 @@ const TestSummaryPage = () => {
     { label: 'Sugary', value: 'sugary' },
   ];
 
+  // Handler for manual entry
+  const handleManualAddRanking = () => {
+    // Default to first available ski if any
+    const first = inventorySkis && inventorySkis.length > 0 ? inventorySkis[0] : null;
+    setRankings((prev) => [
+      ...prev,
+      {
+        skiId: first ? first.id : '',
+        serialNumber: first ? first.serialNumber : '',
+        grind: first ? first.grind : '',
+        cumulativeScore: 0, // default 0
+      },
+    ]);
+  };
+
+  const handleManualRankingChange = (idx, field, value) => {
+    setRankings((prev) =>
+      prev.map((r, i) => {
+        if (i !== idx) return r;
+        // If user selects a ski id, copy serialNumber/grind from inventory
+        if (field === 'skiId') {
+          const ski = inventorySkis.find((s) => s.id === value);
+          return {
+            ...r,
+            skiId: value,
+            serialNumber: ski ? ski.serialNumber : '',
+            grind: ski ? ski.grind : '',
+          };
+        }
+        if (field === 'cumulativeScore') {
+          // ensure numeric value, default 0
+          const num = value === '' || value == null ? 0 : Number(value);
+          return { ...r, cumulativeScore: Number.isNaN(num) ? 0 : num };
+        }
+        return { ...r, [field]: value };
+      })
+    );
+  };
+
   /* ───────────── render ───────────── */
   return (
-    <div className="p-4 max-w-4xl md:min-w-xl w-full self-center">
-      <div className="flex justify-between items-center mb-6">
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-100 p-2 rounded-lg">
-            <SiTestrail className="text-blue-600 text-2xl" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Summary</h1>
-            <p className="text-gray-600">Review your test result</p>
-          </div>
+    <div className="p-4 max-w-4xl w-full mx-auto">
+      {/* Header */}
+      <div className="flex flex-col items-center md:flex-row gap-4 mb-6">
+        <div className="bg-blue-100 p-3 rounded-xl">
+          <SiTestrail className="text-blue-600 text-2xl" />
         </div>
         <div>
+          <h1 className="text-2xl font-bold text-gray-900">Test Summary</h1>
+          <p className="text-xs text-gray-600 mt-1 flex flex-col gap-2">Review and finalize your ski test</p>
+        </div>
+        <div className="md:ml-auto flex gap-2">
           <Button
             type="button"
             variant="secondary"
+            className='flex items-center'
             onClick={handleBackToTesting}
+            size="sm"
           >
-            Back to Testing
+            <MdArrowBack className="mr-1"/> Back
+          </Button>
+          <Button
+            type="button"
+            variant="danger"
+            className='flex items-center'
+            onClick={handleResetTest}
+            size="sm"
+          >
+            <MdDelete className="mr-1" /> Delete
           </Button>
         </div>
       </div>
-      
-      {/* results list */}
-      <div className="bg-white shadow rounded-lg p-6 space-y-6">
-        <div>
-          {loading ? (
-            <div className="flex justify-center items-center h-40">
-              <Spinner />
-            </div>
-          ) : (
-            <SummaryResultList rankings={rankings} />
-          )}
-        </div>
 
-        {/* form */}
+
+
+      {/* Results Section */}
+      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <h2 className="text-lg font-semibold text-gray-800 mb-3">
+          {isManualMode ? "Manual Ski Entries" : "Test Results"}
+        </h2>
+        {loading ? (
+          <div className="flex justify-center items-center h-32">
+            <Spinner />
+          </div>
+        ) : isManualMode ? (
+          <div className="space-y-3">
+            {rankings.map((r, idx) => (
+              <div
+                key={idx}
+                className="flex flex-col md:flex-row items-end justify gap-3 rounded-lg p-2 bg-gray-50"
+              >
+                <div className="w-full md:w-1/2">
+                  <Input
+                    type="select"
+                    name={`ski-${idx}`}
+                    value={r.skiId}
+                    onChange={(e) => handleManualRankingChange(idx, 'skiId', e.target.value)}
+                    options={inventorySkis.map((s) => ({
+                      label: `${s.serialNumber} ${s.brand ? '• ' + s.brand : ''}`,
+                      value: s.id,
+                    }))}
+                    placeholder="Select ski"
+                    className='bg-white'
+                    required
+                  />
+                </div>
+                <div className="w-full md:w-1/4">
+                  <Input
+                    type="number"
+                    name={`score-${idx}`}
+                    value={r.cumulativeScore}
+                    onChange={(e) => handleManualRankingChange(idx, 'cumulativeScore', e.target.value)}
+                    placeholder="Score (cm)"
+                    required
+                    min={0}
+                  />
+                </div>
+                <div className="w-full md:w-auto flex-shrink-0 flex justify-end">
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    className='ml-auto flex items-center text-sm'
+                    onClick={() => setRankings((prev) => prev.filter((_, i) => i !== idx))}
+                  >
+                    <MdDelete className="mr-1" /> Remove
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <div className="flex items-center gap-2 mt-2">
+              <Button
+                variant="secondary"
+                onClick={handleManualAddRanking}
+                disabled={!inventorySkis || inventorySkis.length === 0}
+                size="sm"
+              >
+                + Add Ski
+              </Button>
+              {(!inventorySkis || inventorySkis.length === 0) && (
+                <span className="text-xs text-gray-400">No skis in inventory</span>
+              )}
+            </div>
+          </div>
+        ) : (
+          <SummaryResultList
+            rankings={rankings}
+            onScoreChange={(idxOrId, newScore) => {
+              // If idxOrId is a skiId, use directly; if index, get skiId from rankings
+              const skiId = typeof idxOrId === 'string' ? idxOrId : rankings[idxOrId]?.skiId;
+              if (skiId) handleScoreChange(skiId, newScore);
+            }}
+          />
+        )}
+      </div>
+
+      {/* --- FORM STARTS HERE --- */}
+      <div className="bg-white rounded-lg shadow-sm p-4">
+        <h2 className="text-lg font-semibold text-gray-800 mb-3">Test Details</h2>
         <form
-          className="rounded-lg flex flex-col text-black space-y-4"
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
           onSubmit={handleSaveResults}
         >
           <Input
@@ -241,7 +373,6 @@ const TestSummaryPage = () => {
             value={additionalData.location}
             required
           />
-
           <Input
             type="select"
             name="style"
@@ -251,7 +382,6 @@ const TestSummaryPage = () => {
             options={styleOptions}
             required
           />
-
           <Input
             type="number"
             name="temperature"
@@ -260,7 +390,6 @@ const TestSummaryPage = () => {
             onChange={handleInputChange}
             required
           />
-
           <Input
             type="radio"
             name="source"
@@ -270,7 +399,6 @@ const TestSummaryPage = () => {
             options={snowSourceOptions}
             required
           />
-
           <Input
             type="select"
             name="grainType"
@@ -280,7 +408,6 @@ const TestSummaryPage = () => {
             options={snowGrainOptions}
             required
           />
-
           <Input
             type="number"
             name="snowTemperature"
@@ -288,7 +415,6 @@ const TestSummaryPage = () => {
             value={additionalData.snowTemperature}
             onChange={handleInputChange}
           />
-
           <Input
             type="number"
             name="humidity"
@@ -296,7 +422,6 @@ const TestSummaryPage = () => {
             value={additionalData.humidity}
             onChange={handleInputChange}
           />
-
           <Input
             type="text"
             name="comment"
@@ -304,37 +429,26 @@ const TestSummaryPage = () => {
             value={additionalData.comment}
             onChange={handleInputChange}
           />
-
-          <ShareWithEventSelector
-            userId={user.uid}
-            isVisible={true}
-            onSelect={setSelectedEvents}
-            includePast={false}
-          />
-
-          {/* buttons */}
-          <div className="flex sm:space-x-4 space-y-4 sm:space-y-0 my-4 justify-between">
-            <div className="flex space-x-2">
-              <Button type="submit" loading={loading} variant="primary">
-                Save
-              </Button>
-
-              <Button
-                type="button"
-                variant="danger"
-                className="justify-self-end"
-                onClick={handleResetTest}
-              >
-                Delete
-              </Button>
-            </div>
+          <div className="md:col-span-2">
+            <ShareWithEventSelector
+              userId={user.uid}
+              isVisible={true}
+              onSelect={setSelectedEvents}
+              includePast={false}
+            />
+          </div>
+          <div className="md:col-span-2 flex mt-2">
+            <Button type="submit" loading={loading} variant="primary">
+              Save
+            </Button>
           </div>
         </form>
+        {locationError && (
+          <div className="text-red-500 mt-2 text-center text-sm font-medium">
+            Enable location services
+          </div>
+        )}
       </div>
-
-      {locationError && (
-        <div className="text-red-500">Enable location services</div>
-      )}
     </div>
   );
 };

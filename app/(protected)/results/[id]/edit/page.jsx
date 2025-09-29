@@ -16,6 +16,7 @@ import {
 } from '@/lib/firebase/teamFunctions'
 import Spinner from '@/components/common/Spinner/Spinner'
 import { updateTestResultBothPlaces } from '@/lib/firebase/firestoreFunctions'
+import PageHeader from '@/components/layout/PageHeader'
 import { RiBarChart2Line } from 'react-icons/ri'
 
 
@@ -138,20 +139,21 @@ const EditResultPage = () => {
   if (!resultData) return <div>No result data found</div>
 
   return (
-    <>
-      <div className="p-4 max-w-4xl w-full self-center">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="bg-blue-100 p-2 rounded-lg">
-            <RiBarChart2Line className="text-blue-600 text-2xl" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Edit Test Result</h1>
-            <p className="text-gray-600">Review and manage test result</p>
-          </div>
-        </div>
-        {loading && <div className='flex justify-center'><Spinner /></div>}
+    <div className="p-4 max-w-4xl w-full self-center">
+      <PageHeader
+        icon={<RiBarChart2Line className="text-blue-600 text-2xl" />}
+        title="Edit Test Result"
+        subtitle="Review and manage test result"
+        actions={null}
+      />
 
+      {loading && <div className='flex justify-center'><Spinner /></div>}
+
+      {error ? (
+        <div>Error: {error.message}</div>
+      ) : !resultData ? (
+        <div>No result data found</div>
+      ) : (
         <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6 space-y-6">
           {/* Scores */}
           {resultData.rankings.map((r, i) => (
@@ -284,8 +286,8 @@ const EditResultPage = () => {
             </Button>
           </div>
         </form>
-      </div>
-    </>
+      )}
+    </div>
   )
 }
 
