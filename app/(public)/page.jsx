@@ -73,7 +73,7 @@ const HomePage = () => {
   ];
 
   return (
-    <div className="relative flex flex-col overflow-hidden">
+    <div className="relative flex flex-col min-h-screen overflow-hidden">
       {/* Background layers */}
       <div
         className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat opacity-30 blur"
@@ -81,36 +81,33 @@ const HomePage = () => {
       />
       <div className="fixed inset-0 -z-10 bg-gradient-to-b from-white/70 via-white/60 to-white/80" />
 
-      <div className="container relative flex flex-col items-center max-w-5xl px-10 pt-16 mx-auto md:pt-28">
+      <div className="container relative flex flex-col items-center max-w-5xl px-4 md:px-10 pt-16 md:pt-28 mx-auto">
         <motion.div
           {...SIMPLE_ANIM}
           className="flex flex-col items-center text-center"
         >
-          {/* Replace SkiLogoAnimation with your PNG icon */}
           <img
             src="/ski-lab-icon.png"
             alt="Ski Lab Icon"
             width={70}
             height={70}
+            className="mb-8"
           />
-          <motion.div
-            {...SIMPLE_ANIM}
-            className="mt-8"
-          >
-            <div className="inline-flex items-center px-4 py-1 mb-3 text-xs font-medium tracking-wide text-blue-600 uppercase bg-blue-100 rounded-full">
-              Beta
-            </div>
-            <h1 className="text-5xl font-bold tracking-tight text-gray-900 md:text-6xl">
+          <motion.div {...SIMPLE_ANIM}>
+            <h1 className="text-5xl font-bold tracking-tight text-gray-900 md:text-6xl mb-4">
               Ski-Lab
             </h1>
-            <p className="max-w-2xl mt-4 text-xl leading-8 text-gray-600">
+            <p className="max-w-2xl text-xl leading-8 text-gray-600 mb-2">
               Ski-management for cross-country skiing and biathlon
             </p>
+            <div className="inline-flex items-center px-4 py-2 text-xs font-medium tracking-wide text-blue-600 uppercase bg-blue-100 rounded-full mb-2">
+              Beta (1.00)
+            </div>
           </motion.div>
         </motion.div>
 
         <motion.div
-          className="flex flex-col items-center w-full mt-12"
+          className="flex flex-col items-center w-full mt-10"
           {...SIMPLE_ANIM}
         >
           {!checkingStatus ? (
@@ -119,33 +116,30 @@ const HomePage = () => {
                 variant="primary"
                 size="xl"
                 onClick={() => handleNavigation('/login')}
-                className="flex items-center"
+                className="flex items-center mb-2"
               >
                 Get Started
                 <FiArrowRight className="ml-2" />
               </Button>
             ) : (
               <div className="w-full max-w-2xl">
+                <h3 className="mb-2 text-sm text-center font-semibold tracking-wide text-gray-500 uppercase">Get Started</h3>
                 <Button
                   onClick={() => handleNavigation('/skis')}
                   variant="primary"
                   size="xl"
-                  className="flex items-center mx-auto"
+                  className="flex items-center mx-auto mb-4"
                 >
                   New Test
                 </Button>
                 {hasLiveEvents && (
                   <motion.div
-                    className="mt-12 overflow-hidden"
+                    className="mt-10 overflow-hidden"
                     {...SIMPLE_ANIM}
                   >
                     <h3 className="mb-4 text-sm font-semibold tracking-wide text-center text-gray-500 uppercase">
                       Active Events
                     </h3>
-                    {/*
-                      If there's a single active event, center it.
-                      Otherwise keep the two-column grid for multiple events.
-                    */}
                     {activeEvents.length === 1 ? (
                       <div className="w-fit mx-auto">
                         <ActiveEventCard
@@ -178,20 +172,19 @@ const HomePage = () => {
           )}
         </motion.div>
 
-
         <motion.div
-          className="relative w-full mt-20 md:mt-28"
+          className="relative w-full mt-16 md:mt-24"
           {...SIMPLE_ANIM}
         >
-          <div className="flex flex-col items-center justify-center space-y-12 md:flex-row md:space-y-0 md:space-x-16">
+          <div className="flex flex-col items-center justify-center space-y-10 md:flex-row md:space-y-0 md:space-x-16">
             <div className="max-w-md">
-              <img src={desktop} alt="Ski-Lab desktop dashboard" className="w-full" />
+              <img src={desktop} alt="Ski-Lab desktop dashboard" className="w-full rounded-lg" />
               <p className="mt-3 text-sm text-center text-gray-500">
                 Desktop dashboard for deep analytics
               </p>
             </div>
             <div className="max-w-xs flex flex-col items-center">
-              <img src={iphone} alt="Ski-Lab mobile interface" className="w-1/2" />
+              <img src={iphone} alt="Ski-Lab mobile interface" className="w-1/2 rounded-lg" />
               <p className="mt-3 text-sm text-center text-gray-500">
                 Optimized for field testing
               </p>
@@ -205,11 +198,9 @@ const HomePage = () => {
         >
           <div className="w-full py-8 border-t border-gray-200">
             <div className="max-w-3xl mx-auto text-center">
-
               <h3 className="mb-2 text-sm font-semibold tracking-wide text-gray-500 uppercase">Features</h3>
-              <h2 className="text-2xl font-bold text-gray-900">Professional Ski Management</h2>
-
-              <p className="mt-2 text-sm text-gray-600">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Professional Ski Management</h2>
+              <p className="text-sm text-gray-600 mb-2">
                 Everything you need to optimize ski performance
               </p>
             </div>
@@ -218,28 +209,28 @@ const HomePage = () => {
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
-                className="flex flex-col items-center text-center"
+                className="flex flex-col items-center text-center px-2"
                 initial={SIMPLE_ANIM.initial}
                 animate={SIMPLE_ANIM.animate}
                 transition={{ duration: 0.42, delay: index * 0.06, ease: 'easeOut' }}
               >
-                <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg text-blue-600">
+                <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg text-blue-600 mb-3">
                   {feature.icon}
                 </div>
-                <h3 className="mt-5 text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">
                   {feature.title}
                 </h3>
-                <p className="mt-2 text-gray-600">{feature.description}</p>
+                <p className="text-gray-600">{feature.description}</p>
               </motion.div>
             ))}
           </div>
         </motion.div>
-        {/* Install card - header + subtle separator when there are live events */}
-        <div className={"w-full py-8 border-t border-gray-200"}>
-          <div className="max-w-3xl mx-auto text-center">
+
+        <div className="w-full py-12 border-t border-gray-200">
+          <div className="max-w-3xl mx-auto text-center mb-6">
             <h3 className="mb-2 text-sm font-semibold tracking-wide text-gray-500 uppercase">Install</h3>
-            <h2 className="text-2xl font-bold text-gray-900">Install Ski‑Lab</h2>
-            <p className="mt-2 text-sm text-gray-600">Get the app for the most seamless experience.</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Install Ski‑Lab</h2>
+            <p className="text-sm text-gray-600">Get the app for the most seamless experience.</p>
           </div>
           <div className="mt-5">
             <InstallCard />
@@ -248,7 +239,7 @@ const HomePage = () => {
       </div>
 
       <motion.footer
-        className="py-10 mt-auto text-center bg-gray-50"
+        className="py-8 mt-auto text-center bg-gray-50 border-t border-gray-200"
         {...SIMPLE_ANIM}
       >
         <div className="text-xs text-gray-500">
