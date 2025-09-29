@@ -10,6 +10,7 @@ import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDebounce } from 'use-debounce';
 import { AnimatePresence, motion } from 'framer-motion';
+import { RiInformationLine } from 'react-icons/ri';
 
 import usePaginatedSkis from '@/hooks/usePaginatedSkis';
 import { useSkis } from '@/hooks/useSkis';
@@ -60,6 +61,7 @@ const Skis = () => {
   const [sortDirection, setSortDirection] = useState('asc');
   const [viewMode, setViewMode] = useState('card');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -201,6 +203,33 @@ const Skis = () => {
   };
   const handleContinueTest = () => router.push('/testing/summary');
 
+  // --- header actions
+  const headerActions = (
+    <div className="flex gap-3">
+      {!hasReachedLimit && (
+        <Button
+          onClick={handleAddSki}
+          variant='primary'
+          disabled={hasReachedLimit}
+          className="flex items-center gap-2"
+        >
+          <RiAddLine />
+          <span>Add Ski</span>
+        </Button>
+      )}
+      <Button
+        onClick={() => setShowInfo(prev => !prev)}
+        variant="secondary"
+        className="flex items-center gap-2"
+        aria-label={showInfo ? 'Hide information' : 'Show information'}
+        aria-expanded={showInfo}
+      >
+        <RiInformationLine size={18} />
+        {showInfo ? 'Hide Info' : 'Show Info'}
+      </Button>
+    </div>
+  );
+
   if (error) return <div className="m-2">Error: {error.message}</div>;
 
   return (
@@ -218,20 +247,35 @@ const Skis = () => {
             </span>
           </>
         }
-        actions={
-          !hasReachedLimit && (
-            <Button
-              onClick={handleAddSki}
-              variant='primary'
-              disabled={hasReachedLimit}
-              className="flex items-center gap-2"
-            >
-              <RiAddLine />
-              <span>Add Ski</span>
-            </Button>
-          )
-        }
+        actions={headerActions}
       />
+
+      {/* Info Box */}
+      <AnimatePresence>
+        {showInfo && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <RiInformationLine className="text-blue-500 mt-0.5 flex-shrink-0" />
+                <div className="text-blue-800">
+                  <strong className="block mb-1">How the Skis page works:</strong>
+                  <ul className="list-disc ml-5 space-y-1">
+                    <li>Search, filter, and sort your skis by style, type, or status.</li>
+                    <li>Selected skis stay visible even if they don’t match current filters.</li>
+                    <li>Start a new test by selecting at least two skis and clicking "New Test".</li>
+                    <li>Use the filter for advanced sorting and viewing options.</li>
+                    <li>Upgrade your plan to add more skis or unlock locked skis.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Search */}
       <div className="mb-4">
