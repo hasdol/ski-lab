@@ -4,8 +4,9 @@ import { useRouter } from 'next/navigation';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import TestingHelpModal from '@/app/(protected)/testing/components/TestingHelpModal';
 import { TournamentContext } from '@/context/TournamentContext';
-import { RiDeleteBinLine, RiQuestionLine, RiDragMove2Line } from 'react-icons/ri';
+import { RiQuestionLine, RiDragMove2Line } from 'react-icons/ri';
 import { MdDelete } from "react-icons/md";
+import { IoMdAlert } from "react-icons/io";
 
 import Button from '@/components/ui/Button';
 import { SiTestrail } from "react-icons/si";
@@ -410,7 +411,7 @@ const Testing = () => {
                           </Droppable>
 
                           {match.skis.length === 1 && (
-                            <div className="mt-3 text-center text-gray-600 italic">Bye: Automatically advances</div>
+                            <div className="flex items-center justify-center mt-3 text-center py-2 bg-yellow-50 text-yellow-700 italic"><IoMdAlert className="mr-1"/>  Automatically advances, simulate two test runs before proceeding.</div>
                           )}
 
                           {match.skis.length === 2 && isDone && (

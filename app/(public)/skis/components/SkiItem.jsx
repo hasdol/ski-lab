@@ -1,6 +1,6 @@
 // ./components/SkiItem/SkiItem.jsx
 'use client';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   RiHistoryLine,
   RiExpandDiagonalFill,
@@ -30,6 +30,11 @@ const SkiItem = ({
 }) => {
   const { gloveMode } = useContext(UserPreferencesContext);
   const showDetails = allExpanded || (ski.id === expandedSkiId);
+  const [showFullSerial, setShowFullSerial] = useState(false);
+
+  const serialDisplay = showFullSerial
+    ? ski.serialNumber
+    : String(ski.serialNumber).slice(-3).padStart(3, '0');
 
   const handleEditClick = async (e) => {
     e.stopPropagation();
@@ -74,8 +79,16 @@ const SkiItem = ({
           aria-label="select ski"
         />
         <div className="flex items-center gap-2 flex-grow">
-          {/* Remove styleIcons[ski.style] here */}
-          <span className="font-medium">{highlightSearchTerm(ski.serialNumber, search)}</span>
+          <span
+            className="font-medium cursor-pointer"
+            title={showFullSerial ? "Show last 3 digits" : "Show full serial number"}
+            onClick={e => {
+              e.stopPropagation();
+              setShowFullSerial(v => !v);
+            }}
+          >
+            {highlightSearchTerm(serialDisplay, search)}
+          </span>
           <span className="text-gray-400">•</span>
           <span className="text-gray-600">{highlightSearchTerm(ski.grind, search)}</span>
         </div>
