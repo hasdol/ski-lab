@@ -54,7 +54,7 @@ export default function TeamTimeline({ teamId, isOwner }) {
           />
           <Input
             type="textarea"
-            placeholder='Write your update, e.g. "Patch Notes: v1.2.3"'
+            placeholder='Write your update'
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
