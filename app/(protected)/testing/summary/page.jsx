@@ -292,7 +292,7 @@ const TestSummaryPage = () => {
             {rankings.map((r, idx) => (
               <div
                 key={idx}
-                className="flex flex-col md:flex-row items-end justify gap-3 rounded-lg p-2 bg-gray-50"
+                className="flex flex-col md:flex-row items-end justify gap-3 rounded-lg p-5 border border-gray-200"
               >
                 <div className="w-full md:w-1/2">
                   <Input
@@ -315,7 +315,7 @@ const TestSummaryPage = () => {
                     name={`score-${idx}`}
                     value={r.cumulativeScore}
                     onChange={(e) => handleManualRankingChange(idx, 'cumulativeScore', e.target.value)}
-                    placeholder="Score (cm)"
+                    placeholder="Difference to winner (cm)"
                     required
                     min={0}
                   />

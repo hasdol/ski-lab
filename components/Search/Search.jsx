@@ -6,7 +6,7 @@ import { useDebounce } from 'use-debounce';
 
 const MIN_CHARS = 3;
 
-const Search = ({ onSearch }) => {
+const Search = ({ onSearch, placeholder = 'Search' }) => {
   const [local, setLocal] = useState('');
   const [debounced] = useDebounce(local, 300);
   const { gloveMode } = useContext(UserPreferencesContext);
@@ -24,7 +24,7 @@ const Search = ({ onSearch }) => {
         <input
           id="search-input"
           type="text"
-          placeholder='Search'
+          placeholder={placeholder}
           value={local}
           onChange={(e) => setLocal(e.target.value)}
           className="w-full bg-white px-4 py-3 outline-none"

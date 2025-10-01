@@ -17,10 +17,16 @@ import {
 } from 'react-icons/ri';
 import { AnimatePresence, motion } from 'framer-motion';
 import PageHeader from '@/components/layout/PageHeader';
+import Search from '@/components/Search/Search';
+import { useDebounce } from 'use-debounce';
 
 export default function TeamsPage() {
   const { user, userData } = useAuth();
   const { teams, loading, error } = useUserTeams();
+
+  // Public Teams search (server-side via hook) — keep only this
+  const [publicSearchRaw, setPublicSearchRaw] = useState('');
+  const [debouncedPublicSearch] = useDebounce(publicSearchRaw.toLowerCase(), 300);
   const {
     teams: publicTeams,
     loading: publicLoading,
@@ -28,7 +34,8 @@ export default function TeamsPage() {
     hasMore,
     fetchMore,
     refresh: refreshPublic
-  } = usePublicTeams();
+  } = usePublicTeams({ term: debouncedPublicSearch });
+
   const canCreateTeam = ['coach', 'company', 'admin'].includes(userData?.plan);
   const router = useRouter();
   const [showInfo, setShowInfo] = useState(false);
@@ -158,45 +165,13 @@ export default function TeamsPage() {
       {/* Tab Content */}
       {activeTab === 'myTeams' && (
         <>
-          {loading && (
-            <div className="flex flex-col items-center justify-center py-12">
-              <Spinner size="lg" className="text-indigo-600" />
-              <p className="mt-4 text-gray-600 font-medium">
-                Loading your teams...
-              </p>
-            </div>
-          )}
-          {error && (
-            <div
-              className="bg-red-50 text-red-800 border border-red-200 px-4 py-3 rounded-lg mb-6"
-              role="alert"
-            >
-              <strong className="font-medium">Failed to load teams</strong>
-              <p className="mt-1">
-                Please try refreshing the page or contact support if the problem
-                persists.
-              </p>
-            </div>
-          )}
-          {!loading && !error && teams.length > 0 && (
-            <UserTeamsList teams={teams} />
-          )}
-          {!loading && !error && teams.length === 0 && user && (
-            <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-              <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <RiTeamLine className="text-gray-500 text-2xl" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No Teams Yet
-              </h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                You haven't joined any teams. Join an existing team or create your own
-                to get started.
-              </p>
-            </div>
-          )}
-          {!user && (
-            <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+          {user ? (
+            <>
+              {/* Removed My Teams search */}
+              <UserTeamsList teams={teams} />
+            </>
+          ) : (
+            <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg mt-4">
               <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <RiTeamLine className="text-gray-500 text-2xl" />
               </div>
@@ -216,7 +191,9 @@ export default function TeamsPage() {
 
       {activeTab === 'publicTeams' && (
         <>
-          {/* Public Teams List */}
+          <div className="mb-4">
+            <Search onSearch={setPublicSearchRaw} placeholder="Search public teams" />
+          </div>
           <PublicTeamsList
             teams={publicTeams}
             loading={publicLoading}
