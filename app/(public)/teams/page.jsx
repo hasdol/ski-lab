@@ -9,16 +9,12 @@ import PublicTeamsList from './components/PublicTeamsList';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/common/Spinner/Spinner';
-import {
-  RiInformationLine,
-  RiTeamLine,
-  RiAddLine,
-  RiSearchLine
-} from 'react-icons/ri';
+import { RiInformationLine, RiTeamLine, RiAddLine, RiSearchLine } from 'react-icons/ri';
 import { AnimatePresence, motion } from 'framer-motion';
 import PageHeader from '@/components/layout/PageHeader';
 import Search from '@/components/Search/Search';
 import { useDebounce } from 'use-debounce';
+import { TEAM_PLAN_CAPS } from '@/lib/constants/teamPlanCaps';
 
 export default function TeamsPage() {
   const { user, userData } = useAuth();
@@ -62,50 +58,35 @@ export default function TeamsPage() {
     setCurrentPendingTeamId(null);
   };
 
-  // Actions for PageHeader
+  // NEW: compute owned team count and cap to showcase in header and disable create
+  const ownedTeamsCount =
+    (teams || []).filter((t) => t.createdBy === user?.uid).length;
+  const maxTeams = userData?.planTeamsCap ?? TEAM_PLAN_CAPS[userData?.plan]?.teams ?? 0;
+  const atTeamCap = canCreateTeam && maxTeams > 0 && ownedTeamsCount >= maxTeams;
+
+  // NEW: header actions (create + info) with cap indicator
   const headerActions = (
-    <div className="flex gap-3">
-      {canCreateTeam ? (
-        <>
-          <Button
-            onClick={() => router.push('/teams/create')}
-            variant="primary"
-            className="flex items-center gap-2"
-          >
-            <RiAddLine size={18} />
-            Create Team
-          </Button>
-          <Button
-            onClick={() => setShowJoinModal(true)}
-            variant="primary"
-            className="flex items-center gap-2"
-          >
-            <RiSearchLine size={18} />
-            Join a Team
-          </Button>
-        </>
-      ) : (
-        <>
-          <Button
-            onClick={() => setShowJoinModal(true)}
-            variant="primary"
-            className="flex items-center gap-2"
-          >
-            <RiSearchLine size={18} />
-            Join a Team
-          </Button>
-          <Button
-            onClick={() => setShowInfo(prev => !prev)}
-            variant="secondary"
-            className="flex items-center gap-2"
-            aria-label={showInfo ? 'Hide information' : 'Show information'}
-            aria-expanded={showInfo}
-          >
-            <RiInformationLine size={18} />
-            {showInfo ? 'Hide Info' : 'Show Info'}
-          </Button>
-        </>
+    <div className="flex sm:flex-row gap-2 items-end sm:items-end">
+      {canCreateTeam && (
+        <Button
+          onClick={() => router.push('/teams/create')}
+          variant="primary"
+          className="flex items-center gap-2"
+          disabled={atTeamCap}
+          title={atTeamCap ? 'Team limit reached for your plan' : 'Create team'}
+        >
+          <RiAddLine />
+          <span>Create Team</span>
+        </Button>
       )}
+      <Button
+        onClick={() => setShowInfo((o) => !o)}
+        variant="secondary"
+        className="flex items-center gap-2"
+      >
+        <RiInformationLine />
+        {showInfo ? 'Hide Info' : 'Show Info'}
+      </Button>
     </div>
   );
 
@@ -114,7 +95,14 @@ export default function TeamsPage() {
       <PageHeader
         icon={<RiTeamLine className="text-blue-600 text-2xl" />}
         title="Teams"
-        subtitle="View and manage your teams"
+        subtitle={
+          <>
+            <span>
+              <span className="font-semibold text-gray-700">{ownedTeamsCount}</span> / {maxTeams} teams
+              <span className="ml-2">({userData?.plan?.charAt(0).toUpperCase() + userData?.plan?.slice(1)} plan)</span>
+            </span>
+          </>
+        }
         actions={headerActions}
       />
 

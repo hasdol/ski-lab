@@ -1,7 +1,44 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // helpers
+    function teamDoc(teamId) {
+      return get(/databases/$(database)/documents/teams/$(teamId));
+    }
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isTeamOwner(teamId) {
+      return isSignedIn() && request.auth.uid == teamDoc(teamId).data.createdBy;
+    }
+    function isTeamMember(teamId) {
+      return isSignedIn() && request.auth.uid in teamDoc(teamId).data.members;
+    }
+    function isTeamPublic(teamId) {
+      return teamDoc(teamId).data.isPublic == true;
+    }
+    function validTimelineCreate(data) {
+      return data.keys().hasOnly(['title','content','createdAt','createdBy']) &&
+             data.createdBy == request.auth.uid &&
+             ((data.title is string) || (data.content is string));
+    }
+
+    // Team timeline: teams/{teamId}/timeline/{entryId}
+    match /teams/{teamId}/timeline/{entryId} {
+      // Anyone can read if the team is public; otherwise only members
+      allow get, list: if isTeamPublic(teamId) || isTeamMember(teamId);
+
+      // Only the team owner can create/delete
+      allow create: if isTeamOwner(teamId) && validTimelineCreate(request.resource.data);
+      allow delete: if isTeamOwner(teamId);
+
+      // Optional: allow owner to edit only title/content (not author/timestamps)
+      allow update: if isTeamOwner(teamId) &&
+        request.resource.data.diff(resource.data).changedKeys().hasOnly(['title','content']) &&
+        request.resource.data.createdBy == resource.data.createdBy &&
+        request.resource.data.createdAt == resource.data.createdAt;
+    }
 
     // ----------------------------------------------------
     // USERS Collection

@@ -5,7 +5,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import getStripe from '@/helpers/stripe';
 import Spinner from '@/components/common/Spinner/Spinner';
 import Button from '@/components/ui/Button';
-import { RiCheckFill, RiShoppingCartLine, RiCloseLine } from 'react-icons/ri';
+import { RiShoppingCartLine } from 'react-icons/ri'; // ...existing code... removed RiCheckFill, RiCloseLine
 import { useRouter } from 'next/navigation';
 import { PLAN_LIMITS } from '@/lib/constants/planLimits'; // NEW
 import PageHeader from '@/components/layout/PageHeader'; // <-- Add this import
@@ -35,7 +35,7 @@ const PricingPage = () => {
         const result = await getStripePlans();
         let fetched = (result?.data || []);
 
-        // Ensure a visible Free plan card
+        // Ensure a visible Free plan card (hardcoded) with metadata-like fields
         const hasFree = fetched.some((p) => p.plan === 'free');
         if (!hasFree) {
           fetched = [
@@ -48,6 +48,11 @@ const PricingPage = () => {
               interval: 'month',
               description: '',
               priceId: '',
+              // hardcoded metadata-like fields
+              skiLimit: 8,
+              teams: 0,
+              members: 0,
+              features: ['Unlimited testing', 'Advanced analytics', 'Join teams'],
             },
             ...fetched,
           ];
@@ -137,22 +142,29 @@ const PricingPage = () => {
       {plans.length === 0 ? (
         <p className="text-center text-gray-600">No plans available at the moment.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {plans.map((plan) => {
             const isCurrent = plan.plan === currentPlan;
             const isUpgrade = (planRank[plan.plan] ?? 0) > (planRank[currentPlan] ?? 0);
             const isDowngrade = (planRank[plan.plan] ?? 0) < (planRank[currentPlan] ?? 0);
             const buttonText = getButtonText(plan, isCurrent, isUpgrade);
 
-            // NEW: Derive plan limit and team permissions
-            const skisIncluded =
-              PLAN_LIMITS[plan.plan] !== undefined ? PLAN_LIMITS[plan.plan] : '—';
-            const canCreateManageTeams = ['coach', 'company'].includes(plan.plan);
+            // Use Stripe metadata with fallback to PLAN_LIMITS
+            const skisIncluded = plan.skiLimit ?? (PLAN_LIMITS[plan.plan] ?? '—');
+            // Always show features for Free plan
+            const features =
+              plan.plan === 'free'
+                ? ['Unlimited testing', 'Advanced analytics', 'Join teams']
+                : Array.isArray(plan.features) && plan.features.length > 0
+                ? plan.features
+                : [];
 
             return (
               <div
                 key={plan.productId}
-                className="rounded-lg relative shadow overflow-hidden flex flex-col border border-gray-200"
+                className={`rounded-xl relative shadow-lg overflow-hidden flex flex-col border border-gray-200 bg-white transition hover:shadow-xl ${
+                  isCurrent ? 'ring-2 ring-blue-400' : ''
+                }`}
               >
                 {isCurrent && (
                   <span className="absolute top-3 right-3 bg-blue-50 text-blue-600 text-sm px-2 py-1 rounded-lg">
@@ -160,49 +172,59 @@ const PricingPage = () => {
                   </span>
                 )}
 
-                <div className="px-6 pt-6">
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    {plan.name}
-                  </h2>
+                <div className="px-8 pt-8 pb-4 bg-gradient-to-br from-gray-50 to-white">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-1">{plan.name}</h2>
                   {plan.plan !== 'free' && !hasHadSubscription && (
-                    <p className="flex items-center text-sm bg-blue-100 w-fit px-2 py-1 rounded text-blue-600 mt-1"><MdOutlineTimer className='mr-1'/> 30-day free trial</p>
+                    <p className="flex items-center text-sm bg-blue-100 w-fit px-2 py-1 rounded text-blue-600 mt-1">
+                      <MdOutlineTimer className="mr-1" /> 30-day free trial
+                    </p>
                   )}
                 </div>
 
-                {/* NEW: Only the required info per plan */}
-                <div className="flex-1 px-6 pt-4 space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <RiCheckFill className="text-green-500 w-5 h-5" />
-                    <span className="text-gray-800 font-medium">
-                       {skisIncluded} skis included
-                    </span>
+                <div className="flex-1 px-8 py-6 space-y-4">
+                  {/* Skis included */}
+                  <div className="flex">
+                    <span className="text-base font-semibold text-gray-800">{skisIncluded}</span>
+                    <span className="ml-2  text-gray-600">skis included</span>
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <RiCheckFill className="text-green-500 w-5 h-5" />
-                    <span className="text-gray-800 font-medium">Join teams</span>
-                  </div>
+                  {/* Features (metadata, no list dots) */}
+                  {features.length > 0 && (
+                    <div className="space-y-3 md:space-x-3">
+                      {features.map((f, i) => (
+                        <div
+                          key={i}
+                          className="text-sm text-blue-600 bg-blue-100 rounded-xl px-3 py-1 inline-block"
+                        >
+                          {f}
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
-                  <div className="flex items-center space-x-2">
-                    {canCreateManageTeams ? (
-                      <RiCheckFill className="text-green-500 w-5 h-5" />
+                  {/* Teams */}
+                  <div className="flex items-center">
+                    <span className="text-sm font-medium text-gray-800 w-32">Create teams:</span>
+                    {Number(plan.teams) > 0 ? (
+                      <span className="text-sm text-gray-700">Up to {plan.teams}</span>
                     ) : (
-                      <RiCloseLine className="text-gray-400 w-5 h-5" />
+                      <span className="text-sm text-gray-400">Not included</span>
                     )}
-                    <span
-                      className={
-                        canCreateManageTeams
-                          ? 'text-gray-800 font-medium'
-                          : 'text-gray-400'
-                      }
-                    >
-                      Create & manage teams
-                    </span>
+                  </div>
+
+                  {/* Members per team */}
+                  <div className="flex items-center">
+                    <span className="text-sm font-medium text-gray-800 w-32">Team members:</span>
+                    {Number(plan.members) > 0 ? (
+                      <span className="text-sm text-gray-700">{plan.members}</span>
+                    ) : (
+                      <span className="text-sm text-gray-400">Not included</span>
+                    )}
                   </div>
                 </div>
 
-                {plan.amount && (
-                  <div className="px-6 pt-4">
+                {plan.amount !== null ? (
+                  <div className="px-8 pt-4 pb-2 bg-gray-50">
                     <p className="text-4xl font-bold text-gray-800">
                       {(plan.amount / 100).toFixed(0)}{' '}
                       <span className="text-lg font-medium text-gray-600">
@@ -213,9 +235,19 @@ const PricingPage = () => {
                       per {plan.interval}
                     </p>
                   </div>
+                ) : (
+                  <div className="px-8 pt-4 pb-2 bg-gray-50">
+                    <p className="text-4xl font-bold text-gray-800">
+                      {(plan.amount / 100).toFixed(0)}{' '}
+                      <span className="text-lg font-medium text-gray-600">
+                        {plan.currency.toUpperCase()}
+                      </span>
+                    </p>
+                    <p className="text-sm text-gray-500 italic mt-2">forever</p>
+                  </div>
                 )}
 
-                <div className="px-6 py-6">
+                <div className="px-8 pb-8 pt-4">
                   <Button
                     loading={loadingCheckout === plan.priceId}
                     disabled={currentPlan === 'free' && isCurrent}
@@ -226,7 +258,7 @@ const PricingPage = () => {
                       isCurrent && currentPlan === 'free'
                         ? 'bg-gray-400 cursor-not-allowed'
                         : 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-95 focus:ring-2 focus:ring-indigo-300/50 shadow-sm'
-                    } w-full py-2 rounded-md`}
+                    } w-full py-2 rounded-md text-base font-semibold`}
                   >
                     {buttonText}
                   </Button>

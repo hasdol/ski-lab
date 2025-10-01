@@ -15,8 +15,10 @@ import { MdEvent, MdLock, MdPublic } from "react-icons/md";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
 // Import Firestore functions to fetch pending join requests count
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/firebaseConfig';
+import { TEAM_PLAN_CAPS } from '@/lib/constants/teamPlanCaps';
+import TeamTimeline from './components/TeamTimeline';
 
 export default function TeamDetailPage() {
   const { teamId } = useParams();
@@ -26,6 +28,7 @@ export default function TeamDetailPage() {
 
   const [activeTab, setActiveTab] = useState('events');
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
+  const [memberCap, setMemberCap] = useState(null);
   const canManage = ['coach', 'company'].includes(userData?.plan);
   const isCreator = team?.createdBy === user?.uid;
   const [memberProfiles, setMemberProfiles] = useState([]);
@@ -55,6 +58,18 @@ export default function TeamDetailPage() {
       }
     })();
   }, [isCreator, activeTab, teamId]);
+
+  // Fetch owner plan to derive member cap for display
+  useEffect(() => {
+    async function fetchOwnerPlan() {
+      if (!team?.createdBy) return;
+      const ownerSnap = await getDoc(doc(db, 'users', team.createdBy));
+      const plan = ownerSnap.exists() ? ownerSnap.data().plan : 'coach';
+      const cap = ownerSnap.exists() ? ownerSnap.data().planMembersCap : null;
+      setMemberCap(Number.isFinite(cap) ? cap : (TEAM_PLAN_CAPS[plan]?.members ?? null));
+    }
+    fetchOwnerPlan();
+  }, [team?.createdBy]);
 
   const handleBack = () => router.push('/teams');
 
@@ -170,7 +185,13 @@ export default function TeamDetailPage() {
             ) : <MdLock className='text-gray-700' />}
           </h1>
           <div className="flex space-x-4 text-sm text-gray-600 mb-4">
-            <span>{team.members.length} members</span>
+            <span>
+              {team.members.length}
+              {memberCap ? ` / ${memberCap}` : ''} members
+              {memberCap && team.members.length >= memberCap && (
+                <span className="ml-2 text-red-600 font-semibold">(Full)</span>
+              )}
+            </span>
             <span>{events.length} events</span>
           </div>
 
@@ -200,6 +221,15 @@ export default function TeamDetailPage() {
             >
               Events
             </button>
+            <button
+              className={`px-4 py-2 font-medium text-sm ${activeTab === 'timeline'
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+                }`}
+              onClick={() => setActiveTab('timeline')}
+            >
+              Timeline
+            </button>
             {isCreator && (
               <>
                 <button
@@ -228,6 +258,12 @@ export default function TeamDetailPage() {
           </div>
 
           {/* Tab Content */}
+          {activeTab === 'timeline' && (
+            <div className="mb-6">
+              <TeamTimeline teamId={teamId} isOwner={isCreator} />
+            </div>
+          )}
+
           {activeTab === 'members' && isCreator && (
             <div className="space-y-3 mb-6">
               {memberProfiles.map((m) => (

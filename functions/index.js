@@ -36,16 +36,45 @@ function getPlanLimit(plan = 'free') {
   return PLAN_LIMITS[plan] ?? 8; // safe fallback for unknown plans
 }
 
-/* ------------------------------------------------------------------
-   CORS helper
-   ------------------------------------------------------------------ */
-function addCorsHeaders(res) {
-  const ALLOWED = process.env.ALLOWED_ORIGINS || '*'; // tighten in prod
-  res.set({
-    'Access-Control-Allow-Origin': ALLOWED,
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET,OPTIONS',
+// ------------------------------------------------------------------
+// Plan limits (teams and members per team) and helpers
+// ------------------------------------------------------------------
+const PLAN_TEAM_CAP = {
+  free: 0,
+  senior: 0,
+  senior_pluss: 0,
+  coach: 2,
+  company: 10,
+  admin: 100000, // effectively unlimited for admin
+};
+
+const PLAN_MEMBERS_CAP = {
+  coach: 25,
+  company: 10000,
+  admin: 100000, // effectively unlimited for admin
+};
+
+function getTeamCapForPlan(plan) {
+  return PLAN_TEAM_CAP[plan] ?? 0;
+}
+function getMemberCapForPlan(plan) {
+  return PLAN_MEMBERS_CAP[plan] ?? 0;
+}
+
+// Simple server-side keyword builder (prefixes for words len >= 3)
+function buildTeamKeywordsServer(name = '') {
+  const MIN = 3;
+  const tokens = String(name).toLowerCase().trim().split(/[\s\-]+/).filter(Boolean);
+  const out = new Set();
+  tokens.forEach((w) => {
+    if (w.length < MIN) return;
+    for (let i = MIN; i <= w.length; i++) out.add(w.slice(0, i));
   });
+  return Array.from(out);
+}
+
+function generateTeamCode() {
+  return Math.random().toString(36).slice(2, 8).toUpperCase();
 }
 
 /* ------------------------------------------------------------------
@@ -128,6 +157,17 @@ exports.getStripePlans = onCall({ secrets: ['STRIPE_SECRET'] }, async (event) =>
       const prices = await stripe.prices.list({ product: product.id, active: true });
       if (prices.data.length === 0) return null;
       const price = prices.data[0];
+
+      // NEW: derive metadata (with safe parsing)
+      const md = product.metadata || {};
+      const skiLimit = Number.parseInt(md.skiLimit, 10);
+      const teamCap = Number.parseInt(md.teamCap, 10);
+      const memberCap = Number.parseInt(md.memberCap, 10);
+      const features = (md.features || '')
+        .split(';')
+        .map(s => s.trim())
+        .filter(Boolean);
+
       return {
         productId: product.id,
         name: product.name,
@@ -136,7 +176,12 @@ exports.getStripePlans = onCall({ secrets: ['STRIPE_SECRET'] }, async (event) =>
         amount: price.unit_amount,
         currency: price.currency,
         interval: price.recurring?.interval,
-        plan: product.metadata.plan || 'unknown',
+        plan: md.plan || 'unknown',
+        // NEW fields for the UI
+        skiLimit: Number.isFinite(skiLimit) ? skiLimit : null,
+        teams: Number.isFinite(teamCap) ? teamCap : 0,
+        members: Number.isFinite(memberCap) ? memberCap : 0,
+        features,
       };
     }));
     return plans.filter(Boolean);
@@ -246,20 +291,33 @@ exports.stripeWebhook = onRequest({ secrets: ['STRIPE_SECRET', 'STRIPE_SIGNING_S
    Stripe Webhook Helpers (idempotent & single-write)
    ------------------------------------------------------------------ */
 async function handleCheckoutSession(session) {
+  const stripe = require('stripe')(process.env.STRIPE_SECRET);
   const userRef = db.collection('users').doc(session.metadata.userId);
   const skisRef = userRef.collection('skis');
-  const plan = session.metadata.plan || 'free';
+
+  // Look up product metadata from the subscription's price
+  const subscription = await stripe.subscriptions.retrieve(session.subscription);
+  const priceId = subscription.items.data[0].price.id;
+  const product = await stripe.products.retrieve((await stripe.prices.retrieve(priceId)).product);
+  const md = product.metadata || {};
+  const plan = md.plan || 'free';
+  const skiLimit = Number.parseInt(md.skiLimit, 10);
+  const teamCap = Number.parseInt(md.teamCap, 10);
+  const memberCap = Number.parseInt(md.memberCap, 10);
 
   await db.runTransaction(async (tx) => {
     const snap = await tx.get(userRef);
     if (!snap.exists) throw new Error(`User ${session.metadata.userId} does not exist.`);
-    const u = snap.data();
     const lockedSnapshot = await tx.get(skisRef.where('locked', '==', true));
 
     tx.update(userRef, {
       stripeCustomerId: session.customer,
       stripeSubscriptionId: session.subscription,
       plan,
+      // NEW: persist dynamic caps on user
+      planSkisLimit: Number.isFinite(skiLimit) ? skiLimit : getPlanLimit(plan),
+      planTeamsCap: Number.isFinite(teamCap) ? teamCap : 0,
+      planMembersCap: Number.isFinite(memberCap) ? memberCap : 0,
       lockedSkisCount: 0,
     });
     lockedSnapshot.forEach((doc) => tx.update(doc.ref, { locked: false }));
@@ -276,7 +334,7 @@ async function handleSubscriptionDeleted(subscription) {
     if (!snap.exists) throw new Error(`User ${userId} missing`);
 
     const u = snap.data();
-    if (!u.stripeSubscriptionId) return; // idempotent
+    if (!u.stripeSubscriptionId) return;
 
     const limit = getPlanLimit('free');
     const unlocked = (u.skiCount || 0) - (u.lockedSkisCount || 0);
@@ -291,6 +349,10 @@ async function handleSubscriptionDeleted(subscription) {
       plan: 'free',
       stripeSubscriptionId: admin.firestore.FieldValue.delete(),
       lockedSkisCount: (u.lockedSkisCount || 0) + lockCount,
+      // NEW: reset caps to free
+      planSkisLimit: getPlanLimit('free'),
+      planTeamsCap: 0,
+      planMembersCap: 0,
     });
   });
 }
@@ -301,11 +363,15 @@ async function handleSubscriptionUpdated(subscription) {
   const userRef = db.collection('users').doc(userId);
   const skisCol = userRef.collection('skis');
 
-  // Lookup plan + limit
   const priceId = subscription.items.data[0].price.id;
   const product = await stripe.products.retrieve((await stripe.prices.retrieve(priceId)).product);
-  const newPlan = product.metadata.plan || 'free';
-  const newLimit = getPlanLimit(newPlan);
+  const md = product.metadata || {};
+  const newPlan = md.plan || 'free';
+  const newLimit = Number.isFinite(Number.parseInt(md.skiLimit, 10))
+    ? Number.parseInt(md.skiLimit, 10)
+    : getPlanLimit(newPlan);
+  const newTeamCap = Number.parseInt(md.teamCap, 10);
+  const newMemberCap = Number.parseInt(md.memberCap, 10);
 
   await db.runTransaction(async (tx) => {
     const snap = await tx.get(userRef);
@@ -314,14 +380,12 @@ async function handleSubscriptionUpdated(subscription) {
     const u = snap.data();
     const unlockedNow = (u.skiCount || 0) - (u.lockedSkisCount || 0);
 
-    // Downgrade → lock newest skis
     let lockCount = Math.max(0, unlockedNow - newLimit);
     if (lockCount) {
       const qLock = skisCol.where('locked', '==', false).orderBy('dateAdded', 'desc').limit(lockCount);
       (await tx.get(qLock)).forEach((d) => tx.update(d.ref, { locked: true }));
     }
 
-    // Upgrade → unlock oldest locked skis
     let unlockCount = Math.max(0, newLimit - unlockedNow);
     unlockCount = Math.min(unlockCount, u.lockedSkisCount || 0);
     if (unlockCount) {
@@ -332,6 +396,10 @@ async function handleSubscriptionUpdated(subscription) {
     tx.update(userRef, {
       plan: newPlan,
       lockedSkisCount: (u.lockedSkisCount || 0) + lockCount - unlockCount,
+      // NEW: update caps on user
+      planSkisLimit: newLimit,
+      planTeamsCap: Number.isFinite(newTeamCap) ? newTeamCap : (u.planTeamsCap ?? 0),
+      planMembersCap: Number.isFinite(newMemberCap) ? newMemberCap : (u.planMembersCap ?? 0),
     });
   });
   console.log(`Updated user ${userId} to plan ${newPlan}`);
@@ -350,7 +418,7 @@ exports.onSkiCreated = onDocumentCreated('users/{userId}/skis/{skiId}', async (e
     if (!snap.exists) return;
 
     const u = snap.data();
-    const limit = getPlanLimit(u.plan);
+    const limit = (u.planSkisLimit ?? getPlanLimit(u.plan));
     const newSkiCount = (u.skiCount || 0) + 1;
     const shouldLock = newSkiCount - (u.lockedSkisCount || 0) > limit;
 
@@ -376,9 +444,9 @@ exports.onSkiDeleted = onDocumentDeleted('users/{userId}/skis/{skiId}', async (e
     if (!snap.exists) return;
 
     const u = snap.data();
+    const limit = (u.planSkisLimit ?? getPlanLimit(u.plan));
     const newSkiCount = (u.skiCount || 0) - 1;
     const newLockedCount = (u.lockedSkisCount || 0) - (wasLocked ? 1 : 0);
-    const limit = getPlanLimit(u.plan);
     const unlockedAfterDel = newSkiCount - newLockedCount;
 
     let toUnlock = 0;
@@ -591,6 +659,58 @@ exports.cancelUserDeletion = onCall(async (request) => {
   return { message: 'Account deletion has been cancelled.' };
 });
 
+/* ------------------------------------------------------------------
+   Team Management
+   ------------------------------------------------------------------ */
+// ------------------------------------------------------------------
+// createTeam – callable (enforces per-plan creation caps)
+// ------------------------------------------------------------------
+exports.createTeam = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  const uid = request.auth.uid;
+  const { name, isPublic = false } = request.data || {};
+  if (!name || typeof name !== 'string') {
+    throw new HttpsError('invalid-argument', 'Missing or invalid team name.');
+  }
+
+  // Load user to determine plan
+  const userRef = db.collection('users').doc(uid);
+  const userSnap = await userRef.get();
+  if (!userSnap.exists) throw new HttpsError('not-found', 'User profile not found.');
+  const user = userSnap.data() || {};
+  const plan = user.plan || 'free';
+
+  // Only coach/company/admin can create
+  if (!['coach', 'company', 'admin'].includes(plan)) {
+    throw new HttpsError('permission-denied', 'Your plan does not allow creating teams.');
+  }
+
+  // Enforce team creation cap
+  const teamCap = (user.planTeamsCap ?? getTeamCapForPlan(plan));
+  const ownedSnap = await db.collection('teams').where('createdBy', '==', uid).get();
+  const ownedCount = ownedSnap.size;
+  if (ownedCount >= teamCap) {
+    throw new HttpsError('resource-exhausted', `Team limit reached for your plan (${teamCap}).`);
+  }
+
+  // Create team
+  const teamRef = db.collection('teams').doc(); // generate id
+  const doc = {
+    name,
+    imageURL: '',
+    joinCode: generateTeamCode(),
+    createdBy: uid,
+    members: [uid],
+    isPublic: !!isPublic,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    memberCount: 1,
+    keywords_en: buildTeamKeywordsServer(name),
+  };
+  await teamRef.set(doc);
+
+  return { teamId: teamRef.id, joinCode: doc.joinCode };
+});
+
 exports.joinTeamByCode = onCall(async (request) => {
   if (!request.auth)
     throw new HttpsError('unauthenticated', 'User must be authenticated.');
@@ -609,11 +729,22 @@ exports.joinTeamByCode = onCall(async (request) => {
 
   const teamDoc = snap.docs[0];
   const teamData = teamDoc.data() || {};
-  const members = teamData.members || [];
+  const members = Array.isArray(teamData.members) ? teamData.members : [];
+  const teamId = teamDoc.id;
 
-  // Check if the user is already a member.
-  if (members.includes(userId)) {
-    throw new HttpsError('already-exists', 'You are already in this team.');
+  // Prevent re-join
+  if (members.includes(userId)) throw new HttpsError('already-exists', 'You are already in this team.');
+
+  // Resolve owner plan for member cap
+  const ownerRef = db.collection('users').doc(teamData.createdBy);
+  const ownerSnap = await ownerRef.get();
+  const ownerPlan = ownerSnap.exists ? ownerSnap.data().plan : 'coach';
+  const ownerMembersCap = ownerSnap.exists ? ownerSnap.data().planMembersCap : null;
+  const memberCap = Number.isFinite(ownerMembersCap) ? ownerMembersCap : getMemberCapForPlan(ownerPlan);
+
+  // If team is at capacity, block joins/requests
+  if (members.length >= memberCap) {
+    throw new HttpsError('resource-exhausted', 'Team member limit reached for this plan.');
   }
 
   const joinRequestsRef = teamDoc.ref.collection('joinRequests');
@@ -639,15 +770,16 @@ exports.joinTeamByCode = onCall(async (request) => {
       status: 'pending',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       email: request.auth.token.email || null,
-      username, // store the username from the user's document
+      username,
     });
-    return { teamId: teamDoc.id, pending: true };
+    return { teamId, pending: true };
   } else {
-    // For private teams, perform an immediate join.
+    // For private teams, perform an immediate join with memberCount increment.
     await teamDoc.ref.update({
       members: admin.firestore.FieldValue.arrayUnion(userId),
+      memberCount: admin.firestore.FieldValue.increment(1),
     });
-    return { teamId: teamDoc.id, pending: false };
+    return { teamId, pending: false };
   }
 });
 
@@ -675,9 +807,21 @@ exports.acceptJoinRequest = onCall(async (request) => {
   if (joinRequestData.status !== 'pending')
     throw new HttpsError('failed-precondition', 'Join request is not pending.');
 
-  // Add the user to the team and mark the request as accepted.
+  // Enforce member cap based on owner plan
+  const ownerRef = db.collection('users').doc(teamData.createdBy);
+  const ownerSnap = await ownerRef.get();
+  const ownerPlan = ownerSnap.exists ? ownerSnap.data().plan : 'coach';
+  const ownerMembersCap = ownerSnap.exists ? ownerSnap.data().planMembersCap : null;
+  const memberCap = Number.isFinite(ownerMembersCap) ? ownerMembersCap : getMemberCapForPlan(ownerPlan);
+  const currentMembers = Array.isArray(teamData.members) ? teamData.members : [];
+  if (currentMembers.length >= memberCap) {
+    throw new HttpsError('resource-exhausted', 'Team member limit reached for this plan.');
+  }
+
+  // Add the user to the team and mark the request as accepted; increment memberCount
   await teamRef.update({
     members: admin.firestore.FieldValue.arrayUnion(joinRequestData.userId),
+    memberCount: admin.firestore.FieldValue.increment(1),
   });
   await joinRequestRef.update({
     status: 'accepted',
