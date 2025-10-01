@@ -162,14 +162,31 @@ const TestSummaryPage = () => {
 
     const payloadRankings = resultRankings.map((r) => ({
       skiId: r.skiId,
-      score: Number(r.cumulativeScore),
-      serialNumber: r.serialNumber,
-      grind: r.grind,
+      score: Number.isFinite(Number(r.cumulativeScore)) ? Number(r.cumulativeScore) : 0,
+      serialNumber: r.serialNumber ?? '',
+      grind: r.grind ?? '',
     }));
 
-    // Save using addTestResult (existing helper)
-    await addTestResult(user.uid, { rankings: payloadRankings }, additionalData);
-    router.push('/results');
+    try {
+      setLoading(true);
+      // Save using addTestResult (existing helper)
+      const newId = await addTestResult(user.uid, { rankings: payloadRankings }, additionalData);
+
+      // Clear tournament state so localStorage is removed and UI resets
+      resetTournament();                              // <-- clear context state + localStorage
+      setHasSubmitted(true);
+      setSelectedEvents([]);                          // optional: clear any selected events
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('tournamentState');  // belt-and-suspenders
+      }
+
+      router.push('/results');
+    } catch (err) {
+      console.error('Save failed:', err);
+      alert('Error saving result');
+    } finally {
+      setLoading(false);
+    }
   };
 
   /* ───────────── misc helpers ───────────── */

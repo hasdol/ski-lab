@@ -240,9 +240,10 @@ export const TournamentProvider = ({ children }) => {
   const calculateRankings = () => {
     return selectedSkis
       .map((ski) => ({
-        serialNumber: skiSerialNumbers[ski.id],
-        cumulativeScore: calculateCumulativeScore(ski.id),
         skiId: ski.id,
+        cumulativeScore: calculateCumulativeScore(ski.id),
+        serialNumber: ski.serialNumber ?? '',
+        grind: ski.grind ?? '',
       }))
       .sort((a, b) => a.cumulativeScore - b.cumulativeScore);
   };
