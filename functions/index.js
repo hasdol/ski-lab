@@ -78,6 +78,26 @@ function generateTeamCode() {
 }
 
 /* ------------------------------------------------------------------
+   CORS helper
+   ------------------------------------------------------------------ */
+function addCorsHeaders(req, res) {
+  const origin = req.get('Origin') || '';
+  const allowed = new Set([
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://ski-lab.com',
+    'https://www.ski-lab.com',
+  ]);
+  const allow = allowed.has(origin) ? origin : '*';
+
+  res.set('Access-Control-Allow-Origin', allow);
+  res.set('Vary', 'Origin');
+  res.set('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.set('Access-Control-Max-Age', '86400');
+}
+
+/* ------------------------------------------------------------------
    weatherForecast (gen-2 HTTPS)
    ------------------------------------------------------------------ */
 exports.weatherForecast = onRequest(
@@ -88,11 +108,14 @@ exports.weatherForecast = onRequest(
     memory: '256MiB',
   },
   async (req, res) => {
-    addCorsHeaders(res);
-    if (req.method === 'OPTIONS') return res.status(204).send('');
+    addCorsHeaders(req, res);
+    if (req.method === 'OPTIONS') {
+      return res.status(204).send('');
+    }
 
     const { lat, lon } = req.query;
     if (!lat || !lon) {
+      addCorsHeaders(req, res);
       return res.status(400).json({ error: 'lat and lon query params required' });
     }
 
@@ -104,13 +127,13 @@ exports.weatherForecast = onRequest(
 
       if (!upstream.ok) throw new Error(`yr.no responded ${upstream.status}`);
 
-      addCorsHeaders(res);
+      addCorsHeaders(req, res);
       return res
         .set('Cache-Control', 'public, max-age=900, s-maxage=900')
         .json(await upstream.json());
     } catch (err) {
       console.error(err);
-      addCorsHeaders(res);
+      addCorsHeaders(req, res);
       return res.status(502).json({ error: 'Failed to contact yr.no' });
     }
   },
