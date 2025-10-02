@@ -59,7 +59,7 @@ const SignUp = () => {
   };
 
   return (
-    <div className="p-4 max-w-4xl w-full self-center">
+    <div className="p-5 max-w-4xl w-full self-center justify-items-center">
       <PageHeader
         icon={<RiUserAddLine className="text-blue-600 text-2xl" />}
         title="Sign Up"
@@ -67,7 +67,7 @@ const SignUp = () => {
         actions={null}
       />
 
-      <main className="max-w-xl md:w-full self-center mt-5 mx-3 bg-white shadow rounded-xl p-8">
+      <main className="max-w-xl md:w-full self-center  bg-white shadow rounded-xl p-8">
         <form onSubmit={handleSignUp} className="space-y-4">
           {/* New Username field */}
           <Input
