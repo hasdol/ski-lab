@@ -97,7 +97,7 @@ const ResultsFilter = ({
                         }}
                         onClick={resetFilter}
                     >
-                        REset
+                        Reset
                     </Button>
                     <Button
                         sx={{

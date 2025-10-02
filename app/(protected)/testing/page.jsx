@@ -359,23 +359,23 @@ const Testing = () => {
                                   // Highlight ski being dragged
                                   const isDragSource = dragSource?.matchIndex === mi && dragSource?.skiIndex === si;
 
+                                  const [showFullSerial, setShowFullSerial] = useState(false);
+                                  const serialDisplay = showFullSerial
+                                    ? ski.serialNumber
+                                    : String(ski.serialNumber).slice(-3).padStart(3, '0');
+                                  const hasMoreDigits = String(ski.serialNumber).length > 3;
+
                                   return (
                                     <Draggable key={ski.id} draggableId={`ski-${match.id}-${ski.id}`} index={si}>
-                                      {(p) => (
+                                      {(provided) => (
                                         <div
-                                          ref={p.innerRef}
-                                          {...p.draggableProps}
-                                          className={`p-2 rounded-md flex justify-between items-center transition ${isWinner
-                                            ? 'bg-blue-100 '
-                                            : 'bg-gray-50 '
-                                            } ${isDragTarget
-                                              ? '!border-blue-400 !border-2 shadow'
-                                              : isDragSource
-                                                ? 'opacity-70'
-                                                : ''
-                                            }`}
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                          className={`p-2 rounded-md flex justify-between items-center transition ${
+                                            isWinner ? 'bg-blue-100' : 'bg-gray-50'
+                                          }`}
                                         >
-                                          {/* Clickable area for winner selection */}
                                           <div
                                             className="flex items-center flex-grow cursor-pointer"
                                             onClick={() => handleWinnerClick(match.id, ski.id)}
@@ -383,23 +383,19 @@ const Testing = () => {
                                             <div className="bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center mr-3">
                                               <span className="font-medium text-gray-700">{si + 1}</span>
                                             </div>
-                                            <span className="font-medium">{ski.serialNumber}</span>
+                                            <span
+                                              className="font-medium cursor-pointer"
+                                              title={showFullSerial ? "Show last 3 digits" : "Show full serial number"}
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowFullSerial((prev) => !prev);
+                                              }}
+                                            >
+                                              {serialDisplay}
+                                              {hasMoreDigits && !showFullSerial && <span className="text-gray-400 ml-1">...</span>}
+                                            </span>
                                           </div>
-
                                           {isWinner && <span className="bg-blue-200 text-blue-800 px-2 py-1 rounded-xl text-xs">Winner</span>}
-                                          {isDragTarget && (
-                                            <span className="text-xs text-blue-500 ml-2">Swap</span>
-                                          )}
-
-                                          {/* Drag handle area */}
-                                          <div
-                                            {...p.dragHandleProps}
-                                            className="cursor-move p-2 text-gray-600 hover:text-gray-900"
-                                          >
-                                            <RiDragMove2Line />
-                                          </div>
-
-
                                         </div>
                                       )}
                                     </Draggable>

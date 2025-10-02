@@ -35,6 +35,7 @@ const SkiItem = ({
   const serialDisplay = showFullSerial
     ? ski.serialNumber
     : String(ski.serialNumber).slice(-3).padStart(3, '0');
+  const hasMoreDigits = String(ski.serialNumber).length > 3;
 
   const handleEditClick = async (e) => {
     e.stopPropagation();
@@ -82,12 +83,13 @@ const SkiItem = ({
           <span
             className="font-medium cursor-pointer"
             title={showFullSerial ? "Show last 3 digits" : "Show full serial number"}
-            onClick={e => {
+            onClick={(e) => {
               e.stopPropagation();
-              setShowFullSerial(v => !v);
+              setShowFullSerial((prev) => !prev);
             }}
           >
-            {highlightSearchTerm(serialDisplay, search)}
+            {serialDisplay}
+            {hasMoreDigits && !showFullSerial && <span className="text-gray-400 ml-1">...</span>}
           </span>
           <span className="text-gray-400">•</span>
           <span className="text-gray-600">{highlightSearchTerm(ski.grind, search)}</span>
@@ -98,13 +100,12 @@ const SkiItem = ({
               e.stopPropagation();
               toggleDetails(ski.id);
             }}
-            className='py-3 px-2'
+            className="py-3 px-2"
           >
-            {showDetails ? <RiCollapseDiagonalLine size={18}/> : <RiExpandDiagonalFill size={18}/>}
+            {showDetails ? <RiCollapseDiagonalLine size={18} /> : <RiExpandDiagonalFill size={18} />}
           </button>
         )}
       </div>
-      {/* Only show extra info when expanded */}
       {showDetails && !gloveMode && (
         <div className="border-t border-gray-200 p-4">
           <SkiDetail

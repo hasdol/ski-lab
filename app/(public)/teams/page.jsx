@@ -154,10 +154,18 @@ export default function TeamsPage() {
       {activeTab === 'myTeams' && (
         <>
           {user ? (
-            <>
-              {/* Removed My Teams search */}
+            loading ? (
+              <div className="flex justify-center py-8"><Spinner /></div>
+            ) : error ? (
+              <div className="text-center py-8">
+                <p className="text-red-600 mb-4">Failed to load your teams.</p>
+                <Button onClick={() => window.location.reload()} variant="primary">
+                  Retry
+                </Button>
+              </div>
+            ) : (
               <UserTeamsList teams={teams} />
-            </>
+            )
           ) : (
             <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg mt-4">
               <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -182,16 +190,21 @@ export default function TeamsPage() {
           <div className="mb-4">
             <Search onSearch={setPublicSearchRaw} placeholder="Search public teams" />
           </div>
-          <PublicTeamsList
-            teams={publicTeams}
-            loading={publicLoading}
-            error={publicError}
-            hasMore={hasMore}
-            onLoadMore={fetchMore}
-            onRefresh={refreshPublic}
-            onJoin={handleJoinTeam}
-            pendingTeams={pendingTeams}
-          />
+
+          {publicLoading && publicTeams.length === 0 ? (
+            <div className="flex justify-center py-8"><Spinner /></div>
+          ) : (
+            <PublicTeamsList
+              teams={publicTeams}
+              loading={publicLoading}
+              error={publicError}
+              hasMore={hasMore}
+              onLoadMore={fetchMore}
+              onRefresh={refreshPublic}
+              onJoin={handleJoinTeam}
+              pendingTeams={pendingTeams}
+            />
+          )}
         </>
       )}
 
