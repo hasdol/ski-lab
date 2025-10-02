@@ -61,15 +61,13 @@ export default function TeamDetailPage() {
 
   // Fetch owner plan to derive member cap for display
   useEffect(() => {
-    async function fetchOwnerPlan() {
-      if (!team?.createdBy) return;
-      const ownerSnap = await getDoc(doc(db, 'users', team.createdBy));
-      const plan = ownerSnap.exists() ? ownerSnap.data().plan : 'coach';
-      const cap = ownerSnap.exists() ? ownerSnap.data().planMembersCap : null;
-      setMemberCap(Number.isFinite(cap) ? cap : (TEAM_PLAN_CAPS[plan]?.members ?? null));
-    }
-    fetchOwnerPlan();
-  }, [team?.createdBy]);
+    // If you are the creator, derive cap from your own userData (no extra reads)
+    if (!isCreator) return;
+    const cap = Number.isFinite(userData?.planMembersCap)
+      ? userData.planMembersCap
+      : (TEAM_PLAN_CAPS[userData?.plan]?.members ?? null);
+    setMemberCap(cap ?? null);
+  }, [isCreator, userData?.plan, userData?.planMembersCap]);
 
   const handleBack = () => router.push('/teams');
 

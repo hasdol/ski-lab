@@ -5,6 +5,7 @@ import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firesto
 import { TEAM_PLAN_CAPS } from '@/lib/constants/teamPlanCaps';
 import Button from '@/components/ui/Button';
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { useAuth } from '@/context/AuthContext';
 
 export default function PendingJoinRequests({ teamId }) {
   const [requests, setRequests] = useState([]);
@@ -12,6 +13,7 @@ export default function PendingJoinRequests({ teamId }) {
   const [memberCap, setMemberCap] = useState(null);
   const [memberCount, setMemberCount] = useState(0);
   const functions = getFunctions();
+  const { user, userData } = useAuth();
 
   useEffect(() => {
     async function fetchJoinRequests() {
@@ -41,15 +43,15 @@ export default function PendingJoinRequests({ teamId }) {
       const t = teamSnap.data();
       setMemberCount(Array.isArray(t.members) ? t.members.length : 0);
 
-      const ownerSnap = await getDoc(doc(db, 'users', t.createdBy));
-      const ownerPlan = ownerSnap.exists() ? ownerSnap.data().plan : 'coach';
-      const ownerCap = ownerSnap.exists() ? ownerSnap.data().planMembersCap : null;
-      setMemberCap(
-        (Number.isFinite(ownerCap) ? ownerCap : (TEAM_PLAN_CAPS[ownerPlan]?.members ?? null))
-      );
+      // Only the creator should compute cap; derive from their own userData
+      if (user?.uid !== t.createdBy) return;
+      const cap = Number.isFinite(userData?.planMembersCap)
+        ? userData.planMembersCap
+        : (TEAM_PLAN_CAPS[userData?.plan]?.members ?? null);
+      setMemberCap(cap ?? null);
     }
     fetchTeamAndCap();
-  }, [teamId]);
+  }, [teamId, user?.uid, userData?.plan, userData?.planMembersCap]);
 
   const isFull = memberCap !== null && memberCount >= memberCap;
 
@@ -109,6 +111,7 @@ export default function PendingJoinRequests({ teamId }) {
                 loading={loading}
                 disabled={loading || isFull}
                 onClick={() => handleAccept(req.id)}
+                className='text-sm'
               >
                 Accept
               </Button>

@@ -27,7 +27,7 @@ service cloud.firestore {
     // Team timeline: teams/{teamId}/timeline/{entryId}
     match /teams/{teamId}/timeline/{entryId} {
       // Anyone can read if the team is public; otherwise only members
-      allow get, list: if isTeamPublic(teamId) || isTeamMember(teamId);
+      allow get, list: if isTeamPublic(teamId) || isTeamMember(teamId) || isTeamOwner(teamId);
 
       // Only the team owner can create/delete
       allow create: if isTeamOwner(teamId) && validTimelineCreate(request.resource.data);
@@ -151,8 +151,10 @@ service cloud.firestore {
 
       allow create: if isCoachOrCompany();
 
+      // ADD creator read fallback
       allow read: if resource.data.isPublic == true
-        || (request.auth != null && request.auth.uid in resource.data.members);
+        || (request.auth != null && request.auth.uid in resource.data.members)
+        || isTeamCreator();
 
       allow update, delete: if isTeamCreator();
 
@@ -162,14 +164,15 @@ service cloud.firestore {
             && (request.auth.uid in get(/databases/$(database)/documents/teams/$(teamId)).data.members);
         }
 
+        // ADD creator read fallback
         allow create: if isTeamMember() && isCoachOrCompany();
-        allow read: if isTeamMember();
+        allow read: if isTeamMember() || isTeamCreator();
         allow update, delete: if isTeamMember() && isCoachOrCompany();
 
         match /testResults/{testId} {
-          allow read: if isTeamMember();
+          // ADD creator read fallback here too
+          allow read: if isTeamMember() || isTeamCreator();
           allow create: if isTeamMember();
-          // tighten: only coach/company can modify or delete shared results
           allow update, delete: if isTeamMember() && isCoachOrCompany();
         }
       }
