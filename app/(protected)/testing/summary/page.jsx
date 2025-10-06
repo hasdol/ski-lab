@@ -170,14 +170,36 @@ const TestSummaryPage = () => {
     try {
       setLoading(true);
       // Save using addTestResult (existing helper)
-      const newId = await addTestResult(user.uid, { rankings: payloadRankings }, additionalData);
+      const newId = await addTestResult(
+        user.uid,
+        { rankings: payloadRankings },
+        additionalData
+      );
+
+      // NEW: share with selected live events BEFORE resetting state
+      if (selectedEvents.length) {
+        const baseTestData = {
+          ...additionalData,
+          rankings: payloadRankings,
+        };
+        try {
+          await Promise.all(
+            selectedEvents.map(({ teamId, eventId }) =>
+              shareTestResult(teamId, eventId, user.uid, newId, baseTestData)
+            )
+          );
+        } catch (shareErr) {
+          console.error('Sharing to events failed:', shareErr);
+          alert('Result saved, but sharing to one or more events failed.');
+        }
+      }
 
       // Clear tournament state so localStorage is removed and UI resets
-      resetTournament();                              // <-- clear context state + localStorage
+      resetTournament();
       setHasSubmitted(true);
-      setSelectedEvents([]);                          // optional: clear any selected events
+      setSelectedEvents([]);
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('tournamentState');  // belt-and-suspenders
+        localStorage.removeItem('tournamentState');
       }
 
       router.push('/results');
