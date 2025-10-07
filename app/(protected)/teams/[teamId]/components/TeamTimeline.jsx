@@ -7,7 +7,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Spinner from '@/components/common/Spinner/Spinner';
 
-export default function TeamTimeline({ teamId, isOwner }) {
+export default function TeamTimeline({ teamId, canPost }) {
   const { user } = useAuth();
   const { entries, loading, error } = useTeamTimeline(teamId);
   const [title, setTitle] = useState('');
@@ -15,7 +15,7 @@ export default function TeamTimeline({ teamId, isOwner }) {
   const [posting, setPosting] = useState(false);
 
   const handlePost = async () => {
-    if (!isOwner || !user) return;
+    if (!canPost || !user) return;
     if (!title.trim() && !content.trim()) return;
     setPosting(true);
     try {
@@ -31,7 +31,7 @@ export default function TeamTimeline({ teamId, isOwner }) {
   };
 
   const handleDelete = async (id) => {
-    if (!isOwner) return;
+    if (!canPost) return;
     if (!confirm('Delete this entry?')) return;
     try {
       await deleteTeamTimelineEntry(teamId, id);
@@ -43,7 +43,7 @@ export default function TeamTimeline({ teamId, isOwner }) {
 
   return (
     <div className="space-y-4">
-      {isOwner && (
+      {canPost && (
         <div className="bg-white shadow rounded-lg p-4 space-y-3">
           <h3 className="text-sm font-semibold text-gray-800">New timeline entry</h3>
           <Input
@@ -92,7 +92,7 @@ export default function TeamTimeline({ teamId, isOwner }) {
                         </div>
                       )}
                     </div>
-                    {isOwner && (
+                    {canPost && (
                       <Button
                         variant="danger"
                         className="text-xs px-3 py-1"

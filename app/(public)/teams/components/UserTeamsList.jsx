@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { RiVipCrownLine } from 'react-icons/ri';
 import { MdLock, MdPublic } from 'react-icons/md';
 
-const TeamCard = ({ team, isCreator, onView }) => {
+const TeamCard = ({ team, isCreator, isMod, onView }) => {
   const getInitials = (name = '') =>
     name
       .split(' ')
@@ -62,6 +62,11 @@ const TeamCard = ({ team, isCreator, onView }) => {
                 Owner
               </span>
             )}
+            {!isCreator && isMod && (
+              <span className="flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs font-semibold">
+                MOD
+              </span>
+            )}
             <span className="text-xs text-gray-500">
               {team.members.length} member{team.members.length !== 1 && 's'}
             </span>
@@ -89,11 +94,13 @@ export default function UserTeamsList({ teams, onTeamUpdate }) {
       )}
       {teams.map((team) => {
         const isCreator = team.createdBy === user?.uid;
+        const isMod = !isCreator && (team.mods || []).includes(user?.uid);
         return (
           <TeamCard
             key={team.id}
             team={team}
             isCreator={isCreator}
+            isMod={isMod}
             onView={() => router.push(`/teams/${team.id}`)}
           />
         );

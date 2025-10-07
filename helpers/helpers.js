@@ -137,6 +137,7 @@ export function highlightSearchTerm(text, term) {
     );
 }
 
+// Single canonical implementation
 export function exportResultsToCSV(results = []) {
   if (!results || results.length === 0) {
     alert('No results to export');
@@ -151,7 +152,6 @@ export function exportResultsToCSV(results = []) {
   };
 
   const rows = [];
-  // Header
   rows.push([
     'serialNumber',
     'grind',
@@ -166,7 +166,6 @@ export function exportResultsToCSV(results = []) {
     const snowSource = result.snowCondition?.source || '';
     const snowType = result.snowCondition?.grainType || '';
 
-    // Normalize timestamp → ISO string
     let testDateIso = '';
     const ts = result.timestamp;
     if (ts?.seconds) {

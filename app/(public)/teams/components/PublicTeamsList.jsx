@@ -24,6 +24,7 @@ const PublicTeamCard = ({ team, isJoined, onJoin }) => {
 
   const initials = getInitials(team.name || 'T');
   const isCreator = team.createdBy === user?.uid;
+  const isMod = !isCreator && (team.mods || []).includes(user?.uid);
 
   return (
     <motion.div
@@ -61,6 +62,11 @@ const PublicTeamCard = ({ team, isJoined, onJoin }) => {
                 Owner
               </span>
             )}
+            {!isCreator && isMod && (
+              <span className="flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs font-semibold">
+                MOD
+              </span>
+            )}
             <span className="text-xs text-gray-500">
               {team.members?.length || 0} member{team.members?.length !== 1 ? 's' : ''}
             </span>
@@ -77,7 +83,7 @@ const PublicTeamCard = ({ team, isJoined, onJoin }) => {
               onJoin(team);
             }
           }}
-          variant="secondary"
+          variant={isJoined ? 'secondary' : 'primary'}
           className="text-sm w-full sm:w-auto"
         >
           {isJoined ? 'View' : 'Join'}

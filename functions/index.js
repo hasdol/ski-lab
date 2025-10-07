@@ -691,9 +691,12 @@ exports.cancelUserDeletion = onCall(async (request) => {
 exports.createTeam = onCall(async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
   const uid = request.auth.uid;
-  const { name, isPublic = false } = request.data || {};
+  const { name, isPublic = false, resultsVisibility = 'staff' } = request.data || {}; // default changed to 'staff'
   if (!name || typeof name !== 'string') {
     throw new HttpsError('invalid-argument', 'Missing or invalid team name.');
+  }
+  if (!['team','staff'].includes(resultsVisibility)) {
+    throw new HttpsError('invalid-argument','Invalid resultsVisibility');
   }
 
   // Load user to determine plan
@@ -728,6 +731,8 @@ exports.createTeam = onCall(async (request) => {
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     memberCount: 1,
     keywords_en: buildTeamKeywordsServer(name),
+    mods: [],
+    resultsVisibility, // now defaults to 'staff' if omitted
   };
   await teamRef.set(doc);
 
@@ -819,8 +824,9 @@ exports.acceptJoinRequest = onCall(async (request) => {
   if (!teamSnap.exists)
     throw new HttpsError('not-found', 'Team not found.');
   const teamData = teamSnap.data();
-  if (request.auth.uid !== teamData.createdBy)
-    throw new HttpsError('permission-denied', 'Only the team creator can accept join requests.');
+  if (request.auth.uid !== teamData.createdBy && !(teamData.mods || []).includes(request.auth.uid)) {
+    throw new HttpsError('permission-denied', 'Only the team creator or mods can accept join requests.');
+  }
 
   const joinRequestRef = teamRef.collection('joinRequests').doc(requestId);
   const joinRequestSnap = await joinRequestRef.get();
@@ -866,8 +872,9 @@ exports.declineJoinRequest = onCall(async (request) => {
   if (!teamSnap.exists)
     throw new HttpsError('not-found', 'Team not found.');
   const teamData = teamSnap.data();
-  if (request.auth.uid !== teamData.createdBy)
-    throw new HttpsError('permission-denied', 'Only the team creator can decline join requests.');
+  if (request.auth.uid !== teamData.createdBy && !(teamData.mods || []).includes(request.auth.uid)) {
+    throw new HttpsError('permission-denied', 'Only the team creator or mods can decline join requests.');
+  }
 
   const joinRequestRef = teamRef.collection('joinRequests').doc(requestId);
   const joinRequestSnap = await joinRequestRef.get();
@@ -895,8 +902,8 @@ exports.getTeamMemberProfiles = onCall(async (request) => {
   if (!teamSnap.exists) throw new HttpsError('not-found', 'Team not found.');
 
   const team = teamSnap.data();
-  if (team.createdBy !== request.auth.uid) {
-    throw new HttpsError('permission-denied', 'Only the team creator can view member profiles.');
+  if (team.createdBy !== request.auth.uid && !(team.mods || []).includes(request.auth.uid)) {
+    throw new HttpsError('permission-denied', 'Only creator or mods can view member profiles.');
   }
 
   const memberIds = Array.isArray(team.members) ? team.members : [];
@@ -936,4 +943,75 @@ exports.leaveTeam = onCall(async (request) => {
   });
 
   return { ok: true };
+});
+
+// ------------------------------------------------------------------
+// Mod Management (team moderators)
+// ------------------------------------------------------------------
+exports.addTeamMod = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated','Auth required.');
+  const { teamId, userId } = request.data || {};
+  if (!teamId || !userId) throw new HttpsError('invalid-argument','Missing teamId or userId.');
+  const teamRef = db.collection('teams').doc(teamId);
+  const snap = await teamRef.get();
+  if (!snap.exists) throw new HttpsError('not-found','Team not found.');
+  const team = snap.data();
+  if (team.createdBy !== request.auth.uid) throw new HttpsError('permission-denied','Only creator can add mods.');
+  if (!team.members.includes(userId)) throw new HttpsError('failed-precondition','User must be a member.');
+  await teamRef.update({
+    mods: admin.firestore.FieldValue.arrayUnion(userId),
+  });
+  return { ok: true };
+});
+
+exports.removeTeamMod = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated','Auth required.');
+  const { teamId, userId } = request.data || {};
+  if (!teamId || !userId) throw new HttpsError('invalid-argument','Missing teamId or userId.');
+  const teamRef = db.collection('teams').doc(teamId);
+  const snap = await teamRef.get();
+  if (!snap.exists) throw new HttpsError('not-found','Team not found.');
+  const team = snap.data();
+  if (team.createdBy !== request.auth.uid) throw new HttpsError('permission-denied','Only creator can remove mods.');
+  await teamRef.update({
+    mods: admin.firestore.FieldValue.arrayRemove(userId),
+  });
+  return { ok: true };
+});
+
+exports.updateResultsVisibility = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated','Auth required.');
+  const { teamId, resultsVisibility } = request.data || {};
+  if (!teamId || !['team','staff'].includes(resultsVisibility))
+    throw new HttpsError('invalid-argument','Bad arguments.');
+  const teamRef = db.collection('teams').doc(teamId);
+  const snap = await teamRef.get();
+  if (!snap.exists) throw new HttpsError('not-found','Team not found.');
+  const team = snap.data();
+  if (team.createdBy !== request.auth.uid && !(team.mods||[]).includes(request.auth.uid))
+    throw new HttpsError('permission-denied','Only creator or mods can update visibility.');
+  await teamRef.update({ resultsVisibility });
+  return { ok:true };
+});
+
+exports.removeTeamMember = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Auth required.');
+  const { teamId, memberId } = request.data || {};
+  if (!teamId || !memberId) throw new HttpsError('invalid-argument','Missing args.');
+  const teamRef = db.collection('teams').doc(teamId);
+  const snap = await teamRef.get();
+  if (!snap.exists) throw new HttpsError('not-found','Team not found.');
+  const team = snap.data();
+  const caller = request.auth.uid;
+  const isCreator = caller === team.createdBy;
+  const isMod = (team.mods || []).includes(caller);
+  if (!isCreator && !isMod) throw new HttpsError('permission-denied','Not staff.');
+  if (memberId === team.createdBy) throw new HttpsError('failed-precondition','Cannot remove owner.');
+  const members = Array.isArray(team.members) ? team.members : [];
+  if (!members.includes(memberId)) return { ok:true, skipped:true };
+  await teamRef.update({
+    members: admin.firestore.FieldValue.arrayRemove(memberId),
+    memberCount: admin.firestore.FieldValue.increment(-1),
+  });
+  return { ok:true };
 });

@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { updateTeam, deleteTeam } from '@/lib/firebase/teamFunctions';
+import { updateTeam, deleteTeam, addTeamMod, removeTeamMod, updateResultsVisibility } from '@/lib/firebase/teamFunctions';
 import { deleteTeamImage, uploadTeamImage } from '@/lib/firebase/storageFunctions';
 import useSingleTeam from '@/hooks/useSingleTeam';
 import Button from '@/components/ui/Button';
@@ -28,12 +28,16 @@ export default function EditTeamPage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRemovingImage, setIsRemovingImage] = useState(false);
+  const [resultsVisibility, setResultsVisibility] = useState('staff');
+  const [mods, setMods] = useState([]);
 
   useEffect(() => {
     if (team) {
       setName(team.name || '');
       setImageURL(team.imageURL || '');
       setIsPublic(team.isPublic || false);
+      setResultsVisibility(team.resultsVisibility || 'staff'); // fallback tightened
+      setMods(team.mods || []);
     }
   }, [team]);
 
@@ -55,7 +59,7 @@ export default function EditTeamPage() {
         finalImage = await uploadTeamImage(teamId, file, user.uid);
         setImageURL(finalImage);
       }
-      await updateTeam(teamId, { name, imageURL: finalImage, isPublic });
+      await updateTeam(teamId, { name, imageURL: finalImage, isPublic, resultsVisibility });
       router.push(`/teams/${teamId}`);
     } catch (e) {
       console.error(e);
@@ -91,6 +95,24 @@ export default function EditTeamPage() {
     } finally {
       setIsRemovingImage(false);
     }
+  };
+
+  // Helper promotion handlers
+  const handlePromote = async (memberId) => {
+    try {
+      await addTeamMod(teamId, memberId);
+    } catch(e){ alert(e.message); }
+  };
+  const handleDemote = async (memberId) => {
+    try {
+      await removeTeamMod(teamId, memberId);
+    } catch(e){ alert(e.message); }
+  };
+  const handleChangeResultsVisibility = async (val) => {
+    setResultsVisibility(val);
+    try {
+      await updateResultsVisibility(teamId, val);
+    } catch(e){ alert(e.message); }
   };
 
   if (loading) {
@@ -157,6 +179,56 @@ export default function EditTeamPage() {
           />
         </div>
 
+        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
+          <h3 className="font-medium text-gray-900">Result visibility</h3>
+          <div className="flex flex-col gap-2 text-sm">
+            {['team','staff'].map(v => (
+              <label key={v} className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="resultsVis"
+                    value={v}
+                    checked={resultsVisibility === v}
+                    onChange={() => handleChangeResultsVisibility(v)}
+                />
+                <span>{v === 'team' ? 'All members' : 'Creator & mods only'}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Mods management (only creator) */}
+        {team && user.uid === team.createdBy && (
+          <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 space-y-2">
+            <h3 className="font-medium text-gray-900">Moderators</h3>
+            <p className="text-xs text-gray-600">
+              Mods can manage events, accept join requests, and edit the team.
+            </p>
+            <ul className="space-y-1 text-sm">
+              {team.members.filter(m => m !== team.createdBy).map(m => (
+                <li key={m} className="flex items-center justify-between">
+                  <span>
+                    {m}
+                    {mods.includes(m) && <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs">MOD</span>}
+                  </span>
+                  {mods.includes(m) ? (
+                    <Button variant="secondary" className="text-xs" onClick={() => handleDemote(m)}>
+                      Demote
+                    </Button>
+                  ) : (
+                    <Button variant="primary" className="text-xs" onClick={() => handlePromote(m)}>
+                      Promote
+                    </Button>
+                  )}
+                </li>
+              ))}
+              {team.members.length <= 1 && (
+                <li className="text-gray-500 italic text-xs">No other members yet.</li>
+              )}
+            </ul>
+          </div>
+        )}
+
         <div className="space-y-2">
           <p className="text-sm text-gray-600">Team image</p>
           <div className="flex flex-col items-center">
@@ -185,9 +257,15 @@ export default function EditTeamPage() {
           <Button onClick={handleUpdate} variant="primary" loading={isUpdating} className="flex-1">
             Update
           </Button>
-          <Button onClick={handleDelete} variant="danger" loading={isDeleting} className="flex-1">
-            Delete
-          </Button>
+          {team && user.uid === team.createdBy && (
+            <Button
+              onClick={handleDelete}
+              variant="danger"
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Team'}
+            </Button>
+          )}
         </div>
       </div>
     </div>

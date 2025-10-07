@@ -9,53 +9,62 @@ const useSingleTeam = (teamId) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-// src/hooks/useSingleTeam.js
-useEffect(() => {
-  if (!teamId) return;
+  useEffect(() => {
+    if (!teamId) return;
 
-  setLoading(true);
-  setError(null);
+    setLoading(true);
+    setError(null);
 
-  // Subscribe to team data
-  const teamRef = doc(db, 'teams', teamId);
-  const unsubTeam = onSnapshot(
-    teamRef,
-    (snap) => {
-      if (snap.exists()) {
-        setTeam({ id: snap.id, ...snap.data() });
-      } else {
-        setTeam(null);
+    const teamRef = doc(db, 'teams', teamId);
+
+    let unsubEvents = null;
+
+    const unsubTeam = onSnapshot(
+      teamRef,
+      (snap) => {
+        if (snap.exists()) {
+          const data = { id: snap.id, ...snap.data() };
+          setTeam(data);
+          // (Re)attach events listener only after team confirmed existing
+          if (!unsubEvents) {
+            const eventsRef = collection(db, 'teams', teamId, 'events');
+            unsubEvents = onSnapshot(
+              eventsRef,
+              (snapshot) => {
+                const evts = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+                setEvents(evts);
+                setLoading(false);
+              },
+              (err) => {
+                console.error('Error fetching events:', err);
+                setError(err);
+                setLoading(false);
+              }
+            );
+          }
+        } else {
+          // Team deleted: clean up events listener (rules would now fail)
+          setTeam(null);
+          setEvents([]);
+          setLoading(false);
+          if (unsubEvents) {
+            unsubEvents();
+            unsubEvents = null;
+          }
+        }
+      },
+      (err) => {
+        console.error('Error fetching team data:', err);
+        setError(err);
+        setLoading(false);
       }
-    },
-    (err) => {
-      console.error('Error fetching team data:', err);
-      setError(err);
-      setLoading(false);
-    }
-  );
+    );
 
-
-  // Subscribe to events
-  const eventsRef = collection(db, 'teams', teamId, 'events');
-  const unsubEvents = onSnapshot(
-    eventsRef,
-    (snapshot) => {
-      const evts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setEvents(evts);
-      setLoading(false);
-    },
-    (err) => {
-      console.error('Error fetching events:', err);
-      setError(err);
-      setLoading(false);
-    }
-  );
-
-  return () => {
-    unsubTeam();
-    unsubEvents();
-  };
-}, [teamId]);
+    return () => {
+      unsubTeam();
+      if (unsubEvents) unsubEvents();
+    };
+  }, [teamId]);
 
   return { team, events, loading, error };
 };

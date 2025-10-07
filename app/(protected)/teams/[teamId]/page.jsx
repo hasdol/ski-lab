@@ -29,24 +29,28 @@ export default function TeamDetailPage() {
   const [activeTab, setActiveTab] = useState('events');
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
   const [memberCap, setMemberCap] = useState(null);
-  const canManage = ['coach', 'company'].includes(userData?.plan);
+  const [memberProfiles, setMemberProfiles] = useState([]); // <-- FIX: define state
+  const isMod = team?.mods?.includes(user?.uid);
   const isCreator = team?.createdBy === user?.uid;
-  const [memberProfiles, setMemberProfiles] = useState([]);
+  const teamAdmin = isCreator || isMod;
+  const canManageEvents = teamAdmin; // old: canManage
+  // Replace uses of `canManage` for team actions:
+  // const canManage = ['coach', 'company'].includes(userData?.plan);
 
   // Fetch pending join requests count — creator only
   useEffect(() => {
-    if (!teamId || !isCreator) return;
+    if (!teamId || !teamAdmin) return;
     const requestsRef = collection(db, 'teams', teamId, 'joinRequests');
     const q = query(requestsRef, where('status', '==', 'pending'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setPendingRequestCount(snapshot.docs.length);
     });
     return () => unsubscribe();
-  }, [teamId, isCreator]);
+  }, [teamId, teamAdmin]);
 
-  // Load member profiles when owner views Members tab
+  // Load member profiles when owner/mod views Members tab
   useEffect(() => {
-    if (!isCreator || activeTab !== 'members') return;
+    if (!teamAdmin || activeTab !== 'members') return;
     (async () => {
       try {
         const fn = httpsCallable(getFunctions(), 'getTeamMemberProfiles');
@@ -57,7 +61,7 @@ export default function TeamDetailPage() {
         setMemberProfiles([]);
       }
     })();
-  }, [isCreator, activeTab, teamId]);
+  }, [teamAdmin, activeTab, teamId, team?.members?.length]); // added team members length
 
   // Fetch owner plan to derive member cap for display
   useEffect(() => {
@@ -76,9 +80,15 @@ export default function TeamDetailPage() {
       alert("You cannot remove yourself from the team. Please use the leave team option.");
       return;
     }
+    if (!isCreator && memberId === team.createdBy) {
+      alert("Mods cannot remove the team owner.");
+      return;
+    }
     if (!confirm('Are you sure you want to remove this member?')) return;
     try {
       await removeTeamMember(team.id, memberId);
+      // Optimistic local update so UI reflects change immediately
+      setMemberProfiles(prev => prev.filter(m => m.uid !== memberId));
     } catch (e) {
       console.error(e);
       alert('Failed to remove member');
@@ -138,7 +148,7 @@ export default function TeamDetailPage() {
           Back to Teams
         </Button>
         <div className="flex gap-2">
-          {canManage && (
+          {teamAdmin && (
             <Button
               onClick={() => router.push(`/teams/${teamId}/edit`)}
               variant="primary"
@@ -155,7 +165,7 @@ export default function TeamDetailPage() {
       </div>
 
       {/* Upgrade notice for owners who can't manage events anymore */}
-      {isCreator && !canManage && (
+      {isCreator && !canManageEvents && (
         <div className="flex flex-col gap-3 md:flex-row mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg p-5 items-center justify-between">
           <span>
             Your current plan doesn’t allow team management. Upgrade to manage teams.
@@ -199,7 +209,7 @@ export default function TeamDetailPage() {
               - users with manage privileges (canManage)
               - or when the team is public
           */}
-          {(isCreator || canManage || team.isPublic) && (
+          {(teamAdmin || team.isPublic) && (
             <div className="mb-6 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800 text-center">
               <span className="font-medium">Join code:</span>
               <span className="font-mono ml-2 bg-blue-100 px-2 py-1 rounded-lg">
@@ -228,22 +238,22 @@ export default function TeamDetailPage() {
             >
               Timeline
             </button>
-            {isCreator && (
+            {teamAdmin && (
               <>
                 <button
                   className={`px-4 py-2 font-medium text-sm ${activeTab === 'members'
-                      ? 'text-blue-600 border-b-2 border-blue-600'
-                      : 'text-gray-500 hover:text-gray-700'
-                    }`}
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                  }`}
                   onClick={() => setActiveTab('members')}
                 >
                   Members
                 </button>
                 <button
                   className={`px-4 py-2 font-medium text-sm ${activeTab === 'joinRequests'
-                      ? 'text-blue-600 border-b-2 border-blue-600'
-                      : 'text-gray-500 hover:text-gray-700'
-                    }`}
+                    ? 'text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                  }`}
                   onClick={() => setActiveTab('joinRequests')}
                 >
                   Join Requests
@@ -258,11 +268,11 @@ export default function TeamDetailPage() {
           {/* Tab Content */}
           {activeTab === 'timeline' && (
             <div className="mb-6">
-              <TeamTimeline teamId={teamId} isOwner={isCreator} />
+              <TeamTimeline teamId={teamId} canPost={isCreator || isMod} />
             </div>
           )}
 
-          {activeTab === 'members' && isCreator && (
+          {activeTab === 'members' && teamAdmin && (
             <div className="space-y-3 mb-6">
               {memberProfiles.map((m) => (
                 <div
@@ -279,8 +289,14 @@ export default function TeamDetailPage() {
                         </span>
                       </div>
                     )}
-                    <div className="font-medium">
+                    <div className="font-medium flex items-center gap-2">
                       {m.displayName || m.uid}
+                      {team.mods?.includes(m.uid) && m.uid !== team.createdBy && (
+                        <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs">MOD</span>
+                      )}
+                      {m.uid === team.createdBy && (
+                        <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs">OWNER</span>
+                      )}
                     </div>
                   </div>
                   {m.uid !== user.uid && (
@@ -297,7 +313,7 @@ export default function TeamDetailPage() {
             </div>
           )}
 
-          {activeTab === 'joinRequests' && canManage && (
+          {activeTab === 'joinRequests' && canManageEvents && (
             <div className="mb-6">
               <PendingJoinRequests teamId={teamId} />
             </div>
@@ -305,7 +321,7 @@ export default function TeamDetailPage() {
 
           {activeTab === 'events' && (
             <div className="space-y-6">
-              {canManage && (
+              {teamAdmin && (
                 <Button
                   onClick={() => router.push(`/teams/${teamId}/create`)}
                   variant="primary"

@@ -98,7 +98,7 @@ export default function TeamsPage() {
         subtitle={
           <>
             <span>
-              <span className="font-semibold text-gray-700">{ownedTeamsCount}</span> / {maxTeams} teams
+              <span className="font-semibold text-gray-700">{ownedTeamsCount}</span> / {maxTeams} teams created
               <span className="ml-2">({userData?.plan?.charAt(0).toUpperCase() + userData?.plan?.slice(1)} plan)</span>
             </span>
           </>
