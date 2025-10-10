@@ -140,6 +140,49 @@ exports.weatherForecast = onRequest(
 );
 
 /* ------------------------------------------------------------------
+   reverseGeocode (proxy with CORS)
+   ------------------------------------------------------------------ */
+exports.reverseGeocode = onRequest(
+  {
+    region: 'europe-north1',
+    timeoutSeconds: 10,
+    memory: '256MiB',
+  },
+  async (req, res) => {
+    addCorsHeaders(req, res);
+    if (req.method === 'OPTIONS') {
+      return res.status(204).send('');
+    }
+
+    const { lat, lon } = req.query;
+    if (!lat || !lon) {
+      return res.status(400).json({ error: 'lat and lon query params required' });
+    }
+
+    try {
+      const upstream = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&format=json`,
+        {
+          headers: {
+            // Identify your app per Nominatim policy
+            'User-Agent': 'Ski-Lab/1.0 (https://ski-lab.com)',
+          },
+        }
+      );
+
+      if (!upstream.ok) throw new Error(`nominatim responded ${upstream.status}`);
+
+      return res
+        .set('Cache-Control', 'public, max-age=600, s-maxage=600')
+        .json(await upstream.json());
+    } catch (err) {
+      console.error('reverseGeocode failed:', err);
+      return res.status(502).json({ error: 'reverse geocode failed' });
+    }
+  }
+);
+
+/* ------------------------------------------------------------------
    Auth Trigger – Initialize user
    ------------------------------------------------------------------ */
 exports.onUserCreate = functionsV1.auth.user().onCreate(async (user) => {

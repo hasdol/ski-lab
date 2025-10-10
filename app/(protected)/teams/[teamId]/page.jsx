@@ -19,6 +19,7 @@ import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/fire
 import { db } from '@/lib/firebase/firebaseConfig';
 import { TEAM_PLAN_CAPS } from '@/lib/constants/teamPlanCaps';
 import TeamTimeline from './components/TeamTimeline';
+import TeamEventDashboard from '@/components/analytics/TeamEventDashboard';
 
 export default function TeamDetailPage() {
   const { teamId } = useParams();
@@ -48,9 +49,9 @@ export default function TeamDetailPage() {
     return () => unsubscribe();
   }, [teamId, teamAdmin]);
 
-  // Load member profiles when owner/mod views Members tab
+  // Load member profiles when owner/mod views Dashboard tab (moved from 'members' tab)
   useEffect(() => {
-    if (!teamAdmin || activeTab !== 'members') return;
+    if (!teamAdmin || activeTab !== 'dashboard') return;
     (async () => {
       try {
         const fn = httpsCallable(getFunctions(), 'getTeamMemberProfiles');
@@ -61,7 +62,7 @@ export default function TeamDetailPage() {
         setMemberProfiles([]);
       }
     })();
-  }, [teamAdmin, activeTab, teamId, team?.members?.length]); // added team members length
+  }, [teamAdmin, activeTab, teamId, team?.members?.length]);
 
   // Fetch owner plan to derive member cap for display
   useEffect(() => {
@@ -183,7 +184,7 @@ export default function TeamDetailPage() {
           <h1 className="text-2xl font-semibold text-gray-900 mb-1 text-center flex items-center justify-center gap-2">
             {team.name}
             {team.isPublic ? (
-              <MdPublic title="Public Team" className='text-blue-600'/>
+              <MdPublic title="Public Team" className='text-blue-600' />
             ) : <MdLock className='text-gray-700' />}
           </h1>
           <div className="flex space-x-4 text-sm text-gray-600 mb-4">
@@ -216,103 +217,50 @@ export default function TeamDetailPage() {
           <div className="flex border-b border-gray-200 mb-6">
             <button
               className={`px-4 py-2 font-medium text-sm ${activeTab === 'events'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
                 }`}
               onClick={() => setActiveTab('events')}
             >
               Events
             </button>
+
             <button
               className={`px-4 py-2 font-medium text-sm ${activeTab === 'timeline'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
                 }`}
               onClick={() => setActiveTab('timeline')}
             >
               Timeline
             </button>
+
             {teamAdmin && (
-              <>
-                <button
-                  className={`px-4 py-2 font-medium text-sm ${activeTab === 'members'
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
+              <button
+                className={`px-4 py-2 font-medium text-sm ${activeTab === 'dashboard'
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
                   }`}
-                  onClick={() => setActiveTab('members')}
-                >
-                  Members
-                </button>
-                <button
-                  className={`px-4 py-2 font-medium text-sm ${activeTab === 'joinRequests'
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                  onClick={() => setActiveTab('joinRequests')}
-                >
-                  Join Requests
+                onClick={() => setActiveTab('dashboard')}
+                title="Owner/moderator dashboard"
+              >
+                <span className="inline-flex items-center gap-2">
+                  Dashboard
+                  {/* NEW: pending join requests badge on tab */}
                   {pendingRequestCount > 0 && (
-                    <span className="ml-2 inline-block w-2 h-2 bg-red-600 rounded-full" />
+                    <span
+                      className="inline-flex items-center justify-center min-w-[20px] h-5 px-1 text-xs font-semibold text-white bg-red-600 rounded-full"
+                      aria-label={`${pendingRequestCount} pending join request${pendingRequestCount > 1 ? 's' : ''}`}
+                    >
+                      {pendingRequestCount}
+                    </span>
                   )}
-                </button>
-              </>
+                </span>
+              </button>
             )}
           </div>
 
           {/* Tab Content */}
-          {activeTab === 'timeline' && (
-            <div className="mb-6">
-              <TeamTimeline teamId={teamId} canPost={isCreator || isMod} />
-            </div>
-          )}
-
-          {activeTab === 'members' && teamAdmin && (
-            <div className="space-y-3 mb-6">
-              {memberProfiles.map((m) => (
-                <div
-                  key={m.uid}
-                  className="flex items-center justify-between space-x-4 border-b p-2 border-gray-300"
-                >
-                  <div className="flex items-center">
-                    {m.photoURL ? (
-                      <img src={m.photoURL} alt={m.displayName || m.uid} className="w-8 h-8 rounded-full mr-3" />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-3">
-                        <span className="text-gray-600 font-medium">
-                          {(m.displayName || m.uid).charAt(0)}
-                        </span>
-                      </div>
-                    )}
-                    <div className="font-medium flex items-center gap-2">
-                      {m.displayName || m.uid}
-                      {team.mods?.includes(m.uid) && m.uid !== team.createdBy && (
-                        <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs">MOD</span>
-                      )}
-                      {m.uid === team.createdBy && (
-                        <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs">OWNER</span>
-                      )}
-                    </div>
-                  </div>
-                  {m.uid !== user.uid && (
-                    <Button
-                      variant="danger"
-                      className="text-xs px-3 py-1"
-                      onClick={() => handleKick(m.uid)}
-                    >
-                      Remove
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {activeTab === 'joinRequests' && canManageEvents && (
-            <div className="mb-6">
-              <PendingJoinRequests teamId={teamId} />
-            </div>
-          )}
-
           {activeTab === 'events' && (
             <div className="space-y-6">
               {teamAdmin && (
@@ -345,7 +293,7 @@ export default function TeamDetailPage() {
                               <div>
                                 <h3 className="font-semibold text-gray-800">{evt.name}</h3>
                                 <p className="flex items-center text-sm text-gray-500 mt-1">
-                                  <MdEvent className='mr-1'/>
+                                  <MdEvent className='mr-1' />
                                   {start.toLocaleDateString('nb-NO')} - {end.toLocaleDateString('nb-NO')}
                                 </p>
                               </div>
@@ -366,6 +314,78 @@ export default function TeamDetailPage() {
               ))}
             </div>
           )}
+
+          {activeTab === 'timeline' && (
+            <div className="mb-6">
+              <TeamTimeline teamId={teamId} canPost={isCreator || isMod} />
+            </div>
+          )}
+
+          {activeTab === 'dashboard' && teamAdmin && (
+            <div className="mb-6 space-y-6">
+              {/* Join Requests (moved from Join Requests tab) */}
+              <div className="space-y-3">
+                <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                  Join Requests
+                  {pendingRequestCount > 0 && (
+                    <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-semibold text-white bg-red-600 rounded-full">
+                      {pendingRequestCount}
+                    </span>
+                  )}
+                </h2>
+                <PendingJoinRequests teamId={teamId} />
+              </div>
+
+              {/* Team / Event analytics dashboard */}
+              <TeamEventDashboard teamId={teamId} />
+
+              {/* Members (moved from Members tab) */}
+              <div className="space-y-3">
+                <h2 className="text-lg font-semibold text-gray-800">Members</h2>
+                <div className="space-y-3 mb-6">
+                  {memberProfiles.map((m) => (
+                    <div
+                      key={m.uid}
+                      className="flex items-center justify-between space-x-4 border-b p-2 border-gray-300"
+                    >
+                      <div className="flex items-center">
+                        {m.photoURL ? (
+                          <img src={m.photoURL} alt={m.displayName || m.uid} className="w-8 h-8 rounded-full mr-3" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-3">
+                            <span className="text-gray-600 font-medium">
+                              {(m.displayName || m.uid).charAt(0)}
+                            </span>
+                          </div>
+                        )}
+                        <div className="font-medium flex items-center gap-2">
+                          {m.displayName || m.uid}
+                          {team.mods?.includes(m.uid) && m.uid !== team.createdBy && (
+                            <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs">MOD</span>
+                          )}
+                          {m.uid === team.createdBy && (
+                            <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs">OWNER</span>
+                          )}
+                        </div>
+                      </div>
+                      {m.uid !== user.uid && (
+                        <Button
+                          variant="danger"
+                          className="text-xs px-3 py-1"
+                          onClick={() => handleKick(m.uid)}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+
+            </div>
+          )}
+
         </div>
       </div>
     </div>

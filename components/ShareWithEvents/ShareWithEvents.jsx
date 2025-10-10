@@ -108,6 +108,8 @@ export default function ShareWithEventSelector({
 
   return (
     <div className="p-4 border border-gray-300 rounded-lg bg-white">
+      
+
       <h2 className='font-semibold text-lg text-gray-700 mb-5'>{includePast ? 'Shared in events' : 'Share with live events'}</h2>
       <div className="mb-4">
         <Input
@@ -140,24 +142,53 @@ export default function ShareWithEventSelector({
               .filter(evt => includePast || (evt.endDate >= today))
               // sort most recent start first
               .sort((a, b) => b.startDate - a.startDate)
-              .map(evt => (
-                <label key={evt.id} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={selected[team.id]?.includes(evt.id) || false}
-                    onChange={() => toggle(team.id, evt.id)}
-                  />
-                  <div>
-                    <div className="font-medium">{highlight(evt.name, search)}</div>
-                    <div className="text-xs text-gray-500">
-                      {evt.startDate.toLocaleDateString('nb-NO')} – {evt.endDate.toLocaleDateString('nb-NO')}
+              .map(evt => {
+                const vis = evt.resultsVisibility || 'team';
+                const isStaffOnly = vis === 'staff';
+                return (
+                  <label key={evt.id} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={selected[team.id]?.includes(evt.id) || false}
+                      onChange={() => toggle(team.id, evt.id)}
+                    />
+                    <div>
+                      <div className="font-medium flex items-center gap-2">
+                        {highlight(evt.name, search)}
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs ${
+                            isStaffOnly ? 'bg-indigo-100 text-indigo-700' : 'bg-green-100 text-green-700'
+                          }`}
+                          title={
+                            isStaffOnly
+                              ? 'Only the team owner and moderators will see tests shared to this event'
+                              : 'All team members will see tests shared to this event'
+                          }
+                        >
+                          {isStaffOnly ? 'Owner/mods' : 'Team members'}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {evt.startDate.toLocaleDateString('nb-NO')} – {evt.endDate.toLocaleDateString('nb-NO')}
+                      </div>
                     </div>
-                  </div>
-                </label>
-              ))}
+                  </label>
+                );
+              })}
           </div>
         </details>
       ))}
+      {/* Compact info bar for visibility badges */}
+      <div className="pt-3 flex flex-wrap items-center gap-2 text-xs">
+        <span className="inline-flex items-center px-2 py-0.5 rounded bg-green-100 text-green-700 font-semibold">
+          Team members
+        </span>
+        <span className="text-gray-600">Everyone sees</span>
+        <span className="inline-flex items-center px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 font-semibold">
+          Owner/mods
+        </span>
+        <span className="text-gray-600">Only staff sees</span>
+      </div>
     </div>
   );
 }

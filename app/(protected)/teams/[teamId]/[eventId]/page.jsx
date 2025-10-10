@@ -11,6 +11,7 @@ import EventTests from './components/EventTests';
 import EventWeather from './components/EventWeather';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { formatDate } from '@/helpers/helpers';
+import TeamEventDashboard from '@/components/analytics/TeamEventDashboard';
 
 export default function EventPage() {
   const { teamId, eventId } = useParams();
@@ -19,7 +20,7 @@ export default function EventPage() {
   const { userData } = useAuth();
 
   const canManage = ['coach', 'company'].includes(userData?.plan);
-  const [activeTab, setActiveTab] = useState('Overview');
+  const [activeTab, setActiveTab] = useState('Info');
 
   const handleBack = () => router.push(`/teams/${teamId}`);
   const handleEdit = () => router.push(`/teams/${teamId}/${eventId}/edit`);
@@ -87,9 +88,10 @@ export default function EventPage() {
         <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
         <div className="m-4">
-          {activeTab === 'Overview' && <EventOverview eventData={eventData} />}
+          {activeTab === 'Info' && <EventOverview eventData={eventData} />}
           {activeTab === 'Tests' && <EventTests teamId={teamId} eventId={eventId} eventData={eventData} />}
           {activeTab === 'Weather' && <EventWeather eventData={eventData} />}
+          {activeTab === 'Dashboard' && <TeamEventDashboard teamId={teamId} eventId={eventId} />}
         </div>
       </div>
 

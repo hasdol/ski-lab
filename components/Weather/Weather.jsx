@@ -12,6 +12,7 @@ import {
 } from 'react-icons/ri';
 
 import { WEATHER_ENDPOINT } from '@/lib/firebase/weatherEndpoint';
+import { REVERSE_GEOCODE_ENDPOINT } from '@/lib/firebase/weatherEndpoint';
 import { useAuth } from '@/context/AuthContext';
 
 /* ─────────── small in‑memory cache ─────────── */
@@ -80,7 +81,7 @@ export default function Weather() {
         let place = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
         try {
           const rev = await cachedFetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+            `${REVERSE_GEOCODE_ENDPOINT}?lat=${lat}&lon=${lon}`
           );
           place =
             rev.address?.quarter ||
