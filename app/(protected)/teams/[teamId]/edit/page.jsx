@@ -247,8 +247,8 @@ export default function EditTeamPage() {
           </div>
         </div>
 
-        <div className="flex gap-3 pt-4">
-          <Button onClick={handleUpdate} variant="primary" loading={isUpdating} className="flex-1">
+        <div className="flex justify-between gap-3 pt-4">
+          <Button onClick={handleUpdate} variant="primary" loading={isUpdating} >
             Update
           </Button>
           {team && user.uid === team.createdBy && (
@@ -256,6 +256,7 @@ export default function EditTeamPage() {
               onClick={handleDelete}
               variant="danger"
               disabled={isDeleting}
+              
             >
               {isDeleting ? 'Deleting...' : 'Delete Team'}
             </Button>

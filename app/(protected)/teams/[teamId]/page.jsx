@@ -18,7 +18,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/firebaseConfig';
 import { TEAM_PLAN_CAPS } from '@/lib/constants/teamPlanCaps';
-import TeamTimeline from './components/TeamTimeline';
+import TeamInfo from './components/TeamInfo';
 import TeamEventDashboard from '@/components/analytics/TeamEventDashboard';
 
 export default function TeamDetailPage() {
@@ -226,13 +226,13 @@ export default function TeamDetailPage() {
             </button>
 
             <button
-              className={`px-4 py-2 font-medium text-sm ${activeTab === 'timeline'
+              className={`px-4 py-2 font-medium text-sm ${activeTab === 'info'
                 ? 'text-blue-600 border-b-2 border-blue-600'
                 : 'text-gray-500 hover:text-gray-700'
                 }`}
-              onClick={() => setActiveTab('timeline')}
+              onClick={() => setActiveTab('info')}
             >
-              Timeline
+              Info
             </button>
 
             {teamAdmin && (
@@ -315,15 +315,16 @@ export default function TeamDetailPage() {
             </div>
           )}
 
-          {activeTab === 'timeline' && (
+          {activeTab === 'info' && (
             <div className="mb-6">
-              <TeamTimeline teamId={teamId} canPost={isCreator || isMod} />
+              <TeamInfo teamId={teamId} canPost={isCreator || isMod} />
             </div>
           )}
 
           {activeTab === 'dashboard' && teamAdmin && (
             <div className="mb-6 space-y-6">
               {/* Join Requests (moved from Join Requests tab) */}
+              {pendingRequestCount > 0 && (
               <div className="space-y-3">
                 <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
                   Join Requests
@@ -335,6 +336,8 @@ export default function TeamDetailPage() {
                 </h2>
                 <PendingJoinRequests teamId={teamId} />
               </div>
+              )}
+
 
               {/* Team / Event analytics dashboard */}
               <TeamEventDashboard teamId={teamId} />

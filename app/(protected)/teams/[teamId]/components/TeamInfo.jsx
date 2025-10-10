@@ -7,7 +7,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Spinner from '@/components/common/Spinner/Spinner';
 
-export default function TeamTimeline({ teamId, canPost }) {
+export default function TeamInfo({ teamId, canPost }) {
   const { user } = useAuth();
   const { entries, loading, error } = useTeamTimeline(teamId);
   const [title, setTitle] = useState('');
