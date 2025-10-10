@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase/firebaseConfig';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 
-export const useTeamTimeline = (teamId) => {
+export const useTeamInfo = (teamId) => {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,4 +34,4 @@ export const useTeamTimeline = (teamId) => {
   return { entries, loading, error };
 };
 
-export default useTeamTimeline;
+export default useTeamInfo;

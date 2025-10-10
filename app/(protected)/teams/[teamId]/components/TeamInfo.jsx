@@ -1,15 +1,15 @@
 'use client';
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { addTeamTimelineEntry, deleteTeamTimelineEntry } from '@/lib/firebase/teamFunctions';
-import { useTeamTimeline } from '@/hooks/useTeamTimeline';
+import { addTeamInfoEntry, deleteTeamInfoEntry } from '@/lib/firebase/teamFunctions';
+import { useTeamInfo } from '@/hooks/useTeamInfo';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Spinner from '@/components/common/Spinner/Spinner';
 
 export default function TeamInfo({ teamId, canPost }) {
   const { user } = useAuth();
-  const { entries, loading, error } = useTeamTimeline(teamId);
+  const { entries, loading, error } = useTeamInfo(teamId);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [posting, setPosting] = useState(false);
@@ -19,7 +19,7 @@ export default function TeamInfo({ teamId, canPost }) {
     if (!title.trim() && !content.trim()) return;
     setPosting(true);
     try {
-      await addTeamTimelineEntry(teamId, { title, content, createdBy: user.uid });
+      await addTeamInfoEntry(teamId, { title, content, createdBy: user.uid });
       setTitle('');
       setContent('');
     } catch (e) {
@@ -34,7 +34,7 @@ export default function TeamInfo({ teamId, canPost }) {
     if (!canPost) return;
     if (!confirm('Delete this entry?')) return;
     try {
-      await deleteTeamTimelineEntry(teamId, id);
+      await deleteTeamInfoEntry(teamId, id);
     } catch (e) {
       console.error('Delete failed:', e);
       alert(e.message || 'Failed to delete.');
