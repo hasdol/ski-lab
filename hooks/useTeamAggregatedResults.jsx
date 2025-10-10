@@ -17,6 +17,13 @@ export function useTeamAggregatedResults(teamId) {
     const unsubEvents = onSnapshot(
       eventsRef,
       (eventsSnap) => {
+        // NEW: handle teams with no events → no analytics
+        if (eventsSnap.empty) {
+          setResults([]);
+          setLoading(false);
+          return;
+        }
+
         const unsubs = [];
         const all = [];
         eventsSnap.docs.forEach((evtDoc) => {

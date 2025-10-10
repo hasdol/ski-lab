@@ -5,7 +5,7 @@ import Button from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { RiVipCrownLine } from 'react-icons/ri';
-import { MdLock, MdPublic } from 'react-icons/md';
+import { MdPublicOff, MdPublic } from 'react-icons/md';
 
 const TeamCard = ({ team, isCreator, isMod, onView }) => {
   const getInitials = (name = '') =>
@@ -51,7 +51,7 @@ const TeamCard = ({ team, isCreator, isMod, onView }) => {
               </span>
             ) : (
               <span className="flex items-center gap-1 px-2 py-0.5 bg-gray-200 text-gray-700 rounded text-xs font-semibold">
-                <MdLock />
+                <MdPublicOff />
                 Private
               </span>
             )}

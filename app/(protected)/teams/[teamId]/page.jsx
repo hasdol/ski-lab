@@ -10,7 +10,7 @@ import { removeTeamMember, leaveTeam } from '@/lib/firebase/teamFunctions';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { motion } from 'framer-motion';
 import PendingJoinRequests from '@/app/(protected)/teams/[teamId]/components/PendingJoinRequests';
-import { MdEvent, MdLock, MdPublic } from "react-icons/md";
+import { MdEvent, MdPublicOff, MdPublic } from "react-icons/md";
 
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
@@ -185,7 +185,7 @@ export default function TeamDetailPage() {
             {team.name}
             {team.isPublic ? (
               <MdPublic title="Public Team" className='text-blue-600' />
-            ) : <MdLock className='text-gray-700' />}
+            ) : <MdPublicOff className='text-gray-700' />}
           </h1>
           <div className="flex space-x-4 text-sm text-gray-600 mb-4">
             <span>

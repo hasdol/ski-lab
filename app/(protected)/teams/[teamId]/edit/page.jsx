@@ -9,7 +9,8 @@ import Input from '@/components/ui/Input';
 import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { useAuth } from '@/context/AuthContext';
-import { RiEarthLine, RiLockLine, RiTeamLine } from 'react-icons/ri';
+import { RiTeamLine } from 'react-icons/ri';
+import { MdPublic, MdPublicOff } from 'react-icons/md';
 import Toggle from '@/components/ui/Toggle';
 import PageHeader from '@/components/layout/PageHeader'; // Add this import
 import { MdArrowBack } from "react-icons/md";
@@ -165,9 +166,9 @@ export default function EditTeamPage() {
         <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
           <div className="flex items-center gap-3">
             {isPublic ? (
-              <RiEarthLine className="text-blue-600 text-xl" />
+              <MdPublic className="text-blue-600 text-xl" />
             ) : (
-              <RiLockLine className="text-gray-600 text-xl" />
+              <MdPublicOff className="text-gray-600 text-xl" />
             )}
             <div>
               <h3 className="font-medium text-gray-900">

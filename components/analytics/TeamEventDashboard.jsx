@@ -185,7 +185,7 @@ export default function TeamEventDashboard({ teamId, eventId }) {
 
   if (loading) return <div className="py-6 text-gray-500">Loading analytics…</div>;
   if (error) return <div className="py-6 text-red-600">Failed to load analytics</div>;
-  if (!rows.length) return <div className="py-6 text-gray-500">No data available</div>;
+  if (!rows.length) return <div className="py-6 text-gray-500">No analytics yet</div>;
 
   const { groupList, tempList, cells, groupAvg } = heatmap;
   const groupLabel = groupBy === 'grind' ? 'Grind' : 'Base';
