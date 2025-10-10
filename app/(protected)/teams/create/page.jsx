@@ -19,7 +19,6 @@ export default function CreateTeamPage() {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [imageURL, setImageURL] = useState('');
-  const [resultsVisibility, setResultsVisibility] = useState('staff'); // default tightened
   const router = useRouter();
 
   const handleFileChange = (e) => {
@@ -36,8 +35,8 @@ export default function CreateTeamPage() {
     try {
       setUploading(true);
 
-      // Create team with public/private status
-      const teamId = await createTeam(user.uid, teamName, isPublic, resultsVisibility);
+      // Create team without team-level results visibility
+      const teamId = await createTeam(user.uid, teamName, isPublic);
 
       if (file && (userData?.plan === 'coach' || userData?.plan === 'company')) {
         uploadedImageURL = await uploadTeamImage(teamId, file, user.uid);
@@ -95,32 +94,6 @@ export default function CreateTeamPage() {
             setEnabled={setIsPublic} 
             label="Team visibility"
           />
-        </div>
-
-        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-          <h3 className="font-medium text-gray-900 mb-2">Result visibility</h3>
-          <div className="space-y-2 text-sm">
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="resultsVisibility"
-                value="team"
-                checked={resultsVisibility === 'team'}
-                onChange={() => setResultsVisibility('team')}
-              />
-              <span>All team members can view event test results</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="resultsVisibility"
-                value="staff"
-                checked={resultsVisibility === 'staff'}
-                onChange={() => setResultsVisibility('staff')}
-              />
-              <span>Only creator & mods can view event test results</span>
-            </label>
-          </div>
         </div>
 
         {(userData?.plan === 'coach' || userData?.plan === 'company') && (

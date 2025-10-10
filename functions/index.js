@@ -691,12 +691,9 @@ exports.cancelUserDeletion = onCall(async (request) => {
 exports.createTeam = onCall(async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
   const uid = request.auth.uid;
-  const { name, isPublic = false, resultsVisibility = 'staff' } = request.data || {}; // default changed to 'staff'
+  const { name, isPublic = false } = request.data || {};
   if (!name || typeof name !== 'string') {
     throw new HttpsError('invalid-argument', 'Missing or invalid team name.');
-  }
-  if (!['team','staff'].includes(resultsVisibility)) {
-    throw new HttpsError('invalid-argument','Invalid resultsVisibility');
   }
 
   // Load user to determine plan
@@ -732,7 +729,6 @@ exports.createTeam = onCall(async (request) => {
     memberCount: 1,
     keywords_en: buildTeamKeywordsServer(name),
     mods: [],
-    resultsVisibility, // now defaults to 'staff' if omitted
   };
   await teamRef.set(doc);
 
@@ -979,39 +975,39 @@ exports.removeTeamMod = onCall(async (request) => {
   return { ok: true };
 });
 
-exports.updateResultsVisibility = onCall(async (request) => {
-  if (!request.auth) throw new HttpsError('unauthenticated','Auth required.');
-  const { teamId, resultsVisibility } = request.data || {};
-  if (!teamId || !['team','staff'].includes(resultsVisibility))
-    throw new HttpsError('invalid-argument','Bad arguments.');
-  const teamRef = db.collection('teams').doc(teamId);
-  const snap = await teamRef.get();
-  if (!snap.exists) throw new HttpsError('not-found','Team not found.');
-  const team = snap.data();
-  if (team.createdBy !== request.auth.uid && !(team.mods||[]).includes(request.auth.uid))
-    throw new HttpsError('permission-denied','Only creator or mods can update visibility.');
-  await teamRef.update({ resultsVisibility });
-  return { ok:true };
-});
-
 exports.removeTeamMember = onCall(async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Auth required.');
   const { teamId, memberId } = request.data || {};
-  if (!teamId || !memberId) throw new HttpsError('invalid-argument','Missing args.');
+  if (!teamId || !memberId) throw new HttpsError('invalid-argument', 'Missing teamId or memberId.');
+
+  const uid = request.auth.uid;
   const teamRef = db.collection('teams').doc(teamId);
   const snap = await teamRef.get();
-  if (!snap.exists) throw new HttpsError('not-found','Team not found.');
+  if (!snap.exists) throw new HttpsError('not-found', 'Team not found.');
   const team = snap.data();
-  const caller = request.auth.uid;
-  const isCreator = caller === team.createdBy;
-  const isMod = (team.mods || []).includes(caller);
-  if (!isCreator && !isMod) throw new HttpsError('permission-denied','Not staff.');
-  if (memberId === team.createdBy) throw new HttpsError('failed-precondition','Cannot remove owner.');
+
+  const isCreator = team.createdBy === uid;
+  const isMod = !isCreator && (Array.isArray(team.mods) && team.mods.includes(uid));
+  if (!isCreator && !isMod) throw new HttpsError('permission-denied', 'Only owner or mods can remove members.');
+
+  if (memberId === team.createdBy) {
+    throw new HttpsError('failed-precondition', 'Cannot remove the team owner.');
+  }
+
+  // Mods cannot remove other mods
+  const targetIsMod = Array.isArray(team.mods) && team.mods.includes(memberId);
+  if (isMod && targetIsMod) {
+    throw new HttpsError('permission-denied', 'Mods cannot remove other mods.');
+  }
+
   const members = Array.isArray(team.members) ? team.members : [];
-  if (!members.includes(memberId)) return { ok:true, skipped:true };
+  if (!members.includes(memberId)) return { ok: true, message: 'Not a member.' };
+
   await teamRef.update({
     members: admin.firestore.FieldValue.arrayRemove(memberId),
+    mods: admin.firestore.FieldValue.arrayRemove(memberId),
     memberCount: admin.firestore.FieldValue.increment(-1),
   });
-  return { ok:true };
+
+  return { ok: true };
 });

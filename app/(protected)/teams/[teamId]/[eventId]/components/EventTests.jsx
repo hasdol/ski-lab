@@ -12,14 +12,13 @@ import Button from '@/components/ui/Button';
 import ResultCard from '@/app/(public)/results/components/ResultCard';
 import { db } from '@/lib/firebase/firebaseConfig';
 
-export default function EventTests({ teamId, eventId }) {
+export default function EventTests({ teamId, eventId, eventData }) {
   const { user } = useAuth();
   const router = useRouter();
 
   const [testResults, setTestResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // State for delete modal and related info
   const [modalOpen, setModalOpen] = useState(false);
   const [currentTestId, setCurrentTestId] = useState(null);
   const [teamMeta, setTeamMeta] = useState(null);
@@ -33,20 +32,20 @@ export default function EventTests({ teamId, eventId }) {
     return () => unsub();
   }, [teamId]);
 
-  // Subscribe after we know teamMeta (so we know if restricted)
   useEffect(() => {
     if (!teamId || !eventId || !user) return;
-    if (!teamMeta) return; // wait until team metadata loaded
+    if (!teamMeta) return; // need owner/mods to evaluate staff access
 
+    // Derive restriction from event only
     const isCreator = teamMeta?.createdBy === user?.uid;
     const isMod = (teamMeta?.mods || []).includes(user?.uid);
-    const staffOnly = (teamMeta?.resultsVisibility || 'staff') === 'staff';
+
+    const eventVis = eventData?.resultsVisibility ?? 'team';
+    const staffOnly = eventVis === 'staff';
     const restricted = staffOnly && !isCreator && !isMod;
 
     const baseRef = collection(db, 'teams', teamId, 'events', eventId, 'testResults');
-    const qRef = restricted
-      ? query(baseRef, where('userId', '==', user.uid))
-      : baseRef;
+    const qRef = restricted ? query(baseRef, where('userId', '==', user.uid)) : baseRef;
 
     setLoading(true);
     const unsub = onSnapshot(
@@ -69,11 +68,11 @@ export default function EventTests({ teamId, eventId }) {
       }
     );
     return () => unsub();
-  }, [teamId, eventId, user, teamMeta]);
+  }, [teamId, eventId, user, teamMeta, eventData?.resultsVisibility]);
 
   const isCreator = teamMeta?.createdBy === user?.uid;
   const isMod = (teamMeta?.mods || []).includes(user?.uid);
-  const isRestricted = teamMeta && teamMeta.resultsVisibility === 'staff' && !isCreator && !isMod;
+  const isRestricted = (eventData?.resultsVisibility === 'staff') && !isCreator && !isMod;
 
   const visibleResults = isRestricted
     ? testResults /* already filtered at source */

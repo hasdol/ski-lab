@@ -88,7 +88,7 @@ export default function EventPage() {
 
         <div className="m-4">
           {activeTab === 'Overview' && <EventOverview eventData={eventData} />}
-          {activeTab === 'Tests' && <EventTests teamId={teamId} eventId={eventId} />}
+          {activeTab === 'Tests' && <EventTests teamId={teamId} eventId={eventId} eventData={eventData} />}
           {activeTab === 'Weather' && <EventWeather eventData={eventData} />}
         </div>
       </div>

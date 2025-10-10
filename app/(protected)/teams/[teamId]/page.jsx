@@ -80,18 +80,12 @@ export default function TeamDetailPage() {
       alert("You cannot remove yourself from the team. Please use the leave team option.");
       return;
     }
-    if (!isCreator && memberId === team.createdBy) {
-      alert("Mods cannot remove the team owner.");
-      return;
-    }
     if (!confirm('Are you sure you want to remove this member?')) return;
     try {
-      await removeTeamMember(team.id, memberId);
-      // Optimistic local update so UI reflects change immediately
-      setMemberProfiles(prev => prev.filter(m => m.uid !== memberId));
+      await removeTeamMember(teamId, memberId); // CF wrapper
     } catch (e) {
       console.error(e);
-      alert('Failed to remove member');
+      alert(e.message);
     }
   };
 

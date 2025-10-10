@@ -5,9 +5,7 @@ service cloud.firestore {
     function teamDoc(teamId) {
       return get(/databases/$(database)/documents/teams/$(teamId));
     }
-    function isSignedIn() {
-      return request.auth != null;
-    }
+    function isSignedIn() { return request.auth != null; }
     function isTeamOwner(teamId) {
       return isSignedIn() && request.auth.uid == teamDoc(teamId).data.createdBy;
     }
@@ -22,15 +20,13 @@ service cloud.firestore {
              data.createdBy == request.auth.uid &&
              ((data.title is string) || (data.content is string));
     }
-    // NEW: mod + staff helpers for timeline scope
+    // Mods/helpers
     function isTeamMod(teamId) {
       return isSignedIn() && (request.auth.uid in teamDoc(teamId).data.mods);
     }
-    function isStaff(teamId) {
-      return isTeamOwner(teamId) || isTeamMod(teamId);
-    }
+    function isStaff(teamId) { return isTeamOwner(teamId) || isTeamMod(teamId); }
 
-    // Timeline (mods now allowed)
+    // Timeline (mods allowed)
     match /teams/{teamId}/timeline/{entryId} {
       allow get, list: if isTeamPublic(teamId) || isTeamMember(teamId) || isTeamOwner(teamId);
       allow create: if isStaff(teamId) && validTimelineCreate(request.resource.data);
@@ -41,13 +37,10 @@ service cloud.firestore {
       allow delete: if isStaff(teamId);
     }
 
-    // USERS (unchanged)
+    // USERS
     match /users/{userId} {
-      // Restrict reads to self (avoid exposing plan/Stripe fields to other users)
       allow read: if request.auth != null && request.auth.uid == userId;
-
-      allow create, delete: if request.auth != null
-        && request.auth.uid == userId;
+      allow create, delete: if request.auth != null && request.auth.uid == userId;
 
       allow update: if request.auth != null
         && request.auth.uid == userId
@@ -61,8 +54,7 @@ service cloud.firestore {
         && request.resource.data.preferences is map;
 
       match /skis/{skiId} {
-        allow read: if request.auth != null
-          && request.auth.uid == userId;
+        allow read: if request.auth != null && request.auth.uid == userId;
 
         allow create: if request.auth != null
           && request.auth.uid == userId
@@ -81,7 +73,6 @@ service cloud.firestore {
           )
           && !('locked' in request.resource.data);
 
-        // Remove duplicate 'archived' and keep a strict allow-list
         allow update: if request.auth != null
           && request.auth.uid == userId
           && (request.resource.data.diff(resource.data).affectedKeys().hasOnly([
@@ -107,113 +98,94 @@ service cloud.firestore {
             'keywords_no'
           ]));
 
-        allow delete: if request.auth != null
-          && request.auth.uid == userId;
+        allow delete: if request.auth != null && request.auth.uid == userId;
       }
 
       match /testResults/{testId} {
-        allow read, write, delete: if request.auth != null
-          && request.auth.uid == userId;
+        allow read, write, delete: if request.auth != null && request.auth.uid == userId;
       }
     }
 
-    // ----------------------------------------------------
-    // CONTACT Collection
-    // ----------------------------------------------------
-    // CONTACT — create-only; no client reads/updates/deletes
-    function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
-    }
+    // CONTACT
+    function isAdmin() { return request.auth != null && request.auth.token.admin == true; }
     match /contact/{contactId} {
-      // If you want to allow non-auth users to submit the public form in
-      // [app/(public)/contact/page.jsx](app/(public)/contact/page.jsx) via
-      // [hooks/useContactForm.jsx](hooks/useContactForm.jsx), allow create for anyone:
       allow create: if request.resource.data.keys().hasOnly(['email','subject','message','userId','createdAt'])
         && request.resource.data.email is string
         && request.resource.data.subject is string
         && request.resource.data.message is string;
-      allow read, update, delete: if isAdmin(); // or `false` to deny to all clients
+      allow read, update, delete: if isAdmin();
     }
 
-    // ----------------------------------------------------
-    // TEAMS Collection
-    // ----------------------------------------------------
+    // TEAMS
     match /teams/{teamId} {
       function isCoachOrCompany() {
         return request.auth != null
           && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ['coach','company']);
       }
-      // FIX: use teamDoc(teamId) instead of resource (which becomes child doc in nested matches)
-      function isTeamCreator() {
-        return request.auth != null
-          && request.auth.uid == teamDoc(teamId).data.createdBy;
+      function isTeamCreator() { return request.auth != null && request.auth.uid == teamDoc(teamId).data.createdBy; }
+      function isTeamModLocal() { return request.auth != null && (request.auth.uid in teamDoc(teamId).data.mods); }
+      function isStaffLocal() { return isTeamCreator() || isTeamModLocal(); }
+
+      // Only CFs mutate membership/mods; disallow client writes to these fields.
+      function teamWritableKeysOwner() {
+        return ['name','imageURL','isPublic','keywords_en'];
       }
-      function isTeamMod(teamId) {
-        return request.auth != null
-          && (request.auth.uid in teamDoc(teamId).data.mods);
-      }
-      function isStaff(teamId) {
-        return isTeamCreator() || isTeamMod(teamId);
-      }
-      function resultsVisibilityStaffOnly(teamId) {
-        return teamDoc(teamId).data.resultsVisibility == 'staff';
+      function teamWritableKeysMod() {
+        return ['name','imageURL','isPublic']; // mods can't touch keywords_en directly if you prefer
       }
 
       allow create: if isCoachOrCompany();
 
-      // Add mods to read access
       allow read: if resource.data.isPublic == true
         || (request.auth != null && request.auth.uid in resource.data.members)
         || isTeamCreator()
-        || isTeamMod(teamId);
+        || isTeamModLocal();
 
-      // Update: owner full; mods limited (cannot alter owner, mods array, or remove owner from members)
+      // Owner can update only safe fields
       allow update: if isTeamCreator()
-        || (isTeamMod(teamId)
-          && request.resource.data.createdBy == resource.data.createdBy
-          && request.resource.data.mods == resource.data.mods
-          && (teamDoc(teamId).data.createdBy in request.resource.data.members));
+        && request.writeFields.hasOnly(teamWritableKeysOwner());
+
+      // Mods can update even fewer fields
+      allow update: if isTeamModLocal()
+        && request.writeFields.hasOnly(teamWritableKeysMod());
 
       // Delete: owner only
       allow delete: if isTeamCreator();
 
       match /events/{eventId} {
-        function isTeamMember() {
-          return request.auth != null
-            && (request.auth.uid in teamDoc(teamId).data.members);
+        function isTeamMemberLocal() {
+          return request.auth != null && (request.auth.uid in teamDoc(teamId).data.members);
+        }
+        function eventStaffOnly(teamId, eventId) {
+          return get(/databases/$(database)/documents/teams/$(teamId)/events/$(eventId)).data.resultsVisibility == 'staff';
         }
 
-        // Staff (owner or mod) manage events
-        allow create: if isStaff(teamId);
-        allow read: if isTeamMember() || isStaff(teamId);
-        allow update, delete: if isStaff(teamId);
+        // Staff manage events; members can read
+        allow create: if isStaffLocal();
+        allow read: if isTeamMemberLocal() || isStaffLocal();
+        allow update, delete: if isStaffLocal();
 
         match /testResults/{testId} {
-          // Visibility logic:
-          //  - Staff always read
-          //  - If visibility = team (not staff-only) any member reads
-          //  - Test owner always reads own result
-            allow read: if
-              isStaff(teamId)
-              || (!resultsVisibilityStaffOnly(teamId) && isTeamMember())
-              || (request.auth != null && resource.data.userId == request.auth.uid);
+          // Staff always; if event visibility == team, any member; owner of test always
+          allow read: if
+            isStaffLocal()
+            || (!eventStaffOnly(teamId, eventId) && isTeamMemberLocal())
+            || (request.auth != null && resource.data.userId == request.auth.uid);
 
-            allow create: if isTeamMember();
-            // Staff or owner of the shared test can update/delete
-            allow update, delete: if isStaff(teamId)
-              || (request.auth != null && resource.data.userId == request.auth.uid);
+          // Members can create only their own test result
+          allow create: if isTeamMemberLocal()
+            && request.auth != null
+            && request.resource.data.userId == request.auth.uid;
+
+          // Staff or owner can update/delete
+          allow update, delete: if isStaffLocal()
+            || (request.auth != null && resource.data.userId == request.auth.uid);
         }
       }
 
       match /joinRequests/{requestId} {
-        function teamCreator() {
-          return request.auth != null
-            && request.auth.uid == teamDoc(teamId).data.createdBy;
-        }
-        function teamMod() {
-          return request.auth != null
-            && (request.auth.uid in teamDoc(teamId).data.mods);
-        }
+        function teamCreator() { return request.auth != null && request.auth.uid == teamDoc(teamId).data.createdBy; }
+        function teamMod() { return request.auth != null && (request.auth.uid in teamDoc(teamId).data.mods); }
         function staff() { return teamCreator() || teamMod(); }
 
         allow create: if request.auth != null

@@ -28,6 +28,7 @@ export default function EditEventPage() {
   const [imageURL, setImageURL] = useState('');
   const [file, setFile] = useState(null);
   const [location, setLocation] = useState({ lat: null, lon: null, address: '' });
+  const [resultsVisibility, setResultsVisibility] = useState('team'); // NEW
 
   // Separate loading states
   const [isUpdating, setIsUpdating] = useState(false);
@@ -38,15 +39,13 @@ export default function EditEventPage() {
     if (eventData) {
       setName(eventData.name || '');
       setDesc(eventData.description || '');
-      setStartDate(formatDate(eventData.startDate));
-      setEndDate(formatDate(eventData.endDate));
+      setStartDate(eventData.startDate ? new Date(eventData.startDate.seconds * 1000).toISOString().slice(0,10) : '');
+      setEndDate(eventData.endDate ? new Date(eventData.endDate.seconds * 1000).toISOString().slice(0,10) : '');
       setImageURL(eventData.imageURL || '');
       setLocation(eventData.location || { lat: null, lon: null, address: '' });
+      setResultsVisibility(eventData.resultsVisibility || 'team'); // NEW
     }
   }, [eventData]);
-
-  const formatDate = (ts) =>
-    ts?.seconds ? new Date(ts.seconds * 1000).toISOString().slice(0, 10) : '';
 
   const handleFile = (e) => {
     const selected = e.target.files?.[0];
@@ -61,11 +60,12 @@ export default function EditEventPage() {
     try {
       let finalImage = imageURL;
       if (file) {
-        finalImage = await uploadEventImage(teamId, eventId, file, user.uid);
+        finalImage = await uploadEventImage(teamId, eventId, file);
         setImageURL(finalImage);
       }
 
       const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
       const end = new Date(endDate);
       end.setHours(23, 59, 59, 999);
 
@@ -76,6 +76,7 @@ export default function EditEventPage() {
         endDate: end,
         imageURL: finalImage,
         location,
+        resultsVisibility, // NEW
       });
 
       router.push(`/teams/${teamId}/${eventId}`);
@@ -193,6 +194,32 @@ export default function EditEventPage() {
               Remove image
             </Button>
           )}
+
+          <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <h3 className="font-medium text-gray-900 mb-2">Result visibility</h3>
+            <div className="space-y-2 text-sm">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="resultsVisibility"
+                  value="team"
+                  checked={resultsVisibility === 'team'}
+                  onChange={() => setResultsVisibility('team')}
+                />
+                <span>All team members can view event test results</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="resultsVisibility"
+                  value="staff"
+                  checked={resultsVisibility === 'staff'}
+                  onChange={() => setResultsVisibility('staff')}
+                />
+                <span>Only owner & mods can view event test results</span>
+              </label>
+            </div>
+          </div>
 
           <div className="flex gap-2">
             <Button onClick={handleUpdate} variant="primary" loading={isUpdating}>

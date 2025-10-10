@@ -25,6 +25,7 @@ export default function CreateEventPage() {
   const [imageURL, setImageURL] = useState('');
   const [uploading, setUploading] = useState(false);
   const [location, setLocation] = useState({ lat: null, lon: null, address: '' });
+  const [resultsVisibility, setResultsVisibility] = useState('team'); // NEW: per-event
 
 
   const handleFileChange = (e) => {
@@ -52,7 +53,8 @@ export default function CreateEventPage() {
         user.uid,
         location.lat,
         location.lon,
-        location.address
+        location.address,
+        resultsVisibility // NEW
       );
 
       // 2. If image selected, upload using the new event ID
@@ -140,6 +142,32 @@ export default function CreateEventPage() {
           <Button onClick={() => router.push(`/teams/${teamId}`)} variant="secondary">
             Cancel
           </Button>
+        </div>
+
+        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <h3 className="font-medium text-gray-900 mb-2">Result visibility</h3>
+          <div className="space-y-2 text-sm">
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="resultsVisibility"
+                value="team"
+                checked={resultsVisibility === 'team'}
+                onChange={() => setResultsVisibility('team')}
+              />
+              <span>All team members can view event test results</span>
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="resultsVisibility"
+                value="staff"
+                checked={resultsVisibility === 'staff'}
+                onChange={() => setResultsVisibility('staff')}
+              />
+              <span>Only owner & mods can view event test results</span>
+            </label>
+          </div>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { updateTeam, deleteTeam, addTeamMod, removeTeamMod, updateResultsVisibility } from '@/lib/firebase/teamFunctions';
+import { updateTeam, deleteTeam, addTeamMod, removeTeamMod } from '@/lib/firebase/teamFunctions';
 import { deleteTeamImage, uploadTeamImage } from '@/lib/firebase/storageFunctions';
 import useSingleTeam from '@/hooks/useSingleTeam';
 import Button from '@/components/ui/Button';
@@ -13,6 +13,7 @@ import { RiEarthLine, RiLockLine, RiTeamLine } from 'react-icons/ri';
 import Toggle from '@/components/ui/Toggle';
 import PageHeader from '@/components/layout/PageHeader'; // Add this import
 import { MdArrowBack } from "react-icons/md";
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 
 export default function EditTeamPage() {
@@ -28,18 +29,31 @@ export default function EditTeamPage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRemovingImage, setIsRemovingImage] = useState(false);
-  const [resultsVisibility, setResultsVisibility] = useState('staff');
   const [mods, setMods] = useState([]);
+  const [memberProfiles, setMemberProfiles] = useState([]); // NEW
 
   useEffect(() => {
-    if (team) {
-      setName(team.name || '');
-      setImageURL(team.imageURL || '');
-      setIsPublic(team.isPublic || false);
-      setResultsVisibility(team.resultsVisibility || 'staff'); // fallback tightened
-      setMods(team.mods || []);
-    }
+    if (!team) return;
+    setName(team.name || '');
+    setImageURL(team.imageURL || '');
+    setIsPublic(team.isPublic || false);
+    setMods(team.mods || []);
   }, [team]);
+
+  // Load member profiles for nicer labels
+  useEffect(() => {
+    if (!teamId) return;
+    (async () => {
+      try {
+        const fn = httpsCallable(getFunctions(), 'getTeamMemberProfiles');
+        const res = await fn({ teamId });
+        setMemberProfiles(res.data || []);
+      } catch (e) {
+        console.error('Load member profiles failed', e);
+        setMemberProfiles([]);
+      }
+    })();
+  }, [teamId, team?.members?.length, team?.mods?.length]);
 
   const handleBack = () => router.push(`/teams/${teamId}`);
 
@@ -59,7 +73,7 @@ export default function EditTeamPage() {
         finalImage = await uploadTeamImage(teamId, file, user.uid);
         setImageURL(finalImage);
       }
-      await updateTeam(teamId, { name, imageURL: finalImage, isPublic, resultsVisibility });
+      await updateTeam(teamId, { name, imageURL: finalImage, isPublic });
       router.push(`/teams/${teamId}`);
     } catch (e) {
       console.error(e);
@@ -106,12 +120,6 @@ export default function EditTeamPage() {
   const handleDemote = async (memberId) => {
     try {
       await removeTeamMod(teamId, memberId);
-    } catch(e){ alert(e.message); }
-  };
-  const handleChangeResultsVisibility = async (val) => {
-    setResultsVisibility(val);
-    try {
-      await updateResultsVisibility(teamId, val);
     } catch(e){ alert(e.message); }
   };
 
@@ -179,24 +187,6 @@ export default function EditTeamPage() {
           />
         </div>
 
-        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
-          <h3 className="font-medium text-gray-900">Result visibility</h3>
-          <div className="flex flex-col gap-2 text-sm">
-            {['team','staff'].map(v => (
-              <label key={v} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="resultsVis"
-                    value={v}
-                    checked={resultsVisibility === v}
-                    onChange={() => handleChangeResultsVisibility(v)}
-                />
-                <span>{v === 'team' ? 'All members' : 'Creator & mods only'}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
         {/* Mods management (only creator) */}
         {team && user.uid === team.createdBy && (
           <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 space-y-2">
@@ -205,24 +195,28 @@ export default function EditTeamPage() {
               Mods can manage events, accept join requests, and edit the team.
             </p>
             <ul className="space-y-1 text-sm">
-              {team.members.filter(m => m !== team.createdBy).map(m => (
-                <li key={m} className="flex items-center justify-between">
-                  <span>
-                    {m}
-                    {mods.includes(m) && <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs">MOD</span>}
+              {memberProfiles
+                .filter(m => m.uid !== team.createdBy) // skip owner in this list
+                .map((m) => (
+                <li key={m.uid} className="flex items-center justify-between">
+                  <span className="flex items-center">
+                    {m.displayName || m.uid}
+                    {mods.includes(m.uid) && (
+                      <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs">MOD</span>
+                    )}
                   </span>
-                  {mods.includes(m) ? (
-                    <Button variant="secondary" className="text-xs" onClick={() => handleDemote(m)}>
+                  {mods.includes(m.uid) ? (
+                    <Button variant="secondary" className="text-xs" onClick={() => removeTeamMod(teamId, m.uid)}>
                       Demote
                     </Button>
                   ) : (
-                    <Button variant="primary" className="text-xs" onClick={() => handlePromote(m)}>
+                    <Button variant="primary" className="text-xs" onClick={() => addTeamMod(teamId, m.uid)}>
                       Promote
                     </Button>
                   )}
                 </li>
               ))}
-              {team.members.length <= 1 && (
+              {memberProfiles.filter(m => m.uid !== team.createdBy).length === 0 && (
                 <li className="text-gray-500 italic text-xs">No other members yet.</li>
               )}
             </ul>
