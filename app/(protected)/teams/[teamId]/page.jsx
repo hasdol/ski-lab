@@ -262,12 +262,12 @@ export default function TeamDetailPage() {
 
           {/* Tab Content */}
           {activeTab === 'events' && (
-            <div className="space-y-6">
+            <div className="space-y-6 min-w-1/2">
               {teamAdmin && (
                 <Button
                   onClick={() => router.push(`/teams/${teamId}/create`)}
                   variant="primary"
-                  className="w-full mb-4"
+                  className="flex mx-auto"
                 >
                   Create New Event
                 </Button>
@@ -282,20 +282,36 @@ export default function TeamDetailPage() {
                       {events.map((evt) => {
                         const start = new Date(evt.startDate.seconds * 1000);
                         const end = new Date(evt.endDate.seconds * 1000);
+                        const vis = evt.resultsVisibility || 'team';
                         return (
                           <motion.div
                             key={evt.id}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="shadow rounded-lg p-6 bg-white"
+                            className="shadow rounded-lg p-5 bg-white"
                           >
                             <div className="flex justify-between items-center space-x-4">
                               <div>
                                 <h3 className="font-semibold text-gray-800">{evt.name}</h3>
                                 <p className="flex items-center text-sm text-gray-500 mt-1">
                                   <MdEvent className='mr-1' />
-                                  {start.toLocaleDateString('nb-NO')} - {end.toLocaleDateString('nb-NO')}
+                                  {start.toLocaleDateString()} – {end.toLocaleDateString()}
                                 </p>
+                                {/* Visibility badge */}
+                                <span
+                                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold mt-2 ${
+                                    vis === 'staff'
+                                      ? 'bg-indigo-100 text-indigo-700'
+                                      : 'bg-green-100 text-green-700'
+                                  }`}
+                                  title={
+                                    vis === 'staff'
+                                      ? 'Only owner & mods can view event test results'
+                                      : 'All team members can view event test results'
+                                  }
+                                >
+                                  {vis === 'staff' ? 'Sharing: Owner/mods only' : 'Sharing: Team members'}
+                                </span>
                               </div>
                               <Button
                                 onClick={() => router.push(`/teams/${team.id}/${evt.id}`)}
@@ -316,7 +332,7 @@ export default function TeamDetailPage() {
           )}
 
           {activeTab === 'info' && (
-            <div className="mb-6">
+            <div className="mb-6 min-w-1/2">
               <TeamInfo teamId={teamId} canPost={isCreator || isMod} />
             </div>
           )}

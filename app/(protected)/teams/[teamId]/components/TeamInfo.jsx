@@ -45,7 +45,7 @@ export default function TeamInfo({ teamId, canPost }) {
     <div className="space-y-4">
       {canPost && (
         <div className="bg-white shadow rounded-lg p-4 space-y-3">
-          <h3 className="text-sm font-semibold text-gray-800">New timeline entry</h3>
+          <h3 className="font-semibold text-gray-800">New info entry</h3>
           <Input
             type="text"
             placeholder="Title (optional)"
@@ -67,11 +67,11 @@ export default function TeamInfo({ teamId, canPost }) {
       )}
 
       <div className="bg-white shadow rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-800 mb-3">Timeline</h3>
+        <h3 className="font-semibold text-gray-800 mb-3">Info</h3>
         {loading ? (
           <div className="flex justify-center py-6"><Spinner /></div>
         ) : error ? (
-          <div className="text-red-600 text-sm">Failed to load timeline.</div>
+          <div className="text-red-600 text-sm">Failed to load info.</div>
         ) : entries.length === 0 ? (
           <div className="text-gray-500 text-sm italic">No entries yet.</div>
         ) : (
