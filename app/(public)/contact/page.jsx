@@ -50,6 +50,21 @@ const Contact = () => {
         />
 
         <Input
+          type="select"
+          name="category"
+          placeholder="Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          options={[
+            { label: 'Support', value: 'support' },
+            { label: 'Feature request', value: 'feature' },
+            { label: 'Billing', value: 'billing' },
+            { label: 'Other', value: 'other' },
+          ]}
+          required
+        />
+
+        <Input
           type="text"
           name="subject"
           placeholder="Subject"
@@ -69,20 +84,7 @@ const Contact = () => {
           rows={5}
         />
 
-        <Input
-          type="select"
-          name="category"
-          placeholder="Category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          options={[
-            { label: 'Support', value: 'support' },
-            { label: 'Feature request', value: 'feature' },
-            { label: 'Billing', value: 'billing' },
-            { label: 'Other', value: 'other' },
-          ]}
-          required
-        />
+        
 
         <div>
           <Button

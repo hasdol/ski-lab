@@ -139,15 +139,6 @@ exports.weatherForecast = onRequest(
   },
 );
 
-// The UID of the user you want to make admin
-const uid = "jDzCHgQs6qZchAyXLt0UVc6aL692";
-
-async function setAdminClaim() {
-  await admin.auth().setCustomUserClaims(uid, { admin: true });
-  console.log(`✅ Set admin claim for user ${uid}`);
-}
-
-setAdminClaim();
 
 /* ------------------------------------------------------------------
    reverseGeocode (proxy with CORS)
@@ -1062,5 +1053,23 @@ exports.removeTeamMember = onCall(async (request) => {
     memberCount: admin.firestore.FieldValue.increment(-1),
   });
 
+  return { ok: true };
+});
+
+exports.setAdmin = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Auth required.');
+  if (request.auth.token.admin !== true) throw new HttpsError('permission-denied', 'Only admins can grant admin.');
+  const { uid } = request.data || {};
+  if (!uid) throw new HttpsError('invalid-argument', 'Missing uid.');
+  await admin.auth().setCustomUserClaims(uid, { admin: true });
+  return { ok: true };
+});
+
+exports.unsetAdmin = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Auth required.');
+  if (request.auth.token.admin !== true) throw new HttpsError('permission-denied', 'Only admins can revoke admin.');
+  const { uid } = request.data || {};
+  if (!uid) throw new HttpsError('invalid-argument', 'Missing uid.');
+  await admin.auth().setCustomUserClaims(uid, { admin: false });
   return { ok: true };
 });

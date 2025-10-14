@@ -16,7 +16,8 @@ import {
   RiBarChart2Line,
   RiInformationLine,
   RiMenuLine,
-  RiDownloadLine
+  RiDownloadLine,
+  RiShieldStarLine, // NEW
 } from 'react-icons/ri';
 import { TiFlowParallel } from 'react-icons/ti';
 import { useAuth } from '@/context/AuthContext';
@@ -25,7 +26,8 @@ import Weather from '@/components/Weather/Weather';
 import Button from '@/components/ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
 import useIsStandalone from '@/hooks/useIsStandalone'; // <--- new import
-import usePaginatedResults from '@/hooks/usePaginatedResults';
+import { collection, onSnapshot, query, where, getDocs, orderBy, limit, startAfter } from 'firebase/firestore'; // UPDATED
+import { db } from '@/lib/firebase/firebaseConfig'; // NEW
 import { exportResultsToCSV } from '@/helpers/helpers';
 
 const navConfig = [
@@ -41,34 +43,84 @@ export default function Navigation() {
   const { user } = useAuth();
   const { signOut } = useProfileActions(user);
 
-  // Fetch a page of results to export (hook handles auth / fetch)
-  const {
-    docs: resultsForExport,
-    refresh: refreshResultsForExport,
-  } = usePaginatedResults({
-    term: '',
-    temp: [-30, 30],
-    style: 'all',
-    sortOrder: 'desc',
-  });
+  // Helper: fetch all test results for current user (paginated)
+  const fetchAllResultsForExport = async (uid) => {
+    const PAGE = 200;
+    let out = [];
+    let cursor = null;
+    while (true) {
+      const colRef = collection(db, 'users', uid, 'testResults');
+      const q = cursor
+        ? query(colRef, orderBy('timestamp', 'desc'), startAfter(cursor), limit(PAGE))
+        : query(colRef, orderBy('timestamp', 'desc'), limit(PAGE));
+      const snap = await getDocs(q);
+      if (snap.empty) break;
+      out = out.concat(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      if (snap.docs.length < PAGE) break;
+      cursor = snap.docs[snap.docs.length - 1];
+    }
+    return out;
+  };
 
   const isActive = path => path === pathname;
   const [isSubNavOpen, setIsSubNavOpen] = useState(false);
   const isStandalone = useIsStandalone(); // centralized hook
 
+  // NEW: detect admin claim
+  const [isAdminClaim, setIsAdminClaim] = useState(false);
+  const [openFeedbackCount, setOpenFeedbackCount] = useState(0); // NEW
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      if (!user) {
+        if (mounted) {
+          setIsAdminClaim(false);
+          setOpenFeedbackCount(0);
+        }
+        return;
+      }
+      try {
+        const token = await user.getIdTokenResult();
+        if (mounted) setIsAdminClaim(!!token.claims?.admin);
+      } catch {
+        if (mounted) setIsAdminClaim(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [user]);
+
+  // NEW: subscribe to open feedback count (admins only)
+  useEffect(() => {
+    if (!isAdminClaim) { setOpenFeedbackCount(0); return; }
+    const q = query(collection(db, 'contact'), where('status', '==', 'open'));
+    const unsub = onSnapshot(q, (snap) => setOpenFeedbackCount(snap.size), () => setOpenFeedbackCount(0));
+    return () => unsub();
+  }, [isAdminClaim]);
+
   const handleExportCSV = async () => {
-    // Try to refresh to get latest data, then export whatever docs were loaded
     try {
-      await refreshResultsForExport();
+      if (!user?.uid) {
+        router.push('/login');
+        return;
+      }
+      const all = await fetchAllResultsForExport(user.uid);
+      if (!all.length) {
+        alert('No results to export');
+        return;
+      }
+      exportResultsToCSV(all);
     } catch (err) {
-      // ignore refresh errors; still try to export current docs
-      console.error('Error refreshing results for export', err);
+      console.error('Error exporting results CSV:', err);
+      alert('Failed to export results CSV');
+    } finally {
+      setIsSubNavOpen(false);
     }
-    exportResultsToCSV(resultsForExport || []);
-    setIsSubNavOpen(false);
   };
 
   const subNavItems = [
+    // NEW: Admin dashboard (admins only)
+    isAdminClaim && { key: 'admin', labelKey: 'Admin', icon: <RiShieldStarLine size={22} />, path: '/admin' },
     user && { key: 'account', labelKey: 'Account', icon: <RiUser6Line size={22} />, path: '/account' },
     user && { key: 'settings', labelKey: 'Settings', icon: <RiSettings3Line size={22} />, path: '/account/settings' },
     !user && { key: 'login', labelKey: 'Login', icon: <RiLoginBoxLine size={22} />, path: '/login' },
@@ -101,7 +153,12 @@ export default function Navigation() {
             aria-label='more'
             className={`p-4 flex items-center justify-center transition ${isSubNavOpen ? 'text-gray-800 bg-gray-100 shadow' : 'text-gray-600'}`}
           >
-            {user ? <RiMenuLine size={20} /> : <RiLoginBoxLine size={20} />}
+            <span className="relative">
+              {user ? <RiMenuLine size={20} /> : <RiLoginBoxLine size={20} />}
+              {isAdminClaim && openFeedbackCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+              )}
+            </span>
           </button>
         </div>
       </nav>
@@ -147,18 +204,23 @@ export default function Navigation() {
                         <Link
                           href={item.path}
                           onClick={() => setIsSubNavOpen(false)}
-                          className="flex items-center justify-between w-full bg-white/50 px-4 py-3 rounded-xl border border-transparent hover:bg-blue-50  hover:text-blue-600 hover:scale-[1.03] transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          className="bg-white flex items-center justify-between w-full px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                         >
                           <span>{item.labelKey}</span>
-                          {item.icon}
+                          {item.key === 'admin' ? (
+                            <span className="relative">
+                              {item.icon}
+                              {isAdminClaim && openFeedbackCount > 0 && (
+                                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                              )}
+                            </span>
+                          ) : item.icon}
                         </Link>
                       </li>
                     ) : (
                       <li key={item.key}>
-                        <button
-                          onClick={item.onClick}
-                          className="flex items-center justify-between w-full px-4 py-3 rounded-xl border border-transparent hover:bg-blue-50 hover:text-blue-600  hover:scale-[1.03] transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
-                        >
+                        <button onClick={item.onClick}
+                          className="bg-white flex items-center justify-between w-full px-4 py-3 rounded-xl  hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200">
                           <span>{item.labelKey}</span>
                           {item.icon}
                         </button>
@@ -193,12 +255,17 @@ export default function Navigation() {
         <div className="flex-1 flex items-center justify-end justify-self-end relative">
           <Weather />
           <button onClick={() => setIsSubNavOpen(o => !o)} variant='secondary' className="ml-4 p-2! hover:bg-gray-100 rounded-xl">
-            {user ? <RiMenuLine size={20} /> : <RiLoginBoxLine size={20} />}
+            <span className="relative">
+              {user ? <RiMenuLine size={20} /> : <RiLoginBoxLine size={20} />}
+              {isAdminClaim && openFeedbackCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+              )}
+            </span>
           </button>
 
           {isSubNavOpen && (
             <>
-              {/* Desktop overlay for subnav (no blur) */}
+              {/* Desktop overlay for subnav */}
               <div className="hidden md:block fixed inset-0 z-40 bg-black/20" onClick={() => setIsSubNavOpen(false)} />
               <div className="absolute right-0 top-14 w-80 mt-2 bg-gray-50 backdrop-blur-lg border border-gray-100 rounded-xl shadow overflow-hidden z-50 animate-fade-down animate-duration-300">
                 <div className="px-7 py-6">
@@ -213,7 +280,14 @@ export default function Navigation() {
                           <Link href={item.path} onClick={() => setIsSubNavOpen(false)}
                             className="bg-white flex items-center justify-between w-full px-4 py-3 rounded-xl  hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200">
                             <span>{item.labelKey}</span>
-                            {item.icon}
+                            {item.key === 'admin' ? (
+                              <span className="relative">
+                                {item.icon}
+                                {isAdminClaim && openFeedbackCount > 0 && (
+                                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                                )}
+                              </span>
+                            ) : item.icon}
                           </Link>
                         </li>
                       ) : (
