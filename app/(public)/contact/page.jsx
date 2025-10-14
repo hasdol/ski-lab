@@ -12,16 +12,18 @@ const Contact = () => {
   const [email, setEmail] = useState(user?.email || '');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [category, setCategory] = useState('support');
   const { submitContactForm, status, loading } = useContactForm();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await submitContactForm(email, subject, message);
+      await submitContactForm(email, subject, message, category);
       // Reset only if user isn't logged in (preserve email if logged in)
       if (!user) setEmail('');
       setSubject('');
       setMessage('');
+      setCategory('support');
     } catch (error) {
       // Error state handled in hook
     }
@@ -65,6 +67,21 @@ const Contact = () => {
           onChange={(e) => setMessage(e.target.value)}
           required
           rows={5}
+        />
+
+        <Input
+          type="select"
+          name="category"
+          placeholder="Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          options={[
+            { label: 'Support', value: 'support' },
+            { label: 'Feature request', value: 'feature' },
+            { label: 'Billing', value: 'billing' },
+            { label: 'Other', value: 'other' },
+          ]}
+          required
         />
 
         <div>

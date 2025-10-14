@@ -8,7 +8,7 @@ const useContactForm = () => {
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const submitContactForm = async (email, subject, message) => {
+  const submitContactForm = async (email, subject, message, category = 'support') => {
     setLoading(true);
     setStatus('');
     try {
@@ -16,6 +16,7 @@ const useContactForm = () => {
         email,
         subject,
         message,
+        category,
         userId: user?.uid || null  // Include UID if logged in
       });
       setStatus('Success! Your message has been sent. We will get back to you soon.');

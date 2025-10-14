@@ -139,6 +139,16 @@ exports.weatherForecast = onRequest(
   },
 );
 
+// The UID of the user you want to make admin
+const uid = "jDzCHgQs6qZchAyXLt0UVc6aL692";
+
+async function setAdminClaim() {
+  await admin.auth().setCustomUserClaims(uid, { admin: true });
+  console.log(`✅ Set admin claim for user ${uid}`);
+}
+
+setAdminClaim();
+
 /* ------------------------------------------------------------------
    reverseGeocode (proxy with CORS)
    ------------------------------------------------------------------ */
