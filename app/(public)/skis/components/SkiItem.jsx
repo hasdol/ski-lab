@@ -27,6 +27,8 @@ const SkiItem = ({
   expandedSkiId,
   toggleDetails,
   allExpanded = false,
+  ownerUserId,
+  readOnly = false,
 }) => {
   const { gloveMode } = useContext(UserPreferencesContext);
   const showDetails = allExpanded || (ski.id === expandedSkiId);
@@ -70,15 +72,17 @@ const SkiItem = ({
     <div className={`bg-white shadow rounded-lg overflow-hidden transition-colors duration-200 ${showDetails ? '' : 'hover:bg-blue-50'}`}>
       <div
         className="py-2 px-3 flex items-center cursor-pointer"
-        onClick={() => handleCheckboxChange(ski.id)}
+        onClick={() => { if (!readOnly) handleCheckboxChange(ski.id); }}
       >
-        <input
-          type="checkbox"
-          checked={selectedSkis[ski.id] || false}
-          readOnly
-          className={`mr-3 accent-btn border-2 rounded ${gloveMode ? 'w-10 h-10' : 'w-4 h-4'} ${styleCheckboxColors[ski.style] || 'accent-gray-400 border-gray-300'}`}
-          aria-label="select ski"
-        />
+        {!readOnly && (
+          <input
+            type="checkbox"
+            checked={selectedSkis[ski.id] || false}
+            readOnly
+            className={`mr-3 accent-btn border-2 rounded ${gloveMode ? 'w-10 h-10' : 'w-4 h-4'} ${styleCheckboxColors[ski.style] || 'accent-gray-400 border-gray-300'}`}
+            aria-label="Select ski"
+          />
+        )}
         <div className="flex items-center gap-2 flex-grow">
           <span
             className="font-medium cursor-pointer"
@@ -114,6 +118,8 @@ const SkiItem = ({
             onArchive={handleArchiveClick}
             onUnarchive={handleUnarchiveClick}
             onDelete={handleDeleteFinalClick}
+            ownerUserId={ownerUserId}
+            readOnly={readOnly}
           />
         </div>
       )}

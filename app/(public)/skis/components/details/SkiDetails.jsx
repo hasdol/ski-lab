@@ -10,8 +10,8 @@ import Button from '@/components/ui/Button';
 import { MdInfoOutline } from 'react-icons/md';
 import Input from '@/components/ui/Input';
 
-const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
-  const { tests, loading: testsLoading, error: testsError } = useSkiTests(ski.id);
+const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive, ownerUserId, readOnly = false }) => {
+  const { tests, loading: testsLoading, error: testsError } = useSkiTests(ski.id, ownerUserId);
 
   // Chart data for THIS ski
   const [chartData, setChartData] = useState([]);
@@ -535,43 +535,44 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive }) => {
         {/* Grind History Section */}
         <GrindHistory grindHistory={grindHistory} />
         {/* Action Buttons - Now inside the grid */}
-        <div className="col-span-2 md:col-span-3 flex justify-between border-t border-gray-300 pt-8 pb-4">
-          <div className='space-x-3'>
+        {!readOnly && (
+          <div className="col-span-2 md:col-span-3 flex justify-between border-t border-gray-300 pt-8 pb-4">
+            <div className='space-x-3'>
+              <Button
+                onClick={onEdit}
+                variant="primary"
+                className='text-sm'
+              >
+                Edit
+              </Button>
+              {ski.archived ? (
+                <Button
+                  onClick={onUnarchive}
+                  variant="archive"
+                  className='text-sm'
+                >
+                  Unarchive
+                </Button>
+              ) : (
+                <Button
+                  onClick={onArchive}
+                  variant="archive"
+                  className='text-sm'
+                >
+                  Archive
+                </Button>
+              )}
+            </div>
+
             <Button
-              onClick={onEdit}
-              variant="primary"
+              onClick={onDelete}
+              variant="danger"
               className='text-sm'
             >
-              Edit
+              Delete
             </Button>
-            {ski.archived ? (
-              <Button
-                onClick={onUnarchive}
-                variant="archive"
-                className='text-sm'
-              >
-                Unarchive
-              </Button>
-            ) : (
-              <Button
-                onClick={onArchive}
-                variant="archive"
-                className='text-sm'
-              >
-                Archive
-              </Button>
-            )}
           </div>
-
-          <Button
-            onClick={onDelete}
-            variant="danger"
-            className='text-sm'
-          >
-            Delete
-          </Button>
-        </div>
-
+        )}
       </div>
     </div>
   );

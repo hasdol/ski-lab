@@ -30,6 +30,8 @@ const SkiTable = ({
   onDelete,
   onArchive,
   onUnarchive
+, ownerUserId
+, readOnly = false
 }) => {
   const COLUMN_COUNT = 12;
   
@@ -63,7 +65,7 @@ const SkiTable = ({
         <table className="min-w-full border-collapse text-sm text-center">
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50 text-gray-700">
-              <th className="px-4 py-3" />
+              {!readOnly && <th className="px-4 py-3" />}
               {columns.map((column) => (
                 <th
                   key={column.id}
@@ -76,7 +78,7 @@ const SkiTable = ({
                   </div>
                 </th>
               ))}
-              <th className="px-4 py-3">Actions</th>
+              {!readOnly && <th className="px-4 py-3">Actions</th>}
               <th className="px-4 py-3">Expand</th>
             </tr>
           </thead>
@@ -89,15 +91,17 @@ const SkiTable = ({
               return (
                 <React.Fragment key={ski.id}>
                   <tr className="border-b border-gray-200">
-                    <td className="px-4 py-2">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => onToggleSelect?.(ski.id)}
-                        className="accent-btn w-4 h-4 mx-auto"
-                        aria-label='Select'
-                      />
-                    </td>
+                    {!readOnly && (
+                      <td className="px-4 py-2">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => onToggleSelect?.(ski.id)}
+                          className="accent-btn w-4 h-4 mx-auto"
+                          aria-label='Select'
+                        />
+                      </td>
+                    )}
 
                     {/* Render data cells using column definitions */}
                     {columns.map(column => (
@@ -106,43 +110,45 @@ const SkiTable = ({
                       </td>
                     ))}
 
-                    <td className="">
-                      <div className="flex justify-center items-center gap-3">
-                        <Button
-                          variant="primary"
-                          title='Edit'
-                          onClick={() => onEdit?.(ski)}
-                        >
-                          <MdEdit size={16} />
-                        </Button>
-
-                        {ski.archived ? (
+                    {!readOnly && (
+                      <td className="">
+                        <div className="flex justify-center items-center gap-3">
                           <Button
-                            variant="archive"
-                            title='Unarchive'
-                            onClick={() => onUnarchive?.(ski.id)}
+                            variant="primary"
+                            title='Edit'
+                            onClick={() => onEdit?.(ski)}
                           >
-                            <MdUnarchive />
+                            <MdEdit size={16} />
                           </Button>
-                        ) : (
-                          <Button
-                            variant="archive"
-                            title='Archive'
-                            onClick={() => onArchive?.(ski.id)}
-                          >
-                            <MdArchive size={16} />
-                          </Button>
-                        )}
 
-                        <Button
-                          variant="danger"
-                          title='Delete'
-                          onClick={() => onDelete?.(ski.id)}
-                        >
-                          <MdDelete size={16} />
-                        </Button>
-                      </div>
-                    </td>
+                          {ski.archived ? (
+                            <Button
+                              variant="archive"
+                              title='Unarchive'
+                              onClick={() => onUnarchive?.(ski.id)}
+                            >
+                              <MdUnarchive size={16} />
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="archive"
+                              title='Archive'
+                              onClick={() => onArchive?.(ski.id)}
+                            >
+                              <MdArchive size={16} />
+                            </Button>
+                          )}
+
+                          <Button
+                            variant="danger"
+                            title='Delete'
+                            onClick={() => onDelete?.(ski.id)}
+                          >
+                            <MdDelete size={16} />
+                          </Button>
+                        </div>
+                      </td>
+                    )}
 
                     <td className="px-4 py-2">
                       <Button
@@ -159,8 +165,8 @@ const SkiTable = ({
                   </tr>
 
                   {showDetails && (
-                    <tr className="border-b border-gray-200 bg-gray-50">
-                      <td colSpan={COLUMN_COUNT} className="px-4 py-4">
+                    <tr>
+                      <td colSpan={/* span all visible columns */ readOnly ? columns.length + 1 : columns.length + 3}>
                         <div className="bg-white p-4 rounded-md border border-gray-300">
                           <SkiDetails
                             ski={ski}
@@ -168,6 +174,8 @@ const SkiTable = ({
                             onArchive={() => onArchive?.(ski.id)}
                             onUnarchive={() => onUnarchive?.(ski.id)}
                             onDelete={() => onDelete?.(ski.id)}
+                           ownerUserId={ownerUserId}
+                           readOnly={readOnly}
                           />
                         </div>
                       </td>

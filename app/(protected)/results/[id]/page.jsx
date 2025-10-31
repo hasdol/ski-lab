@@ -102,6 +102,7 @@ const ResultDetailsPage = () => {
         debouncedSearch={''}
         handleEdit={handleEditFromCard}
         handleDelete={handleDeleteFromCard}
+        canEdit={user?.uid === result.userId} // only owner can edit/delete
       />
 
       <DeleteTestModal

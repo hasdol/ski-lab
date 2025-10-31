@@ -60,6 +60,8 @@ const SkiFilter = ({
               <MenuItem value="all">All</MenuItem>
               <MenuItem value="classic">Classic</MenuItem>
               <MenuItem value="skate">Skate</MenuItem>
+              {/* NEW: dp option to match tabs */}
+              <MenuItem value="dp">DP</MenuItem>
             </Select>
           </FormControl>
 

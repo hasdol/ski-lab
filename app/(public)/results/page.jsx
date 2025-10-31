@@ -7,7 +7,9 @@ import {
   RiFilter2Line,
   RiCloseLine,
   RiBarChart2Line,
+  RiUser3Line
 } from 'react-icons/ri';
+import { RiInformationLine } from 'react-icons/ri'; // + add this
 import { AnimatePresence, motion } from 'framer-motion';
 
 import usePaginatedResults from '@/hooks/usePaginatedResults';
@@ -18,10 +20,13 @@ import Search from '../../../components/Search/Search';
 import DeleteTestModal from '@/components/DeleteTestModal/DeleteTestModal';
 import Button from '@/components/ui/Button';
 import { exportResultsToCSV } from '@/helpers/helpers';
+import { subscribeSharesAsReader } from '@/lib/firebase/shareFunctions';
+import { listAccessibleUsers } from '@/lib/firebase/shareFunctions';
 
 import ResultCard from './components/ResultCard';
 import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
 import PageHeader from '@/components/layout/PageHeader';
+import UserPicker from '@/components/UserPicker/UserPicker';
 
 const Results = () => {
   const [searchTermRaw, setSearchTermRaw] = useState('');
@@ -36,6 +41,11 @@ const Results = () => {
 
   const { user } = useAuth();
   const router = useRouter();
+  const [viewUserId, setViewUserId] = useState(null);
+  const [owners, setOwners] = useState([]);
+  const [accessibleUsers, setAccessibleUsers] = useState({ self: null, owners: [] });
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [showInfo, setShowInfo] = useState(false); // + add this
 
   const {
     docs: resultsToShow,
@@ -48,7 +58,23 @@ const Results = () => {
     temp: tempRange,
     style: styleFilter,
     sortOrder,
+    ownerUserId: viewUserId || undefined, // FIX: apply user filter
   });
+
+  // Load owners with display names
+  useEffect(() => {
+    if (!user) { setOwners([]); setAccessibleUsers({ self: null, owners: [] }); setViewUserId(null); return; }
+    (async () => {
+      try {
+        const acc = await listAccessibleUsers();
+        setOwners(acc.owners);
+        setAccessibleUsers(acc);
+      } catch {
+        setOwners([]);
+        setAccessibleUsers({ self: null, owners: [] });
+      }
+    })();
+  }, [user]);
 
   const handleSearch = (val) => setSearchTermRaw(val);
   const handleTempCommit = (newVal) => setTempRange(newVal);
@@ -97,6 +123,12 @@ const Results = () => {
     return () => window.removeEventListener('downloadResultsCSV', handleDownloadFromNav);
   }, [handleDownloadFromNav]);
 
+  useEffect(() => {
+    if (!user) { setOwners([]); setViewUserId(null); return; }
+    const unsub = subscribeSharesAsReader(user.uid, setOwners);
+    return () => unsub();
+  }, [user]);
+
   const isFilterActive =
     tempRange[0] !== defaultTempRange[0] ||
     tempRange[1] !== defaultTempRange[1] ||
@@ -110,19 +142,71 @@ const Results = () => {
   };
 
   return (
-    <div className="p-4 max-w-4xl w-full mx-auto">
+    <div className="p-4 max-w-4xl w-full self-center">
       <PageHeader
         icon={<RiBarChart2Line className="text-blue-600 text-2xl" />}
         title="Test Results"
         subtitle="View and manage your test results"
         actions={
-          <>
-            <Button variant="primary" onClick={handleNewTest}>New Test</Button>
-            <Button variant="secondary" onClick={handleAddOldResult}>Add Result</Button>
-            {/* Add more actions as needed */}
-          </>
+          <div className="flex flex-col md:flex-row gap-5 items-center">
+            {!!user && (
+              <button
+                className="inline-flex items-center gap-2 bg-blue-50 text-blue-500 border rounded-xl px-2 py-1 text-sm"
+                onClick={() => setIsPickerOpen(true)}
+                aria-label="Pick user"
+                title="Pick user"
+              >
+                <RiUser3Line />
+                <span className="max-w-[140px] truncate">
+                  {viewUserId
+                    ? (accessibleUsers.owners.find(o => o.id === viewUserId)?.displayName || viewUserId)
+                    : (accessibleUsers.self?.displayName || 'Me')}
+                </span>
+              </button>
+            )}
+
+            <div className="flex gap-3 items-center">
+              <Button variant="primary" onClick={handleAddOldResult}>Add Result</Button>
+              <Button
+                onClick={() => setShowInfo(prev => !prev)}
+                variant="secondary"
+                className="flex items-center gap-2"
+                aria-label={showInfo ? 'Hide information' : 'Show information'}
+                aria-expanded={showInfo}
+              >
+                <RiInformationLine size={18} />
+                {showInfo ? 'Hide Info' : 'Show Info'}
+              </Button>
+            </div>
+          </div>
         }
       />
+
+      {/* Info Box (mirrors skis page) */}
+      <AnimatePresence>
+        {showInfo && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <RiInformationLine className="text-blue-500 mt-0.5 flex-shrink-0" />
+                <div className="text-blue-800">
+                  <strong className="block mb-1">How the Results page works:</strong>
+                  <ul className="list-disc ml-5 space-y-1">
+                    <li>Search, filter, and sort your results by style, temperature, and date.</li>
+                    <li>Use the user picker to switch between your results and shared results you can view.</li>
+                    <li>Click “New Test” to start testing; “Add Result” lets you log a result manually.</li>
+                    <li>Open a result to view rankings and details, or edit to correct metadata.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Search */}
       <div className="mb-4">
@@ -245,6 +329,7 @@ const Results = () => {
                   debouncedSearch={debouncedSearch}
                   handleEdit={handleEdit}
                   handleDelete={handleDelete}
+                  canEdit={!viewUserId} // hide actions when viewing someone else
                 />
               </motion.div>
             ))}
@@ -262,6 +347,15 @@ const Results = () => {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onConfirm={handleModalConfirm}
+      />
+
+      <UserPicker
+        isOpen={isPickerOpen}
+        onClose={() => setIsPickerOpen(false)}
+        self={accessibleUsers.self || { id: user?.uid, displayName: user?.displayName || 'Me' }}
+        owners={accessibleUsers.owners}
+        currentId={viewUserId}
+        onSelect={(idOrNull) => setViewUserId(idOrNull || null)}
       />
     </div>
   );

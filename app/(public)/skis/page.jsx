@@ -35,19 +35,34 @@ import { VscDebugContinue } from "react-icons/vsc";
 import Search from '../../../components/Search/Search';
 import { PLAN_LIMITS } from '@/lib/constants/planLimits';
 import useIsStandalone from '@/hooks/useIsStandalone';
-import PageHeader from '@/components/layout/PageHeader'; // Add this import
+import PageHeader from '@/components/layout/PageHeader';
+import { listAccessibleUsers, listUserSkis, subscribeSharesAsReader } from '@/lib/firebase/shareFunctions';
+import UserPicker from '@/components/UserPicker/UserPicker';
+import { RiUser3Line } from 'react-icons/ri';
 
 const Skis = () => {
   const isStandalone = useIsStandalone();
   const router = useRouter();
   const { gloveMode } = useContext(UserPreferencesContext);
   const { user, userData } = useAuth();
-  const {
-    selectedSkis: selectedGlobal,
-    setSelectedSkis,
-    currentRound,
-    resetTournament,
-  } = useContext(TournamentContext);
+
+  // FIX: pull state from TournamentContext (used in selection bar and start test)
+  const { currentRound, setSelectedSkis, resetTournament } = useContext(TournamentContext);
+  // NEW: user filter
+  const [accessibleUsers, setAccessibleUsers] = useState({ self: null, owners: [] });
+  // const [activeUserId, setActiveUserId] = useState(null); // REMOVE: no longer used
+  const [remoteSkis, setRemoteSkis] = useState([]);          // optional leftover, not used after changes
+  const [remoteLoading, setRemoteLoading] = useState(false); // optional leftover, not used after changes
+  const [viewUserId, setViewUserId] = useState(null); // null => self
+  const [owners, setOwners] = useState([]); // owners I can read
+  const [isPickerOpen, setIsPickerOpen] = useState(false); // NEW
+
+  // Clear any selection/expanded when switching user
+  useEffect(() => {
+    setSelectedMap({});
+    setSelectedSkisDataMap(new Map());
+    setExpandedSkiId(null);
+  }, [viewUserId]);
 
   // --- local search
   const [searchRaw, setSearchRaw] = useState('');
@@ -74,6 +89,23 @@ const Skis = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+    // setActiveUserId(user.uid); // REMOVE
+    (async () => {
+      try {
+        const acc = await listAccessibleUsers();
+        setAccessibleUsers(acc);
+      } catch {}
+    })();
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) { setOwners([]); setViewUserId(null); return; }
+    const unsub = subscribeSharesAsReader(user.uid, setOwners);
+    return () => unsub();
+  }, [user]);
+
   // --- data fetching
   const {
     docs: skis,
@@ -89,7 +121,21 @@ const Skis = () => {
     archived: archivedFilter,
     sortField,
     sortDirection,
+    ownerUserId: viewUserId || undefined, // FILTER APPLIED HERE
   });
+
+  // REMOVE: remote load (hook already handles ownerUserId)
+  // useEffect(() => {
+  //   if (!user || !activeUserId || activeUserId === user.uid) {
+  //     setRemoteSkis([]);
+  //     return;
+  //   }
+  //   setRemoteLoading(true);
+  //   listUserSkis(activeUserId, 200)
+  //     .then(setRemoteSkis)
+  //     .catch(() => setRemoteSkis([]))
+  //     .finally(() => setRemoteLoading(false));
+  // }, [user, activeUserId, debouncedTerm, styleFilter, skiTypeFilter, archivedFilter, sortField, sortDirection]);
 
   // --- mutations
   const { deleteSki, updateSki, lockedSkisCount } = useSkis();
@@ -99,6 +145,8 @@ const Skis = () => {
   const [selectedSkisDataMap, setSelectedSkisDataMap] = useState(() => new Map());
 
   const toggleSelect = (id) => {
+    // BLOCK selecting when viewing another user's skis
+    if (viewUserId) return;
     setSelectedMap(prev => {
       const nowSelected = !prev[id];
       const newMap = { ...prev, [id]: nowSelected };
@@ -205,12 +253,34 @@ const Skis = () => {
 
   // --- header actions
   const headerActions = (
-    <div className="flex gap-3">
+    <div className="flex flex-col md:flex-row gap-5 items-center">
+
+      {!!user && (
+        <>
+          <button
+            className=" inline-flex items-center gap-2 bg-blue-50 text-blue-500 border rounded-xl px-2 py-1 text-sm "
+            onClick={() => setIsPickerOpen(true)}
+            aria-label="Pick user"
+            title="Pick user"
+          >
+            <RiUser3Line />
+            <span className="max-w-[140px] truncate">
+              {viewUserId
+                ? (accessibleUsers.owners.find(o => o.id === viewUserId)?.displayName || viewUserId)
+                : (accessibleUsers.self?.displayName || 'Me')}
+            </span>
+          </button>
+        </>
+      )}
+
+      {/* existing actions */}
+    <div className="flex gap-3 items-center">
+
       {!hasReachedLimit && (
         <Button
           onClick={handleAddSki}
           variant='primary'
-          disabled={hasReachedLimit}
+          disabled={hasReachedLimit || !!viewUserId} // disable adding when viewing others
           className="flex items-center gap-2"
         >
           <RiAddLine />
@@ -227,8 +297,13 @@ const Skis = () => {
         <RiInformationLine size={18} />
         {showInfo ? 'Hide Info' : 'Show Info'}
       </Button>
+      </div>
     </div>
   );
+
+  // Compute displayed list
+  // const baseSkis = activeUserId && user && activeUserId !== user.uid ? remoteSkis : skis; // REMOVE
+  // const baseLoading = activeUserId && user && activeUserId !== user.uid ? remoteLoading : loading; // REMOVE
 
   if (error) return <div className="m-2">Error: {error.message}</div>;
 
@@ -329,8 +404,8 @@ const Skis = () => {
         </div>
       )}
 
-      {/* Selection controls - only show if skis selected */}
-      {getSelectedList().length > 0 && (
+      {/* Selection controls — only for own skis */}
+      {(!viewUserId && getSelectedList().length > 0) && (
         <div className={`fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-lg z-50 flex items-center justify-between px-4 py-3 ${isStandalone ? 'pb-8' : ''}`}>
           <div className="text-sm font-semibold">
             {getSelectedList().length} ski{getSelectedList().length > 1 ? 's' : ''} selected
@@ -395,7 +470,7 @@ const Skis = () => {
 
       {/* Ski list (cards or table) */}
       <div className="mb-5">
-        {loading && !skis.length ? (
+        {loading && !skis.length ? ( // use hook's loading + skis
           <div className="flex justify-center items-center mt-10"><Spinner /></div>
         ) : viewMode === 'card' ? (
           <AnimatePresence>
@@ -428,6 +503,8 @@ const Skis = () => {
                           handleUnarchive={handleUnarchive}
                           handleDelete={handleDelete}
                           handleEdit={() => router.push(`/skis/${ski.id}/edit`)}
+                          ownerUserId={viewUserId || user?.uid}
+                          readOnly={!!viewUserId}
                         />
                       </motion.div>
                     ))}
@@ -441,7 +518,7 @@ const Skis = () => {
             skis={displayedSkis}
             search={debouncedTerm}
             selectedSkis={selectedMap}
-            onToggleSelect={toggleSelect}
+            onToggleSelect={toggleSelect} // no-op when viewing others
             expandedSkiId={expandedSkiId}
             onToggleDetails={toggleDetails}
             sortField={sortField}
@@ -458,6 +535,8 @@ const Skis = () => {
             onDelete={handleDelete}
             onArchive={handleArchive}
             onUnarchive={handleUnarchive}
+            ownerUserId={viewUserId || user?.uid}
+            readOnly={!!viewUserId}
           />
         )}
 
@@ -488,6 +567,16 @@ const Skis = () => {
           </div>
         )}
       </div>
+
+      {/* User Picker */}
+      <UserPicker
+        isOpen={isPickerOpen}
+        onClose={() => setIsPickerOpen(false)}
+        self={accessibleUsers.self || { id: user?.uid, displayName: user?.displayName || 'Me' }}
+        owners={accessibleUsers.owners}
+        currentId={viewUserId}
+        onSelect={(idOrNull) => setViewUserId(idOrNull || null)}
+      />
     </div>
   );
 };

@@ -24,7 +24,13 @@ const MIN_CHARS = 3;
  * @param {string} params.style - style filter
  * @param {string} params.sortOrder - 'asc' or 'desc'
  */
-const usePaginatedResults = ({ term = '', temp = [-100, 100], style = 'all', sortOrder = 'desc' }) => {
+export default function usePaginatedResults({
+  term = '',
+  temp = [-100, 100],
+  style = 'all',
+  sortOrder = 'desc',
+  ownerUserId = null,
+}) {
   const { user } = useAuth();
   const [docs, setDocs] = useState([]);
   const [exhausted, setExhausted] = useState(false);
@@ -32,15 +38,15 @@ const usePaginatedResults = ({ term = '', temp = [-100, 100], style = 'all', sor
   const cursor = useRef(null);
 
   // Use the primitive userId instead of the whole user object to keep deps stable
-  const userId = user?.uid;
+  const effectiveUid = ownerUserId || user?.uid || null;
 
   // Always use English keywords field
   const keywordField = 'keywords_en';
 
   // Build the base Firestore query
   const baseQuery = useCallback(() => {
-    if (!userId) return null;
-    const col = collection(db, `users/${userId}/testResults`);
+    if (!effectiveUid) return null;
+    const col = collection(db, `users/${effectiveUid}/testResults`);
     // Inside baseQuery construction logic:
     if (term && term.length >= MIN_CHARS) {
       // Split search term into components
@@ -59,7 +65,7 @@ const usePaginatedResults = ({ term = '', temp = [-100, 100], style = 'all', sor
       }
     }
     return query(col, orderBy('timestamp', sortOrder), limit(PAGE));
-  }, [userId, term, sortOrder]);
+  }, [effectiveUid, term, sortOrder]);
 
   // Break temp into primitives so deps are stable
   const temp0 = temp?.[0];
@@ -125,5 +131,3 @@ const usePaginatedResults = ({ term = '', temp = [-100, 100], style = 'all', sor
 
   return { docs, loadMore, exhausted, loading, refresh };
 };
-
-export default usePaginatedResults;

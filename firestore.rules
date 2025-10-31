@@ -26,20 +26,44 @@ service cloud.firestore {
     }
     function isStaff(teamId) { return isTeamOwner(teamId) || isTeamMod(teamId); }
 
-    // Timeline (mods allowed)
-    match /teams/{teamId}/timeline/{entryId} {
-      allow get, list: if isTeamPublic(teamId) || isTeamMember(teamId) || isTeamOwner(teamId);
-      allow create: if isStaff(teamId) && validTimelineCreate(request.resource.data);
-      allow update: if isStaff(teamId)
-        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['title','content'])
-        && request.resource.data.createdBy == resource.data.createdBy
-        && request.resource.data.createdAt == resource.data.createdAt;
-      allow delete: if isStaff(teamId);
+    // NEW: sharing helpers
+    function hasShareAccess(userId) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/userShares/$(userId + "_" + request.auth.uid));
+    }
+
+    // Allow listing/reading requests only for the two parties
+    match /shareRequests/{reqId} {
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['fromUid','toUid','status','createdAt','respondedAt','fromDisplayName','toDisplayName'])
+        && request.resource.data.fromUid == request.auth.uid
+        && request.resource.data.status == 'pending';
+      allow read: if request.auth != null
+        && (request.auth.uid == resource.data.fromUid || request.auth.uid == resource.data.toUid);
+      // Only the target (toUid) can accept/decline; status-only change
+      allow update: if request.auth != null
+        && request.auth.uid == resource.data.toUid
+        && request.writeFields.hasOnly(['status','respondedAt'])
+        && (request.resource.data.status in ['approved','declined'])
+        && request.resource.data.fromUid == resource.data.fromUid
+        && request.resource.data.toUid == resource.data.toUid;
+      // Either party can delete their request (optional)
+      allow delete: if request.auth != null
+        && (request.auth.uid == resource.data.fromUid || request.auth.uid == resource.data.toUid);
+    }
+
+    // Active share mapping: userShares/{ownerUid_readerUid} => { ownerUid, readerUid, createdAt }
+    // Writes happen via Cloud Functions (admin privileges); clients can read own relationships.
+    match /userShares/{pairId} {
+      allow read: if request.auth != null
+        && (request.auth.uid == resource.data.ownerUid || request.auth.uid == resource.data.readerUid);
+      allow create, update, delete: if false;
     }
 
     // USERS
     match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
+      // Allow owner or readers (via sharing) to read the user profile doc
+      allow read: if (request.auth != null && request.auth.uid == userId) || hasShareAccess(userId);
       allow create, delete: if request.auth != null && request.auth.uid == userId;
 
       allow update: if request.auth != null
@@ -49,12 +73,14 @@ service cloud.firestore {
           'photoURL',
           'preferences.languagePreference',
           'preferences.themePreference',
-          'preferences.gloveModePreference'
+          'preferences.gloveModePreference',
+          'shareCode' // allow CF to merge; owner can’t directly set (no client write anyway)
         ])
         && request.resource.data.preferences is map;
 
       match /skis/{skiId} {
-        allow read: if request.auth != null && request.auth.uid == userId;
+        // Owner or authorized reader can read skis
+        allow read: if (request.auth != null && request.auth.uid == userId) || hasShareAccess(userId);
 
         allow create: if request.auth != null
           && request.auth.uid == userId
@@ -73,6 +99,7 @@ service cloud.firestore {
           )
           && !('locked' in request.resource.data);
 
+        // Readers cannot update; only owner can update
         allow update: if request.auth != null
           && request.auth.uid == userId
           && (request.resource.data.diff(resource.data).affectedKeys().hasOnly([
@@ -102,7 +129,9 @@ service cloud.firestore {
       }
 
       match /testResults/{testId} {
-        allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+        // Owner or authorized reader can read; only owner can write/delete
+        allow read: if (request.auth != null && request.auth.uid == userId) || hasShareAccess(userId);
+        allow write, delete: if request.auth != null && request.auth.uid == userId;
       }
     }
 
@@ -128,12 +157,11 @@ service cloud.firestore {
       function isTeamModLocal() { return request.auth != null && (request.auth.uid in teamDoc(teamId).data.mods); }
       function isStaffLocal() { return isTeamCreator() || isTeamModLocal(); }
 
-      // Only CFs mutate membership/mods; disallow client writes to these fields.
       function teamWritableKeysOwner() {
         return ['name','imageURL','isPublic','keywords_en'];
       }
       function teamWritableKeysMod() {
-        return ['name','imageURL','isPublic']; // mods can't touch keywords_en directly if you prefer
+        return ['name','imageURL','isPublic'];
       }
 
       allow create: if isCoachOrCompany();
@@ -143,15 +171,11 @@ service cloud.firestore {
         || isTeamCreator()
         || isTeamModLocal();
 
-      // Owner can update only safe fields
       allow update: if isTeamCreator()
         && request.writeFields.hasOnly(teamWritableKeysOwner());
-
-      // Mods can update even fewer fields
       allow update: if isTeamModLocal()
         && request.writeFields.hasOnly(teamWritableKeysMod());
 
-      // Delete: owner only
       allow delete: if isTeamCreator();
 
       match /events/{eventId} {
@@ -162,24 +186,20 @@ service cloud.firestore {
           return get(/databases/$(database)/documents/teams/$(teamId)/events/$(eventId)).data.resultsVisibility == 'staff';
         }
 
-        // Staff manage events; members can read
         allow create: if isStaffLocal();
         allow read: if isTeamMemberLocal() || isStaffLocal();
         allow update, delete: if isStaffLocal();
 
         match /testResults/{testId} {
-          // Staff always; if event visibility == team, any member; owner of test always
           allow read: if
             isStaffLocal()
             || (!eventStaffOnly(teamId, eventId) && isTeamMemberLocal())
             || (request.auth != null && resource.data.userId == request.auth.uid);
 
-          // Members can create only their own test result
           allow create: if isTeamMemberLocal()
             && request.auth != null
             && request.resource.data.userId == request.auth.uid;
 
-          // Staff or owner can update/delete
           allow update, delete: if isStaffLocal()
             || (request.auth != null && resource.data.userId == request.auth.uid);
         }

@@ -73,8 +73,12 @@ function buildTeamKeywordsServer(name = '') {
   return Array.from(out);
 }
 
-function generateTeamCode() {
-  return Math.random().toString(36).slice(2, 8).toUpperCase();
+/** Generate a 6-char A–Z/0–9 code */
+function generateShareCode() {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let out = '';
+  for (let i = 0; i < 6; i++) out += alphabet[Math.floor(Math.random() * alphabet.length)];
+  return out;
 }
 
 /* ------------------------------------------------------------------
@@ -1071,5 +1075,321 @@ exports.unsetAdmin = onCall(async (request) => {
   const { uid } = request.data || {};
   if (!uid) throw new HttpsError('invalid-argument', 'Missing uid.');
   await admin.auth().setCustomUserClaims(uid, { admin: false });
+  return { ok: true };
+});
+
+// ----------------------
+// Sharing – helpers
+// ----------------------
+function genShareCode() {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let out = '';
+  for (let i = 0; i < 8; i++) out += alphabet[Math.floor(Math.random() * alphabet.length)];
+  return out;
+}
+
+const SHARE_CODE_MAX_TRIES = 20;
+
+// Atomically reserve a unique code for a user, optionally replacing a previous one
+async function reserveCodeForUser(uid, prevCodeUpper = null) {
+  for (let i = 0; i < SHARE_CODE_MAX_TRIES; i++) {
+    const candUpper = genShareCode().toUpperCase();
+    const mapRef = db.collection('shareCodes').doc(candUpper);
+    const ok = await db.runTransaction(async (tx) => {
+      const mapSnap = await tx.get(mapRef);
+      if (mapSnap.exists) return false; // already taken
+
+      const userRef = db.collection('users').doc(uid);
+
+      // If replacing, delete the old mapping only if it was ours
+      if (prevCodeUpper) {
+        const oldRef = db.collection('shareCodes').doc(prevCodeUpper);
+        const oldSnap = await tx.get(oldRef);
+        if (oldSnap.exists && oldSnap.data().uid === uid) tx.delete(oldRef);
+      }
+
+      // Create mapping and upsert normalized code on user
+      tx.set(mapRef, { uid, createdAt: admin.firestore.FieldValue.serverTimestamp() });
+      tx.set(userRef, { shareCode: candUpper, shareCodeLower: candUpper.toLowerCase() }, { merge: true });
+      return true;
+    });
+    if (ok) return candUpper;
+  }
+  throw new HttpsError('resource-exhausted', 'Failed to allocate share code');
+}
+
+/**
+ * Ensure the current user has a unique share code. If exists, fix legacy state.
+ */
+exports.ensureShareCode = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in required');
+  const uid = request.auth.uid;
+  const userRef = db.collection('users').doc(uid);
+  const userSnap = await userRef.get();
+
+  const current = userSnap.exists ? (userSnap.data().shareCode || null) : null;
+
+  // No existing code -> allocate fresh
+  if (!current) {
+    const newUpper = await reserveCodeForUser(uid, null);
+    return { shareCode: newUpper };
+  }
+
+  // Normalize legacy code to UPPERCASE and ensure mapping exists and points to us
+  const currentUpper = String(current).toUpperCase();
+  const mapRef = db.collection('shareCodes').doc(currentUpper);
+  const mapSnap = await mapRef.get();
+
+  if (mapSnap.exists) {
+    const owner = mapSnap.data().uid;
+    if (owner === uid) {
+      // Healthy mapping: just normalize user doc and backfill lowercase mirror
+      await userRef.set(
+        { shareCode: currentUpper, shareCodeLower: currentUpper.toLowerCase() },
+        { merge: true }
+      );
+      return { shareCode: currentUpper };
+    } else {
+      // Collision (legacy doc pointing to someone else) -> allocate a new code for this user
+      const newUpper = await reserveCodeForUser(uid, null);
+      await userRef.set({ shareCode: newUpper, shareCodeLower: newUpper.toLowerCase() }, { merge: true });
+      return { shareCode: newUpper };
+    }
+  } else {
+    // Mapping missing -> create it atomically and normalize user fields
+    await db.runTransaction(async (tx) => {
+      const mapSnap2 = await tx.get(mapRef);
+      if (mapSnap2.exists && mapSnap2.data().uid !== uid) {
+        // Lost the race and another user took it: reserve a new one
+        throw new Error('RETRY_ALLOC');
+      }
+      tx.set(mapRef, { uid, createdAt: admin.firestore.FieldValue.serverTimestamp() });
+      tx.set(userRef, { shareCode: currentUpper, shareCodeLower: currentUpper.toLowerCase() }, { merge: true });
+    }).catch(async (e) => {
+      if (String(e.message) === 'RETRY_ALLOC') {
+        const newUpper = await reserveCodeForUser(uid, null);
+        await userRef.set({ shareCode: newUpper, shareCodeLower: newUpper.toLowerCase() }, { merge: true });
+      } else {
+        throw e;
+      }
+    });
+    const finalSnap = await userRef.get();
+    return { shareCode: finalSnap.data().shareCode };
+  }
+});
+
+/**
+ * Regenerate a share code (invalidates the old code mapping).
+ */
+exports.regenerateShareCode = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in required');
+  const uid = request.auth.uid;
+  const userRef = db.collection('users').doc(uid);
+  const userSnap = await userRef.get();
+  const prevUpper = userSnap.exists && userSnap.data().shareCode
+    ? String(userSnap.data().shareCode).toUpperCase()
+    : null;
+
+  const newUpper = await reserveCodeForUser(uid, prevUpper);
+  // Ensure user mirrors are correct
+  await userRef.set({ shareCode: newUpper, shareCodeLower: newUpper.toLowerCase() }, { merge: true });
+  return { shareCode: newUpper };
+});
+
+/**
+ * Create a read-share request by share code.
+ * fromUid: requester (reader), toUid: owner
+ */
+exports.requestShareByCode = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in required');
+  const fromUid = request.auth.uid;
+  const raw = (request.data?.code || '').toString().trim();
+  if (!raw) throw new HttpsError('invalid-argument', 'Missing code.');
+
+  const codeUpper = raw.toUpperCase();
+  const codeLower = codeUpper.toLowerCase();
+
+  // 1) Resolve by authoritative mapping
+  let toUid = null;
+  const mapSnap = await db.collection('shareCodes').doc(codeUpper).get();
+  if (mapSnap.exists) {
+    toUid = mapSnap.data().uid;
+  } else {
+    // 2) Fallback for legacy users: lookup by user fields
+    const usersCol = db.collection('users');
+    let ownerSnap = await usersCol.where('shareCodeLower', '==', codeLower).limit(1).get();
+    if (ownerSnap.empty) {
+      ownerSnap = await usersCol.where('shareCode', '==', codeUpper).limit(1).get();
+    }
+    if (ownerSnap.empty) {
+      throw new HttpsError('invalid-argument', 'Invalid code');
+    }
+    toUid = ownerSnap.docs[0].id;
+
+    // Self-heal: create mapping doc if still free
+    try {
+      await db.runTransaction(async (tx) => {
+        const ref = db.collection('shareCodes').doc(codeUpper);
+        const s = await tx.get(ref);
+        if (!s.exists) {
+          tx.set(ref, { uid: toUid, createdAt: admin.firestore.FieldValue.serverTimestamp() });
+        }
+      });
+    } catch (_) {}
+  }
+
+  if (toUid === fromUid) throw new HttpsError('failed-precondition', 'You cannot request yourself.');
+
+  // already shared?
+  const sharedSnap = await db.collection('userShares')
+    .where('ownerUid', '==', toUid)
+    .where('readerUid', '==', fromUid)
+    .limit(1)
+    .get();
+  if (!sharedSnap.empty) return { alreadyShared: true };
+
+  // already pending?
+  const pendingSnap = await db.collection('shareRequests')
+    .where('fromUid', '==', fromUid)
+    .where('toUid', '==', toUid)
+    .where('status', '==', 'pending')
+    .limit(1)
+    .get();
+  if (!pendingSnap.empty) return { alreadyRequested: true };
+
+  // Denormalize display names to avoid profile reads on pending requests
+  const [fromDoc, toDoc] = await Promise.all([
+    db.collection('users').doc(fromUid).get(),
+    db.collection('users').doc(toUid).get(),
+  ]);
+
+  await db.collection('shareRequests').add({
+    fromUid,
+    toUid,
+    fromDisplayName: fromDoc.exists ? (fromDoc.data().displayName || null) : null,
+    toDisplayName: toDoc.exists ? (toDoc.data().displayName || null) : null,
+    status: 'pending',
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { ok: true };
+});
+
+/** respondShareRequest – owner approves/declines a request */
+exports.respondShareRequest = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Auth required.');
+  const { requestId, action } = request.data || {};
+  if (!requestId || !['approved', 'declined'].includes(action)) {
+    throw new HttpsError('invalid-argument', 'Invalid request or action.');
+  }
+
+  const reqRef = db.collection('shareRequests').doc(requestId);
+  const reqSnap = await reqRef.get();
+  if (!reqSnap.exists) throw new HttpsError('not-found', 'Request not found.');
+  const reqData = reqSnap.data();
+  if (reqData.status !== 'pending') throw new HttpsError('failed-precondition', 'Already handled.');
+  if (reqData.toUid !== request.auth.uid) throw new HttpsError('permission-denied', 'Not your request.');
+
+  if (action === 'approved') {
+    const ownerUid = reqData.toUid;
+    const readerUid = reqData.fromUid;
+    const docId = `${ownerUid}_${readerUid}`;
+    const pairRef = db.collection('userShares').doc(docId);
+
+    // Fetch display names to denormalize
+    const [ownerDoc, readerDoc] = await Promise.all([
+      db.collection('users').doc(ownerUid).get(),
+      db.collection('users').doc(readerUid).get(),
+    ]);
+    const ownerDisplayName = ownerDoc.exists ? (ownerDoc.data().displayName || null) : null;
+    const ownerPhotoURL = ownerDoc.exists ? (ownerDoc.data().photoURL || null) : null;
+    const readerDisplayName = readerDoc.exists ? (readerDoc.data().displayName || null) : null;
+    const readerPhotoURL = readerDoc.exists ? (readerDoc.data().photoURL || null) : null;
+
+    await db.runTransaction(async (tx) => {
+      const exists = await tx.get(pairRef);
+      if (!exists.exists) {
+        tx.set(pairRef, {
+          ownerUid,
+          readerUid,
+          ownerDisplayName,
+          ownerPhotoURL,
+          readerDisplayName,
+          readerPhotoURL,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      } else {
+        // backfill denormalized fields if missing
+        tx.set(pairRef, {
+          ownerDisplayName,
+          ownerPhotoURL,
+          readerDisplayName,
+          readerPhotoURL,
+        }, { merge: true });
+      }
+      // Cleanup legacy random-id duplicates
+      const dupQ = await db.collection('userShares')
+        .where('ownerUid', '==', ownerUid)
+        .where('readerUid', '==', readerUid)
+        .get();
+      dupQ.forEach((d) => { if (d.id !== docId) tx.delete(d.ref); });
+    });
+  }
+
+  await reqRef.update({
+    status: action,
+    respondedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { ok: true };
+});
+
+/** revokeShare – owner revokes a reader */
+exports.revokeShare = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Auth required.');
+  const ownerUid = request.auth.uid;
+  const { readerUid } = request.data || {};
+  if (!readerUid) throw new HttpsError('invalid-argument', 'Missing readerUid.');
+
+  const docId = `${ownerUid}_${readerUid}`;
+  const ref = db.collection('userShares').doc(docId);
+  const snap = await ref.get();
+  if (snap.exists) {
+    await ref.delete();
+    return { ok: true };
+  }
+  // Fallback cleanup for legacy random-id docs
+  const q = await db.collection('userShares')
+    .where('ownerUid', '==', ownerUid)
+    .where('readerUid', '==', readerUid)
+    .get();
+  const batch = db.batch();
+  q.forEach(d => batch.delete(d.ref));
+  if (!q.empty) await batch.commit();
+  return { ok: true };
+});
+
+/** leaveShare – reader leaves an owner */
+exports.leaveShare = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Auth required.');
+  const readerUid = request.auth.uid;
+  const { ownerUid } = request.data || {};
+  if (!ownerUid) throw new HttpsError('invalid-argument', 'Missing ownerUid.');
+
+  const docId = `${ownerUid}_${readerUid}`;
+  const ref = db.collection('userShares').doc(docId);
+  const snap = await ref.get();
+  if (snap.exists) {
+    await ref.delete();
+    return { ok: true };
+  }
+  // Fallback cleanup for legacy random-id docs
+  const q = await db.collection('userShares')
+    .where('ownerUid', '==', ownerUid)
+    .where('readerUid', '==', readerUid)
+    .get();
+  const batch = db.batch();
+  q.forEach(d => batch.delete(d.ref));
+  await batch.commit();
   return { ok: true };
 });

@@ -1,331 +1,158 @@
 {
   "indexes": [
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "base",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "base",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "brand",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "brand",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "grind",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "grind",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "length",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "length",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "model",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "model",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "serialNumber",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "serialNumber",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "stiffness",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "stiffness",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "style",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "archived",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "style",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "keywords_en",
-          "arrayConfig": "CONTAINS"
-        },
-        {
-          "fieldPath": "serialNumber",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "locked",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "dateAdded",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "locked",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "dateAdded",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "skis",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "locked",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "serialNumber",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "testResults",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "keywords_en",
-          "arrayConfig": "CONTAINS"
-        },
-        {
-          "fieldPath": "timestamp",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "testResults",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "keywords_en",
-          "arrayConfig": "CONTAINS"
-        },
-        {
-          "fieldPath": "timestamp",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "teams",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "isPublic",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "keywords_en",
-          "arrayConfig": "CONTAINS"
-        },
-        {
-          "fieldPath": "memberCount",
-          "order": "DESCENDING"
-        }
-      ]
-    }
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "serialNumber", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "serialNumber", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "brand", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "brand", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "model", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "model", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "grind", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "grind", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "base", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "base", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "length", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "length", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "stiffness", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "stiffness", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "DESCENDING" }]},
+
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "construction", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "construction", "order": "DESCENDING" }]},
+
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "serialNumber", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "serialNumber", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "brand", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "brand", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "model", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "model", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "grind", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "grind", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "base", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "base", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "length", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "length", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "stiffness", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "stiffness", "order": "DESCENDING" }]},
+
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "construction", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "style", "order": "ASCENDING" }, { "fieldPath": "construction", "order": "DESCENDING" }]},
+
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "serialNumber", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "serialNumber", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "brand", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "brand", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "model", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "model", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "grind", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "grind", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "base", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "base", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "length", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "length", "order": "DESCENDING" }]},
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "stiffness", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "stiffness", "order": "DESCENDING" }]},
+
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "construction", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "archived", "order": "ASCENDING" }, { "fieldPath": "skiType", "order": "ASCENDING" }, { "fieldPath": "construction", "order": "DESCENDING" }]},
+
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "archived", "order": "ASCENDING" },
+      { "fieldPath": "style", "order": "ASCENDING" },
+      { "fieldPath": "skiType", "order": "ASCENDING" },
+      { "fieldPath": "serialNumber", "order": "ASCENDING" }
+    ]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "archived", "order": "ASCENDING" },
+      { "fieldPath": "style", "order": "ASCENDING" },
+      { "fieldPath": "skiType", "order": "ASCENDING" },
+      { "fieldPath": "serialNumber", "order": "DESCENDING" }
+    ]},
+
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "keywords_en", "arrayConfig": "CONTAINS" },
+      { "fieldPath": "serialNumber", "order": "ASCENDING" }
+    ]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "keywords_en", "arrayConfig": "CONTAINS" },
+      { "fieldPath": "serialNumber", "order": "DESCENDING" }
+    ]},
+
+
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "locked", "order": "ASCENDING" }, { "fieldPath": "serialNumber", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "locked", "order": "ASCENDING" }, { "fieldPath": "dateAdded", "order": "ASCENDING" }]},
+    { "collectionGroup": "skis", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "locked", "order": "ASCENDING" }, { "fieldPath": "dateAdded", "order": "DESCENDING" }]},
+
+
+    { "collectionGroup": "testResults", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "keywords_en", "arrayConfig": "CONTAINS" },
+      { "fieldPath": "timestamp", "order": "ASCENDING" }
+    ]},
+    { "collectionGroup": "testResults", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "keywords_en", "arrayConfig": "CONTAINS" },
+      { "fieldPath": "timestamp", "order": "DESCENDING" }
+    ]},
+
+    { "collectionGroup": "teams", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "isPublic", "order": "ASCENDING" },
+      { "fieldPath": "keywords_en", "arrayConfig": "CONTAINS" },
+      { "fieldPath": "memberCount", "order": "DESCENDING" }
+    ]},
+
+    { "collectionGroup": "contact", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "ASCENDING" }
+    ]},
+
+    { "collectionGroup": "shareRequests", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "toUid", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "ASCENDING" }
+    ]},
+    { "collectionGroup": "shareRequests", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "fromUid", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "ASCENDING" }
+    ]},
+
+    { "collectionGroup": "userShares", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "ownerUid", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "ASCENDING" }
+    ]},
+    { "collectionGroup": "userShares", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "readerUid", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
+    ]},
+
+    { "collectionGroup": "userShares", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "ownerUid", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
+    ]}
   ],
   "fieldOverrides": []
 }

@@ -19,6 +19,8 @@ import {
   RiDownloadLine,
   RiShieldStarLine, // NEW
 } from 'react-icons/ri';
+import { FaSlideshare } from "react-icons/fa";
+
 import { TiFlowParallel } from 'react-icons/ti';
 import { useAuth } from '@/context/AuthContext';
 import { useProfileActions } from '@/hooks/useProfileActions';
@@ -123,6 +125,7 @@ export default function Navigation() {
     isAdminClaim && { key: 'admin', labelKey: 'Admin', icon: <RiShieldStarLine size={22} />, path: '/admin' },
     user && { key: 'account', labelKey: 'Account', icon: <RiUser6Line size={22} />, path: '/account' },
     user && { key: 'settings', labelKey: 'Settings', icon: <RiSettings3Line size={22} />, path: '/account/settings' },
+    user && { key: 'sharing', labelKey: 'Sharing', icon: <FaSlideshare size={22} />, path: '/sharing' },
     !user && { key: 'login', labelKey: 'Login', icon: <RiLoginBoxLine size={22} />, path: '/login' },
     !user && { key: 'signUp', labelKey: 'Sign Up', icon: <RiUserAddLine size={22} />, path: '/signup' },
     { key: 'pricing', labelKey: 'Pricing', icon: <RiShoppingCartLine size={22} />, path: '/pricing' },
