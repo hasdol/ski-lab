@@ -126,18 +126,18 @@
       { "fieldPath": "memberCount", "order": "DESCENDING" }
     ]},
 
-    { "collectionGroup": "contact", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" }
+    { "collectionGroup": "teams", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "isPublic", "order": "ASCENDING" },
+      { "fieldPath": "memberCount", "order": "DESCENDING" }
     ]},
 
     { "collectionGroup": "shareRequests", "queryScope": "COLLECTION", "fields": [
       { "fieldPath": "toUid", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" }
+      { "fieldPath": "status", "order": "ASCENDING" }
     ]},
     { "collectionGroup": "shareRequests", "queryScope": "COLLECTION", "fields": [
       { "fieldPath": "fromUid", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" }
+      { "fieldPath": "status", "order": "ASCENDING" }
     ]}
   ],
   "fieldOverrides": []

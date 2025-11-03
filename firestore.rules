@@ -205,6 +205,16 @@ service cloud.firestore {
         }
       }
 
+      // Team timeline (Info tab)
+      match /timeline/{entryId} {
+        allow read: if isTeamMember(teamId) || isStaff(teamId);
+        allow create: if isStaff(teamId)
+          && validTimelineCreate(request.resource.data);
+        allow update: if isStaff(teamId)
+          && request.writeFields.hasOnly(['title','content']);
+        allow delete: if isStaff(teamId);
+      }
+
       match /joinRequests/{requestId} {
         function teamCreator() { return request.auth != null && request.auth.uid == teamDoc(teamId).data.createdBy; }
         function teamMod() { return request.auth != null && (request.auth.uid in teamDoc(teamId).data.mods); }
