@@ -138,7 +138,13 @@
     { "collectionGroup": "shareRequests", "queryScope": "COLLECTION", "fields": [
       { "fieldPath": "fromUid", "order": "ASCENDING" },
       { "fieldPath": "status", "order": "ASCENDING" }
+    ]},
+
+    { "collectionGroup": "userShares", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "readerUid", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
     ]}
+
   ],
   "fieldOverrides": []
 }

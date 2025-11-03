@@ -16,8 +16,9 @@ export default function UserPicker({
   const filteredOwners = useMemo(() => {
     const term = q.trim().toLowerCase();
     if (!term) return owners;
+    // match only on displayName
     return owners.filter(o =>
-      (o.displayName || o.id).toLowerCase().includes(term) || o.id.toLowerCase().includes(term)
+      (o.displayName || '').toLowerCase().includes(term)
     );
   }, [q, owners]);
 
@@ -96,7 +97,7 @@ export default function UserPicker({
                     </div>
                     <div className="text-left">
                       <div className="text-sm font-medium">{self?.displayName || 'Me'}</div>
-                      <div className="text-xs text-gray-500">{self?.id}</div>
+                      {/* removed raw UID */}
                     </div>
                   </div>
                   {isSelected(null) && <RiCheckLine className="text-blue-600" />}
@@ -113,11 +114,11 @@ export default function UserPicker({
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center text-xs font-semibold">
-                        {(o.displayName || o.id).slice(0,1).toUpperCase()}
+                        {(o.displayName || 'U').slice(0,1).toUpperCase()}
                       </div>
                       <div className="text-left">
-                        <div className="text-sm font-medium">{o.displayName || o.id}</div>
-                        <div className="text-xs text-gray-500">{o.id}</div>
+                        <div className="text-sm font-medium">{o.displayName || 'User'}</div>
+                        {/* removed raw UID */}
                       </div>
                     </div>
                     {isSelected(o.id) && <RiCheckLine className="text-blue-600" />}

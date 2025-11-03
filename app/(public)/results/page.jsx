@@ -159,7 +159,7 @@ const Results = () => {
                 <RiUser3Line />
                 <span className="max-w-[140px] truncate">
                   {viewUserId
-                    ? (accessibleUsers.owners.find(o => o.id === viewUserId)?.displayName || viewUserId)
+                    ? (accessibleUsers.owners.find(o => o.id === viewUserId)?.displayName || 'User')
                     : (accessibleUsers.self?.displayName || 'Me')}
                 </span>
               </button>
