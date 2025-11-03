@@ -54,21 +54,37 @@ export default function Weather() {
   useEffect(() => {
     if (!user) return;                   // hide for signed‑out users
 
-    const getPosition = () =>
-      new Promise((resolve, reject) => {
-        if (!navigator.geolocation) return reject(new Error('no geo'));
-        navigator.geolocation.getCurrentPosition(
-          resolve,
-          reject,
-          { enableHighAccuracy: false, maximumAge: 600000 } // allow a 10 min cached fix
-        );
-      });
+    // Only auto-run if geolocation permission is already granted.
+    // On Safari/iOS PWA the Permissions API is not supported; avoid auto-calling to prevent popups.
+    const canCheckPermission =
+      typeof navigator !== 'undefined' &&
+      'permissions' in navigator &&
+      typeof navigator.permissions.query === 'function';
 
-    getPosition()
-      .then(async pos => {
+    const run = async () => {
+      try {
+        if (!canCheckPermission) return; // skip auto promptless fetch on iOS/Safari
+        const status = await navigator.permissions.query({ name: 'geolocation' });
+        if (status.state !== 'granted') return; // do not trigger a prompt
+      } catch {
+        return; // be safe: no auto geolocation if we can’t confirm 'granted'
+      }
+
+      const getPosition = () =>
+        new Promise((resolve, reject) => {
+          if (!navigator.geolocation) return reject(new Error('no geo'));
+          navigator.geolocation.getCurrentPosition(
+            resolve,
+            reject,
+            { enableHighAccuracy: false, maximumAge: 600000 } // allow a 10 min cached fix
+          );
+        });
+
+      try {
+        const pos = await getPosition();
         const { latitude: lat, longitude: lon } = pos.coords;
 
-        /* ---------- 1) MET Norway forecast (via your proxy) ---------- */
+        /* ---------- 1) MET Norway forecast (via your proxy) ---------- */
         const url   = `${WEATHER_ENDPOINT}?lat=${lat}&lon=${lon}`;
         const data  = await cachedFetch(url);
         const ts0   = data.properties.timeseries[0];          // first entry = “now”
@@ -96,8 +112,12 @@ export default function Weather() {
           isDay,
           location : place,
         });
-      })
-      .catch(() => setErr(true));
+      } catch {
+        setErr(true);
+      }
+    };
+
+    run();
   }, [user]);
 
   /* ───────────────────────── render ───────────────────────── */

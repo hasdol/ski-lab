@@ -72,6 +72,12 @@ export default function Navigation() {
   const [isAdminClaim, setIsAdminClaim] = useState(false);
   const [openFeedbackCount, setOpenFeedbackCount] = useState(0); // NEW
 
+  // NEW: pending share requests count (inbound + outbound)
+  const [pendingIncomingCount, setPendingIncomingCount] = useState(0);
+  const [pendingOutgoingCount, setPendingOutgoingCount] = useState(0);
+  // const pendingShareCount = pendingIncomingCount + pendingOutgoingCount; // remove usage
+  const actionableShareCount = pendingIncomingCount; // only requests you need to act on
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -99,6 +105,20 @@ export default function Navigation() {
     const unsub = onSnapshot(q, (snap) => setOpenFeedbackCount(snap.size), () => setOpenFeedbackCount(0));
     return () => unsub();
   }, [isAdminClaim]);
+
+  // NEW: subscribe to pending share requests for current user
+  useEffect(() => {
+    if (!user?.uid) {
+      setPendingIncomingCount(0);
+      setPendingOutgoingCount(0);
+      return;
+    }
+    const inQ = query(collection(db, 'shareRequests'), where('toUid', '==', user.uid), where('status', '==', 'pending'));
+    const outQ = query(collection(db, 'shareRequests'), where('fromUid', '==', user.uid), where('status', '==', 'pending'));
+    const unsubIn = onSnapshot(inQ, (snap) => setPendingIncomingCount(snap.size), () => setPendingIncomingCount(0));
+    const unsubOut = onSnapshot(outQ, (snap) => setPendingOutgoingCount(snap.size), () => setPendingOutgoingCount(0));
+    return () => { unsubIn(); unsubOut(); };
+  }, [user?.uid]);
 
   const handleExportCSV = async () => {
     try {
@@ -181,7 +201,7 @@ export default function Navigation() {
             />
             {/* Drop-up subnav with glassmorphism, header, divider, and improved styling */}
             <motion.div
-              className="md:hidden fixed inset-x-0 bottom-0 z-30 h-fit pb-20 bg-white/80 backdrop-blur-lg rounded-t-2xl shadow-2xl"
+              className="md:hidden fixed inset-x-0 bottom-0 z-30 h-fit pb-14 bg-white/80 backdrop-blur-lg rounded-t-2xl shadow-2xl"
               style={{ touchAction: 'none' }}
               initial={{ y: 80, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -200,6 +220,7 @@ export default function Navigation() {
                   <span className="font-semibold text-lg text-gray-900 tracking-tight">Menu</span>
                 </div>
                 <div className="border-b border-gray-200 mb-4" />
+                {/* Mobile subnav list */}
                 <ul className="space-y-2">
                   {subNavItems.map(item =>
                     item.path ? (
@@ -214,6 +235,13 @@ export default function Navigation() {
                             <span className="relative">
                               {item.icon}
                               {isAdminClaim && openFeedbackCount > 0 && (
+                                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                              )}
+                            </span>
+                          ) : item.key === 'sharing' ? (
+                            <span className="relative">
+                              {item.icon}
+                              {actionableShareCount > 0 && (
                                 <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
                               )}
                             </span>
@@ -276,6 +304,7 @@ export default function Navigation() {
                     <span className="font-semibold text-xl text-gray-900 tracking-tight">Menu</span>
                   </div>
                   <div className="border-b border-gray-200 mb-4" />
+                  {/* Desktop subnav list */}
                   <ul className="space-y-3">
                     {subNavItems.map(item =>
                       item.path ? (
@@ -287,6 +316,13 @@ export default function Navigation() {
                               <span className="relative">
                                 {item.icon}
                                 {isAdminClaim && openFeedbackCount > 0 && (
+                                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                                )}
+                              </span>
+                            ) : item.key === 'sharing' ? (
+                              <span className="relative">
+                                {item.icon}
+                                {actionableShareCount > 0 && (
                                   <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
                                 )}
                               </span>

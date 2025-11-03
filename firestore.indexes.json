@@ -128,29 +128,15 @@
 
     { "collectionGroup": "contact", "queryScope": "COLLECTION", "fields": [
       { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "ASCENDING" }
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
     ]},
 
     { "collectionGroup": "shareRequests", "queryScope": "COLLECTION", "fields": [
       { "fieldPath": "toUid", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "ASCENDING" }
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
     ]},
     { "collectionGroup": "shareRequests", "queryScope": "COLLECTION", "fields": [
       { "fieldPath": "fromUid", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "ASCENDING" }
-    ]},
-
-    { "collectionGroup": "userShares", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "ownerUid", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "ASCENDING" }
-    ]},
-    { "collectionGroup": "userShares", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "readerUid", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" }
-    ]},
-
-    { "collectionGroup": "userShares", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "ownerUid", "order": "ASCENDING" },
       { "fieldPath": "createdAt", "order": "DESCENDING" }
     ]}
   ],

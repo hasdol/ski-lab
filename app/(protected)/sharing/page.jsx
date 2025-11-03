@@ -51,6 +51,12 @@ export default function SharingPage() {
   const [incoming, setIncoming] = useState([]); // requests to me
   const [outgoing, setOutgoing] = useState([]); // requests from me
 
+  // NEW: loading flags for Cloud Functions
+  const [sendingRequest, setSendingRequest] = useState(false);
+  const [respondingId, setRespondingId] = useState(null);
+  const [revokingUid, setRevokingUid] = useState(null);
+  const [leavingUid, setLeavingUid] = useState(null);
+
   const functions = useMemo(() => getFunctions(), []);
   const ensuredRef = useRef(false);
 
@@ -106,7 +112,7 @@ export default function SharingPage() {
 
   if (!user) {
     return (
-      <div className="p-4 max-w-4xl w-full self-center">
+      <div className="p-4 max-w-4xl w-full self-center pb-24 md:pb-8">
         <div className="bg-red-50 text-red-700 rounded-lg p-6">Sign in required.</div>
       </div>
     );
@@ -126,6 +132,7 @@ export default function SharingPage() {
     const code = (requestCode || '').trim();
     if (!code) return;
     try {
+      setSendingRequest(true);
       const fn = httpsCallable(functions, 'requestShareByCode');
       const res = await fn({ code });
       if (res.data?.alreadyShared) {
@@ -137,43 +144,54 @@ export default function SharingPage() {
     } catch (err) {
       console.error(err);
       alert(err.message || 'Failed to send request');
+    } finally {
+      setSendingRequest(false);
     }
   };
 
   const handleRespond = async (requestId, action) => {
     try {
+      setRespondingId(requestId);
       const fn = httpsCallable(functions, 'respondShareRequest');
       await fn({ requestId, action }); // action: 'approved' | 'declined'
     } catch (err) {
       console.error(err);
       alert(err.message || 'Failed to respond');
+    } finally {
+      setRespondingId(null);
     }
   };
 
   const handleRevoke = async (readerUid) => {
     if (!confirm('Revoke access for this reader?')) return;
     try {
+      setRevokingUid(readerUid);
       const fn = httpsCallable(functions, 'revokeShare');
       await fn({ readerUid });
     } catch (err) {
       console.error(err);
       alert(err.message || 'Failed to revoke');
+    } finally {
+      setRevokingUid(null);
     }
   };
 
   const handleLeave = async (ownerUid) => {
     if (!confirm('Stop reading this user’s data?')) return;
     try {
+      setLeavingUid(ownerUid);
       const fn = httpsCallable(functions, 'leaveShare');
       await fn({ ownerUid });
     } catch (err) {
       console.error(err);
       alert(err.message || 'Failed to leave');
+    } finally {
+      setLeavingUid(null);
     }
   };
 
   return (
-    <div className="p-4 max-w-4xl w-full self-center">
+    <div className="p-4 max-w-4xl w-full self-center pb-24 md:pb-8">
       <PageHeader
         icon={<FaSlideshare className="text-blue-600 text-2xl" />}
         title="Sharing"
@@ -217,7 +235,7 @@ export default function SharingPage() {
             className="md:flex-1"
             required
           />
-          <Button type="submit" variant="primary" className="md:w-auto">
+          <Button type="submit" variant="primary" className="md:w-auto" loading={sendingRequest}>
             Send request
           </Button>
         </form>
@@ -237,10 +255,10 @@ export default function SharingPage() {
                   {/* use denormalized name to avoid permission issues before approval */}
                   <NameOrChip uid={r.fromUid} fallbackName={r.fromDisplayName} />
                   <div className="flex gap-2">
-                    <Button variant="primary" className="text-sm" onClick={() => handleRespond(r.id, 'approved')}>
+                    <Button variant="primary" className="text-sm" onClick={() => handleRespond(r.id, 'approved')} loading={respondingId === r.id}>
                       Approve
                     </Button>
-                    <Button variant="danger" className="text-sm" onClick={() => handleRespond(r.id, 'declined')}>
+                    <Button variant="danger" className="text-sm" onClick={() => handleRespond(r.id, 'declined')} loading={respondingId === r.id}>
                       Decline
                     </Button>
                   </div>
@@ -285,6 +303,7 @@ export default function SharingPage() {
                     variant="danger"
                     className="text-sm"
                     onClick={() => handleLeave(s.ownerUid)}
+                    loading={leavingUid === s.ownerUid}
                   >
                     Leave
                   </Button>
@@ -308,6 +327,7 @@ export default function SharingPage() {
                     variant="danger"
                     className="text-sm"
                     onClick={() => handleRevoke(s.readerUid)}
+                    loading={revokingUid === s.readerUid}
                   >
                     Revoke
                   </Button>
