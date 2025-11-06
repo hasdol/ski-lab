@@ -32,24 +32,6 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/userShares/$(userId + "_" + request.auth.uid));
     }
 
-    // NEW: user + plan limit helpers (keeps rules in sync with backend)
-    function userDoc(uid) {
-      return get(/databases/$(database)/documents/users/$(uid));
-    }
-    function planLimitFor(uid) {
-      let u = userDoc(uid).data;
-      // Prefer server-managed cap; fallback to backend defaults
-      return u.planSkisLimit != null
-        ? u.planSkisLimit
-        : (
-            u.plan == 'free' ? 8 :
-            (u.plan == 'senior' ? 16 :
-            (u.plan == 'senior_pluss' ? 32 :
-            (u.plan == 'coach' ? 64 :
-            (u.plan == 'company' ? 5000 : 8))))
-          );
-    }
-
     // Allow listing/reading requests only for the two parties
     match /shareRequests/{reqId} {
       allow create: if request.auth != null
@@ -100,10 +82,24 @@ service cloud.firestore {
         // Owner or authorized reader can read skis
         allow read: if (request.auth != null && request.auth.uid == userId) || hasShareAccess(userId);
 
-        // UPDATED: use dynamic plan cap from backend and forbid setting 'locked'
         allow create: if request.auth != null
           && request.auth.uid == userId
-          && (userDoc(userId).data.skiCount < planLimitFor(userId))
+          && (
+            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'senior'
+              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 16)
+            ||
+            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'senior_pluss'
+              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 32)
+            ||
+            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'coach'
+              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 64)
+            ||
+            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'company'
+              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 5000)
+            ||
+            (get(/databases/$(database)/documents/users/$(userId)).data.plan == 'free'
+              && get(/databases/$(database)/documents/users/$(userId)).data.skiCount < 8)
+          )
           && !('locked' in request.resource.data);
 
         // Readers cannot update; only owner can update
