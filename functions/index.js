@@ -1399,3 +1399,38 @@ exports.leaveShare = onCall(async (request) => {
   await batch.commit();
   return { ok: true };
 });
+
+
+
+exports.previewTeamByCode = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
+  const raw = (request.data?.code || '').toString().trim();
+  if (!raw) throw new HttpsError('invalid-argument', 'Missing team code.');
+
+  const teamsRef = db.collection('teams');
+  const snap = await teamsRef.where('joinCode', '==', raw).limit(1).get();
+  if (snap.empty) throw new HttpsError('not-found', 'No team found with the given code.');
+
+  const teamDoc = snap.docs[0];
+  const team = teamDoc.data() || {};
+  const members = Array.isArray(team.members) ? team.members : [];
+  const isMember = members.includes(request.auth.uid);
+
+  // Determine member cap based on owner plan (same logic as join)
+  const ownerRef = db.collection('users').doc(team.createdBy);
+  const ownerSnap = await ownerRef.get();
+  const ownerPlan = ownerSnap.exists ? ownerSnap.data().plan : 'coach';
+  const ownerMembersCap = ownerSnap.exists ? ownerSnap.data().planMembersCap : null;
+  const memberCap = Number.isFinite(ownerMembersCap) ? ownerMembersCap : getMemberCapForPlan(ownerPlan);
+
+  return {
+    teamId: teamDoc.id,
+    name: team.name || 'Team',
+    imageURL: team.imageURL || '',
+    isPublic: !!team.isPublic,
+    memberCount: Number.isFinite(team.memberCount) ? team.memberCount : members.length,
+    memberCap,
+    isMember,
+  };
+});
+
