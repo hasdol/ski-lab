@@ -15,6 +15,9 @@ import PageHeader from '@/components/layout/PageHeader';
 import Search from '@/components/Search/Search';
 import { useDebounce } from 'use-debounce';
 import { TEAM_PLAN_CAPS } from '@/lib/constants/teamPlanCaps';
+import Input from '@/components/ui/Input';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import JoinByCodePreviewModal from './components/JoinByCodePreviewModal';
 
 export default function TeamsPage() {
   const { user, userData } = useAuth();
@@ -40,6 +43,12 @@ export default function TeamsPage() {
   const [currentPendingTeamId, setCurrentPendingTeamId] = useState(null);
   const [activeTab, setActiveTab] = useState('myTeams'); // 'myTeams' or 'publicTeams'
   const [preFilledCode, setPreFilledCode] = useState('');
+  // NEW: inline join-by-code state
+  const [codeInput, setCodeInput] = useState('');
+  const [preview, setPreview] = useState(null);
+  const [previewError, setPreviewError] = useState('');
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // When a join is initiated, store the team ID and open the modal
   const handleJoinTeam = (team) => {
@@ -64,7 +73,27 @@ export default function TeamsPage() {
   const maxTeams = userData?.planTeamsCap ?? TEAM_PLAN_CAPS[userData?.plan]?.teams ?? 0;
   const atTeamCap = canCreateTeam && maxTeams > 0 && ownedTeamsCount >= maxTeams;
 
-  // NEW: header actions (create + info) with cap indicator
+  // NEW: preview a team by code (no side effects)
+  const handleFindTeamByCode = async (e) => {
+    e.preventDefault();
+    const code = (codeInput || '').trim();
+    if (!code) return;
+    setPreviewError('');
+    setPreview(null);
+    setPreviewLoading(true);
+    try {
+      const fn = httpsCallable(getFunctions(), 'previewTeamByCode');
+      const res = await fn({ code });
+      setPreview(res.data);
+      setShowPreviewModal(true);
+    } catch (err) {
+      setPreviewError(err.message || 'Team not found for this code.');
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  // NEW: header actions (removed the join-by-code button)
   const headerActions = (
     <div className="flex sm:flex-row gap-2 items-end sm:items-end">
       {canCreateTeam && (
@@ -87,6 +116,7 @@ export default function TeamsPage() {
         <RiInformationLine />
         {showInfo ? 'Hide Info' : 'Show Info'}
       </Button>
+      {/* removed: header Join by Code button */}
     </div>
   );
 
@@ -153,6 +183,32 @@ export default function TeamsPage() {
       {/* Tab Content */}
       {activeTab === 'myTeams' && (
         <>
+          {/* NEW: Join by code (mobile-friendly) */}
+          {user && (
+            <div className="bg-white shadow rounded-lg p-4 mb-4">
+              <form onSubmit={handleFindTeamByCode} className="flex sm:flex-row gap-3">
+                <Input
+                  type="text"
+                  placeholder="Enter team code"
+                  value={codeInput}
+                  onChange={(e) => setCodeInput(e.target.value.trim().toUpperCase())}
+                  className="sm:flex-1"
+                />
+                <Button type="submit" variant="primary" loading={previewLoading} className="mt-auto">
+                  Find
+                </Button>
+              </form>
+              {previewError && (
+                <div className="mt-2 text-sm bg-red-50 text-red-700 border border-red-200 rounded-lg px-3 py-2">
+                  {previewError}
+                </div>
+              )}
+              <p className="mt-2 text-xs text-gray-500">
+                Paste a team’s join code. You’ll preview the team before sending a request.
+              </p>
+            </div>
+          )}
+
           {user ? (
             loading ? (
               <div className="flex justify-center py-8"><Spinner /></div>
@@ -208,15 +264,31 @@ export default function TeamsPage() {
         </>
       )}
 
+      {/* Existing join modal for public team "Join" buttons */}
       <JoinTeamModal
         isOpen={showJoinModal}
         onClose={handleModalClose}
         preFilledCode={preFilledCode}
         onJoinSuccess={() => {
-          // On success, you can leave the pending state (or update it if needed)
           setShowJoinModal(false);
           setPreFilledCode('');
           setCurrentPendingTeamId(null);
+        }}
+      />
+
+      {/* NEW: Preview modal (opens after Find) */}
+      <JoinByCodePreviewModal
+        isOpen={showPreviewModal}
+        onClose={() => {
+          setShowPreviewModal(false);
+          setPreview(null);
+        }}
+        team={preview}
+        code={codeInput}
+        onJoined={() => {
+          setShowPreviewModal(false);
+          setPreview(null);
+          setCodeInput('');
         }}
       />
     </div>
