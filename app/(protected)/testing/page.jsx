@@ -271,6 +271,17 @@ const Testing = () => {
 
   const total = currentRound.length;
 
+  // Track which skis should display full serial (fix for Hooks-in-loop)
+  const [fullSerialIds, setFullSerialIds] = useState(new Set());
+  const toggleSerialDigits = (id) => {
+    setFullSerialIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   return (
     <div className={`min-h-screen p-4`}>
       <div className="max-w-4xl mx-auto">
@@ -359,7 +370,8 @@ const Testing = () => {
                                   // Highlight ski being dragged
                                   const isDragSource = dragSource?.matchIndex === mi && dragSource?.skiIndex === si;
 
-                                  const [showFullSerial, setShowFullSerial] = useState(false);
+                                  // REPLACE local useState with derived flag from parent state
+                                  const showFullSerial = fullSerialIds.has(ski.id);
                                   const serialDisplay = showFullSerial
                                     ? ski.serialNumber
                                     : String(ski.serialNumber).slice(-3).padStart(3, '0');
@@ -388,7 +400,7 @@ const Testing = () => {
                                               title={showFullSerial ? "Show last 3 digits" : "Show full serial number"}
                                               onClick={(e) => {
                                                 e.stopPropagation();
-                                                setShowFullSerial((prev) => !prev);
+                                                toggleSerialDigits(ski.id);
                                               }}
                                             >
                                               {serialDisplay}

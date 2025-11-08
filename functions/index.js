@@ -81,6 +81,12 @@ function generateShareCode() {
   return out;
 }
 
+// Add this helper for team join codes
+function generateTeamCode() {
+  // Reuse the share-code generator to keep format consistent
+  return generateShareCode();
+}
+
 /* ------------------------------------------------------------------
    CORS helper
    ------------------------------------------------------------------ */
