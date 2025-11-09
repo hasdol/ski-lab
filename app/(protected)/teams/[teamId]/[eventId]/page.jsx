@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import useEvent from '@/hooks/useEvent';
@@ -12,15 +12,39 @@ import EventWeather from './components/EventWeather';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { formatDate } from '@/helpers/helpers';
 import TeamEventDashboard from '@/components/analytics/TeamEventDashboard';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase/firebaseConfig';
 
 export default function EventPage() {
   const { teamId, eventId } = useParams();
   const router = useRouter();
   const { eventData, loading, error } = useEvent(teamId, eventId);
-  const { userData } = useAuth();
+  const { userData, user } = useAuth();
 
   const canManage = ['coach', 'company'].includes(userData?.plan);
   const [activeTab, setActiveTab] = useState('Info');
+  const [teamMeta, setTeamMeta] = useState(null);
+
+  // Subscribe to team meta for owner/mod check
+  useEffect(() => {
+    if (!teamId) return;
+    const ref = doc(db, 'teams', teamId);
+    const unsub = onSnapshot(ref, snap => {
+      setTeamMeta(snap.exists() ? snap.data() : null);
+    });
+    return () => unsub();
+  }, [teamId]);
+
+  const isOwner = teamMeta?.createdBy === user?.uid;
+  const isMod = (teamMeta?.mods || []).includes(user?.uid);
+  const canSeeDashboard = isOwner || isMod;
+
+  // If activeTab is Dashboard but user lost permission, force Info
+  useEffect(() => {
+    if (activeTab === 'Dashboard' && !canSeeDashboard) {
+      setActiveTab('Info');
+    }
+  }, [activeTab, canSeeDashboard]);
 
   const handleBack = () => router.push(`/teams/${teamId}`);
   const handleEdit = () => router.push(`/teams/${teamId}/${eventId}/edit`);
@@ -85,13 +109,15 @@ export default function EventPage() {
           <p className="text-sm text-gray-600">{startFmt} - {endFmt}</p>
         </div>
 
-        <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+        <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} canSeeDashboard={canSeeDashboard} />
 
         <div className="m-4">
           {activeTab === 'Info' && <EventOverview eventData={eventData} />}
           {activeTab === 'Tests' && <EventTests teamId={teamId} eventId={eventId} eventData={eventData} />}
           {activeTab === 'Weather' && <EventWeather eventData={eventData} />}
-          {activeTab === 'Dashboard' && <TeamEventDashboard teamId={teamId} eventId={eventId} />}
+          {activeTab === 'Dashboard' && canSeeDashboard && (
+            <TeamEventDashboard teamId={teamId} eventId={eventId} />
+          )}
         </div>
       </div>
 

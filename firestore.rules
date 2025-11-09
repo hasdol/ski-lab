@@ -112,6 +112,8 @@ service cloud.firestore {
             'model',
             'length',
             'stiffness',
+            'stiffnessHalf',
+            'stiffnessFull',
             'base',
             'construction',
             'grind',

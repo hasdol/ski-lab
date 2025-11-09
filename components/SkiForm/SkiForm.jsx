@@ -16,10 +16,12 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
     brand: '',
     model: '',
     style: '',
-    length: 200, // Default length value
+    length: 200,
     grind: '',
     grindDate: '',
-    stiffness: '',
+    stiffness: '',            // combined legacy string ("half/full")
+    stiffnessHalf: '',        // NEW
+    stiffnessFull: '',        // NEW
     base: '',
     construction: '',
     comment: '',
@@ -46,6 +48,19 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
       }));
     }
   }, [initialData, isEdit]);
+
+  useEffect(() => {
+    // Parse incoming stiffness ("half/full") into the two new fields when editing
+    if (initialData?.stiffness && (formData.stiffnessHalf === '' && formData.stiffnessFull === '')) {
+      const raw = String(initialData.stiffness).trim();
+      if (raw.includes('/')) {
+        const [half, full] = raw.split('/');
+        setFormData(prev => ({ ...prev, stiffnessHalf: half.trim(), stiffnessFull: full.trim() }));
+      } else if (raw) {
+        setFormData(prev => ({ ...prev, stiffnessHalf: raw, stiffnessFull: raw }));
+      }
+    }
+  }, [initialData, formData.stiffnessHalf, formData.stiffnessFull]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,9 +90,21 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
-      let preparedData = { ...formData, archived: false };
+      const preparedData = { ...formData };
+
+      // Combine half/full into legacy stiffness field
+      const half = (formData.stiffnessHalf || '').trim();
+      const full = (formData.stiffnessFull || '').trim();
+      preparedData.stiffness = (half || full)
+        ? `${half || full}/${full || half}`
+        : '';
+
+      // Remove the split fields from submission (optional; keep if you want them stored too)
+      delete preparedData.stiffnessHalf;
+      delete preparedData.stiffnessFull;
+
+      // Existing grind history handling
       const convertToTimestamp = (dateStr) =>
         dateStr ? Timestamp.fromDate(new Date(dateStr)) : null;
 
@@ -284,6 +311,35 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
             { label: 'Warm', value: 'warm' },
           ]}
         />
+        {/* REPLACED single stiffness input with two fields */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input
+            label='Stiffness (half weight)'
+            type="text"
+            name="stiffnessHalf"
+            value={formData.stiffnessHalf}
+            onChange={handleChange}
+            placeholder='e.g. 1.3'
+            required
+          />
+          <Input
+            label='Stiffness (full weight)'
+            type="text"
+            name="stiffnessFull"
+            value={formData.stiffnessFull}
+            onChange={handleChange}
+            placeholder='e.g. 0.3'
+            required
+          />
+        </div>
+        {/* Display preview of combined stiffness */}
+        {(formData.stiffnessHalf || formData.stiffnessFull) && (
+          <p className="text-xs text-gray-500 -mt-2">
+            Combined: {(formData.stiffnessHalf || formData.stiffnessFull)
+              ? `${formData.stiffnessHalf || formData.stiffnessFull}/${formData.stiffnessFull || formData.stiffnessHalf}`
+              : '--'}
+          </p>
+        )}
         <Input
           label='Length'
           type="range"
@@ -296,14 +352,7 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
           placeholder='Length'
           unit="cm"
         />
-        <Input
-          label='Stiffness'
-          type="text"
-          name="stiffness"
-          value={formData.stiffness}
-          onChange={handleChange}
-          placeholder='Stiffness'
-        />
+        
         <Input
           label="Base"
           type="text"

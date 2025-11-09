@@ -56,6 +56,7 @@ function buildRows(testResults) {
 
       for (let k = i; k < j; k++) {
         const r = rankings[k];
+        
         rows.push({
           // groupable fields
           grind: r.grind || 'Unknown',

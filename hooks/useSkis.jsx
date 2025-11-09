@@ -52,6 +52,7 @@ export const useSkis = () => {
 
       const newSkiData = {
         ...skiData,
+        archived: skiData.archived ?? false, // ensure default
         dateAdded: Timestamp.now()
       };
 

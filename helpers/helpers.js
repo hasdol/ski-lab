@@ -2,28 +2,45 @@ export const mapRankingsToTournamentData = (rankings, selectedSkis) => {
   // Map each ranking to include the necessary ski data
   return {
     rankings: rankings.map(({ cumulativeScore, skiId }) => {
-      // Find the ski in selectedSkis that matches the skiId
-      const ski = selectedSkis.find(ski => ski.id === skiId);
-      // Check if ski is found
+      const ski = (selectedSkis || []).find(s => s.id === skiId);
+      const score = Number.isFinite(Number(cumulativeScore)) ? Number(cumulativeScore) : 0;
+
       if (!ski) {
-        console.error(`Ski with id ${skiId} not found in selectedSkis`);
+        console.error(`Ski with id ${skiId} not found in provided ski list`);
         return {
-          score: cumulativeScore,
-          skiId: skiId,
+          score,
+          skiId,
           serialNumber: 'Unknown',
           grind: 'Unknown',
           brand: 'Unknown',
+          model: 'Unknown',
+          base: 'Unknown',
+          length: null,
+          stiffness: '',
+          skiType: '',
+          style: '',
+          construction: '',
+          grindDate: null,
           dateAdded: null
         };
       }
-      // Return the ranking object with ski data
+
+      // Return a richer snapshot of the ski at save-time
       return {
-        score: cumulativeScore,
+        score,
         skiId: ski.id,
-        serialNumber: ski.serialNumber,
-        grind: ski.grind,
-        brand: ski.brand,
-        dateAdded: ski.dateAdded
+        serialNumber: ski.serialNumber ?? '',
+        brand: ski.brand ?? '',
+        model: ski.model ?? '',
+        base: ski.base ?? '',
+        length: ski.length ?? null,
+        stiffness: ski.stiffness ?? '',
+        skiType: ski.skiType ?? '',
+        style: ski.style ?? '',
+        construction: ski.construction ?? '',
+        grind: ski.grind ?? '',
+        grindDate: ski.grindDate ?? null, // Timestamp or null
+        dateAdded: ski.dateAdded ?? null  // Timestamp or null
       };
     })
   };

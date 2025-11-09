@@ -160,12 +160,9 @@ const TestSummaryPage = () => {
       }
     }
 
-    const payloadRankings = resultRankings.map((r) => ({
-      skiId: r.skiId,
-      score: Number.isFinite(Number(r.cumulativeScore)) ? Number(r.cumulativeScore) : 0,
-      serialNumber: r.serialNumber ?? '',
-      grind: r.grind ?? '',
-    }));
+    // Build enriched ranking snapshots for analytics
+    const skiSource = isManualMode ? inventorySkis : selectedSkis;
+    const { rankings: payloadRankings } = mapRankingsToTournamentData(resultRankings, skiSource);
 
     try {
       setLoading(true);
