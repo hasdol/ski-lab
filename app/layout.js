@@ -38,16 +38,13 @@ export const metadata = {
   }
 };
 
-// Add viewport generator that also supplies themeColor (light/dark variants)
-export function generateViewport() {
-  return {
-    viewport: 'width=device-width, initial-scale=1',
-    themeColor: [
-      { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-      { media: '(prefers-color-scheme: dark)', color: '#ffffff' }
-    ]
-  };
-}
+// Add explicit viewport (prevents double-tap / input zoom on iOS)
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: 'no',
+};
 
 export default function RootLayout({ children }) {
   return (

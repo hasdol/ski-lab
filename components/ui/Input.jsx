@@ -112,7 +112,7 @@ const Input = ({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        className={`w-full bg-white text-text border border-gray-300 rounded-lg ${gloveClasses} ${className} ${disabled && 'bg-gray-100!'}`}
+        className={`w-full bg-white text-text border border-gray-300 rounded-lg ${gloveClasses} text-base ${className} ${disabled && 'bg-gray-100!'}`}
         {...props}
       />
     );
