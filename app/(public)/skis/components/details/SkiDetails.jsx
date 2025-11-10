@@ -106,13 +106,17 @@ const SkiDetails = ({ ski, onDelete, onEdit, onArchive, onUnarchive, ownerUserId
     // Grind-period filter for heatmap
     if (selectedHeatmapGrind && selectedHeatmapGrind !== 'all' && grindHistory.length) {
       const idx = Number(selectedHeatmapGrind);
-      const startTs = getTimestamp(grindHistory[idx]?.grindDate);
-      const endTs =
-        idx > 0 ? getTimestamp(grindHistory[idx - 1]?.grindDate) : Number.POSITIVE_INFINITY;
-      if (startTs) {
-        filtered = filtered.filter(
-          (d) => d.testDate >= startTs && d.testDate < (endTs || Number.POSITIVE_INFINITY)
-        );
+
+      // FIX: If only one grind exists, do NOT exclude earlier tests; treat it as covering all time.
+      if (grindHistory.length > 1) {
+        const startTs = getTimestamp(grindHistory[idx]?.grindDate);
+        const endTs =
+          idx > 0 ? getTimestamp(grindHistory[idx - 1]?.grindDate) : Number.POSITIVE_INFINITY;
+        if (startTs) {
+          filtered = filtered.filter(
+            (d) => d.testDate >= startTs && d.testDate < (endTs || Number.POSITIVE_INFINITY)
+          );
+        }
       }
     }
     return filtered;
