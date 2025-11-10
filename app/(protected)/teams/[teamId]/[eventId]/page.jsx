@@ -14,7 +14,6 @@ import { formatDate } from '@/helpers/helpers';
 import TeamEventDashboard from '@/components/analytics/TeamEventDashboard';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase/firebaseConfig';
-import EventLabTests from './components/EventLabTests';
 
 export default function EventPage() {
   const { teamId, eventId } = useParams();
