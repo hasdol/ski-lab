@@ -125,7 +125,7 @@ export default function ResultCard({ result, debouncedSearch, handleEdit, handle
 
         <div className="mt-2 flex items-center gap-2 text-xs">
           {testQuality != null && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">
+            <span className={`inline-flex items-center px-2 py-0.5 rounded ${testQuality > 7 ? 'bg-blue-100 text-blue-700' : testQuality<3 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'} font-medium`}>
               Test Execution {testQuality} / 10
             </span>
           )}
