@@ -75,6 +75,7 @@ const TestSummaryPage = () => {
     humidity: '',
     snowTemperature: '',
     comment: '',
+    testQuality: 5, // NEW: user satisfaction with test execution (1–10)
     snowCondition: { source: '', grainType: '' },
   });
 
@@ -465,6 +466,27 @@ const TestSummaryPage = () => {
             value={additionalData.comment}
             onChange={handleInputChange}
           />
+          {/* NEW: Test execution satisfaction slider */}
+          <div className="md:col-span-2">
+            <label htmlFor="testQuality" className="text-sm font-medium text-gray-700 flex justify-between">
+              Test execution satisfaction
+              <span className="text-blue-600 font-semibold">{additionalData.testQuality}</span>
+            </label>
+            <input
+              id="testQuality"
+              name="testQuality"
+              type="range"
+              min={1}
+              max={10}
+              step={1}
+              value={additionalData.testQuality}
+              onChange={handleInputChange}
+              className="w-full mt-2 accent-blue-600"
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              1 = very poor, 10 = excellent execution
+            </div>
+          </div>
           <div className="md:col-span-2">
             <ShareWithEventSelector
               userId={user.uid}

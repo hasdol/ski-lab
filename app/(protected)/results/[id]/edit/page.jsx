@@ -40,6 +40,12 @@ const EditResultPage = () => {
         snowTemperature: result.snowTemperature || '',
         humidity: result.humidity || '',
         comment: result.comment || '',
+        testQuality: (
+          result.testQuality ??
+          result.additionalData?.testQuality ??
+          result.meta?.testQuality ??
+          5
+        ), // NEW
         snowCondition: {
           source: result.snowCondition?.source || '',
           grainType: result.snowCondition?.grainType || '',
@@ -68,6 +74,9 @@ const EditResultPage = () => {
     } else if (name === 'date') {
       const dt = new Date(value)
       if (!isNaN(dt.getTime())) setResultData(prev => ({ ...prev, timestamp: dt }))
+    } else if (name === 'testQuality') {
+      const v = Math.max(1, Math.min(10, Number(value) || 1))
+      setResultData(prev => ({ ...prev, testQuality: v })) // NEW: coerce to 1–10
     } else {
       setResultData(prev => ({ ...prev, [name]: value }))
     }
@@ -250,6 +259,29 @@ const EditResultPage = () => {
               value={resultData.comment}
               onChange={handleInputChange}
             />
+
+            {/* NEW: Test execution satisfaction slider */}
+            <div>
+              <label htmlFor="testQuality" className="text-sm font-medium text-gray-700 flex justify-between">
+                Test execution satisfaction
+                <span className="text-blue-600 font-semibold">{resultData.testQuality}</span>
+              </label>
+              <input
+                id="testQuality"
+                name="testQuality"
+                type="range"
+                min={1}
+                max={10}
+                step={1}
+                value={resultData.testQuality}
+                onChange={handleInputChange}
+                className="w-full mt-2 accent-blue-600"
+              />
+              <div className="text-xs text-gray-500 mt-1">
+                1 = very poor, 10 = excellent execution
+              </div>
+            </div>
+
             <div>
               <Input
                 type="datetime-local"
@@ -265,7 +297,6 @@ const EditResultPage = () => {
                 </p>
               )}
             </div>
-
 
             {/* Shared events selector */}
             <ShareWithEventSelector

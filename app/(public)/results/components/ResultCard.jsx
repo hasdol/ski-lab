@@ -2,6 +2,8 @@
 import React from 'react';
 import Button from '@/components/ui/Button';
 import { RiEditLine, RiDeleteBinLine } from 'react-icons/ri';
+import { MdEvent } from "react-icons/md";
+
 import {
   highlightSearchTerm,
   formatSourceLabel,
@@ -9,12 +11,12 @@ import {
   formatDate,
 } from '@/helpers/helpers';
 
-const ResultCard = ({ result, debouncedSearch, handleEdit, handleDelete, canEdit = true, footerLeft }) => {
+export default function ResultCard({ result, debouncedSearch, handleEdit, handleDelete, canEdit = true, footerLeft }) {
   const date = result.timestamp?.seconds
     ? new Date(result.timestamp.seconds * 1000)
     : result.timestamp instanceof Date
-    ? result.timestamp
-    : null;
+      ? result.timestamp
+      : null;
 
   // support multiple possible field names for backward compatibility
   const snowTemp =
@@ -24,12 +26,17 @@ const ResultCard = ({ result, debouncedSearch, handleEdit, handleDelete, canEdit
     '';
   const humidity =
     result.snowCondition?.humidity ?? result.humidity ?? '';
+  const testQuality =
+    result.testQuality ??
+    result.additionalData?.testQuality ??
+    result.meta?.testQuality ??
+    null;
 
   return (
-    <div className="bg-white shadow rounded-lg p-4 sm:p-5 hover:shadow-md transition">
+    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex relative items-center justify-between gap-3">
             <div className="min-w-0">
               <h3 className="font-semibold text-lg truncate">
                 {highlightSearchTerm(
@@ -42,6 +49,13 @@ const ResultCard = ({ result, debouncedSearch, handleEdit, handleDelete, canEdit
                 {highlightSearchTerm(result.location, debouncedSearch)}
               </p>
             </div>
+
+            {result.displayName && (
+              <span className="bg-indigo-100 text-indigo-500 px-4 rounded-xl absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-medium py-1 ">
+                {footerLeft !== undefined ? footerLeft : (result.displayName ? `${result.displayName}` : '')}
+              </span>
+            )}
+
 
             {canEdit && (
               <div className="flex items-center gap-2">
@@ -106,14 +120,22 @@ const ResultCard = ({ result, debouncedSearch, handleEdit, handleDelete, canEdit
         </div>
       </div>
 
-      <div className="mt-3 flex items-center justify-between text-xs font-medium text-gray-500">
-        <span className="italic">
-          {footerLeft !== undefined ? footerLeft : (result.displayName ? `By ${result.displayName}` : '')}
-        </span>
-        <span>{date ? formatDate(date, true) : '--'}</span>
+      <div className='flex justify-between'>
+        {/* NEW: Test execution satisfaction */}
+
+        <div className="mt-2 flex items-center gap-2 text-xs">
+          {testQuality != null && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">
+              Test Execution {testQuality} / 10
+            </span>
+          )}
+        </div>
+
+
+        <span className='text-end text-xs font-medium mt-3 text-gray-500'> <MdEvent className="inline" /> {date ? formatDate(date, true) : '--'}</span>
       </div>
+
+
     </div>
   );
 };
-
-export default ResultCard;
