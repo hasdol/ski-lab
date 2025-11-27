@@ -64,8 +64,6 @@ const TestingSkiMatchup = ({ match, scores, onScoreChange, potentialSwapTarget }
                         onBlur={(e) => handleBlur(ski.id, e)}
                         min="0"
                         className="text-center"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
                       />
                       <span className='absolute right-2 top-1/2 text-xs'>cm</span>
                     </div>
