@@ -268,6 +268,16 @@ const PricingPage = () => {
           })}
         </div>
       )}
+
+      {/* NEW: SEO cross-links */}
+      <div className="mt-10 text-center text-sm text-gray-600">
+        <p>
+          Need help choosing a plan? See how teams work on the{' '}
+          <a href="/teams" className="text-blue-600 underline">Teams page</a>{' '}
+          or{' '}
+          <a href="/contact" className="text-blue-600 underline">contact us</a>.
+        </p>
+      </div>
     </div>
   );
 };

@@ -20,6 +20,8 @@ module.exports = {
     '/login',
     '/signup',
     '/resetPassword',
+    '/admin',           // NEW
+    '/admin/*',         // NEW
   ],
 
   robotsTxtOptions: {
@@ -38,6 +40,8 @@ module.exports = {
           '/teams/create',
           '/teams/*/edit',
           '/teams/*/*/edit',
+          '/admin',      // NEW
+          '/admin/*',    // NEW
         ],
       },
     ],

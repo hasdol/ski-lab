@@ -1,5 +1,5 @@
 // next.config.mjs
-import nextPWA from 'next-pwa';
+import withPWAInit from "@ducanh2912/next-pwa";
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -46,19 +46,25 @@ const runtimeCaching = [
 ];
 
 /* ───────── create the PWA wrapper ───────── */
-const withPWA = nextPWA({
+const withPWA = withPWAInit({
   dest: 'public',
-  disable: !isProd,
-  register: false,
+  // Disable PWA only in local development (npm run dev)
+  // It will be ENABLED for both 'npm run build' and your production deployments
+  disable: process.env.NODE_ENV === 'development',
+  
+  register: false, // You use your own PWARegister component
   skipWaiting: true,
-  clientsClaim: true,             // <- ensure SW takes control promptly
-  cleanupOutdatedCaches: true,    // <- keep cache tidy on iOS
   fallbacks: { document: '/offline.html' },
-  buildExcludes: [/app-build-manifest\.json$/],
-  runtimeCaching,
+  
+  // Pass workbox options here
+  workboxOptions: {
+    runtimeCaching,
+    // Exclude build manifest to avoid some Next 15 caching issues
+    exclude: [/app-build-manifest\.json$/],
+  },
 });
 
-/* ───────── base Next config (keep your existing settings) ───────── */
+// Base Next config
 const baseConfig = {
   async redirects() {
     const existing = [];

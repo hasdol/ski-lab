@@ -242,9 +242,19 @@ const HomePage = () => {
         className="py-8 mt-auto text-center bg-gray-50 border-t border-gray-200"
         {...SIMPLE_ANIM}
       >
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-gray-500 mb-2">
+          {/* NEW: SEO-friendly footer nav */}
+          <nav className="flex flex-wrap justify-center gap-4 mb-4 text-[11px] uppercase tracking-wide">
+            <a href="/pricing" className="text-gray-500 hover:text-gray-800">Pricing</a>
+            <a href="/skis" className="text-gray-500 hover:text-gray-800">Skis</a>
+            <a href="/results" className="text-gray-500 hover:text-gray-800">Results</a>
+            <a href="/teams" className="text-gray-500 hover:text-gray-800">Teams</a>
+            <a href="/about" className="text-gray-500 hover:text-gray-800">About</a>
+            <a href="/contact" className="text-gray-500 hover:text-gray-800">Contact</a>
+          </nav>
+
           <p className="mb-1">
-            Built with <span className="font-medium">Firebase</span> & <span className="font-medium">Stripe</span>
+            Built with <span className="font-medium">Firebase</span> &amp; <span className="font-medium">Stripe</span>
           </p>
           <span className="text-gray-400">© {new Date().getFullYear()} Ski Lab. All rights reserved.</span>
         </div>

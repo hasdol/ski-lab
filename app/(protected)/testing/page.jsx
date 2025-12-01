@@ -428,6 +428,9 @@ const Testing = () => {
                                 Difference:
                                 <Input
                                   className="text-center"
+                                  type="number"
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
                                   value={res.diff ?? 0} onChange={e => handleDiffChange(match.id, e.target.value)} />
                                 <span className="absolute right-1 bottom-0">cm</span>
                               </div>

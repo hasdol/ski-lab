@@ -355,6 +355,8 @@ const TestSummaryPage = () => {
                     placeholder="Difference to winner (cm)"
                     required
                     min={0}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                   />
                 </div>
                 <div className="w-full md:w-auto flex-shrink-0 flex justify-end">

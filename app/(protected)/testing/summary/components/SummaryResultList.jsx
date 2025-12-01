@@ -40,6 +40,8 @@ const SummaryResultList = ({ rankings, onScoreChange }) => {
                     <span className="flex justify-end items-center gap-2">
                         <input
                             type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             value={item.cumulativeScore}
                             onChange={e => onScoreChange && onScoreChange(item.skiId, Number(e.target.value))}
                             className="w-16 px-2 py-1 border border-gray-400 rounded text-right"

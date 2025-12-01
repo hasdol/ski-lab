@@ -11,6 +11,8 @@ Disallow: /testing/*
 Disallow: /teams/create
 Disallow: /teams/*/edit
 Disallow: /teams/*/*/edit
+Disallow: /admin
+Disallow: /admin/*
 
 # Host
 Host: https://ski-lab.com
