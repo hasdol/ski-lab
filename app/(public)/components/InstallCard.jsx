@@ -13,13 +13,14 @@ const InstallCard = () => {
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIos, setIsIos] = useState(false);
   const [showIosHint, setShowIosHint] = useState(false);
-  // store the beforeinstallprompt event so we can trigger it later
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
 
   useEffect(() => {
     const ua = window.navigator.userAgent || '';
-    const isi = /iphone|ipad|ipod/i.test(ua) && !window.matchMedia('(display-mode: standalone)').matches;
+    const isi =
+      /iphone|ipad|ipod/i.test(ua) &&
+      !window.matchMedia('(display-mode: standalone)').matches;
     setIsIos(isi);
+
     const dismissed = localStorage.getItem('skiLabHideIosInstallHint') === '1';
     setShowIosHint(isi && !dismissed);
   }, []);
@@ -32,29 +33,26 @@ const InstallCard = () => {
         window.navigator.standalone;
       setIsStandalone(!!standalone);
     };
+
     checkStandalone();
     window.addEventListener('resize', checkStandalone);
     return () => window.removeEventListener('resize', checkStandalone);
   }, []);
 
   useEffect(() => {
-    const onBefore = (e) => {
-      // Prevent the automatic prompt so we can call prompt() from the button.
-      // This stores the event so the user can trigger installation manually.
-      try {
-        e.preventDefault();
-      } catch (err) {
-        // ignore if preventDefault isn't allowed by the UA
-      }
-      setDeferredPrompt(e);
+    const onBefore = () => {
+      // We no longer call preventDefault or keep the event;
+      // just note that install is possible so we show the card.
       setCanInstall(true);
     };
+
     const onInstalled = () => {
       setCanInstall(false);
-      setDeferredPrompt(null);
     };
+
     window.addEventListener('beforeinstallprompt', onBefore);
     window.addEventListener('appinstalled', onInstalled);
+
     return () => {
       window.removeEventListener('beforeinstallprompt', onBefore);
       window.removeEventListener('appinstalled', onInstalled);
@@ -65,7 +63,7 @@ const InstallCard = () => {
   if (!canInstall && !isIos) return null;
 
   const toggleHint = () => {
-    // On iOS show/hide the hint.
+    // iOS: show/hide the manual instructions.
     if (isIos) {
       if (showIosHint) {
         localStorage.setItem('skiLabHideIosInstallHint', '1');
@@ -76,23 +74,9 @@ const InstallCard = () => {
       return;
     }
 
-    // On supported Android/Chromium show the saved install prompt.
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      // After the prompt, clear stored prompt
-      deferredPrompt.userChoice?.then((choice) => {
-        if (choice.outcome === 'accepted') {
-          setCanInstall(false);
-        }
-        setDeferredPrompt(null);
-      }).catch(() => {
-        // ignore
-        setDeferredPrompt(null);
-      });
-    } else {
-      // fallback: hide the card if no prompt available
-      setCanInstall(false);
-    }
+    // Non‑iOS: we cannot trigger the prompt manually without the stored event,
+    // so just hide the card when the user clicks.
+    setCanInstall(false);
   };
 
   return (
@@ -102,7 +86,13 @@ const InstallCard = () => {
     >
       <div className="mt-4">
         <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-full px-3 py-2 text-sm">
-          <img src="/ski-lab-icon.png" alt="Ski-Lab" width={28} height={28} className="rounded-full" />
+          <img
+            src="/ski-lab-icon.png"
+            alt="Ski-Lab"
+            width={28}
+            height={28}
+            className="rounded-full"
+          />
           <div className="leading-tight">
             <div className="font-medium text-sm">Ski‑Lab</div>
             <div className="text-xs text-gray-500">Add to Home Screen</div>
@@ -113,7 +103,7 @@ const InstallCard = () => {
             className="ml-3 text-xs bg-gray-100 text-gray-800 rounded-full px-3 py-1 hover:bg-gray-200"
             aria-expanded={showIosHint}
           >
-            {isIos ? (showIosHint ? 'Close' : 'How') : (canInstall ? 'Install' : 'How')}
+            {isIos ? (showIosHint ? 'Close' : 'How') : (canInstall ? 'Dismiss' : 'How')}
           </button>
         </div>
 
