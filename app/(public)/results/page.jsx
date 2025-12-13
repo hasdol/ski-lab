@@ -28,6 +28,8 @@ import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
 import PageHeader from '@/components/layout/PageHeader';
 import UserPicker from '@/components/UserPicker/UserPicker';
 
+const VIEW_USER_STORAGE_KEY = 'viewUserId'; // <── ADD THIS
+
 const Results = () => {
   const [searchTermRaw, setSearchTermRaw] = useState('');
   const [debouncedSearch] = useDebounce(searchTermRaw.toLowerCase(), 300);
@@ -47,6 +49,15 @@ const Results = () => {
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false); // + add this
 
+  const handleUserSelect = (idOrNull) => {        // <── ADD THIS
+    const val = idOrNull || null;
+    setViewUserId(val);
+    if (typeof window !== 'undefined') {
+      if (val) localStorage.setItem(VIEW_USER_STORAGE_KEY, val);
+      else localStorage.removeItem(VIEW_USER_STORAGE_KEY);
+    }
+  };
+
   const {
     docs: resultsToShow,
     loadMore,
@@ -63,7 +74,15 @@ const Results = () => {
 
   // Load owners with display names
   useEffect(() => {
-    if (!user) { setOwners([]); setAccessibleUsers({ self: null, owners: [] }); setViewUserId(null); return; }
+    if (!user) {
+      setOwners([]);
+      setAccessibleUsers({ self: null, owners: [] });
+      setViewUserId(null);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(VIEW_USER_STORAGE_KEY);   // <── CLEAR ON SIGN-OUT
+      }
+      return;
+    }
     (async () => {
       try {
         const acc = await listAccessibleUsers();
@@ -75,6 +94,30 @@ const Results = () => {
       }
     })();
   }, [user]);
+
+  // Hydrate viewUserId from localStorage when accessible users are known
+  useEffect(() => {                                  // <── ADD THIS EFFECT
+    if (!user) return;
+    if (typeof window === 'undefined') return;
+
+    if (!accessibleUsers.self && (!accessibleUsers.owners || accessibleUsers.owners.length === 0)) {
+      return;
+    }
+
+    const stored = localStorage.getItem(VIEW_USER_STORAGE_KEY);
+    if (!stored) {
+      setViewUserId(null);
+      return;
+    }
+
+    const allowedIds = (accessibleUsers.owners || []).map(o => o.id);
+    if (allowedIds.includes(stored)) {
+      setViewUserId(stored);
+    } else {
+      setViewUserId(null);
+      localStorage.removeItem(VIEW_USER_STORAGE_KEY);
+    }
+  }, [user, accessibleUsers]);
 
   const handleSearch = (val) => setSearchTermRaw(val);
   const handleTempCommit = (newVal) => setTempRange(newVal);
@@ -135,6 +178,8 @@ const Results = () => {
     styleFilter !== 'all';
 
   const handleAddOldResult = () => {
+    // Block adding results when viewing someone else's data
+    if (viewUserId) return;
     router.push('/testing/summary?manual=1');
   };
   const handleNewTest = () => {
@@ -166,7 +211,13 @@ const Results = () => {
             )}
 
             <div className="flex gap-3 items-center">
-              <Button variant="primary" onClick={handleAddOldResult}>Add Result</Button>
+              <Button
+                variant="primary"
+                onClick={handleAddOldResult}
+                disabled={!!viewUserId} // disable when viewing others
+              >
+                Add Result
+              </Button>
               <Button
                 onClick={() => setShowInfo(prev => !prev)}
                 variant="secondary"
@@ -355,7 +406,7 @@ const Results = () => {
         self={accessibleUsers.self || { id: user?.uid, displayName: user?.displayName || 'Me' }}
         owners={accessibleUsers.owners}
         currentId={viewUserId}
-        onSelect={(idOrNull) => setViewUserId(idOrNull || null)}
+        onSelect={handleUserSelect}   // <── CHANGED
       />
     </div>
   );

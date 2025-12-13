@@ -40,6 +40,8 @@ import { listAccessibleUsers, listUserSkis, subscribeSharesAsReader } from '@/li
 import UserPicker from '@/components/UserPicker/UserPicker';
 import { RiUser3Line } from 'react-icons/ri';
 
+const VIEW_USER_STORAGE_KEY = 'viewUserId'; // <── ADD THIS
+
 const Skis = () => {
   const isStandalone = useIsStandalone();
   const router = useRouter();
@@ -57,6 +59,14 @@ const Skis = () => {
   const [owners, setOwners] = useState([]); // owners I can read
   const [isPickerOpen, setIsPickerOpen] = useState(false); // NEW
 
+  const handleUserSelect = (idOrNull) => {        // <── ADD THIS
+    const val = idOrNull || null;
+    setViewUserId(val);
+    if (typeof window !== 'undefined') {
+      if (val) localStorage.setItem(VIEW_USER_STORAGE_KEY, val);
+      else localStorage.removeItem(VIEW_USER_STORAGE_KEY);
+    }
+  };
   // Clear any selection/expanded when switching user
   useEffect(() => {
     setSelectedMap({});
@@ -91,7 +101,6 @@ const Skis = () => {
 
   useEffect(() => {
     if (!user) return;
-    // setActiveUserId(user.uid); // REMOVE
     (async () => {
       try {
         const acc = await listAccessibleUsers();
@@ -99,6 +108,37 @@ const Skis = () => {
       } catch {}
     })();
   }, [user]);
+
+  // Hydrate viewUserId from localStorage when accessible users are known
+  useEffect(() => {                                  // <── ADD THIS EFFECT
+    if (!user) {
+      setViewUserId(null);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(VIEW_USER_STORAGE_KEY);
+      }
+      return;
+    }
+    if (typeof window === 'undefined') return;
+
+    // Wait until listAccessibleUsers has populated something
+    if (!accessibleUsers.self && (!accessibleUsers.owners || accessibleUsers.owners.length === 0)) {
+      return;
+    }
+
+    const stored = localStorage.getItem(VIEW_USER_STORAGE_KEY);
+    if (!stored) {
+      setViewUserId(null);
+      return;
+    }
+
+    const allowedIds = (accessibleUsers.owners || []).map(o => o.id);
+    if (allowedIds.includes(stored)) {
+      setViewUserId(stored);
+    } else {
+      setViewUserId(null);
+      localStorage.removeItem(VIEW_USER_STORAGE_KEY);
+    }
+  }, [user, accessibleUsers]);
 
   useEffect(() => {
     if (!user) { setOwners([]); setViewUserId(null); return; }
@@ -575,7 +615,7 @@ const Skis = () => {
         self={accessibleUsers.self || { id: user?.uid, displayName: user?.displayName || 'Me' }}
         owners={accessibleUsers.owners}
         currentId={viewUserId}
-        onSelect={(idOrNull) => setViewUserId(idOrNull || null)}
+        onSelect={handleUserSelect}   // <── CHANGED (was: idOrNull => setViewUserId(idOrNull || null))
       />
     </div>
   );
