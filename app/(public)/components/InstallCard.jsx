@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 
 const SIMPLE_ANIM = {
@@ -9,20 +9,20 @@ const SIMPLE_ANIM = {
 };
 
 const InstallCard = () => {
-  const [canInstall, setCanInstall] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIos, setIsIos] = useState(false);
-  const [showIosHint, setShowIosHint] = useState(false);
+  const [installed, setInstalled] = useState(false);
+
+  // Holds the deferred install prompt event (Chrome/Edge/Android etc.)
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
 
   useEffect(() => {
     const ua = window.navigator.userAgent || '';
     const isi =
       /iphone|ipad|ipod/i.test(ua) &&
       !window.matchMedia('(display-mode: standalone)').matches;
-    setIsIos(isi);
 
-    const dismissed = localStorage.getItem('skiLabHideIosInstallHint') === '1';
-    setShowIosHint(isi && !dismissed);
+    setIsIos(isi);
   }, []);
 
   useEffect(() => {
@@ -36,54 +36,63 @@ const InstallCard = () => {
 
     checkStandalone();
     window.addEventListener('resize', checkStandalone);
-    return () => window.removeEventListener('resize', checkStandalone);
+    window.addEventListener('visibilitychange', checkStandalone);
+
+    return () => {
+      window.removeEventListener('resize', checkStandalone);
+      window.removeEventListener('visibilitychange', checkStandalone);
+    };
   }, []);
 
   useEffect(() => {
-    const onBefore = () => {
-      // We no longer call preventDefault or keep the event;
-      // just note that install is possible so we show the card.
-      setCanInstall(true);
+    const onBeforeInstallPrompt = (e) => {
+      // Needed so we can trigger it from our own button
+      e.preventDefault();
+      setDeferredPrompt(e);
     };
 
     const onInstalled = () => {
-      setCanInstall(false);
+      setDeferredPrompt(null);
+      setInstalled(true);
     };
 
-    window.addEventListener('beforeinstallprompt', onBefore);
+    window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
     window.addEventListener('appinstalled', onInstalled);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', onBefore);
+      window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt);
       window.removeEventListener('appinstalled', onInstalled);
     };
   }, []);
 
-  if (isStandalone) return null;
-  if (!canInstall && !isIos) return null;
+  const shouldRender = useMemo(() => {
+    if (installed) return false;
+    if (isStandalone) return false;
+    // Render always when not installed:
+    // - iOS: show how-to text
+    // - Desktop/Android: show Install button (disabled until prompt exists)
+    return true;
+  }, [installed, isStandalone]);
 
-  const toggleHint = () => {
-    // iOS: show/hide the manual instructions.
-    if (isIos) {
-      if (showIosHint) {
-        localStorage.setItem('skiLabHideIosInstallHint', '1');
-        setShowIosHint(false);
-      } else {
-        setShowIosHint(true);
-      }
-      return;
+  if (!shouldRender) return null;
+
+  const onInstallClick = async () => {
+    if (!deferredPrompt) return;
+
+    try {
+      const dp = deferredPrompt;
+      setDeferredPrompt(null);
+      await dp.prompt();
+      await dp.userChoice?.catch?.(() => null);
+      // If the user installs, appinstalled will hide the card.
+      // If they dismiss, the next eligible `beforeinstallprompt` will re-enable it.
+    } catch {
+      // no-op (button will remain disabled until event is available again)
     }
-
-    // Non‑iOS: we cannot trigger the prompt manually without the stored event,
-    // so just hide the card when the user clicks.
-    setCanInstall(false);
   };
 
   return (
-    <motion.div
-      {...SIMPLE_ANIM}
-      className="w-full flex justify-center mt-4"
-    >
+    <motion.div {...SIMPLE_ANIM} className="w-full flex justify-center mt-4">
       <div className="mt-4">
         <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-full px-3 py-2 text-sm">
           <img
@@ -98,18 +107,27 @@ const InstallCard = () => {
             <div className="text-xs text-gray-500">Add to Home Screen</div>
           </div>
 
-          <button
-            onClick={toggleHint}
-            className="ml-3 text-xs bg-gray-100 text-gray-800 rounded-full px-3 py-1 hover:bg-gray-200"
-            aria-expanded={showIosHint}
-          >
-            {isIos ? (showIosHint ? 'Close' : 'How') : (canInstall ? 'Dismiss' : 'How')}
-          </button>
+          {!isIos && (
+            <button
+              onClick={onInstallClick}
+              disabled={!deferredPrompt}
+              className={`ml-3 text-xs rounded-full px-3 py-1 ${
+                deferredPrompt
+                  ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                  : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+              }`}
+              title={deferredPrompt ? 'Install' : 'Install not available yet'}
+            >
+              Install
+            </button>
+          )}
         </div>
 
-        {isIos && showIosHint && (
-          <div className="mt-2 bg-white text-xs text-gray-700 rounded-md px-3 py-2 shadow-sm border border-gray-100 max-w-xs">
-            In Safari: tap Share → Add to Home Screen.
+        {isIos && (
+          <div className="mt-2 flex justify-center">
+            <div className="bg-white border border-gray-200 rounded-full px-3 py-2 text-xs text-gray-600 max-w-xs">
+              In Safari: tap Share → Add to Home Screen.
+            </div>
           </div>
         )}
       </div>

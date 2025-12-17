@@ -159,7 +159,7 @@ export default function Navigation() {
   return (
     <>
       {/* Mobile: bottom nav */}
-      <nav className={`md:hidden fixed bottom-0 left-0 w-full bg-white border-t-1 border-gray-200 z-50 ${isStandalone ? 'pb-6' : ''}`}>
+      <nav className={`md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-50 ${isStandalone ? 'pb-6' : ''}`}>
         <div className={`grid grid-cols-5 `}>
           {navConfig.map(item => (
             <button
