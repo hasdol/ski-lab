@@ -60,11 +60,11 @@ const SkiTable = ({
   }
 
   return (
-    <div className="bg-white rounded-md overflow-hidden transition-all duration-200">
+    <div className="rounded-md overflow-hidden transition-all duration-200 md:w-3/4 md:mt-10 md:absolute md:left-1/2 md:-translate-x-1/2">
       <div className="overflow-x-auto pb-20">
         <table className="min-w-full border-collapse text-sm text-center">
           <thead>
-            <tr className="border-b border-gray-200 bg-gray-50 text-gray-700">
+            <tr className=" border-b border-gray-200 bg-gray-50 text-gray-700">
               {!readOnly && <th className="px-4 py-3" />}
               {columns.map((column) => (
                 <th
@@ -90,7 +90,7 @@ const SkiTable = ({
 
               return (
                 <React.Fragment key={ski.id}>
-                  <tr className="border-b border-gray-200">
+                  <tr className="bg-white border-b border-gray-200">
                     {!readOnly && (
                       <td className="px-4 py-2">
                         <input
@@ -114,7 +114,7 @@ const SkiTable = ({
                       <td className="">
                         <div className="flex justify-center items-center gap-3">
                           <Button
-                            variant="primary"
+                            variant="secondary"
                             title='Edit'
                             onClick={() => onEdit?.(ski)}
                           >
@@ -123,7 +123,7 @@ const SkiTable = ({
 
                           {ski.archived ? (
                             <Button
-                              variant="archive"
+                              variant="secondary"
                               title='Unarchive'
                               onClick={() => onUnarchive?.(ski.id)}
                             >
@@ -131,7 +131,7 @@ const SkiTable = ({
                             </Button>
                           ) : (
                             <Button
-                              variant="archive"
+                              variant="secondary"
                               title='Archive'
                               onClick={() => onArchive?.(ski.id)}
                             >
@@ -151,23 +151,23 @@ const SkiTable = ({
                     )}
 
                     <td className="px-4 py-2">
-                      <Button
-                        variant="secondary"
+                      <button
                         onClick={() => onToggleDetails?.(ski.id)}
+                        className="py-3 px-2"
                       >
                         {showDetails ? (
-                          <RiCollapseDiagonalLine size={16} />
+                          <RiCollapseDiagonalLine size={18} />
                         ) : (
-                          <RiExpandDiagonalFill size={16} />
+                          <RiExpandDiagonalFill size={18} />
                         )}
-                      </Button>
+                      </button>
                     </td>
                   </tr>
 
                   {showDetails && (
                     <tr>
                       <td colSpan={/* span all visible columns */ readOnly ? columns.length + 1 : columns.length + 3}>
-                        <div className="bg-white p-4 rounded-md border border-gray-300">
+                        <div className="bg-white p-4 shadow mb-5 rounded-b-lg">
                           <SkiDetails
                             ski={ski}
                             onEdit={() => onEdit?.(ski)}

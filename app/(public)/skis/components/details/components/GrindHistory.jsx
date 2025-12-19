@@ -9,7 +9,7 @@ const GrindHistory = ({ grindHistory }) => {
 
   return (
     <div className="my-10">
-      <h3 className="text-2xl font-semibold mb-5">Grind history</h3>
+      <h3 className="text-2xl text-start font-semibold mb-5">Grind history</h3>
       <ul className="space-y-4">
         {grindHistory.map((entry, index) => (
           <li
