@@ -156,6 +156,18 @@ export default function Navigation() {
     user && { key: 'signOut', labelKey: 'Sign Out', icon: <RiLogoutBoxLine size={22} />, onClick: () => { signOut(router.push); setIsSubNavOpen(false); } },
   ].filter(Boolean);
 
+  useEffect(() => {
+    if (isSubNavOpen) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    // Clean up on unmount
+    return () => {
+      document.body.classList.remove('overflow-hidden');
+    };
+  }, [isSubNavOpen]);
+
   return (
     <>
       {/* Mobile: bottom nav */}
@@ -199,65 +211,174 @@ export default function Navigation() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.18 }}
             />
-            {/* Drop-up subnav with glassmorphism, header, divider, and improved styling */}
+            {/* Full-screen subnav */}
             <motion.div
-              className="md:hidden fixed inset-x-0 bottom-0 z-30 h-fit pb-14 bg-white/80 backdrop-blur-lg rounded-t-2xl shadow-2xl"
-              style={{ touchAction: 'none' }}
-              initial={{ y: 80, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 80, opacity: 0 }}
+              className="md:hidden fixed inset-0 z-30 bg-white/90 backdrop-blur-lg shadow-2xl flex flex-col"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
               transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-              drag="y"
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={0.18}
-              onDragEnd={(_, info) => {
-                if (info.point.y > 100) setIsSubNavOpen(false);
-              }}
+              style={{ paddingBottom: '4.5rem' }} // height of bottom nav
             >
-              <div className="px-6 pt-4 pb-6">
-                <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-5" />
-                <div className="mb-3 flex items-center gap-2 justify-center">
-                  <span className="font-semibold text-lg text-gray-900 tracking-tight">Menu</span>
-                </div>
-                <div className="border-b border-gray-200 mb-4" />
-                {/* Mobile subnav list */}
+              <div className="flex items-center justify-between px-6 pt-6 pb-2">
+                <span className="font-semibold text-lg text-gray-900 tracking-tight">Menu</span>
+                <button
+                  onClick={() => setIsSubNavOpen(false)}
+                  aria-label="Close menu"
+                  className="p-2 rounded-full hover:bg-gray-200 transition"
+                >
+                  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
+              <div className="border-b border-gray-200 mb-2" />
+              <div className="flex-1 overflow-y-auto px-2 pb-6">
                 <ul className="space-y-2">
-                  {subNavItems.map(item =>
-                    item.path ? (
-                      <li key={item.key}>
+                  {/* Auth Section (always on top) */}
+                  {!user ? (
+                    <>
+                      <li className="text-xs text-gray-400 font-semibold px-2 pt-2 pb-1">Auth</li>
+                      <li>
                         <Link
-                          href={item.path}
+                          href="/login"
                           onClick={() => setIsSubNavOpen(false)}
-                          className="bg-white flex items-center justify-between w-full px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                         >
-                          <span>{item.labelKey}</span>
-                          {item.key === 'admin' ? (
-                            <span className="relative">
-                              {item.icon}
-                              {isAdminClaim && openFeedbackCount > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
-                              )}
-                            </span>
-                          ) : item.key === 'sharing' ? (
-                            <span className="relative">
-                              {item.icon}
-                              {actionableShareCount > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
-                              )}
-                            </span>
-                          ) : item.icon}
+                          <span>Login</span>
+                          <RiLoginBoxLine size={22} />
                         </Link>
                       </li>
-                    ) : (
-                      <li key={item.key}>
-                        <button onClick={item.onClick}
-                          className="bg-white flex items-center justify-between w-full px-4 py-3 rounded-xl  hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200">
-                          <span>{item.labelKey}</span>
-                          {item.icon}
+                      <li>
+                        <Link
+                          href="/signup"
+                          onClick={() => setIsSubNavOpen(false)}
+                          className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        >
+                          <span>Sign Up</span>
+                          <RiUserAddLine size={22} />
+                        </Link>
+                      </li>
+                    </>
+                  ) : (
+                    <>
+                      <li className="text-xs text-gray-400 font-semibold px-2 pt-2 pb-1">Auth</li>
+                      <li>
+                        <button
+                          onClick={() => { signOut(router.push); setIsSubNavOpen(false); }}
+                          className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        >
+                          <span>Sign Out</span>
+                          <RiLogoutBoxLine size={22} />
                         </button>
                       </li>
-                    )
+                    </>
                   )}
+
+                  {/* Account/User Section */}
+                  {(user || isAdminClaim) && (
+                    <>
+                      <li className="text-xs text-gray-400 font-semibold px-2 pt-4 pb-1">Account</li>
+                      {isAdminClaim && (
+                        <li>
+                          <Link
+                            href="/admin"
+                            onClick={() => setIsSubNavOpen(false)}
+                            className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          >
+                            <span>Admin</span>
+                            <span className="relative">
+                              <RiShieldStarLine size={22} />
+                              {openFeedbackCount > 0 && (
+                                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                              )}
+                            </span>
+                          </Link>
+                        </li>
+                      )}
+                      {user && (
+                        <>
+                          <li>
+                            <Link
+                              href="/account"
+                              onClick={() => setIsSubNavOpen(false)}
+                              className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 "
+                            >
+                              <span>Account</span>
+                              <RiUser6Line size={22} />
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
+                              href="/account/settings"
+                              onClick={() => setIsSubNavOpen(false)}
+                              className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            >
+                              <span>Settings</span>
+                              <RiSettings3Line size={22} />
+                            </Link>
+                          </li>
+                        </>
+                      )}
+                    </>
+                  )}
+
+                  {/* General Section */}
+                  <li className="text-xs text-gray-400 font-semibold px-2 pt-4 pb-1">General</li>
+                  <li>
+                    <Link
+                      href="/sharing"
+                      onClick={() => setIsSubNavOpen(false)}
+                      className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    >
+                      <span>Sharing</span>
+                      <span className="relative">
+                        <FaSlideshare size={22} />
+                        {actionableShareCount > 0 && (
+                          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                        )}
+                      </span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/pricing"
+                      onClick={() => setIsSubNavOpen(false)}
+                      className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    >
+                      <span>Pricing</span>
+                      <RiShoppingCartLine size={22} />
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/contact"
+                      onClick={() => setIsSubNavOpen(false)}
+                      className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    >
+                      <span>Contact</span>
+                      <RiMessage2Line size={22} />
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/about"
+                      onClick={() => setIsSubNavOpen(false)}
+                      className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    >
+                      <span>About</span>
+                      <RiInformationLine size={22} />
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      onClick={handleExportCSV}
+                      className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    >
+                      <span>Export results (CSV)</span>
+                      <RiDownloadLine size={22} />
+                    </button>
+                  </li>
                 </ul>
               </div>
             </motion.div>
@@ -297,51 +418,181 @@ export default function Navigation() {
           {isSubNavOpen && (
             <>
               {/* Desktop overlay for subnav */}
-              <div className="hidden md:block fixed inset-0 z-40 bg-black/20" onClick={() => setIsSubNavOpen(false)} />
-              <div className="absolute right-0 top-14 w-80 mt-2 bg-gray-50 backdrop-blur-lg border border-gray-100 rounded-xl shadow overflow-hidden z-50 animate-fade-down animate-duration-300">
-                <div className="px-7 py-6">
-                  <div className="mb-3 flex items-center gap-2">
-                    <span className="font-semibold text-xl text-gray-900 tracking-tight">Menu</span>
-                  </div>
-                  <div className="border-b border-gray-200 mb-4" />
-                  {/* Desktop subnav list */}
-                  <ul className="space-y-3">
-                    {subNavItems.map(item =>
-                      item.path ? (
-                        <li key={item.key}>
-                          <Link href={item.path} onClick={() => setIsSubNavOpen(false)}
-                            className="bg-white flex items-center justify-between w-full px-4 py-3 rounded-xl  hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200">
-                            <span>{item.labelKey}</span>
-                            {item.key === 'admin' ? (
-                              <span className="relative">
-                                {item.icon}
-                                {isAdminClaim && openFeedbackCount > 0 && (
-                                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
-                                )}
-                              </span>
-                            ) : item.key === 'sharing' ? (
-                              <span className="relative">
-                                {item.icon}
-                                {actionableShareCount > 0 && (
-                                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
-                                )}
-                              </span>
-                            ) : item.icon}
+              <div
+                className="hidden md:block fixed inset-0 z-40 bg-black/10 backdrop-blur"
+                onClick={() => setIsSubNavOpen(false)}
+              />
+              {/* Right-side subnav drawer */}
+              <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                className="hidden md:flex fixed top-0 right-0 h-full w-full max-w-md z-50 bg-white/90 backdrop-blur-lg shadow-2xl flex-col rounded-l-2xl"
+                style={{ maxHeight: '100vh' }}
+              >
+                <div className="flex items-center justify-between px-6 pt-6 pb-2">
+                  <span className="font-semibold text-lg text-gray-900 tracking-tight">Menu</span>
+                  <button
+                    onClick={() => setIsSubNavOpen(false)}
+                    aria-label="Close menu"
+                    className="p-2 rounded-full hover:bg-gray-200 transition"
+                  >
+                    <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M6 6l12 12M6 18L18 6" strokeLinecap="round" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="border-b border-gray-200 mb-2" />
+                <div className="flex-1 overflow-y-auto px-2 pb-6">
+                  <ul className="space-y-2">
+                    {/* Auth Section (always on top) */}
+                    {!user ? (
+                      <>
+                        <li className="text-xs text-gray-400 font-semibold px-2 pt-2 pb-1">Auth</li>
+                        <li>
+                          <Link
+                            href="/login"
+                            onClick={() => setIsSubNavOpen(false)}
+                            className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          >
+                            <span>Login</span>
+                            <RiLoginBoxLine size={22} />
                           </Link>
                         </li>
-                      ) : (
-                        <li key={item.key}>
-                          <button onClick={item.onClick}
-                            className="bg-white flex items-center justify-between w-full px-4 py-3 rounded-xl  hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-200">
-                            <span>{item.labelKey}</span>
-                            {item.icon}
+                        <li>
+                          <Link
+                            href="/signup"
+                            onClick={() => setIsSubNavOpen(false)}
+                            className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          >
+                            <span>Sign Up</span>
+                            <RiUserAddLine size={22} />
+                          </Link>
+                        </li>
+                      </>
+                    ) : (
+                      <>
+                        <li className="text-xs text-gray-400 font-semibold px-2 pt-2 pb-1">Auth</li>
+                        <li>
+                          <button
+                            onClick={() => { signOut(router.push); setIsSubNavOpen(false); }}
+                            className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          >
+                            <span>Sign Out</span>
+                            <RiLogoutBoxLine size={22} />
                           </button>
                         </li>
-                      )
+                      </>
                     )}
+
+                    {/* Account/User Section */}
+                    {(user || isAdminClaim) && (
+                      <>
+                        <li className="text-xs text-gray-400 font-semibold px-2 pt-4 pb-1">Account</li>
+                        {isAdminClaim && (
+                          <li>
+                            <Link
+                              href="/admin"
+                              onClick={() => setIsSubNavOpen(false)}
+                              className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            >
+                              <span>Admin</span>
+                              <span className="relative">
+                                <RiShieldStarLine size={22} />
+                                {openFeedbackCount > 0 && (
+                                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                                )}
+                              </span>
+                            </Link>
+                          </li>
+                        )}
+                        {user && (
+                          <>
+                            <li>
+                              <Link
+                                href="/account"
+                                onClick={() => setIsSubNavOpen(false)}
+                                className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 "
+                              >
+                                <span>Account</span>
+                                <RiUser6Line size={22} />
+                              </Link>
+                            </li>
+                            <li>
+                              <Link
+                                href="/account/settings"
+                                onClick={() => setIsSubNavOpen(false)}
+                                className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                              >
+                                <span>Settings</span>
+                                <RiSettings3Line size={22} />
+                              </Link>
+                            </li>
+                          </>
+                        )}
+                      </>
+                    )}
+
+                    {/* General Section */}
+                    <li className="text-xs text-gray-400 font-semibold px-2 pt-4 pb-1">General</li>
+                    <li>
+                      <Link
+                        href="/sharing"
+                        onClick={() => setIsSubNavOpen(false)}
+                        className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      >
+                        <span>Sharing</span>
+                        <span className="relative">
+                          <FaSlideshare size={22} />
+                          {actionableShareCount > 0 && (
+                            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                          )}
+                        </span>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/pricing"
+                        onClick={() => setIsSubNavOpen(false)}
+                        className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      >
+                        <span>Pricing</span>
+                        <RiShoppingCartLine size={22} />
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/contact"
+                        onClick={() => setIsSubNavOpen(false)}
+                        className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      >
+                        <span>Contact</span>
+                        <RiMessage2Line size={22} />
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/about"
+                        onClick={() => setIsSubNavOpen(false)}
+                        className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      >
+                        <span>About</span>
+                        <RiInformationLine size={22} />
+                      </Link>
+                    </li>
+                    <li>
+                      <button
+                        onClick={handleExportCSV}
+                        className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      >
+                        <span>Export results (CSV)</span>
+                        <RiDownloadLine size={22} />
+                      </button>
+                    </li>
                   </ul>
                 </div>
-              </div>
+              </motion.div>
             </>
           )}
         </div>
