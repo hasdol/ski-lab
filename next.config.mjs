@@ -34,13 +34,17 @@ const runtimeCaching = [
       expiration: { maxEntries: 100, maxAgeSeconds: 60 * 10 }
     }
   },
+  // Cache only marketing documents (avoid caching authenticated app pages)
   {
-    urlPattern: ({ request }) => request.destination === 'document',
+    urlPattern: ({ request, url }) =>
+      request.destination === 'document' &&
+      url.origin === self.location.origin &&
+      ['/', '/pricing', '/about', '/contact'].includes(url.pathname),
     handler: 'NetworkFirst',
     options: {
       cacheName: 'pages',
       networkTimeoutSeconds: 5,
-      expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 }
+      expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 30 }
     }
   }
 ];
@@ -73,6 +77,17 @@ const baseConfig = {
       { source: '/plans', destination: '/pricing', permanent: true },
       { source: '/signin', destination: '/login', permanent: true },
       { source: '/add-skis', destination: '/skis/create', permanent: true },
+    ];
+  },
+
+  async headers() {
+    const noIndex = [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }];
+    return [
+      { source: '/offline.html', headers: noIndex },
+      { source: '/sw.js', headers: noIndex },
+      { source: '/workbox-:path*', headers: noIndex },
+      { source: '/fallback-:path*', headers: noIndex },
+      { source: '/manifest.json', headers: noIndex },
     ];
   },
 };

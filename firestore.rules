@@ -79,8 +79,10 @@ service cloud.firestore {
         && request.resource.data.preferences is map;
 
       match /skis/{skiId} {
-        // Owner or authorized reader can read skis
-        allow read: if (request.auth != null && request.auth.uid == userId) || hasShareAccess(userId);
+        // ✅ Owner can read all skis (including locked).
+        // ✅ Shared readers can only read unlocked skis.
+        allow read: if (request.auth != null && request.auth.uid == userId)
+          || (hasShareAccess(userId) && resource.data.locked != true);
 
         allow create: if request.auth != null
           && request.auth.uid == userId
@@ -102,9 +104,10 @@ service cloud.firestore {
           )
           && !('locked' in request.resource.data);
 
-        // Readers cannot update; only owner can update
+        // ✅ Block editing locked skis (owner can still delete them).
         allow update: if request.auth != null
           && request.auth.uid == userId
+          && resource.data.locked != true
           && (request.resource.data.diff(resource.data).affectedKeys().hasOnly([
             'serialNumber',
             'style',
@@ -130,6 +133,7 @@ service cloud.firestore {
             'keywords_no'
           ]));
 
+        // Keep delete allowed so users can remove locked skis to get under the cap.
         allow delete: if request.auth != null && request.auth.uid == userId;
       }
 

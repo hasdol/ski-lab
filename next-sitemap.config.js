@@ -9,19 +9,23 @@ module.exports = {
   exclude: [
     '/account',
     '/account/*',
-    '/skis/create',
-    '/skis/locked',
-    '/skis/*/edit',
+
+    // Block private subroutes but keep the top-level pages indexable:
+    // /skis is OK, but /skis/* (create/edit/locked/future) should not be indexed
+    '/skis/*',
+    '/results/*',
+    '/teams/*',
+
     '/testing',
     '/testing/*',
-    '/teams/create',
-    '/teams/*/edit',
-    '/teams/*/*/edit',
+
+    // auth
     '/login',
     '/signup',
     '/resetPassword',
-    '/admin',           // NEW
-    '/admin/*',         // NEW
+
+    '/admin',
+    '/admin/*',
   ],
 
   robotsTxtOptions: {
@@ -32,30 +36,41 @@ module.exports = {
         disallow: [
           '/account',
           '/account/*',
-          '/skis/create',
-          '/skis/locked',
-          '/skis/*/edit',
+
+          '/skis/*',
+          '/results/*',
+          '/teams/*',
+
           '/testing',
           '/testing/*',
-          '/teams/create',
-          '/teams/*/edit',
-          '/teams/*/*/edit',
-          '/admin',      // NEW
-          '/admin/*',    // NEW
+
+          '/login',
+          '/signup',
+          '/resetPassword',
+
+          '/admin',
+          '/admin/*',
+
+          // utility/PWA files (prevents crawl noise)
+          '/offline.html',
+          '/sw.js',
+          '/workbox-*',
+          '/fallback-*',
+          '/manifest.json',
         ],
       },
     ],
   },
 
-  // Add any dynamic / extra urls from public/dynamic-urls.json (see README comment)
-  additionalPaths: async (config) => {
+  // Add any dynamic / extra urls from public/dynamic-urls.json
+  additionalPaths: async () => {
     const fs = require('fs');
     const path = require('path');
     const file = path.join(process.cwd(), 'public', 'dynamic-urls.json');
     if (!fs.existsSync(file)) return [];
     try {
       const list = JSON.parse(fs.readFileSync(file, 'utf8'));
-      // list should be array of strings like ["/skis/abc123","/results/xyz456"]
+      // list must be ONLY public, indexable routes (avoid protected/private URLs)
       return list.map((loc) => ({
         loc,
         changefreq: 'weekly',

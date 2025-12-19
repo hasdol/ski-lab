@@ -23,7 +23,8 @@ export default function usePaginatedSkis({
   archived = 'notArchived',
   sortField = 'serialNumber',
   sortDirection = 'asc',
-  ownerUserId = null, // NEW
+  ownerUserId = null,
+  includeLocked = false, // NEW (defaults to secure behavior)
 }) {
   const { user } = useAuth();
   const [docs, setDocs] = useState([]);
@@ -37,12 +38,21 @@ export default function usePaginatedSkis({
 
   const buildBaseQuery = useCallback(() => {
     if (!effectiveUid) return null;
-    const colRef = collection(db, `users/${effectiveUid}/skis`);
-    let baseQuery = term.length >= MIN_CHARS
-      ? query(colRef, where(keywordField, 'array-contains', term))
-      : query(colRef);
 
-    // NEW: apply style and skiType filters
+    const colRef = collection(db, `users/${effectiveUid}/skis`);
+
+    // Start query (optionally with keyword search)
+    let baseQuery =
+      term.length >= MIN_CHARS
+        ? query(colRef, where(keywordField, 'array-contains', term))
+        : query(colRef);
+
+    // ✅ SECURITY: don't return locked skis in normal inventory queries
+    if (!includeLocked) {
+      baseQuery = query(baseQuery, where('locked', '==', false));
+    }
+
+    // apply style and skiType filters
     if (style !== 'all') {
       baseQuery = query(baseQuery, where('style', '==', style));
     }
@@ -57,7 +67,16 @@ export default function usePaginatedSkis({
     }
 
     return query(baseQuery, orderBy(sortField, sortDirection), limit(PAGE_SIZE));
-  }, [effectiveUid, term, style, skiType, archived, sortField, sortDirection]);
+  }, [
+    effectiveUid,
+    term,
+    style,
+    skiType,
+    archived,
+    sortField,
+    sortDirection,
+    includeLocked,
+  ]);
 
   const fetchPage = useCallback(async (startAfterDoc = null) => {
     let accumulated = [];
