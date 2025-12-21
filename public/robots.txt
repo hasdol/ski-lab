@@ -3,16 +3,21 @@ User-agent: *
 Allow: /
 Disallow: /account
 Disallow: /account/*
-Disallow: /skis/create
-Disallow: /skis/locked
-Disallow: /skis/*/edit
+Disallow: /skis/*
+Disallow: /results/*
+Disallow: /teams/*
 Disallow: /testing
 Disallow: /testing/*
-Disallow: /teams/create
-Disallow: /teams/*/edit
-Disallow: /teams/*/*/edit
+Disallow: /login
+Disallow: /signup
+Disallow: /resetPassword
 Disallow: /admin
 Disallow: /admin/*
+Disallow: /offline.html
+Disallow: /sw.js
+Disallow: /workbox-*
+Disallow: /fallback-*
+Disallow: /manifest.json
 
 # Host
 Host: https://ski-lab.com
