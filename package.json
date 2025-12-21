@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "next build",
-    "postbuild": "next-sitemap",
+    "build": "next build && next-sitemap",
+    "postbuild": "echo \"postbuild disabled; sitemap runs in build\"",
 
     "build:dev": "env-cmd -f .env.development npm run build",
     "build:live": "env-cmd -f .env.production npm run build",
