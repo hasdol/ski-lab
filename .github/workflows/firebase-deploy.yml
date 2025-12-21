@@ -40,3 +40,14 @@ jobs:
         run: |
           firebase use $ENV
           firebase deploy --only functions,firestore:rules,storage --force
+
+      - name: Install web dependencies
+        run: npm ci
+
+      - name: Build site (runs postbuild -> next-sitemap)
+        run: npm run build
+
+      - name: Deploy web to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel --prod --token=$VERCEL_TOKEN
