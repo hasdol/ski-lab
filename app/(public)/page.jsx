@@ -9,6 +9,7 @@ import { FiArrowRight, FiClipboard, FiBarChart2, FiUsers, FiShield } from 'react
 import InstallCard from './components/InstallCard';
 import Spinner from '@/components/common/Spinner/Spinner';
 import ActiveEventCard from './components/ActiveEventCard';
+import { APP_VERSION } from '@/lib/releases';
 
 const bgUrl = '/bg6.jpg';
 const iphone = '/ski-lab-testing-iphone.png';
@@ -94,17 +95,22 @@ const HomePage = () => {
             className="mb-8"
           />
           <motion.div {...SIMPLE_ANIM}>
-            <h1 className="text-5xl font-bold tracking-tight text-gray-900 md:text-6xl mb-4">
+            <h1 className="text-5xl font-bold  text-gray-800 md:text-6xl mb-4">
               Ski-Lab
             </h1>
             <p className="max-w-2xl text-xl leading-8 text-gray-600 mb-2">
               Ski-management for cross-country skiing and biathlon
             </p>
-            <div className="inline-flex items-center px-4 py-2 text-xs font-medium tracking-wide text-blue-600 uppercase bg-blue-100 rounded-full mb-2">
-              Beta (1.01)
-            </div>
+            <a
+              href="/releases"
+              className="inline-flex items-center px-4 py-2 text-xs font-medium tracking-wide text-blue-600 bg-blue-100 rounded-full mb-2 hover:bg-blue-200"
+              aria-label="View what’s new in this release"
+              title="What’s New"
+            >
+              {APP_VERSION} <FiArrowRight className="ml-1" />
+            </a>
           </motion.div>
-        </motion.div>
+        </motion.div> 
 
         <motion.div
           className="flex flex-col items-center w-full mt-10"
