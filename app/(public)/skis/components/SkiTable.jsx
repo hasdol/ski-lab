@@ -1,15 +1,13 @@
 import React from 'react';
 import {
-  MdEdit,
-  MdDelete,
-  MdArchive,
-  MdUnarchive
-} from "react-icons/md";
-import {
   RiSortAsc,
   RiSortDesc,
   RiExpandDiagonalFill,
-  RiCollapseDiagonalLine
+  RiCollapseDiagonalLine,
+  RiEditLine,
+  RiDeleteBinLine,
+  RiInboxArchiveLine,
+  RiInboxUnarchiveLine
 } from "react-icons/ri";
 
 import Button from '@/components/ui/Button';
@@ -118,7 +116,7 @@ const SkiTable = ({
                             title='Edit'
                             onClick={() => onEdit?.(ski)}
                           >
-                            <MdEdit size={16} />
+                            <RiEditLine size={16} />
                           </Button>
 
                           {ski.archived ? (
@@ -127,7 +125,7 @@ const SkiTable = ({
                               title='Unarchive'
                               onClick={() => onUnarchive?.(ski.id)}
                             >
-                              <MdUnarchive size={16} />
+                              <RiInboxUnarchiveLine size={16} />
                             </Button>
                           ) : (
                             <Button
@@ -135,7 +133,7 @@ const SkiTable = ({
                               title='Archive'
                               onClick={() => onArchive?.(ski.id)}
                             >
-                              <MdArchive size={16} />
+                              <RiInboxArchiveLine size={16} />
                             </Button>
                           )}
 
@@ -144,7 +142,7 @@ const SkiTable = ({
                             title='Delete'
                             onClick={() => onDelete?.(ski.id)}
                           >
-                            <MdDelete size={16} />
+                            <RiDeleteBinLine size={16} />
                           </Button>
                         </div>
                       </td>
