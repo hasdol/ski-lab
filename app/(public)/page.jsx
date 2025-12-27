@@ -174,7 +174,7 @@ export default function HomePage() {
 
           <h1 className="text-5xl font-semibold tracking-tight text-zinc-900 md:text-7xl md:leading-[1.02]">
             Test faster.
-            <span className="block bg-gradient-to-b from-zinc-900 to-zinc-500 bg-clip-text text-transparent">
+            <span className="block bg-linear-to-b from-zinc-900 to-zinc-500 bg-clip-text text-transparent">
               Choose smarter.
             </span>
           </h1>
@@ -206,14 +206,12 @@ export default function HomePage() {
                 <Button
                   variant="primary"
                   onClick={() => handleNavigation('/signup')}
-                  className="h-11 w-full rounded-full px-6 shadow-sm sm:w-auto sm:max-w-xs"
                 >
                   Create account
                 </Button>
                 <Button
                   variant="secondary"
                   onClick={() => handleNavigation('/login')}
-                  className="h-11 w-full rounded-full px-6 sm:w-auto"
                 >
                   Sign in
                 </Button>
@@ -223,14 +221,12 @@ export default function HomePage() {
                 <Button
                   variant="primary"
                   onClick={() => handleNavigation('/skis')}
-                  className="h-11 w-full rounded-full px-6 shadow-sm sm:w-auto sm:max-w-xs"
                 >
                   Get Started
                 </Button>
                 <Button
                   variant="secondary"
                   onClick={() => handleNavigation('/about')}
-                  className="h-11 w-full rounded-full px-6 sm:w-auto"
                 >
                   Learn More
                 </Button>
@@ -357,7 +353,7 @@ export default function HomePage() {
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {HIGHLIGHTS.map((item) => (
                 <SoftCard key={item.title} className="p-5">
-                  <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${item.bgColor} ${item.textColor} ring-1 ring-black/5`}>
+                  <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-2xl ${item.bgColor} ${item.textColor} ring-1 ring-black/5`}>
                     {item.icon}
                   </div>
                   <div className="text-sm font-semibold text-gray-900">{item.title}</div>

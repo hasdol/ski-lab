@@ -115,7 +115,7 @@ export default function SharingPage() {
   if (!user) {
     return (
       <div className="p-4 max-w-4xl w-full self-center pb-24 md:pb-8">
-        <div className="bg-red-50 text-red-700 rounded-lg p-6">Sign in required.</div>
+        <div className="bg-red-50 text-red-700 rounded-2xl p-6">Sign in required.</div>
       </div>
     );
   }
@@ -221,7 +221,7 @@ export default function SharingPage() {
       />
 
       {/* Your share code */}
-      <div className="bg-white shadow rounded-lg p-6 space-y-4 mb-6">
+      <div className="p-6 mb-6 space-y-4 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
         <h2 className="text-lg font-semibold text-gray-800">Your share code</h2>
         {loadingCode ? (
           <div className="flex items-center gap-2 text-gray-600">
@@ -229,7 +229,7 @@ export default function SharingPage() {
           </div>
         ) : shareCode ? (
           <div className="flex items-center gap-3">
-            <span className="font-mono text-lg tracking-widest bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-200">
+            <span className="font-mono text-lg tracking-widest bg-blue-50 text-blue-700 px-3 py-1.5 rounded-2xl border border-blue-200">
               {shareCode}
             </span>
             <Button variant="secondary" onClick={handleCopy} className="text-sm">
@@ -245,7 +245,7 @@ export default function SharingPage() {
       </div>
 
       {/* Request access by code */}
-      <div className="bg-white shadow rounded-lg p-6 space-y-4 mb-6">
+      <div className="rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 p-6 space-y-4 mb-6">
         <h2 className="text-lg font-semibold text-gray-800">Request access</h2>
         <form onSubmit={handleRequestByCode} className="flex flex-col md:flex-row gap-3">
           <Input
@@ -265,14 +265,14 @@ export default function SharingPage() {
 
       {/* Pending requests */}
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="bg-white shadow rounded-lg p-6 space-y-3">
+        <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 space-y-3">
           <h3 className="font-semibold text-gray-800">Requests to you</h3>
           {incoming.length === 0 ? (
             <div className="text-sm text-gray-500">No pending requests.</div>
           ) : (
             <ul className="space-y-2">
               {incoming.map((r) => (
-                <li key={r.id} className="flex flex-col gap-3 border border-gray-200 rounded-lg p-3">
+                <li key={r.id} className="flex flex-col gap-3 border border-gray-200 rounded-2xl p-3">
                   <div className="flex items-center justify-between">
                     <NameOrChip uid={r.fromUid} fallbackName={r.fromDisplayName} />
                   </div>
@@ -308,14 +308,14 @@ export default function SharingPage() {
           )}
         </div>
 
-        <div className="bg-white shadow rounded-lg p-6 space-y-3">
+        <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 space-y-3">
           <h3 className="font-semibold text-gray-800">Requests you sent</h3>
           {outgoing.length === 0 ? (
             <div className="text-sm text-gray-500">No pending requests.</div>
           ) : (
             <ul className="space-y-2">
               {outgoing.map((r) => (
-                <li key={r.id} className="flex items-center justify-between border border-gray-200 rounded-lg p-3">
+                <li key={r.id} className="flex items-center justify-between border border-gray-200 rounded-2xl p-3">
                   <NameOrChip uid={r.toUid} fallbackName={r.toDisplayName} />
                   <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 font-semibold">
                     Pending
@@ -329,14 +329,14 @@ export default function SharingPage() {
 
       {/* Active shares */}
       <div className="grid gap-6 md:grid-cols-2 mt-6">
-        <div className="bg-white shadow rounded-lg p-6 space-y-3">
+        <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 space-y-3">
           <h3 className="font-semibold text-gray-800">You can view</h3>
           {owners.length === 0 ? (
             <div className="text-sm text-gray-500">You don’t have access to anyone yet.</div>
           ) : (
             <ul className="space-y-2">
               {owners.map((s) => (
-                <li key={s.id} className="flex items-center justify-between border border-gray-200 rounded-lg p-3">
+                <li key={s.id} className="flex items-center justify-between border border-gray-200 rounded-2xl p-3">
                   {/* prefer denormalized name to avoid cross-user profile reads */}
                   <NameOrChip uid={s.ownerUid} fallbackName={s.ownerDisplayName} />
                   <Button
@@ -353,14 +353,14 @@ export default function SharingPage() {
           )}
         </div>
 
-        <div className="bg-white shadow rounded-lg p-6 space-y-3">
+        <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 space-y-3">
           <h3 className="font-semibold text-gray-800">Can view you</h3>
           {readers.length === 0 ? (
             <div className="text-sm text-gray-500">Nobody has access to your data yet.</div>
           ) : (
             <ul className="space-y-2">
               {readers.map((s) => (
-                <li key={s.id} className="flex flex-col gap-2 border border-gray-200 rounded-lg p-3">
+                <li key={s.id} className="flex flex-col gap-2 border border-gray-200 rounded-2xl p-3">
                   <div className="flex items-center justify-between">
                     <NameOrChip uid={s.readerUid} fallbackName={s.readerDisplayName} />
                     <span className={`text-xs px-2 py-1 rounded-full font-medium ${s.accessLevel === 'write' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>

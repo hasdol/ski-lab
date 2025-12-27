@@ -87,7 +87,7 @@ export default function SettingsPage() {
 
       <div className="mt-6 grid grid-cols-1 gap-6">
         {/* Username Section - spans both columns */}
-        <div className=" bg-white shadow rounded-lg p-6">
+        <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
           <h2 className="text-xl font-medium text-gray-800 mb-6">Your Username</h2>
           {isEditingUsername ? (
             <div className="space-y-4">
@@ -134,7 +134,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Preferences Section */}
-        <div className="bg-white shadow rounded-lg p-6 flex flex-col space-y-4">
+        <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
           <h2 className="text-xl font-medium text-gray-800 mb-6">Preferences</h2>
           <div className="flex items-center space-x-4">
             <label
@@ -156,14 +156,14 @@ export default function SettingsPage() {
             <span className="text-lg text-gray-700">Glove Mode</span>
           </div>
           {!gloveMode && (
-            <p className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg text-center">
+            <p className="px-4 py-2 mt-5 bg-blue-100 text-blue-800 rounded-lg text-center">
               Larger input fields and buttons are enabled for easier interactions during tests.
             </p>
           )}
         </div>
 
         {/* Management Section */}
-        <div className="bg-white shadow rounded-lg p-6 flex flex-col space-y-4">
+        <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
           <h2 className="flex text-xl font-medium text-gray-800 items-center mb-6">
             Management <MdOutlineSecurity className="ml-2 text-2xl" />
           </h2>

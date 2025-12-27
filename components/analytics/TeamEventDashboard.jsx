@@ -195,7 +195,7 @@ export default function TeamEventDashboard({ teamId, eventId }) {
   const shownTemps = filterTemp === 'all' ? tempList : tempList.filter((t) => t === filterTemp);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
       {/* Header + Controls */}
       <div className="flex items-start md:items-center justify-between gap-3 flex-col md:flex-row">
         <div>

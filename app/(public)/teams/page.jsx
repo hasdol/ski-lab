@@ -147,11 +147,15 @@ export default function TeamsPage() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <div className="flex items-start gap-3">
                 <RiInformationLine className="text-blue-500 mt-0.5 flex-shrink-0" />
-                <p className="text-blue-800">
-                  Join a team to collaborate on ski testing, share results, and view
-                  insights with your teammates. Coaches and brands can create and
-                  manage multiple teams and events.
-                </p>
+                <div className="text-blue-800">
+                  <strong className="block mb-1">How the Teams page works:</strong>
+                  <ul className="list-disc ml-5 space-y-1">
+                    <li>Join a team to collaborate on ski testing and share results with teammates.</li>
+                    <li>Browse public teams or search for teams to join using their team code.</li>
+                    <li>Coaches and brands can create and manage multiple teams and events.</li>
+                    <li>View team members, shared results, and team insights on the team detail page.</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -185,7 +189,10 @@ export default function TeamsPage() {
         <>
           {/* NEW: Join by code (mobile-friendly) */}
           {user && (
-            <div className="bg-white shadow rounded-lg p-4 mb-4">
+            <div 
+                            className={`p-6 rounded-2xl relative overflow-hidden flex flex-col bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs transition-colors duration-200`}
+                              
+            >
               <form onSubmit={handleFindTeamByCode} className="flex sm:flex-row gap-3">
                 <Input
                   type="text"

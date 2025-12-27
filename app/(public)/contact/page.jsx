@@ -42,7 +42,7 @@ const Contact = () => {
       />
 
       {/* NEW: Direct contact options */}
-      <div className="bg-white shadow rounded-lg p-6 mb-6 space-y-2 text-sm text-gray-700">
+    <div className="mb-5 p-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
         <div>
           Prefer email?{' '}
           <a className="text-blue-600 underline" href={`mailto:${CONTACT_EMAIL}`}>
@@ -62,7 +62,7 @@ const Contact = () => {
         </div>
       </div>
 
-      <form className="bg-white shadow rounded-lg p-6 space-y-6" onSubmit={handleSubmit}>
+      <form className="p-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 space-y-6" onSubmit={handleSubmit}>
         <Input
           type="email"
           name="email"

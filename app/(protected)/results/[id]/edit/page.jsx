@@ -163,7 +163,7 @@ const EditResultPage = () => {
       ) : !resultData ? (
         <div>No result data found</div>
       ) : (
-        <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 p-6 space-y-6">
           {/* Scores */}
           {resultData.rankings.map((r, i) => (
             <div key={i} className="relative flex flex-col">

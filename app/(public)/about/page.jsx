@@ -26,7 +26,7 @@ export default function AboutPage() {
 
       {/* About Content */}
       <motion.div
-        className="bg-white shadow rounded-lg p-8 flex flex-col md:flex-row md:space-x-10 space-y-6 md:space-y-0"
+        className="mb-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 p-8 flex flex-col md:flex-row md:space-x-10 space-y-6 md:space-y-0"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
@@ -58,7 +58,7 @@ export default function AboutPage() {
       </motion.div>
 
       {/* NEW: quick links */}
-      <div className="bg-white shadow rounded-lg p-6 mt-6 text-sm text-gray-700">
+    <div className="p-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
         <div className="font-semibold text-gray-800 mb-2">Connect</div>
         <div className="space-y-1">
           <div>

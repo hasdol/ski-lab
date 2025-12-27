@@ -153,7 +153,7 @@ export default function EditTeamPage() {
         }
       />
 
-      <div className="bg-white shadow rounded-lg p-6 space-y-6">
+      <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 space-y-6">
         <Input
           type="text"
           label="Team name"

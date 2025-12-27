@@ -44,7 +44,7 @@ export default function TeamInfo({ teamId, canPost }) {
   return (
     <div className="space-y-4">
       {canPost && (
-        <div className="bg-white shadow rounded-lg p-4 space-y-3">
+        <div className="p-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 space-y-3">
           <h3 className="font-semibold text-gray-800">New info entry</h3>
           <Input
             type="text"
@@ -66,7 +66,7 @@ export default function TeamInfo({ teamId, canPost }) {
         </div>
       )}
 
-      <div className="bg-white shadow rounded-lg p-4">
+      <div className="p-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
         <h3 className="font-semibold text-gray-800 mb-3">Info</h3>
         {loading ? (
           <div className="flex justify-center py-6"><Spinner /></div>

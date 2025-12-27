@@ -288,7 +288,7 @@ export default function TeamDetailPage() {
                             key={evt.id}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="shadow rounded-lg p-5 bg-white"
+                            className="p-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200"
                           >
                             <div className="flex justify-between items-center space-x-4">
                               <div>
@@ -359,7 +359,7 @@ export default function TeamDetailPage() {
               <TeamEventDashboard teamId={teamId} />
 
               {/* Members (moved from Members tab) */}
-              <div className="space-y-3">
+              <div className="space-y-3 p-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
                 <h2 className="text-lg font-semibold text-gray-800">Members</h2>
                 <div className="space-y-3 mb-6">
                   {memberProfiles.map((m) => (

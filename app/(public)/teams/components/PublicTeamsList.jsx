@@ -31,7 +31,7 @@ const PublicTeamCard = ({ team, isJoined, onJoin }) => {
       key={team.id}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative flex flex-col sm:flex-row items-center sm:items-start justify-between bg-white shadow rounded-lg p-4"
+      className={`p-6 rounded-2xl relative overflow-hidden flex justify-between bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs transition-colors duration-200 `}
     >
       <div className="flex items-center space-x-4 w-full sm:w-auto">
         {/* Avatar: team image or initial */}

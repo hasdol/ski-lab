@@ -82,7 +82,7 @@ const ProfileInfoSection = ({ user, userData, errorMessage, router }) => {
             </div>
 
             {errorMessage && (
-                <div className="bg-red-50 text-red-700 px-4 py-2 rounded-lg">
+                <div className="bg-red-50 text-red-700 px-4 py-2 rounded-2xl">
                     {errorMessage}
                 </div>
             )}
@@ -122,7 +122,7 @@ const Account = () => {
                 subtitle="Manage your account"
                 actions={null}
             />
-            <div className="bg-white shadow rounded-lg p-6 mt-6">
+            <div className="p-8 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
                 <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
                     <ProfileImageSection
                         userData={userData}

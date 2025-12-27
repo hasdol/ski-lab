@@ -29,13 +29,7 @@ export const metadata = {
   creator: 'Ski Lab',
   alternates: { canonical: '/' },
   manifest: '/manifest.json',
-  icons: {
-    icon: [
-      { url: '/icons/icon-192.png', sizes: '192x192' },
-      { url: '/icons/icon-512.png', sizes: '512x512' }
-    ],
-    apple: [{ url: '/icons/apple-icon-180.png', sizes: '180x180', type: 'image/png' }]
-  }
+  // Remove the icons property — let manifest.json handle it
 };
 
 // Add explicit viewport (prevents double-tap / input zoom on iOS)
@@ -52,11 +46,11 @@ export default function RootLayout({ children }) {
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: dark)" />
-        <link rel="apple-touch-icon" href="/icons/apple-icon-180.png" />
       </head>
-      <body className="min-h-screen text-gray-600 bg-[#fcfcfc] ">
+      <body className="min-h-screen text-gray-600 bg-gray-50 ">
         <PWARegister />
         <AuthProvider>
           <UserPreferencesProvider>

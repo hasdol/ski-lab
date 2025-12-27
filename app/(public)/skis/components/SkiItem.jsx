@@ -70,7 +70,7 @@ const SkiItem = ({
   };
 
   return (
-    <div className={`bg-white shadow rounded-lg overflow-hidden transition-colors duration-200 ${showDetails ? '' : 'hover:bg-blue-50'}`}>
+    <div className={`rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 ${showDetails ? '' : 'hover:bg-gray-100'}`}>
       <div
         className="py-2 px-3 flex items-center cursor-pointer"
         onClick={() => { if (selectable) handleCheckboxChange(ski.id); }}

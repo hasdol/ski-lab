@@ -33,7 +33,7 @@ export default function ResultCard({ result, debouncedSearch, handleEdit, handle
     null;
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="p-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex relative items-center justify-between gap-3">
@@ -72,7 +72,7 @@ export default function ResultCard({ result, debouncedSearch, handleEdit, handle
           {/* Rankings: compact, responsive */}
           <ul className="mt-4 grid grid-cols-1  gap-2 text-sm">
             {result.rankings.map((ranking, idx) => (
-              <li key={idx} className="flex flex-col bg-gray-50 rounded-md p-2">
+              <li key={idx} className="flex flex-col bg-gray-50 rounded-2xl p-2 px-3">
                 <div className="flex items-center justify-between">
                   <div className="font-medium truncate">{ranking.skiId ? ranking.serialNumber : 'Deleted'}</div>
                   <div className="text-sm font-medium">{ranking.score} <span className="text-xs">cm</span></div>

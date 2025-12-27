@@ -131,7 +131,7 @@ const PricingPage = () => {
   }
 
   return (
-    <div className="p-4 max-w-4xl w-full self-center">
+    <div className="p-4 max-w-4xl w-full self-center pb-24 md:pb-8">
       <PageHeader
         icon={<RiShoppingCartLine className="text-blue-600 text-2xl" />}
         title="Pricing"
@@ -142,7 +142,7 @@ const PricingPage = () => {
       {plans.length === 0 ? (
         <p className="text-center text-gray-600">No plans available at the moment.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {plans.map((plan) => {
             const isCurrent = plan.plan === currentPlan;
             const isUpgrade = (planRank[plan.plan] ?? 0) > (planRank[currentPlan] ?? 0);
@@ -162,17 +162,17 @@ const PricingPage = () => {
             return (
               <div
                 key={plan.productId}
-                className={`rounded-xl relative shadow-lg overflow-hidden flex flex-col border border-gray-200 bg-white transition hover:shadow-xl ${
+                className={`p-6 rounded-2xl relative overflow-hidden flex flex-col bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs transition-colors duration-200 ${
                   isCurrent ? 'ring-2 ring-blue-400' : ''
                 }`}
               >
                 {isCurrent && (
-                  <span className="absolute top-3 right-3 bg-blue-50 text-blue-600 text-sm px-2 py-1 rounded-lg">
+                  <span className="absolute top-3 right-3 bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded-full font-medium">
                     Current
                   </span>
                 )}
 
-                <div className="px-8 pt-8 pb-4 bg-gradient-to-br from-gray-50 to-white">
+                <div className="pt-2">
                   <h2 className="text-2xl font-bold text-gray-800 mb-1">{plan.name}</h2>
                   {plan.plan !== 'free' && !hasHadSubscription && (
                     <p className="flex items-center text-sm bg-blue-100 w-fit px-2 py-1 rounded text-blue-600 mt-1">
@@ -181,7 +181,7 @@ const PricingPage = () => {
                   )}
                 </div>
 
-                <div className="flex-1 px-8 py-6 space-y-4">
+                <div className="flex-1 pt-2 space-y-4">
                   {/* Skis included */}
                   <div className="flex">
                     <span className="text-base font-semibold text-gray-800">{skisIncluded}</span>
@@ -194,7 +194,7 @@ const PricingPage = () => {
                       {features.map((f, i) => (
                         <div
                           key={i}
-                          className="text-sm text-blue-600 bg-blue-100 rounded-xl px-3 py-1 inline-block"
+                          className="text-sm text-blue-600 bg-blue-100 rounded-2xl px-3 py-1 inline-block"
                         >
                           {f}
                         </div>
@@ -224,7 +224,7 @@ const PricingPage = () => {
                 </div>
 
                 {plan.amount !== null ? (
-                  <div className="px-8 pt-4 pb-2 bg-gray-50">
+                  <div className="pt-4 pb-2 bg-gray-50 rounded-xl">
                     <p className="text-4xl font-bold text-gray-800">
                       {(plan.amount / 100).toFixed(0)}{' '}
                       <span className="text-lg font-medium text-gray-600">
@@ -236,7 +236,7 @@ const PricingPage = () => {
                     </p>
                   </div>
                 ) : (
-                  <div className="px-8 pt-4 pb-2 bg-gray-50">
+                  <div className="pt-4 pb-2 bg-gray-50 rounded-xl">
                     <p className="text-4xl font-bold text-gray-800">
                       {(plan.amount / 100).toFixed(0)}{' '}
                       <span className="text-lg font-medium text-gray-600">
@@ -247,18 +247,17 @@ const PricingPage = () => {
                   </div>
                 )}
 
-                <div className="px-8 pb-8 pt-4">
+                <div className="pt-4">
                   <Button
                     loading={loadingCheckout === plan.priceId}
                     disabled={currentPlan === 'free' && isCurrent}
                     onClick={() =>
                       handlePlanSelect(plan.priceId, plan.plan, isDowngrade)
                     }
-                    className={`${
-                      isCurrent && currentPlan === 'free'
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:to-indigo-600 active:scale-95 focus:ring-2 focus:ring-indigo-300/50 shadow-sm'
-                    } w-full py-2 rounded-md text-base font-semibold`}
+                    variant="primary"
+                    className={`w-full text-base font-semibold ${
+                      isCurrent && currentPlan === 'free' ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
+                    }`}
                   >
                     {buttonText}
                   </Button>
@@ -270,8 +269,8 @@ const PricingPage = () => {
       )}
 
       {/* NEW: SEO cross-links */}
-      <div className="mt-10 text-center text-sm text-gray-600">
-        <p>
+      <div className="mt-10 p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
+        <p className="text-center text-sm text-gray-600">
           Need help choosing a plan? See how teams work on the{' '}
           <a href="/teams" className="text-blue-600 underline">Teams page</a>{' '}
           or{' '}

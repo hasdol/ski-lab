@@ -178,7 +178,7 @@ export default function Navigation() {
               key={item.key}
               onClick={() => router.push(item.path)}
               aria-label={item.labelKey}
-              className={`p-4 flex items-center justify-center transition ${isActive(item.path) && !isSubNavOpen ? 'text-blue-600/80 bg-gray-50 rounded-xl' : 'text-gray-600'}`}
+              className={`p-4 flex items-center justify-center transition ${isActive(item.path) && !isSubNavOpen ? 'text-blue-600/80 bg-gray-50 rounded-2xl' : 'text-gray-600'}`}
             >
               {item.icon}
             </button>
@@ -243,7 +243,7 @@ export default function Navigation() {
                         <Link
                           href="/login"
                           onClick={() => setIsSubNavOpen(false)}
-                          className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                         >
                           <span>Login</span>
                           <RiLoginBoxLine size={22} />
@@ -253,7 +253,7 @@ export default function Navigation() {
                         <Link
                           href="/signup"
                           onClick={() => setIsSubNavOpen(false)}
-                          className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                         >
                           <span>Sign Up</span>
                           <RiUserAddLine size={22} />
@@ -266,7 +266,7 @@ export default function Navigation() {
                       <li>
                         <button
                           onClick={() => { signOut(router.push); setIsSubNavOpen(false); }}
-                          className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          className="text-red-800/80 flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-red-50 hover:text-red-800 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                         >
                           <span>Sign Out</span>
                           <RiLogoutBoxLine size={22} />
@@ -284,7 +284,7 @@ export default function Navigation() {
                           <Link
                             href="/admin"
                             onClick={() => setIsSubNavOpen(false)}
-                            className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                           >
                             <span>Admin</span>
                             <span className="relative">
@@ -302,7 +302,7 @@ export default function Navigation() {
                             <Link
                               href="/account"
                               onClick={() => setIsSubNavOpen(false)}
-                              className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 "
+                              className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 "
                             >
                               <span>Account</span>
                               <RiUser6Line size={22} />
@@ -312,7 +312,7 @@ export default function Navigation() {
                             <Link
                               href="/account/settings"
                               onClick={() => setIsSubNavOpen(false)}
-                              className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                              className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                             >
                               <span>Settings</span>
                               <RiSettings3Line size={22} />
@@ -322,7 +322,7 @@ export default function Navigation() {
                           <Link
                             href="/sharing"
                             onClick={() => setIsSubNavOpen(false)}
-                            className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                           >
                             <span>Sharing</span>
                             <span className="relative">
@@ -345,7 +345,7 @@ export default function Navigation() {
                     <Link
                       href="/pricing"
                       onClick={() => setIsSubNavOpen(false)}
-                      className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                     >
                       <span>Pricing</span>
                       <RiShoppingCartLine size={22} />
@@ -355,7 +355,7 @@ export default function Navigation() {
                     <Link
                       href="/contact"
                       onClick={() => setIsSubNavOpen(false)}
-                      className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                     >
                       <span>Contact</span>
                       <RiMessage2Line size={22} />
@@ -365,7 +365,7 @@ export default function Navigation() {
                     <Link
                       href="/about"
                       onClick={() => setIsSubNavOpen(false)}
-                      className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                     >
                       <span>About</span>
                       <RiInformationLine size={22} />
@@ -374,7 +374,7 @@ export default function Navigation() {
                   <li>
                     <button
                       onClick={handleExportCSV}
-                      className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                     >
                       <span>Export results (CSV)</span>
                       <RiDownloadLine size={22} />
@@ -388,7 +388,7 @@ export default function Navigation() {
       </AnimatePresence>
 
       {/* Desktop: header */}
-      <header className="hidden md:flex md:justify-between items-center w-full bg-white shadow z-50 px-5 p-3">
+      <header className="hidden md:flex md:justify-between items-center w-full bg-white z-50 px-5 p-3">
         <div className="flex-1 flex items-center gap-3 cursor-pointer" onClick={() => router.push('/')}>
           <h1 className="text-2xl font-semibold bg-gradient-to-b from-zinc-900 to-zinc-500 bg-clip-text text-transparent">
             Ski-Lab
@@ -399,7 +399,7 @@ export default function Navigation() {
           <ul className="grid grid-cols-4 gap-1">
             {navConfig.map(item => (
               <li key={item.key}>
-                <Link href={item.path} className={`flex items-center justify-center transition py-1 hover:bg-gray-100 rounded-lg  ${isActive(item.path) ? 'bg-blue-100  text-blue-600/80' : 'text-gray-700'}`}>
+                <Link href={item.path} className={`flex items-center justify-center transition py-1 hover:bg-gray-100 rounded-2xl  ${isActive(item.path) ? 'bg-blue-100  text-blue-600/80' : 'text-gray-700'}`}>
                   <span className="ml-2">{item.labelKey}</span>
                 </Link>
               </li>
@@ -456,7 +456,7 @@ export default function Navigation() {
                           <Link
                             href="/login"
                             onClick={() => setIsSubNavOpen(false)}
-                            className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                           >
                             <span>Login</span>
                             <RiLoginBoxLine size={22} />
@@ -466,7 +466,7 @@ export default function Navigation() {
                           <Link
                             href="/signup"
                             onClick={() => setIsSubNavOpen(false)}
-                            className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                           >
                             <span>Sign Up</span>
                             <RiUserAddLine size={22} />
@@ -479,7 +479,7 @@ export default function Navigation() {
                         <li>
                           <button
                             onClick={() => { signOut(router.push); setIsSubNavOpen(false); }}
-                            className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            className=" text-red-800/80 flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-red-50 hover:text-red-800 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                           >
                             <span>Sign Out</span>
                             <RiLogoutBoxLine size={22} />
@@ -497,7 +497,7 @@ export default function Navigation() {
                             <Link
                               href="/admin"
                               onClick={() => setIsSubNavOpen(false)}
-                              className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                              className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                             >
                               <span>Admin</span>
                               <span className="relative">
@@ -515,7 +515,7 @@ export default function Navigation() {
                               <Link
                                 href="/account"
                                 onClick={() => setIsSubNavOpen(false)}
-                                className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 "
+                                className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 "
                               >
                                 <span>Account</span>
                                 <RiUser6Line size={22} />
@@ -525,7 +525,7 @@ export default function Navigation() {
                               <Link
                                 href="/account/settings"
                                 onClick={() => setIsSubNavOpen(false)}
-                                className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                               >
                                 <span>Settings</span>
                                 <RiSettings3Line size={22} />
@@ -535,7 +535,7 @@ export default function Navigation() {
                             <Link
                               href="/sharing"
                               onClick={() => setIsSubNavOpen(false)}
-                              className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                              className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                             >
                               <span>Sharing</span>
                               <span className="relative">
@@ -558,7 +558,7 @@ export default function Navigation() {
                       <Link
                         href="/pricing"
                         onClick={() => setIsSubNavOpen(false)}
-                        className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                       >
                         <span>Pricing</span>
                         <RiShoppingCartLine size={22} />
@@ -568,7 +568,7 @@ export default function Navigation() {
                       <Link
                         href="/contact"
                         onClick={() => setIsSubNavOpen(false)}
-                        className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                       >
                         <span>Contact</span>
                         <RiMessage2Line size={22} />
@@ -578,7 +578,7 @@ export default function Navigation() {
                       <Link
                         href="/about"
                         onClick={() => setIsSubNavOpen(false)}
-                        className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                       >
                         <span>About</span>
                         <RiInformationLine size={22} />
@@ -587,7 +587,7 @@ export default function Navigation() {
                     <li>
                       <button
                         onClick={handleExportCSV}
-                        className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        className="flex items-center justify-between w-full px-4 py-3 rounded-2xl hover:bg-gray-100 hover:text-gray-900 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
                       >
                         <span>Export results (CSV)</span>
                         <RiDownloadLine size={22} />
