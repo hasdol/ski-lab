@@ -83,6 +83,7 @@ const baseConfig = {
   async headers() {
     const noIndex = [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }];
     return [
+      { source: '/offline', headers: noIndex },
       { source: '/offline.html', headers: noIndex },
       { source: '/sw.js', headers: noIndex },
       { source: '/workbox-:path*', headers: noIndex },

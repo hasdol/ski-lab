@@ -26,6 +26,13 @@ module.exports = {
 
     '/admin',
     '/admin/*',
+
+    // Protected routes
+    '/sharing',
+    '/sharing/*',
+
+    // Utility pages
+    '/offline',
   ],
 
   robotsTxtOptions: {
@@ -50,6 +57,13 @@ module.exports = {
 
           '/admin',
           '/admin/*',
+
+          // Protected routes
+          '/sharing',
+          '/sharing/*',
+
+          // Utility pages
+          '/offline',
 
           // utility/PWA files (prevents crawl noise)
           '/offline.html',

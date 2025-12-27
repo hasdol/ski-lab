@@ -13,6 +13,9 @@ Disallow: /signup
 Disallow: /resetPassword
 Disallow: /admin
 Disallow: /admin/*
+Disallow: /sharing
+Disallow: /sharing/*
+Disallow: /offline
 Disallow: /offline.html
 Disallow: /sw.js
 Disallow: /workbox-*
