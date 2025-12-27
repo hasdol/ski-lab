@@ -11,6 +11,9 @@ import Spinner from '@/components/common/Spinner/Spinner';
 import ActiveEventCard from './components/ActiveEventCard';
 import { APP_VERSION } from '@/lib/releases';
 
+const CONTACT_EMAIL = 'contact.skilab@gmail.com'; // TODO: update if your email is different
+const INSTAGRAM_URL = 'https://www.instagram.com/skilab_com/';
+
 const bgUrl = '/bg6.jpg';
 const iphone = '/ski-lab-testing-iphone.png';
 const desktop = '/desktop.png';
@@ -249,7 +252,6 @@ const HomePage = () => {
         {...SIMPLE_ANIM}
       >
         <div className="text-xs text-gray-500 mb-2">
-          {/* NEW: SEO-friendly footer nav */}
           <nav className="flex flex-wrap justify-center gap-4 mb-4 text-[11px] uppercase tracking-wide">
             <a href="/pricing" className="text-gray-500 hover:text-gray-800">Pricing</a>
             <a href="/skis" className="text-gray-500 hover:text-gray-800">Skis</a>
@@ -257,6 +259,22 @@ const HomePage = () => {
             <a href="/teams" className="text-gray-500 hover:text-gray-800">Teams</a>
             <a href="/about" className="text-gray-500 hover:text-gray-800">About</a>
             <a href="/contact" className="text-gray-500 hover:text-gray-800">Contact</a>
+
+            {/* NEW */}
+            <a
+              href={INSTAGRAM_URL}
+              className="text-gray-500 hover:text-gray-800"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Instagram
+            </a>
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="text-gray-500 hover:text-gray-800"
+            >
+              Email
+            </a>
           </nav>
 
           <p className="mb-1">

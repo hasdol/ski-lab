@@ -9,6 +9,9 @@ import PageHeader from '@/components/layout/PageHeader';
 export default function AboutPage() {
   const router = useRouter();
 
+  const CONTACT_EMAIL = 'contact.skilab@gmail.com'; // TODO: update if your email is different
+  const INSTAGRAM_URL = 'https://www.instagram.com/skilab_com/';
+
   return (
     <div className="p-4 max-w-4xl w-full self-center">
       <PageHeader
@@ -53,6 +56,30 @@ export default function AboutPage() {
           </p>
         </div>
       </motion.div>
+
+      {/* NEW: quick links */}
+      <div className="bg-white shadow rounded-lg p-6 mt-6 text-sm text-gray-700">
+        <div className="font-semibold text-gray-800 mb-2">Connect</div>
+        <div className="space-y-1">
+          <div>
+            Instagram:{' '}
+            <a
+              className="text-blue-600 underline"
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              @skilab_com
+            </a>
+          </div>
+          <div>
+            Email:{' '}
+            <a className="text-blue-600 underline" href={`mailto:${CONTACT_EMAIL}`}>
+              {CONTACT_EMAIL}
+            </a>
+          </div>
+        </div>
+      </div>
 
       {/* Call to Action */}
       <div className="my-12 flex flex-col items-center">

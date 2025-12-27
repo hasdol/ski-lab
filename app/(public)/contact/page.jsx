@@ -7,6 +7,9 @@ import { RiMessage2Line, RiMailLine } from 'react-icons/ri';
 import { useAuth } from '@/context/AuthContext';
 import PageHeader from '@/components/layout/PageHeader'; // Add this import
 
+const CONTACT_EMAIL = 'contact.skilab@gmail.com'; // TODO: update if your email is different
+const INSTAGRAM_URL = 'https://www.instagram.com/skilab_com/';
+
 const Contact = () => {
   const { user } = useAuth();
   const [email, setEmail] = useState(user?.email || '');
@@ -37,6 +40,27 @@ const Contact = () => {
         subtitle={<span>Send us a message</span>}
         actions={null}
       />
+
+      {/* NEW: Direct contact options */}
+      <div className="bg-white shadow rounded-lg p-6 mb-6 space-y-2 text-sm text-gray-700">
+        <div>
+          Prefer email?{' '}
+          <a className="text-blue-600 underline" href={`mailto:${CONTACT_EMAIL}`}>
+            {CONTACT_EMAIL}
+          </a>
+        </div>
+        <div>
+          Follow updates on Instagram:{' '}
+          <a
+            className="text-blue-600 underline"
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            @skilab_com
+          </a>
+        </div>
+      </div>
 
       <form className="bg-white shadow rounded-lg p-6 space-y-6" onSubmit={handleSubmit}>
         <Input
@@ -97,7 +121,13 @@ const Contact = () => {
         </div>
       </form>
       {status && (
-        <div className={`mt-4 p-3 rounded-lg ${status.includes('Success') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+        <div
+          className={`mt-4 p-3 rounded-lg ${
+            status.includes('Success')
+              ? 'bg-green-100 text-green-700'
+              : 'bg-red-100 text-red-700'
+          }`}
+        >
           {status}
         </div>
       )}
