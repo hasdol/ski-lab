@@ -90,9 +90,9 @@ const HomePage = () => {
           <img
             src="/ski-lab-icon.png"
             alt="Ski Lab Icon"
-            width={70}
-            height={70}
-            className="mb-8"
+            width={100}
+            height={100}
+            className="mb-4"
           />
           <motion.div {...SIMPLE_ANIM}>
             <h1 className="text-5xl font-bold  text-gray-800 md:text-6xl mb-4">

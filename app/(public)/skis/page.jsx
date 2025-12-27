@@ -52,9 +52,6 @@ const Skis = () => {
   const { currentRound, setSelectedSkis, resetTournament } = useContext(TournamentContext);
   // NEW: user filter
   const [accessibleUsers, setAccessibleUsers] = useState({ self: null, owners: [] });
-  // const [activeUserId, setActiveUserId] = useState(null); // REMOVE: no longer used
-  const [remoteSkis, setRemoteSkis] = useState([]);          // optional leftover, not used after changes
-  const [remoteLoading, setRemoteLoading] = useState(false); // optional leftover, not used after changes
   const [viewUserId, setViewUserId] = useState(null); // null => self
   const [owners, setOwners] = useState([]); // owners I can read
   const [isPickerOpen, setIsPickerOpen] = useState(false); // NEW
@@ -164,29 +161,27 @@ const Skis = () => {
     ownerUserId: viewUserId || undefined, // FILTER APPLIED HERE
   });
 
-  // REMOVE: remote load (hook already handles ownerUserId)
-  // useEffect(() => {
-  //   if (!user || !activeUserId || activeUserId === user.uid) {
-  //     setRemoteSkis([]);
-  //     return;
-  //   }
-  //   setRemoteLoading(true);
-  //   listUserSkis(activeUserId, 200)
-  //     .then(setRemoteSkis)
-  //     .catch(() => setRemoteSkis([]))
-  //     .finally(() => setRemoteLoading(false));
-  // }, [user, activeUserId, debouncedTerm, styleFilter, skiTypeFilter, archivedFilter, sortField, sortDirection]);
-
   // --- mutations
   const { deleteSki, updateSki, lockedSkisCount } = useSkis();
+
+  const isRemoteView = !!viewUserId;
+  const ownerUidForView = viewUserId || user?.uid || null;
+
+  const remoteAccessLevel = useMemo(() => {
+    if (!viewUserId) return 'write'; // self
+    return accessibleUsers.owners.find(o => o.id === viewUserId)?.accessLevel || 'read';
+  }, [accessibleUsers.owners, viewUserId]);
+
+  const canSelectForTest = !isRemoteView || remoteAccessLevel === 'write';
 
   // --- selection + persistence
   const [selectedMap, setSelectedMap] = useState({});
   const [selectedSkisDataMap, setSelectedSkisDataMap] = useState(() => new Map());
 
   const toggleSelect = (id) => {
-    // BLOCK selecting when viewing another user's skis
-    if (viewUserId) return;
+    // Allow selecting own skis; allow selecting others only with write access
+    if (isRemoteView && !canSelectForTest) return;
+
     setSelectedMap(prev => {
       const nowSelected = !prev[id];
       const newMap = { ...prev, [id]: nowSelected };
@@ -195,7 +190,10 @@ const Skis = () => {
         const m = new Map(prevMap);
         if (nowSelected) {
           const skiObj = skis.find(s => s.id === id);
-          if (skiObj) m.set(id, skiObj);
+          if (skiObj) {
+            // IMPORTANT: persist who owns these skis so testing can save to that owner's results
+            m.set(id, { ...skiObj, ownerUid: ownerUidForView });
+          }
         } else {
           m.delete(id);
         }
@@ -444,8 +442,8 @@ const Skis = () => {
         </div>
       )}
 
-      {/* Selection controls — only for own skis */}
-      {(!viewUserId && getSelectedList().length > 0) && (
+      {/* Selection controls — previously only for own skis */}
+      {canSelectForTest && getSelectedList().length > 0 && (
         <div className={`fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-lg z-50 flex items-center justify-between px-4 py-3 ${isStandalone ? 'pb-8' : ''}`}>
           <div className="text-sm font-semibold">
             {getSelectedList().length} ski{getSelectedList().length > 1 ? 's' : ''} selected
@@ -543,8 +541,9 @@ const Skis = () => {
                           handleUnarchive={handleUnarchive}
                           handleDelete={handleDelete}
                           handleEdit={() => router.push(`/skis/${ski.id}/edit`)}
-                          ownerUserId={viewUserId || user?.uid}
-                          readOnly={!!viewUserId}
+                          ownerUserId={ownerUidForView}
+                          readOnly={!!viewUserId}          // never show edit/archive/delete on others
+                          selectable={canSelectForTest}    // allow checkboxes only for writers (and self)
                         />
                       </motion.div>
                     ))}
@@ -575,8 +574,9 @@ const Skis = () => {
             onDelete={handleDelete}
             onArchive={handleArchive}
             onUnarchive={handleUnarchive}
-            ownerUserId={viewUserId || user?.uid}
+            ownerUserId={ownerUidForView}
             readOnly={!!viewUserId}
+            selectable={canSelectForTest}
           />
         )}
 

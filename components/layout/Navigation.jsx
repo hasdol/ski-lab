@@ -318,6 +318,21 @@ export default function Navigation() {
                               <RiSettings3Line size={22} />
                             </Link>
                           </li>
+                          <li>
+                          <Link
+                            href="/sharing"
+                            onClick={() => setIsSubNavOpen(false)}
+                            className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          >
+                            <span>Sharing</span>
+                            <span className="relative">
+                              <FaSlideshare size={22} />
+                              {actionableShareCount > 0 && (
+                                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                              )}
+                            </span>
+                          </Link>
+                        </li>
                         </>
                       )}
                     </>
@@ -325,21 +340,7 @@ export default function Navigation() {
 
                   {/* General Section */}
                   <li className="text-xs text-gray-400 font-semibold px-2 pt-4 pb-1">General</li>
-                  <li>
-                    <Link
-                      href="/sharing"
-                      onClick={() => setIsSubNavOpen(false)}
-                      className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
-                    >
-                      <span>Sharing</span>
-                      <span className="relative">
-                        <FaSlideshare size={22} />
-                        {actionableShareCount > 0 && (
-                          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
-                        )}
-                      </span>
-                    </Link>
-                  </li>
+                  
                   <li>
                     <Link
                       href="/pricing"
@@ -529,6 +530,21 @@ export default function Navigation() {
                                 <RiSettings3Line size={22} />
                               </Link>
                             </li>
+                            <li>
+                            <Link
+                              href="/sharing"
+                              onClick={() => setIsSubNavOpen(false)}
+                              className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            >
+                              <span>Sharing</span>
+                              <span className="relative">
+                                <FaSlideshare size={22} />
+                                {actionableShareCount > 0 && (
+                                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                                )}
+                              </span>
+                            </Link>
+                          </li>
                           </>
                         )}
                       </>
@@ -536,21 +552,7 @@ export default function Navigation() {
 
                     {/* General Section */}
                     <li className="text-xs text-gray-400 font-semibold px-2 pt-4 pb-1">General</li>
-                    <li>
-                      <Link
-                        href="/sharing"
-                        onClick={() => setIsSubNavOpen(false)}
-                        className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium focus:outline-none focus:ring-2 focus:ring-blue-200"
-                      >
-                        <span>Sharing</span>
-                        <span className="relative">
-                          <FaSlideshare size={22} />
-                          {actionableShareCount > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
-                          )}
-                        </span>
-                      </Link>
-                    </li>
+                    
                     <li>
                       <Link
                         href="/pricing"

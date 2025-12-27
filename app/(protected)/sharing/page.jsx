@@ -11,6 +11,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { FaSlideshare } from 'react-icons/fa';
+import { RiShieldUserLine, RiEditLine } from 'react-icons/ri'; // New icons
 
 import useUser from '@/hooks/useUser';
 
@@ -56,6 +57,7 @@ export default function SharingPage() {
   const [respondingId, setRespondingId] = useState(null);
   const [revokingUid, setRevokingUid] = useState(null);
   const [leavingUid, setLeavingUid] = useState(null);
+  const [updatingAccessUid, setUpdatingAccessUid] = useState(null); // New loading state
 
   const functions = useMemo(() => getFunctions(), []);
   const ensuredRef = useRef(false);
@@ -149,16 +151,35 @@ export default function SharingPage() {
     }
   };
 
-  const handleRespond = async (requestId, action) => {
+  const handleRespond = async (requestId, action, accessLevel = 'read') => {
+    if (action === 'approved' && accessLevel === 'write') {
+      if (!confirm('Warning: Giving write access allows this user to create tests and modify ski data in your account. Are you sure?')) return;
+    }
     try {
       setRespondingId(requestId);
       const fn = httpsCallable(functions, 'respondShareRequest');
-      await fn({ requestId, action }); // action: 'approved' | 'declined'
+      await fn({ requestId, action, accessLevel }); // action: 'approved' | 'declined'
     } catch (err) {
       console.error(err);
       alert(err.message || 'Failed to respond');
     } finally {
       setRespondingId(null);
+    }
+  };
+
+  const handleAccessChange = async (readerUid, newLevel) => {
+    if (newLevel === 'write') {
+      if (!confirm('Warning: Giving write access allows this user to create tests and modify ski data in your account. Are you sure?')) return;
+    }
+    try {
+      setUpdatingAccessUid(readerUid);
+      const fn = httpsCallable(functions, 'updateShareAccess');
+      await fn({ readerUid, accessLevel: newLevel });
+    } catch (err) {
+      console.error(err);
+      alert(err.message || 'Failed to update access');
+    } finally {
+      setUpdatingAccessUid(null);
     }
   };
 
@@ -251,14 +272,33 @@ export default function SharingPage() {
           ) : (
             <ul className="space-y-2">
               {incoming.map((r) => (
-                <li key={r.id} className="flex items-center justify-between border border-gray-200 rounded-lg p-3">
-                  {/* use denormalized name to avoid permission issues before approval */}
-                  <NameOrChip uid={r.fromUid} fallbackName={r.fromDisplayName} />
-                  <div className="flex gap-2">
-                    <Button variant="primary" className="text-sm" onClick={() => handleRespond(r.id, 'approved')} loading={respondingId === r.id}>
-                      Approve
+                <li key={r.id} className="flex flex-col gap-3 border border-gray-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <NameOrChip uid={r.fromUid} fallbackName={r.fromDisplayName} />
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <Button 
+                      variant="secondary" 
+                      className="text-xs" 
+                      onClick={() => handleRespond(r.id, 'approved', 'read')} 
+                      loading={respondingId === r.id}
+                    >
+                      Approve (Read-only)
                     </Button>
-                    <Button variant="danger" className="text-sm" onClick={() => handleRespond(r.id, 'declined')} loading={respondingId === r.id}>
+                    <Button 
+                      variant="primary" 
+                      className="text-xs" 
+                      onClick={() => handleRespond(r.id, 'approved', 'write')} 
+                      loading={respondingId === r.id}
+                    >
+                      Approve (Write)
+                    </Button>
+                    <Button 
+                      variant="danger" 
+                      className="text-xs" 
+                      onClick={() => handleRespond(r.id, 'declined')} 
+                      loading={respondingId === r.id}
+                    >
                       Decline
                     </Button>
                   </div>
@@ -320,17 +360,43 @@ export default function SharingPage() {
           ) : (
             <ul className="space-y-2">
               {readers.map((s) => (
-                <li key={s.id} className="flex items-center justify-between border border-gray-200 rounded-lg p-3">
-                  {/* avoid reading readers' user profiles (not granted by rules) */}
-                  <NameOrChip uid={s.readerUid} fallbackName={s.readerDisplayName} />
-                  <Button
-                    variant="danger"
-                    className="text-sm"
-                    onClick={() => handleRevoke(s.readerUid)}
-                    loading={revokingUid === s.readerUid}
-                  >
-                    Revoke
-                  </Button>
+                <li key={s.id} className="flex flex-col gap-2 border border-gray-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <NameOrChip uid={s.readerUid} fallbackName={s.readerDisplayName} />
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${s.accessLevel === 'write' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                      {s.accessLevel === 'write' ? 'Write Access' : 'Read Only'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between mt-1 pt-2 border-t border-gray-100">
+                    <div className="flex gap-2">
+                      {s.accessLevel === 'write' ? (
+                        <button 
+                          onClick={() => handleAccessChange(s.readerUid, 'read')}
+                          disabled={updatingAccessUid === s.readerUid}
+                          className="text-xs text-blue-600 hover:underline"
+                        >
+                          Downgrade to Read-only
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => handleAccessChange(s.readerUid, 'write')}
+                          disabled={updatingAccessUid === s.readerUid}
+                          className="text-xs text-blue-600 hover:underline"
+                        >
+                          Upgrade to Write
+                        </button>
+                      )}
+                    </div>
+                    <Button
+                      variant="danger"
+                      className="text-xs py-1 h-auto"
+                      onClick={() => handleRevoke(s.readerUid)}
+                      loading={revokingUid === s.readerUid}
+                    >
+                      Revoke
+                    </Button>
+                  </div>
                 </li>
               ))}
             </ul>

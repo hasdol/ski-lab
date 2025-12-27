@@ -32,6 +32,11 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/userShares/$(userId + "_" + request.auth.uid));
     }
 
+    function hasWriteAccess(userId) {
+      return hasShareAccess(userId)
+        && get(/databases/$(database)/documents/userShares/$(userId + "_" + request.auth.uid)).data.accessLevel == 'write';
+    }
+
     // Allow listing/reading requests only for the two parties
     match /shareRequests/{reqId} {
       allow create: if request.auth != null
@@ -84,6 +89,7 @@ service cloud.firestore {
         allow read: if (request.auth != null && request.auth.uid == userId)
           || (hasShareAccess(userId) && resource.data.locked != true);
 
+        // create/delete remain owner-only (as you already have)
         allow create: if request.auth != null
           && request.auth.uid == userId
           && (
@@ -105,6 +111,7 @@ service cloud.firestore {
           && !('locked' in request.resource.data);
 
         // ✅ Block editing locked skis (owner can still delete them).
+        // ✅ Allow writers to update unlocked skis (e.g. adding testIds)
         allow update: if request.auth != null
           && request.auth.uid == userId
           && resource.data.locked != true
@@ -133,14 +140,24 @@ service cloud.firestore {
             'keywords_no'
           ]));
 
-        // Keep delete allowed so users can remove locked skis to get under the cap.
-        allow delete: if request.auth != null && request.auth.uid == userId;
+        // ✅ Shared writer: may ONLY update testIds (for back-referencing new tests)
+        allow update: if request.auth != null
+          && hasWriteAccess(userId)
+          && resource.data.locked != true
+          && request.writeFields.hasOnly(['testIds']);
       }
 
       match /testResults/{testId} {
-        // Owner or authorized reader can read; only owner can write/delete
-        allow read: if (request.auth != null && request.auth.uid == userId) || hasShareAccess(userId);
-        allow write, delete: if request.auth != null && request.auth.uid == userId;
+        // Owner or authorized reader can read
+        allow read: if (request.auth != null && request.auth.uid == userId)
+          || hasShareAccess(userId);
+
+        // ✅ Allow owner OR shared writer to CREATE a new test result
+        allow create: if request.auth != null
+          && (request.auth.uid == userId || hasWriteAccess(userId));
+
+        // ✅ Only owner can edit/delete test results
+        allow update, delete: if request.auth != null && request.auth.uid == userId;
       }
     }
 

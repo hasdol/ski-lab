@@ -7,9 +7,11 @@ import Input from '../ui/Input';
 export default function ShareWithEventSelector({
   userId,
   isVisible,
-  onSelect,
+  onSelect = () => {},
   initialSelectedEvents = [],
   includePast = false,
+  variant = 'card', // 'card' | 'embedded'
+  className = '',
 }) {
   const [teams, setTeams] = useState([]);
   const [teamEvents, setTeamEvents] = useState({});
@@ -19,8 +21,10 @@ export default function ShareWithEventSelector({
   const onSelectRef = useRef(onSelect);
   const today = new Date();
 
-  // Keep onSelect up to date
-  useEffect(() => { onSelectRef.current = onSelect; }, [onSelect]);
+  // Keep onSelect up to date (and always callable)
+  useEffect(() => {
+    onSelectRef.current = typeof onSelect === 'function' ? onSelect : () => {};
+  }, [onSelect]);
 
   // Pre-select when editing past
   useEffect(() => {
@@ -67,7 +71,9 @@ export default function ShareWithEventSelector({
     const arr = Object.entries(selected).flatMap(([teamId, evIds]) =>
       evIds.map(eventId => ({ teamId, eventId }))
     );
-    onSelectRef.current(arr);
+
+    // ✅ guard (extra safety)
+    if (typeof onSelectRef.current === 'function') onSelectRef.current(arr);
   }, [selected]);
 
   // Toggle selection
@@ -106,17 +112,23 @@ export default function ShareWithEventSelector({
 
   if (!isVisible || teams.length === 0) return null;
 
-  return (
-    <div className="p-4 border border-gray-300 rounded-lg bg-white">
-      
+  const containerClass =
+    variant === 'embedded'
+      ? `space-y-3 ${className}`.trim()
+      : `bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-5 space-y-3 ${className}`.trim();
 
-      <h2 className='font-semibold text-lg text-gray-700 mb-5'>{includePast ? 'Shared in events' : 'Share with live events'}</h2>
-      <div className="mb-4">
+  return (
+    <div className={containerClass}>
+      <h2 className="font-semibold text-base text-gray-900">
+        {includePast ? 'Shared in events' : 'Share with live events'}
+      </h2>
+
+      <div>
         <Input
           type="text"
-          placeholder='Search team events'
+          placeholder="Search team events"
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 

@@ -1284,7 +1284,7 @@ exports.requestShareByCode = onCall(async (request) => {
 /** respondShareRequest – owner approves/declines a request */
 exports.respondShareRequest = onCall(async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Auth required.');
-  const { requestId, action } = request.data || {};
+  const { requestId, action, accessLevel } = request.data || {}; // accessLevel: 'read' | 'write'
   if (!requestId || !['approved', 'declined'].includes(action)) {
     throw new HttpsError('invalid-argument', 'Invalid request or action.');
   }
@@ -1302,35 +1302,39 @@ exports.respondShareRequest = onCall(async (request) => {
     const docId = `${ownerUid}_${readerUid}`;
     const pairRef = db.collection('userShares').doc(docId);
 
-    // Fetch display names to denormalize
+    // Denormalize names/photos for fast listing
     const [ownerDoc, readerDoc] = await Promise.all([
       db.collection('users').doc(ownerUid).get(),
       db.collection('users').doc(readerUid).get(),
     ]);
+
     const ownerDisplayName = ownerDoc.exists ? (ownerDoc.data().displayName || null) : null;
     const ownerPhotoURL = ownerDoc.exists ? (ownerDoc.data().photoURL || null) : null;
     const readerDisplayName = readerDoc.exists ? (readerDoc.data().displayName || null) : null;
     const readerPhotoURL = readerDoc.exists ? (readerDoc.data().photoURL || null) : null;
 
     await db.runTransaction(async (tx) => {
-      const exists = await tx.get(pairRef);
-      if (!exists.exists) {
+      const pairSnap = await tx.get(pairRef);
+      if (!pairSnap.exists) {
         tx.set(pairRef, {
           ownerUid,
           readerUid,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          accessLevel: accessLevel || 'read', // Default to read
           ownerDisplayName,
           ownerPhotoURL,
           readerDisplayName,
           readerPhotoURL,
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       } else {
-        // backfill denormalized fields if missing
+        // If exists, just update metadata (keep existing accessLevel unless explicitly overwriting logic added later)
+        // For approval of a new request, we usually overwrite or ensure access.
         tx.set(pairRef, {
           ownerDisplayName,
           ownerPhotoURL,
           readerDisplayName,
           readerPhotoURL,
+          accessLevel: accessLevel || pairSnap.data().accessLevel || 'read',
         }, { merge: true });
       }
       // Cleanup legacy random-id duplicates
@@ -1345,6 +1349,26 @@ exports.respondShareRequest = onCall(async (request) => {
   await reqRef.update({
     status: action,
     respondedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { ok: true };
+});
+
+/** updateShareAccess – owner changes permission level */
+exports.updateShareAccess = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Auth required.');
+  const ownerUid = request.auth.uid;
+  const { readerUid, accessLevel } = request.data || {};
+  
+  if (!readerUid || !['read', 'write'].includes(accessLevel)) {
+    throw new HttpsError('invalid-argument', 'Invalid arguments.');
+  }
+
+  const docId = `${ownerUid}_${readerUid}`;
+  const ref = db.collection('userShares').doc(docId);
+  
+  await ref.update({
+    accessLevel: accessLevel
   });
 
   return { ok: true };

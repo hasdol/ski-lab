@@ -27,9 +27,10 @@ const SkiTable = ({
   onEdit,
   onDelete,
   onArchive,
-  onUnarchive
-, ownerUserId
-, readOnly = false
+  onUnarchive,
+  ownerUserId,
+  readOnly = false,      // controls edit/archive/delete actions
+  selectable = true,     // NEW: controls selection column/checkboxes
 }) => {
   const COLUMN_COUNT = 12;
   
@@ -60,10 +61,10 @@ const SkiTable = ({
   return (
     <div className="rounded-md overflow-hidden transition-all duration-200 md:w-3/4 md:mt-10 md:absolute md:left-1/2 md:-translate-x-1/2">
       <div className="overflow-x-auto pb-20">
-        <table className="min-w-full border-collapse text-sm text-center">
+        <table className="min-w-full divide-y divide-gray-200">
           <thead>
-            <tr className=" border-b border-gray-200 bg-gray-50 text-gray-700">
-              {!readOnly && <th className="px-4 py-3" />}
+            <tr>
+              {selectable && <th className="px-4 py-3">Select</th>}
               {columns.map((column) => (
                 <th
                   key={column.id}
@@ -86,17 +87,23 @@ const SkiTable = ({
               const showDetails = expandedSkiId === ski.id;
               const isSelected = !!selectedSkis[ski.id];
 
+              const colSpan =
+                columns.length +
+                1 + // Expand column
+                (selectable ? 1 : 0) +
+                (!readOnly ? 1 : 0);
+
               return (
                 <React.Fragment key={ski.id}>
                   <tr className="bg-white border-b border-gray-200">
-                    {!readOnly && (
+                    {selectable && (
                       <td className="px-4 py-2">
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => onToggleSelect?.(ski.id)}
                           className="accent-btn w-4 h-4 mx-auto"
-                          aria-label='Select'
+                          aria-label="Select"
                         />
                       </td>
                     )}
@@ -164,7 +171,7 @@ const SkiTable = ({
 
                   {showDetails && (
                     <tr>
-                      <td colSpan={/* span all visible columns */ readOnly ? columns.length + 1 : columns.length + 3}>
+                      <td colSpan={colSpan}>
                         <div className="bg-white p-4 shadow mb-5 rounded-b-lg">
                           <SkiDetails
                             ski={ski}
@@ -172,8 +179,8 @@ const SkiTable = ({
                             onArchive={() => onArchive?.(ski.id)}
                             onUnarchive={() => onUnarchive?.(ski.id)}
                             onDelete={() => onDelete?.(ski.id)}
-                           ownerUserId={ownerUserId}
-                           readOnly={readOnly}
+                            ownerUserId={ownerUserId}
+                            readOnly={readOnly}
                           />
                         </div>
                       </td>

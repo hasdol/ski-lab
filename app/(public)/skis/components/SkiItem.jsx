@@ -28,7 +28,8 @@ const SkiItem = ({
   toggleDetails,
   allExpanded = false,
   ownerUserId,
-  readOnly = false,
+  readOnly = false,     // controls edit/archive/delete actions
+  selectable = true,    // NEW: controls selection UI/behavior
 }) => {
   const { gloveMode } = useContext(UserPreferencesContext);
   const showDetails = allExpanded || (ski.id === expandedSkiId);
@@ -72,9 +73,9 @@ const SkiItem = ({
     <div className={`bg-white shadow rounded-lg overflow-hidden transition-colors duration-200 ${showDetails ? '' : 'hover:bg-blue-50'}`}>
       <div
         className="py-2 px-3 flex items-center cursor-pointer"
-        onClick={() => { if (!readOnly) handleCheckboxChange(ski.id); }}
+        onClick={() => { if (selectable) handleCheckboxChange(ski.id); }}
       >
-        {!readOnly && (
+        {selectable && (
           <input
             type="checkbox"
             checked={selectedSkis[ski.id] || false}
