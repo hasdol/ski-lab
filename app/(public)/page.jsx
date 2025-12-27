@@ -391,32 +391,42 @@ export default function HomePage() {
       </div>
 
       {/* FOOTER */}
-      <motion.footer {...SIMPLE_ANIM} className="mt-auto border-t border-black/5 bg-white/60 py-10 text-center backdrop-blur-xl">
+      <motion.footer
+        {...SIMPLE_ANIM}
+        className="mt-auto border-t border-black/5 bg-white/60 px-6 py-10 text-center backdrop-blur-xl"
+      >
         <div className="text-xs text-zinc-500">
-          <nav className="mb-4 flex flex-wrap justify-center gap-4 text-xs uppercase tracking-widest">
-            <Link href="/pricing" className="text-gray-500 hover:text-gray-800">
+          <nav className="mb-5 grid grid-cols-2 gap-2 text-[11px] uppercase tracking-widest sm:flex sm:flex-wrap sm:justify-center sm:gap-4">
+            <Link href="/pricing" className="block rounded-lg px-3 py-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800">
               Pricing
             </Link>
-            <Link href="/skis" className="text-gray-500 hover:text-gray-800">
+            <Link href="/skis" className="block rounded-lg px-3 py-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800">
               Skis
             </Link>
-            <Link href="/results" className="text-gray-500 hover:text-gray-800">
+            <Link href="/results" className="block rounded-lg px-3 py-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800">
               Results
             </Link>
-            <Link href="/teams" className="text-gray-500 hover:text-gray-800">
+            <Link href="/teams" className="block rounded-lg px-3 py-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800">
               Teams
             </Link>
-            <Link href="/about" className="text-gray-500 hover:text-gray-800">
+            <Link href="/about" className="block rounded-lg px-3 py-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800">
               About
             </Link>
-            <Link href="/contact" className="text-gray-500 hover:text-gray-800">
+            <Link href="/contact" className="block rounded-lg px-3 py-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800">
               Contact
             </Link>
-
-            <a href={INSTAGRAM_URL} className="text-gray-500 hover:text-gray-800" target="_blank" rel="noopener noreferrer">
+            <a
+              href={INSTAGRAM_URL}
+              className="block rounded-lg px-3 py-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Instagram
             </a>
-            <a href={`mailto:${CONTACT_EMAIL}`} className="text-gray-500 hover:text-gray-800">
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="block rounded-lg px-3 py-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800"
+            >
               Email
             </a>
           </nav>
