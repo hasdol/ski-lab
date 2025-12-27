@@ -516,7 +516,7 @@ const Skis = () => {
               {Object.entries(groupSkisByStyle(displayedSkis)).map(([style, skis]) =>
                 skis.length > 0 && (
                   <React.Fragment key={style}>
-                    <div className={`my-2 flex items-center gap-2 px-2 py-1 rounded font-semibold
+                    <div className={`my-2 flex items-center gap-2 px-2 py-1 rounded font-semibold 
                       ${style === 'classic' ? 'text-emerald-700' : ''}
                       ${style === 'skate' ? 'text-blue-700' : ''}
                       ${style === 'dp' ? 'text-fuchsia-700' : ''}

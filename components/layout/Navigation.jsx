@@ -390,7 +390,9 @@ export default function Navigation() {
       {/* Desktop: header */}
       <header className="hidden md:flex md:justify-between items-center w-full bg-white shadow z-50 px-5 p-3">
         <div className="flex-1 flex items-center gap-3 cursor-pointer" onClick={() => router.push('/')}>
-          <h1 className="text-2xl font-semibold">Ski-Lab</h1>
+          <h1 className="text-2xl font-semibold bg-gradient-to-b from-zinc-900 to-zinc-500 bg-clip-text text-transparent">
+            Ski-Lab
+          </h1>
         </div>
 
         <nav className="flex-1">
@@ -398,7 +400,6 @@ export default function Navigation() {
             {navConfig.map(item => (
               <li key={item.key}>
                 <Link href={item.path} className={`flex items-center justify-center transition py-1 hover:bg-gray-100 rounded-lg  ${isActive(item.path) ? 'bg-blue-100  text-blue-600/80' : 'text-gray-700'}`}>
-                  {item.icon}
                   <span className="ml-2">{item.labelKey}</span>
                 </Link>
               </li>

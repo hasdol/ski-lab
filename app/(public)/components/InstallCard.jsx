@@ -92,8 +92,8 @@ const InstallCard = () => {
   };
 
   return (
-    <motion.div {...SIMPLE_ANIM} className="w-full flex justify-center mt-4">
-      <div className="mt-4">
+    <motion.div {...SIMPLE_ANIM} className="w-full flex justify-center">
+      <div className="">
         <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-full px-3 py-2 text-sm">
           <img
             src="/ski-lab-icon.png"
