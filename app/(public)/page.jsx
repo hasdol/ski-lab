@@ -208,7 +208,7 @@ export default function HomePage() {
                   onClick={() => handleNavigation('/signup')}
                   className="h-11 w-full rounded-full px-6 shadow-sm sm:w-auto sm:max-w-xs"
                 >
-                  Create your account <FiArrowRight className="ml-2" />
+                  Create account
                 </Button>
                 <Button
                   variant="secondary"
