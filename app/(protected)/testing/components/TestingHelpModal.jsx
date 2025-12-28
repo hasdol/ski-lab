@@ -18,7 +18,7 @@ const TestingHelpModal = ({ isOpen, onClose, help }) => {
             onClick={handleOverlayClick}
         >
             <div
-                className="bg-background p-8 rounded-lg bg-white w-full mx-4 md:w-1/2 lg:w-1/3 shadow-lg max-h-[80vh] overflow-y-auto"
+                className="bg-background p-8 rounded-2xl bg-white w-full mx-4 md:w-1/2 lg:w-1/3 shadow-lg max-h-[80vh] overflow-y-auto"
                 onClick={handleModalClick}
             >
                 <div className='mb-4'>

@@ -36,6 +36,7 @@ import Search from '../../../components/Search/Search';
 import { PLAN_LIMITS } from '@/lib/constants/planLimits';
 import useIsStandalone from '@/hooks/useIsStandalone';
 import PageHeader from '@/components/layout/PageHeader';
+import Card from '@/components/ui/Card'; // NEW
 import { listAccessibleUsers, listUserSkis, subscribeSharesAsReader } from '@/lib/firebase/shareFunctions';
 import UserPicker from '@/components/UserPicker/UserPicker';
 import { RiUser3Line } from 'react-icons/ri';
@@ -371,12 +372,12 @@ const Skis = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
               <div className="flex items-start gap-3">
                 <RiInformationLine className="text-blue-500 mt-0.5 flex-shrink-0" />
                 <div className="text-blue-800">
-                  <strong className="block mb-1">How the Skis page works:</strong>
-                  <ul className="list-disc ml-5 space-y-1">
+                  <h3 className="block font-semibold mb-4">How the Skis page works:</h3>
+                  <ul className="list-disc ml-4 space-y-1">
                     <li>Search, filter, and sort your skis by style, type, or status.</li>
                     <li>Selected skis stay visible even if they don’t match current filters.</li>
                     <li>Start a new test by selecting at least two skis and clicking "New Test".</li>
@@ -410,7 +411,7 @@ const Skis = () => {
               <button
                 key={style}
                 onClick={() => setStyleFilter(style)}
-                className={`px-4 py-2 font-medium text-sm capitalize rounded-lg border transition
+                className={`px-4 py-2 font-medium text-sm capitalize rounded-2xl border transition
                   ${active ? `${tabColors[style]} ` : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'}
                 `}
               >
@@ -466,7 +467,10 @@ const Skis = () => {
       {/* Locked skis or plan upgrade prompt */}
       {hasLockedSkis ? (
         <div className="flex my-4 space-x-4">
-          <div className="flex space-x-5 border border-dashed border-gray-300 p-4 rounded-lg items-center justify-center w-full">
+          <Card
+            padded={false}
+            className="w-full flex space-x-5 border border-dashed border-gray-300 p-4 rounded-lg items-center justify-center bg-white ring-0 shadow-none backdrop-blur-0"
+          >
             <div className="space-y-1">
               <h3 className="text-sm flex items-center"><RiLockLine /> {lockedSkisCount} locked ski(s)</h3>
               <Button onClick={() => router.push('/skis/locked')} variant="secondary">View skis</Button>
@@ -475,14 +479,17 @@ const Skis = () => {
               <h3 className="text-sm">Upgrade to unlock</h3>
               <Button variant="primary" onClick={() => router.push('/pricing')}>Upgrade</Button>
             </div>
-          </div>
+          </Card>
         </div>
       ) : hasReachedLimit && plan !== 'company' ? (
         <div className="flex my-4">
-          <div className="flex space-x-5 border border-dashed border-gray-300 p-4 rounded-lg items-center justify-center w-full">
+          <Card
+            padded={false}
+            className="w-full flex space-x-5 border border-dashed border-gray-300 p-4 rounded-lg items-center justify-center bg-white ring-0 shadow-none backdrop-blur-0"
+          >
             <h3 className="text-sm">You’ve reached your limit. Upgrade to add more skis.</h3>
             <Button variant="primary" onClick={() => router.push('/pricing')}>Upgrade</Button>
-          </div>
+          </Card>
         </div>
       ) : null}
 
@@ -593,7 +600,10 @@ const Skis = () => {
           />
         )}
         {!user && (
-          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg mt-4">
+          <Card
+            padded={false}
+            className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg mt-4 bg-white ring-0 shadow-none backdrop-blur-0"
+          >
             <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
               <TiFlowParallel className="text-gray-500 text-2xl" />
             </div>
@@ -604,7 +614,7 @@ const Skis = () => {
             <Button onClick={() => router.push('/login')} variant="primary">
               Sign In
             </Button>
-          </div>
+          </Card>
         )}
       </div>
 
@@ -624,7 +634,10 @@ const Skis = () => {
 // Add this new component near the top of the file
 function GettingStartedGuide({ onAddSki, onLearnMore }) {
   return (
-    <div className="flex flex-col items-center p-6 border border-dashed border-gray-300 rounded-lg">
+    <Card
+      padded={false}
+      className="flex flex-col items-center p-6 border border-dashed border-gray-300 rounded-lg bg-white ring-0 shadow-none backdrop-blur-0"
+    >
       <h2 className="text-xl font-bold mb-2">Welcome to Ski Lab!</h2>
       <p className="text-gray-600 text-center mb-4">
         Let's get started! Follow these simple steps:
@@ -638,7 +651,7 @@ function GettingStartedGuide({ onAddSki, onLearnMore }) {
         <Button onClick={onAddSki} variant="primary">Add Ski</Button>
         <Button onClick={onLearnMore} variant="secondary">Learn More</Button>
       </div>
-    </div>
+    </Card>
   );
 }
 

@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { MdPublic } from 'react-icons/md';
 import { RiVipCrownLine } from 'react-icons/ri';
 import { useAuth } from '@/context/AuthContext';
+import Card from '@/components/ui/Card';
 
 const PublicTeamCard = ({ team, isJoined, onJoin }) => {
   const { user } = useAuth();
@@ -27,11 +28,8 @@ const PublicTeamCard = ({ team, isJoined, onJoin }) => {
   const isMod = !isCreator && (team.mods || []).includes(user?.uid);
 
   return (
-    <motion.div
-      key={team.id}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`p-6 rounded-2xl relative overflow-hidden flex justify-between bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs transition-colors duration-200 `}
+    <Card
+      className={`flex justify-between`}
     >
       <div className="flex items-center space-x-4 w-full sm:w-auto">
         {/* Avatar: team image or initial */}
@@ -89,7 +87,7 @@ const PublicTeamCard = ({ team, isJoined, onJoin }) => {
           {isJoined ? 'View' : 'Join'}
         </Button>
       </div>
-    </motion.div>
+    </Card>
   );
 };
 

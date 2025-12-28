@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card'; // NEW
 import { RiEditLine, RiDeleteBinLine } from 'react-icons/ri';
 import { MdEvent } from "react-icons/md";
 
@@ -33,7 +34,7 @@ export default function ResultCard({ result, debouncedSearch, handleEdit, handle
     null;
 
   return (
-    <div className="p-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
+    <Card className="p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex relative items-center justify-between gap-3">
@@ -136,6 +137,6 @@ export default function ResultCard({ result, debouncedSearch, handleEdit, handle
       </div>
 
 
-    </div>
+    </Card>
   );
 };

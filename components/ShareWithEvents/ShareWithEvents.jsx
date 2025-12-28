@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { getUserTeamsWithEvents } from '@/lib/firebase/firestoreFunctions';
 import Input from '../ui/Input';
+import Card from '@/components/ui/Card'; // NEW
 
 export default function ShareWithEventSelector({
   userId,
@@ -112,13 +113,22 @@ export default function ShareWithEventSelector({
 
   if (!isVisible || teams.length === 0) return null;
 
-  const containerClass =
+  const wrapperClass =
     variant === 'embedded'
       ? `space-y-3 ${className}`.trim()
-      : `bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-5 space-y-3 ${className}`.trim();
+      : `p-4 md:p-5 space-y-3 ${className}`.trim();
+
+  const Wrapper = ({ children }) =>
+    variant === 'embedded' ? (
+      <div className={wrapperClass}>{children}</div>
+    ) : (
+      <Card padded={false} className={wrapperClass}>
+        {children}
+      </Card>
+    );
 
   return (
-    <div className={containerClass}>
+    <Wrapper>
       <h2 className="font-semibold text-base text-gray-900">
         {includePast ? 'Shared in events' : 'Share with live events'}
       </h2>
@@ -143,7 +153,7 @@ export default function ShareWithEventSelector({
           onToggle={e => setOpenMap(prev => ({ ...prev, [team.id]: e.target.open }))}
           className="mb-3"
         >
-          <summary className="cursor-pointer p-2 bg-gray-100 rounded-lg">
+          <summary className="cursor-pointer p-2 bg-gray-100 rounded-2xl">
             {highlight(team.name, search) || 'Unnamed Team'}
           </summary>
           <div className="mt-2 pl-4 space-y-1">
@@ -201,6 +211,6 @@ export default function ShareWithEventSelector({
         </span>
         <span className="text-gray-600">Only staff sees</span>
       </div>
-    </div>
+    </Wrapper>
   );
 }

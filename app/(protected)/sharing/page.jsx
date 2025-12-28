@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/firebaseConfig';
@@ -12,6 +12,7 @@ import Input from '@/components/ui/Input';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { FaSlideshare } from 'react-icons/fa';
 import { RiShieldUserLine, RiEditLine } from 'react-icons/ri'; // New icons
+import Card from '@/components/ui/Card'; // NEW
 
 import useUser from '@/hooks/useUser';
 
@@ -212,7 +213,7 @@ export default function SharingPage() {
   };
 
   return (
-    <div className="p-4 max-w-4xl w-full self-center pb-24 md:pb-8">
+    <div className="p-4 max-w-4xl w-full self-center space-y-6">
       <PageHeader
         icon={<FaSlideshare className="text-blue-600 text-2xl" />}
         title="Sharing"
@@ -221,7 +222,7 @@ export default function SharingPage() {
       />
 
       {/* Your share code */}
-      <div className="p-6 mb-6 space-y-4 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
+      <Card className="space-y-4">
         <h2 className="text-lg font-semibold text-gray-800">Your share code</h2>
         {loadingCode ? (
           <div className="flex items-center gap-2 text-gray-600">
@@ -242,10 +243,10 @@ export default function SharingPage() {
         <p className="text-sm text-gray-600">
           Share this code with someone who should be able to view your skis and results.
         </p>
-      </div>
+      </Card>
 
       {/* Request access by code */}
-      <div className="rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 p-6 space-y-4 mb-6">
+      <Card className="p-6 space-y-4 mb-6">
         <h2 className="text-lg font-semibold text-gray-800">Request access</h2>
         <form onSubmit={handleRequestByCode} className="flex flex-col md:flex-row gap-3">
           <Input
@@ -260,12 +261,11 @@ export default function SharingPage() {
             Send request
           </Button>
         </form>
-        <p className="text-sm text-gray-600">Enter another user’s code to request read access.</p>
-      </div>
+      </Card>
 
       {/* Pending requests */}
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 space-y-3">
+        <Card className="p-6 space-y-3">
           <h3 className="font-semibold text-gray-800">Requests to you</h3>
           {incoming.length === 0 ? (
             <div className="text-sm text-gray-500">No pending requests.</div>
@@ -306,9 +306,9 @@ export default function SharingPage() {
               ))}
             </ul>
           )}
-        </div>
+        </Card>
 
-        <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 space-y-3">
+        <Card className="p-6 space-y-3">
           <h3 className="font-semibold text-gray-800">Requests you sent</h3>
           {outgoing.length === 0 ? (
             <div className="text-sm text-gray-500">No pending requests.</div>
@@ -324,12 +324,11 @@ export default function SharingPage() {
               ))}
             </ul>
           )}
-        </div>
+        </Card>
       </div>
 
-      {/* Active shares */}
       <div className="grid gap-6 md:grid-cols-2 mt-6">
-        <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 space-y-3">
+        <Card className="p-6 space-y-3">
           <h3 className="font-semibold text-gray-800">You can view</h3>
           {owners.length === 0 ? (
             <div className="text-sm text-gray-500">You don’t have access to anyone yet.</div>
@@ -351,9 +350,9 @@ export default function SharingPage() {
               ))}
             </ul>
           )}
-        </div>
+        </Card>
 
-        <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 space-y-3">
+        <Card className="p-6 space-y-3">
           <h3 className="font-semibold text-gray-800">Can view you</h3>
           {readers.length === 0 ? (
             <div className="text-sm text-gray-500">Nobody has access to your data yet.</div>
@@ -401,7 +400,7 @@ export default function SharingPage() {
               ))}
             </ul>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

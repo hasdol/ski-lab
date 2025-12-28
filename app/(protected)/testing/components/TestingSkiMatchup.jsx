@@ -44,7 +44,7 @@ const TestingSkiMatchup = ({ match, scores, onScoreChange, potentialSwapTarget }
                   ref={provided.innerRef}
                   {...provided.draggableProps}
                   {...provided.dragHandleProps}
-                  className={`bg-white cursor-move relative py-2 px-4 rounded-lg flex justify-between items-center 
+                  className={`bg-white cursor-move relative py-2 px-4 rounded-2xl flex justify-between items-center 
                     ${draggableSnapshot.isDragging ? 'border border-gray-300 shadow' : ''} 
                     ${scores[ski.id] > 0 ? 'bg-gray-100! opacity-50' : ''} 
                     ${ski.id === potentialSwapTarget?.id ? 'bg-gray-100' : ''} 

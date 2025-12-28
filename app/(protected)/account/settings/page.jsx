@@ -16,6 +16,7 @@ import { useProfileActions } from '@/hooks/useProfileActions';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import PageHeader from '@/components/layout/PageHeader'; // Add this import
+import Card from '@/components/ui/Card'
 
 export default function SettingsPage() {
   const { user, userData } = useAuth();
@@ -87,7 +88,7 @@ export default function SettingsPage() {
 
       <div className="mt-6 grid grid-cols-1 gap-6">
         {/* Username Section - spans both columns */}
-        <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
+        <Card>
           <h2 className="text-xl font-medium text-gray-800 mb-6">Your Username</h2>
           {isEditingUsername ? (
             <div className="space-y-4">
@@ -116,11 +117,11 @@ export default function SettingsPage() {
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                 Username
               </label>
-              <div className="mt-1 flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition">
+              <div className="mt-1 flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-2xl hover:bg-gray-100 transition">
                 <RiUserLine className="text-gray-600 text-2xl" />
                 <span className="flex-1 mx-4 text-gray-800">
                   {userData?.displayName ? userData.displayName : (
-                    <span className="bg-yellow-50 border border-yellow-400 text-yellow-800 px-2 py-1 rounded-lg">
+                    <span className="bg-yellow-50 border border-yellow-400 text-yellow-800 px-2 py-1 rounded-2xl">
                       No username
                     </span>
                   )}
@@ -129,12 +130,12 @@ export default function SettingsPage() {
               </div>
             </div>
           )}
-          {error && <div className="mt-4 p-3 rounded-lg bg-red-50 text-red-700">{error}</div>}
-          {success && <div className="mt-4 p-3 rounded-lg bg-green-50 text-green-700">{success}</div>}
-        </div>
+          {error && <div className="mt-4 p-3 rounded-2xl bg-red-50 text-red-700">{error}</div>}
+          {success && <div className="mt-4 p-3 rounded-2xl bg-green-50 text-green-700">{success}</div>}
+        </Card>
 
         {/* Preferences Section */}
-        <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
+        <Card>
           <h2 className="text-xl font-medium text-gray-800 mb-6">Preferences</h2>
           <div className="flex items-center space-x-4">
             <label
@@ -156,14 +157,14 @@ export default function SettingsPage() {
             <span className="text-lg text-gray-700">Glove Mode</span>
           </div>
           {!gloveMode && (
-            <p className="px-4 py-2 mt-5 bg-blue-100 text-blue-800 rounded-lg text-center">
+            <p className="px-4 py-2 mt-5 bg-blue-100 text-blue-800 rounded-2xl text-center">
               Larger input fields and buttons are enabled for easier interactions during tests.
             </p>
           )}
-        </div>
+        </Card>
 
         {/* Management Section */}
-        <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
+        <Card>
           <h2 className="flex text-xl font-medium text-gray-800 items-center mb-6">
             Management <MdOutlineSecurity className="ml-2 text-2xl" />
           </h2>
@@ -175,7 +176,7 @@ export default function SettingsPage() {
               Delete Account
             </Button>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

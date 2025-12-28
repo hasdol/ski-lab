@@ -71,7 +71,7 @@ export default function JoinTeamModal({ isOpen, onClose, onJoinSuccess, preFille
             initial={{ scale: 0.9, y: 20 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.9, y: 20 }}
-            className="bg-white rounded-xl w-full max-w-md shadow-md overflow-hidden"
+            className="bg-white rounded-2xl w-full max-w-md shadow-md overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
@@ -104,10 +104,10 @@ export default function JoinTeamModal({ isOpen, onClose, onJoinSuccess, preFille
                 />
 
                 {error && (
-                  <div className="bg-red-100 text-red-600 p-2 rounded-lg text-sm mt-1">{error}</div>
+                  <div className="bg-red-100 text-red-600 p-2 rounded-2xl text-sm mt-1">{error}</div>
                 )}
                 {message && (
-                  <div className="bg-green-100 text-green-600 p-2 rounded-lg text-sm mt-1">{message}</div>
+                  <div className="bg-green-100 text-green-600 p-2 rounded-2xl text-sm mt-1">{message}</div>
                 )}
 
                 <div className="flex justify-end gap-3 pt-2">

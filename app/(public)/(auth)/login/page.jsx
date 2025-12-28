@@ -7,6 +7,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { RiLoginBoxLine } from 'react-icons/ri';
 import PageHeader from '@/components/layout/PageHeader'; // Add this import
+import Card from '@/components/ui/Card'
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -47,7 +48,7 @@ const Login = () => {
   };
 
   return (
-    <div className="p-5 max-w-4xl w-full self-center justify-items-center">
+    <div className="p-4 max-w-4xl w-full self-center md:w-1/3 md:mx-auto">
       <PageHeader
         icon={<RiLoginBoxLine className="text-blue-600 text-2xl" />}
         title="Login"
@@ -55,7 +56,7 @@ const Login = () => {
         actions={null}
       />
 
-      <main className="max-w-xl md:w-full self-center  bg-white shadow rounded-xl p-8">
+      <Card>
         <form onSubmit={handleSignIn} className="space-y-4">
           <Input
             id="email"
@@ -110,7 +111,7 @@ const Login = () => {
             </button>
           </p>
         </div>
-      </main>
+      </Card>
     </div>
   );
 };

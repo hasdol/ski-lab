@@ -10,7 +10,8 @@ import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import { useAuth } from '@/context/AuthContext';
 import GeocodeInput from '@/components/GeocodeInput/GeocodeInput';
 import Spinner from '@/components/common/Spinner/Spinner';
-import PageHeader from '@/components/layout/PageHeader'; // Add this import
+import PageHeader from '@/components/layout/PageHeader';
+import Card from '@/components/ui/Card'; // NEW
 import { RiCalendarEventLine } from 'react-icons/ri';
 import { MdArrowBack } from "react-icons/md";
 
@@ -120,7 +121,7 @@ export default function EditEventPage() {
   if (!eventData && !loading) return <div>No event found</div>;
 
   return (
-    <div className="max-w-4xl md:min-w-xl w-full self-center p-4">
+    <div className="p-4 max-w-4xl w-full self-center">
       <PageHeader
         icon={<RiCalendarEventLine className="text-blue-600 text-2xl" />}
         title="Edit Event"
@@ -132,13 +133,14 @@ export default function EditEventPage() {
         }
       />
 
-      {loading ?
+      {loading ? (
         <div className="flex justify-center">
           <Spinner />
-        </div> :
-        <div className="rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 p-6 space-y-6">
-          <Input value={name} onChange={e => setName(e.target.value)} placeholder='Event name' />
-          <Input type="textarea" value={desc} onChange={e => setDesc(e.target.value)} placeholder='Description' />
+        </div>
+      ) : (
+        <Card className="p-6 space-y-6">
+          <Input value={name} onChange={e => setName(e.target.value)} placeholder="Event name" />
+          <Input type="textarea" value={desc} onChange={e => setDesc(e.target.value)} placeholder="Description" />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -195,7 +197,7 @@ export default function EditEventPage() {
             </Button>
           )}
 
-          <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="p-3 bg-gray-50 rounded-2xl border border-gray-200">
             <h3 className="font-medium text-gray-900 mb-2">Result visibility</h3>
             <div className="space-y-2 text-sm">
               <label className="flex items-center gap-2">
@@ -229,10 +231,8 @@ export default function EditEventPage() {
               Delete
             </Button>
           </div>
-        </div>
-
-
-      }
+        </Card>
+      )}
     </div>
   );
 }

@@ -196,7 +196,7 @@ const Results = () => {
           <div className="flex flex-col md:flex-row gap-5 items-center">
             {!!user && (
               <button
-                className="inline-flex items-center gap-2 bg-blue-50 text-blue-500 border rounded-xl px-2 py-1 text-sm"
+                className="inline-flex items-center gap-2 bg-blue-50 text-blue-500 border rounded-2xl px-2 py-1 text-sm"
                 onClick={() => setIsPickerOpen(true)}
                 aria-label="Pick user"
                 title="Pick user"
@@ -241,12 +241,12 @@ const Results = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
               <div className="flex items-start gap-3">
                 <RiInformationLine className="text-blue-500 mt-0.5 flex-shrink-0" />
                 <div className="text-blue-800">
-                  <strong className="block mb-1">How the Results page works:</strong>
-                  <ul className="list-disc ml-5 space-y-1">
+                  <h3 className="block font-semibold mb-4">How the Results page works:</h3>
+                  <ul className="list-disc ml-4 space-y-1">
                     <li>Search, filter, and sort your results by style, temperature, and date.</li>
                     <li>Use the user picker to switch between your results and shared results you can view.</li>
                     <li>Click “New Test” to start testing; “Add Result” lets you log a result manually.</li>
@@ -279,7 +279,7 @@ const Results = () => {
               <button
                 key={style}
                 onClick={() => setStyleFilter(style)}
-                className={`px-4 py-2 font-medium text-sm capitalize rounded-lg border transition
+                className={`px-4 py-2 font-medium text-sm capitalize rounded-2xl border transition
                   ${active ? `${tabColors[style]} ` : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'}
                 `}
               >
@@ -336,8 +336,8 @@ const Results = () => {
         )}
 
         {!loading && resultsToShow.length === 0 && user && (
-          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-            <div className="bg-gray-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-2xl">
+            <div className="bg-gray-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <RiBarChart2Line className="text-gray-500 text-2xl" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -350,7 +350,7 @@ const Results = () => {
         )}
 
         {!user && (
-          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-2xl">
             <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
               <RiBarChart2Line className="text-gray-500 text-2xl" />
             </div>

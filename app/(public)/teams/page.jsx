@@ -144,12 +144,12 @@ export default function TeamsPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
               <div className="flex items-start gap-3">
                 <RiInformationLine className="text-blue-500 mt-0.5 flex-shrink-0" />
                 <div className="text-blue-800">
-                  <strong className="block mb-1">How the Teams page works:</strong>
-                  <ul className="list-disc ml-5 space-y-1">
+                  <h3 className="block font-semibold mb-4">How the Teams page works:</h3>
+                  <ul className="list-disc ml-4 space-y-1">
                     <li>Join a team to collaborate on ski testing and share results with teammates.</li>
                     <li>Browse public teams or search for teams to join using their team code.</li>
                     <li>Coaches and brands can create and manage multiple teams and events.</li>
@@ -189,9 +189,9 @@ export default function TeamsPage() {
         <>
           {/* NEW: Join by code (mobile-friendly) */}
           {user && (
-            <div 
-                            className={`p-6 rounded-2xl relative overflow-hidden flex flex-col bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs transition-colors duration-200`}
-                              
+            <div
+              className={`p-6 rounded-2xl relative overflow-hidden flex flex-col bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs transition-colors duration-200`}
+
             >
               <form onSubmit={handleFindTeamByCode} className="flex sm:flex-row gap-3">
                 <Input
@@ -206,7 +206,7 @@ export default function TeamsPage() {
                 </Button>
               </form>
               {previewError && (
-                <div className="mt-2 text-sm bg-red-50 text-red-700 border border-red-200 rounded-lg px-3 py-2">
+                <div className="mt-2 text-sm bg-red-50 text-red-700 border border-red-200 rounded-2xl px-3 py-2">
                   {previewError}
                 </div>
               )}
@@ -230,7 +230,7 @@ export default function TeamsPage() {
               <UserTeamsList teams={teams} />
             )
           ) : (
-            <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg mt-4">
+            <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-2xl mt-4">
               <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <RiTeamLine className="text-gray-500 text-2xl" />
               </div>

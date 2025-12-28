@@ -212,7 +212,7 @@ export default function TeamEventDashboard({ teamId, eventId }) {
           {/* Group by */}
           <div className="col-span-2 md:col-span-1">
             <label className="block text-xs text-gray-600 mb-1">Group by</label>
-            <div className="flex rounded-lg overflow-hidden border border-gray-200">
+            <div className="flex rounded-2xl overflow-hidden border border-gray-200">
               <button
                 type="button"
                 className={`px-3 py-1.5 text-sm flex-1 ${groupBy === 'grind' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
@@ -234,7 +234,7 @@ export default function TeamEventDashboard({ teamId, eventId }) {
           <div>
             <label className="block text-xs text-gray-600 mb-1">Source</label>
             <select
-              className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-sm"
+              className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
               value={filterSource}
               onChange={(e) => setFilterSource(e.target.value)}
             >
@@ -250,7 +250,7 @@ export default function TeamEventDashboard({ teamId, eventId }) {
           <div>
             <label className="block text-xs text-gray-600 mb-1">Snow type</label>
             <select
-              className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-sm"
+              className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
               value={filterGrain}
               onChange={(e) => setFilterGrain(e.target.value)}
             >
@@ -269,7 +269,7 @@ export default function TeamEventDashboard({ teamId, eventId }) {
           <div>
             <label className="block text-xs text-gray-600 mb-1">Temperature</label>
             <select
-              className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-sm"
+              className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
               value={filterTemp}
               onChange={(e) => {
                 const v = e.target.value === 'all' ? 'all' : Number(e.target.value);

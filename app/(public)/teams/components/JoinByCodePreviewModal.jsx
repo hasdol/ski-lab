@@ -56,7 +56,7 @@ export default function JoinByCodePreviewModal({ isOpen, onClose, team, code, on
         >
           <motion.div
             initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 10 }}
-            className="bg-white rounded-xl w-full max-w-md shadow-md overflow-hidden"
+            className="bg-white rounded-2xl w-full max-w-md shadow-md overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center p-4">
@@ -76,11 +76,11 @@ export default function JoinByCodePreviewModal({ isOpen, onClose, team, code, on
                     <div className="font-medium text-gray-900">{team.name}</div>
                     <div className="flex items-center gap-2 text-xs text-gray-600 mt-1">
                       {team.isPublic ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-2xl">
                           <MdPublic /> Public
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-200 text-gray-700 rounded">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-200 text-gray-700 rounded-2xl">
                           <MdPublicOff /> Private
                         </span>
                       )}
@@ -93,8 +93,8 @@ export default function JoinByCodePreviewModal({ isOpen, onClose, team, code, on
                 </div>
               )}
 
-              {err && <div className="bg-red-50 text-red-700 border border-red-200 rounded-lg px-3 py-2 text-sm mb-3">{err}</div>}
-              {msg && <div className="bg-green-50 text-green-700 border border-green-200 rounded-lg px-3 py-2 text-sm mb-3">{msg}</div>}
+              {err && <div className="bg-red-50 text-red-700 border border-red-200 rounded-2xl px-3 py-2 text-sm mb-3">{err}</div>}
+              {msg && <div className="bg-green-50 text-green-700 border border-green-200 rounded-2xl px-3 py-2 text-sm mb-3">{msg}</div>}
 
               <div className="flex justify-end gap-3">
                 <Button variant="secondary" onClick={onClose} disabled={joining}>Cancel</Button>

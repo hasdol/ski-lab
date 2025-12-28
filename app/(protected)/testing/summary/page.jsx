@@ -2,7 +2,7 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useSkis } from '@/hooks/useSkis'; // new import
+import { useSkis } from '@/hooks/useSkis';
 import { useAuth } from '@/context/AuthContext';
 import { mapRankingsToTournamentData } from '@/helpers/helpers';
 import SummaryResultList from './components/SummaryResultList';
@@ -16,9 +16,10 @@ import ShareWithEventSelector from '@/components/ShareWithEvents/ShareWithEvents
 import { WEATHER_ENDPOINT } from '@/lib/firebase/weatherEndpoint';
 import { SiTestrail } from 'react-icons/si';
 import { MdDelete, MdArrowBack } from 'react-icons/md';
+import Card from '@/components/ui/Card'; // NEW
 
 const SectionCard = ({ title, subtitle, children, right }) => (
-  <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-5">
+  <Card as="section" padded={false} className="p-4 md:p-5">
     <div className="flex items-start justify-between gap-3 mb-4">
       <div className="min-w-0">
         <h2 className="text-base md:text-lg font-semibold text-gray-900">{title}</h2>
@@ -27,7 +28,7 @@ const SectionCard = ({ title, subtitle, children, right }) => (
       {right ? <div className="flex-shrink-0">{right}</div> : null}
     </div>
     {children}
-  </section>
+  </Card>
 );
 
 const TestSummaryPage = () => {
@@ -301,7 +302,7 @@ const TestSummaryPage = () => {
             {rankings.map((r, idx) => (
               <div
                 key={idx}
-                className="flex flex-col md:flex-row md:items-end gap-3 rounded-lg p-4 border border-gray-200 bg-gray-50/30"
+                className="flex flex-col md:flex-row md:items-end gap-3 rounded-2xl p-4 border border-gray-200 bg-gray-50/30"
               >
                 <div className="w-full md:flex-1">
                   <Input
@@ -449,7 +450,7 @@ const TestSummaryPage = () => {
             />
 
             {/* Test execution satisfaction */}
-            <div className="md:col-span-2 rounded-lg border border-gray-200 bg-gray-50/40 p-4">
+            <div className="md:col-span-2 rounded-2xl border border-gray-200 bg-gray-50/40 p-4">
               <label htmlFor="testQuality" className="text-sm font-medium text-gray-700 flex justify-between">
                 Test execution satisfaction
                 <span className="text-blue-600 font-semibold">{additionalData.testQuality}</span>

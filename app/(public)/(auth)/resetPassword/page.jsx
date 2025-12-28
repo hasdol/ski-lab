@@ -7,6 +7,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { RiResetLeftFill } from 'react-icons/ri';
 import PageHeader from '@/components/layout/PageHeader';
+import Card from '@/components/ui/Card';
 
 const PasswordReset = () => {
   const router = useRouter();
@@ -36,7 +37,7 @@ const PasswordReset = () => {
   };
 
   return (
-    <div className="p-5 max-w-4xl w-full self-center justify-items-center">
+    <div className="p-4 max-w-4xl w-full self-center md:w-1/3 md:mx-auto">
       <PageHeader
         icon={<RiResetLeftFill className="text-blue-600 text-2xl" />}
         title="Reset Password"
@@ -44,7 +45,7 @@ const PasswordReset = () => {
         actions={null}
       />
 
-      <main className="max-w-xl md:w-full self-center  bg-white shadow rounded-xl p-8">
+      <Card>
         <form onSubmit={handleResetPassword} className="space-y-4">
           <Input
             id="resetEmail"
@@ -66,7 +67,7 @@ const PasswordReset = () => {
             </Button>
           </div>
         </form>
-      </main>
+      </Card>
     </div>
   );
 };

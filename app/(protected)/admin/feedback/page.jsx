@@ -54,7 +54,7 @@ export default function AdminFeedbackPage() {
   const openCount = useMemo(() => items.filter(i => i.status !== 'resolved').length, [items]);
 
   if (loading) return <div className="flex justify-center py-16"><Spinner /></div>;
-  if (err) return <div className="p-4 max-w-3xl mx-auto text-red-700 bg-red-50 rounded-lg">{err}</div>;
+  if (err) return <div className="p-4 max-w-3xl mx-auto text-red-700 bg-red-50 rounded-2xl">{err}</div>;
 
   return (
     <div className="p-4 max-w-4xl w-full self-center">
@@ -72,7 +72,7 @@ export default function AdminFeedbackPage() {
           </>
         }
         actions={
-          <div className="inline-flex rounded-lg overflow-hidden border border-gray-200">
+          <div className="inline-flex rounded-2xl overflow-hidden border border-gray-200">
             {['open','resolved','all'].map(s => (
               <button
                 key={s}
@@ -85,7 +85,7 @@ export default function AdminFeedbackPage() {
           </div>
         }
       />
-      <div className="bg-white shadow rounded-lg divide-y">
+      <div className="bg-white shadow rounded-2xl divide-y">
         {items.map(item => (
           <div key={item.id} className="p-4 flex items-start justify-between gap-4">
             <div>

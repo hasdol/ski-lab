@@ -6,6 +6,7 @@ import { useTeamInfo } from '@/hooks/useTeamInfo';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Spinner from '@/components/common/Spinner/Spinner';
+import Card from '@/components/ui/Card';
 
 export default function TeamInfo({ teamId, canPost }) {
   const { user } = useAuth();
@@ -44,7 +45,7 @@ export default function TeamInfo({ teamId, canPost }) {
   return (
     <div className="space-y-4">
       {canPost && (
-        <div className="p-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 space-y-3">
+        <Card>
           <h3 className="font-semibold text-gray-800">New info entry</h3>
           <Input
             type="text"
@@ -63,10 +64,10 @@ export default function TeamInfo({ teamId, canPost }) {
               Post
             </Button>
           </div>
-        </div>
+        </Card>
       )}
 
-      <div className="p-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
+      <Card>
         <h3 className="font-semibold text-gray-800 mb-3">Info</h3>
         {loading ? (
           <div className="flex justify-center py-6"><Spinner /></div>
@@ -112,7 +113,7 @@ export default function TeamInfo({ teamId, canPost }) {
             })}
           </ul>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

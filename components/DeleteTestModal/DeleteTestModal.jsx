@@ -8,7 +8,7 @@ export default function DeleteTestModal({ isOpen, onClose, onConfirm }) {
 
   return (
     <div className="fixed inset-0 z-50 backdrop-blur bg-opacity-40 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-6 mx-2 w-full max-w-md shadow-lg">
+      <div className="bg-white rounded-2xl p-6 mx-2 w-full max-w-md shadow-lg">
         <h2 className="text-xl font-bold mb-4">Delete Test Result</h2>
         <p className="mb-3">
           Are you sure you want to delete this test result?

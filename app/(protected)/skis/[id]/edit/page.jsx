@@ -31,21 +31,21 @@ const EditSkiPage = () => {
       {loading ? (
         <div className='flex justify-center'><Spinner /></div>
       ) : error ? (
-        <div className="bg-red-100 text-red-800 p-2 rounded-lg">
+        <div className="bg-red-100 text-red-800 p-2 rounded-2xl">
           Error: {error.message}
         </div>
       ) : !ski ? (
         <div className="m-2">Ski not found</div>
       ) : (
         <>
-          <div className="bg-white shadow rounded-lg">
+          <div className="bg-white shadow rounded-2xl">
             <SkiForm
               initialData={ski}
               onSubmit={handleUpdateSki}
               isEdit={true}
             />
             {updateError && (
-              <div className="bg-red-100 text-red-800 p-2 rounded-lg mt-4">
+              <div className="bg-red-100 text-red-800 p-2 rounded-2xl mt-4">
                 Error: {updateError.message}
               </div>
             )}

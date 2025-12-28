@@ -342,7 +342,7 @@ const Testing = () => {
                         <div
                           ref={mProv.innerRef}
                           {...mProv.draggableProps}
-                          className={`bg-white shadow rounded-lg p-4 transition
+                          className={`bg-white shadow rounded-2xl p-4 transition
                             ${isDone ? '' : 'border-gray-300 bg-white'}
                             ${isMatchBeingDragged ? 'ring-2 ring-blue-400 opacity-80' : ''}
                             ${isMatchDropTarget ? 'ring-2 ring-green-400 bg-green-50' : ''}

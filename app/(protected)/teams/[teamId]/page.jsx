@@ -20,6 +20,7 @@ import { db } from '@/lib/firebase/firebaseConfig';
 import { TEAM_PLAN_CAPS } from '@/lib/constants/teamPlanCaps';
 import TeamInfo from './components/TeamInfo';
 import TeamEventDashboard from '@/components/analytics/TeamEventDashboard';
+import Card from '@/components/ui/Card'; // NEW (add near other imports)
 
 export default function TeamDetailPage() {
   const { teamId } = useParams();
@@ -288,39 +289,41 @@ export default function TeamDetailPage() {
                             key={evt.id}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="p-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200"
                           >
-                            <div className="flex justify-between items-center space-x-4">
-                              <div>
-                                <h3 className="font-semibold text-gray-800">{evt.name}</h3>
-                                <p className="flex items-center text-sm text-gray-500 mt-1">
-                                  <MdEvent className='mr-1' />
-                                  {start.toLocaleDateString()} – {end.toLocaleDateString()}
-                                </p>
-                                {/* Visibility badge */}
-                                <span
-                                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold mt-2 ${
-                                    vis === 'staff'
-                                      ? 'bg-indigo-100 text-indigo-700'
-                                      : 'bg-green-100 text-green-700'
-                                  }`}
-                                  title={
-                                    vis === 'staff'
-                                      ? 'Only owner & mods can view event test results'
-                                      : 'All team members can view event test results'
-                                  }
+                            <Card className="p-5">
+                              <div className="flex justify-between items-center space-x-4">
+                                <div>
+                                  <h3 className="font-semibold text-gray-800">{evt.name}</h3>
+                                  <p className="flex items-center text-sm text-gray-500 mt-1">
+                                    <MdEvent className='mr-1' />
+                                    {start.toLocaleDateString()} – {end.toLocaleDateString()}
+                                  </p>
+                                  {/* Visibility badge */}
+                                  <span
+                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold mt-2 ${
+                                      vis === 'staff'
+                                        ? 'bg-indigo-100 text-indigo-700'
+                                        : 'bg-green-100 text-green-700'
+                                    }`}
+                                    title={
+                                      vis === 'staff'
+                                        ? 'Only owner & mods can view event test results'
+                                        : 'All team members can view event test results'
+                                    }
+                                  >
+                                    {vis === 'staff' ? 'Sharing: Owner/mods only' : 'Sharing: Team members'}
+                                  </span>
+                                </div>
+
+                                <Button
+                                  onClick={() => router.push(`/teams/${team.id}/${evt.id}`)}
+                                  variant="secondary"
+                                  className="text-sm"
                                 >
-                                  {vis === 'staff' ? 'Sharing: Owner/mods only' : 'Sharing: Team members'}
-                                </span>
+                                  View
+                                </Button>
                               </div>
-                              <Button
-                                onClick={() => router.push(`/teams/${team.id}/${evt.id}`)}
-                                variant="secondary"
-                                className="text-sm"
-                              >
-                                View
-                              </Button>
-                            </div>
+                            </Card>
                           </motion.div>
                         );
                       })}
@@ -359,7 +362,7 @@ export default function TeamDetailPage() {
               <TeamEventDashboard teamId={teamId} />
 
               {/* Members (moved from Members tab) */}
-              <div className="space-y-3 p-5 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
+              <Card className="space-y-3">
                 <h2 className="text-lg font-semibold text-gray-800">Members</h2>
                 <div className="space-y-3 mb-6">
                   {memberProfiles.map((m) => (
@@ -399,7 +402,7 @@ export default function TeamDetailPage() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </Card>
 
 
             </div>

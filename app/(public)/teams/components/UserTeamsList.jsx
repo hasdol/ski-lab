@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { RiVipCrownLine } from 'react-icons/ri';
 import { MdPublicOff, MdPublic } from 'react-icons/md';
+import Card from '@/components/ui/Card';
 
 const TeamCard = ({ team, isCreator, isMod, onView }) => {
   const getInitials = (name = '') =>
@@ -20,11 +21,8 @@ const TeamCard = ({ team, isCreator, isMod, onView }) => {
   const initials = getInitials(team.name || 'T');
 
   return (
-    <motion.div
-      key={team.id}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`p-6 rounded-2xl relative overflow-hidden flex justify-between bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs transition-colors duration-200 `}
+    <Card
+      className={`flex justify-between`}
     >
       <div className="flex items-center space-x-4 w-full sm:w-auto">
         {/* Avatar: team image or initial */}
@@ -79,8 +77,8 @@ const TeamCard = ({ team, isCreator, isMod, onView }) => {
           View
         </Button>
       </div>
-    </motion.div>
-  );
+      </Card>
+    );
 };
 
 export default function UserTeamsList({ teams, onTeamUpdate }) {

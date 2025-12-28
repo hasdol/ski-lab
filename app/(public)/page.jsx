@@ -13,6 +13,7 @@ import Spinner from '@/components/common/Spinner/Spinner';
 import { getUserTeamsWithLiveEvents } from '@/lib/firebase/firestoreFunctions';
 import ActiveEventCard from './components/ActiveEventCard';
 import InstallCard from './components/InstallCard';
+import Card from '@/components/ui/Card';
 import { APP_VERSION } from '@/lib/releases';
 
 const CONTACT_EMAIL = 'contact.skilab@gmail.com';
@@ -87,20 +88,6 @@ function Section({ eyebrow, title, subtitle, children, className = '' }) {
   );
 }
 
-function SoftCard({ children, className = '' }) {
-  return (
-    <div
-      className={[
-        // Apple-ish: thin hairline border, soft shadow, subtle translucency
-        'rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5',
-        'shadow-md',
-        className,
-      ].join(' ')}
-    >
-      {children}
-    </div>
-  );
-}
 
 export default function HomePage() {
   const { user, checkingStatus } = useAuth();
@@ -237,7 +224,7 @@ export default function HomePage() {
           {/* Logged-in: Active events */}
           {!checkingStatus && user && hasLiveEvents && (
             <div className="mt-10">
-              <SoftCard className="p-4 text-left md:p-6">
+              <Card className="p-4 text-left md:p-6">
                 <div className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-600">
                   Live events
                 </div>
@@ -263,7 +250,7 @@ export default function HomePage() {
                     ))}
                   </div>
                 )}
-              </SoftCard>
+              </Card>
             </div>
           )}
         </motion.div>
@@ -281,7 +268,7 @@ export default function HomePage() {
             subtitle="Log tests in the moment. Review performance when it matters."
           >
             <div className="grid gap-4 md:grid-cols-3">
-              <SoftCard className="overflow-hidden md:col-span-2">
+              <Card className="overflow-hidden md:col-span-2">
                 <div className="p-5 md:p-6">
                   <div className="text-xs font-semibold uppercase tracking-widest text-zinc-600">Desktop</div>
                   <div className="mt-1 text-sm font-medium text-zinc-900">Results and insights</div>
@@ -298,9 +285,9 @@ export default function HomePage() {
                     />
                   </div>
                 </div>
-              </SoftCard>
+              </Card>
 
-              <SoftCard className="overflow-hidden">
+              <Card className="overflow-hidden">
                 <div className="p-5 md:p-6">
                   <div className="text-xs font-semibold uppercase tracking-widest text-zinc-600">Mobile</div>
                   <div className="mt-1 text-sm font-medium text-zinc-900">Fast logging</div>
@@ -316,7 +303,7 @@ export default function HomePage() {
                     />
                   </div>
                 </div>
-              </SoftCard>
+              </Card>
             </div>
           </Section>
         </motion.div>
@@ -326,10 +313,10 @@ export default function HomePage() {
           <Section eyebrow="Workflow" title="Simple, on purpose." subtitle={null}>
             <div className="grid gap-3 md:grid-cols-3">
               {STEPS.map((s) => (
-                <SoftCard key={s.title} className="p-5">
+                <Card key={s.title} className="p-5">
                   <div className="text-sm font-semibold text-gray-900">{s.title}</div>
                   <div className="mt-1 text-sm leading-6 text-gray-600">{s.description}</div>
-                </SoftCard>
+                </Card>
               ))}
             </div>
 
@@ -352,13 +339,13 @@ export default function HomePage() {
           <Section eyebrow="Why Ski‑Lab" title="Built for development." subtitle={null}>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {HIGHLIGHTS.map((item) => (
-                <SoftCard key={item.title} className="p-5">
+                <Card key={item.title} className="p-5">
                   <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-2xl ${item.bgColor} ${item.textColor} ring-1 ring-black/5`}>
                     {item.icon}
                   </div>
                   <div className="text-sm font-semibold text-gray-900">{item.title}</div>
                   <div className="mt-1 text-sm leading-6 text-gray-600">{item.description}</div>
-                </SoftCard>
+                </Card>
               ))}
             </div>
           </Section>
@@ -372,7 +359,7 @@ export default function HomePage() {
         {/* INSTALL */}
         <motion.div {...SIMPLE_ANIM} className="w-full pb-12 md:pb-16">
           <Section eyebrow="On mobile" title="Ready when you are." subtitle="Install Ski‑Lab for one‑tap access at the track.">
-            <SoftCard className="p-5 md:p-6">
+            <Card className="p-5 md:p-6">
               <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
                 <div className="text-sm text-gray-700">
                   For the best experience, install Ski‑Lab on your device.
@@ -381,7 +368,7 @@ export default function HomePage() {
                   <InstallCard />
                 </div>
               </div>
-            </SoftCard>
+            </Card>
           </Section>
         </motion.div>
       </div>

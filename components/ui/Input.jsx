@@ -36,7 +36,7 @@ const Input = ({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        className={`w-full bg-white text-text border border-gray-300 rounded-lg ${gloveClasses} ${className}`}
+        className={`w-full bg-white text-text border border-gray-300 rounded-2xl ${gloveClasses} ${className}`}
         {...props}
       />
     );
@@ -49,7 +49,7 @@ const Input = ({
         onChange={onChange}
         required={required}
         disabled={disabled}
-        className={`w-full bg-container text-text border border-gray-300 rounded-lg ${gloveClasses} ${className}`}
+        className={`w-full bg-container text-text border border-gray-300 rounded-2xl ${gloveClasses} ${className}`}
         {...props}
       >
         {/* Only render a placeholder option if provided */}
@@ -92,7 +92,7 @@ const Input = ({
           onChange={onChange}
           required={required}
           disabled={disabled}
-          className={`w-full bg-white text-text border border-gray-300 rounded-lg ${gloveClasses} ${className}`}
+          className={`w-full bg-white text-text border border-gray-300 rounded-2xl ${gloveClasses} ${className}`}
           {...props}
         />
         <span className="text-text">
@@ -112,7 +112,7 @@ const Input = ({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        className={`w-full bg-white text-text border border-gray-300 rounded-lg ${gloveClasses} text-base ${className} ${disabled && 'bg-gray-100!'}`}
+        className={`w-full bg-white text-text border border-gray-300 rounded-2xl ${gloveClasses} text-base ${className} ${disabled && 'bg-gray-100!'}`}
         {...props}
       />
     );

@@ -10,6 +10,7 @@ import { updateProfile, deleteUser } from 'firebase/auth';
 import { db } from '@/lib/firebase/firebaseConfig';
 import { doc, setDoc, deleteDoc } from 'firebase/firestore';
 import PageHeader from '@/components/layout/PageHeader';
+import Card from '@/components/ui/Card';
 
 const SignUp = () => {
   const router = useRouter();
@@ -59,7 +60,7 @@ const SignUp = () => {
   };
 
   return (
-    <div className="p-5 max-w-4xl w-full self-center justify-items-center">
+    <div className="p-4 max-w-4xl w-full self-center md:w-1/3 md:mx-auto">
       <PageHeader
         icon={<RiUserAddLine className="text-blue-600 text-2xl" />}
         title="Sign Up"
@@ -67,7 +68,7 @@ const SignUp = () => {
         actions={null}
       />
 
-      <main className="max-w-xl md:w-full self-center  bg-white shadow rounded-xl p-8">
+      <Card>
         <form onSubmit={handleSignUp} className="space-y-4">
           {/* New Username field */}
           <Input
@@ -114,7 +115,7 @@ const SignUp = () => {
             </button>
           </p>
         </div>
-      </main>
+      </Card>
     </div>
   );
 };

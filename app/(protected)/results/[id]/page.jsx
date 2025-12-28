@@ -77,7 +77,7 @@ const ResultDetailsPage = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
-          <div className="bg-blue-100 p-2 rounded-lg">
+          <div className="bg-blue-100 p-2 rounded-2xl">
             <RiBarChart2Line className="text-blue-600 text-2xl" />
           </div>
           <div>

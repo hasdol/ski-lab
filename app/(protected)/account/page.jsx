@@ -9,6 +9,7 @@ import ManageSubscription from '@/app/(protected)/account/components/AccountMana
 import Spinner from '@/components/common/Spinner/Spinner';
 import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import PageHeader from '@/components/layout/PageHeader'; // Add this import
+import Card from '@/components/ui/Card'
 
 const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -122,7 +123,7 @@ const Account = () => {
                 subtitle="Manage your account"
                 actions={null}
             />
-            <div className="p-8 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200">
+            <Card>
                 <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
                     <ProfileImageSection
                         userData={userData}
@@ -137,7 +138,7 @@ const Account = () => {
                         router={router}
                     />
                 </div>
-            </div>
+            </Card>
         </div>
     );
 };

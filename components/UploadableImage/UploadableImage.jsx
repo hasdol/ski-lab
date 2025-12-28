@@ -17,7 +17,7 @@ const UploadableImage = ({
     team: 'w-fit h-32 max-w-3/4 object-scale-down',
   };
 
-  const containerClass = variant === 'profile' ? 'rounded-full' : 'rounded-lg';
+  const containerClass = variant === 'profile' ? 'rounded-full' : 'rounded-2xl';
   const imageClasses = className || defaultClasses[variant] || defaultClasses.profile;
 
   const content = (

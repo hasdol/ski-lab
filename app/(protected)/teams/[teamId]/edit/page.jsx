@@ -15,6 +15,7 @@ import Toggle from '@/components/ui/Toggle';
 import PageHeader from '@/components/layout/PageHeader'; // Add this import
 import { MdArrowBack } from "react-icons/md";
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import Card from '@/components/ui/Card';
 
 
 export default function EditTeamPage() {
@@ -153,7 +154,7 @@ export default function EditTeamPage() {
         }
       />
 
-      <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 space-y-6">
+      <Card className="space-y-6">
         <Input
           type="text"
           label="Team name"
@@ -263,7 +264,7 @@ export default function EditTeamPage() {
             </Button>
           )}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

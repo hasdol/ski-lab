@@ -60,7 +60,7 @@ export default function EventPage() {
   if (error) {
     return (
       <div className="mx-auto">
-        <div className="bg-red-50 text-red-700 rounded-lg p-6">
+        <div className="bg-red-50 text-red-700 rounded-2xl p-6">
           Error: {error.message}
         </div>
       </div>
@@ -69,7 +69,7 @@ export default function EventPage() {
   if (!eventData) {
     return (
       <div className="mx-auto">
-        <div className="bg-yellow-50 text-yellow-800 rounded-lg p-6">
+        <div className="bg-yellow-50 text-yellow-800 rounded-2xl p-6">
           No event found
         </div>
       </div>

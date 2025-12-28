@@ -72,7 +72,7 @@ export default function CreateTeamPage() {
           className="w-full"
         />
 
-        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-2xl border border-gray-200">
           <div className="flex items-center gap-3">
             {isPublic ? (
               <MdPublic className="text-blue-600 text-xl" />
