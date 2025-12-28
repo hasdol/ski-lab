@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { getUserTeamsWithEvents } from '@/lib/firebase/firestoreFunctions';
 import Input from '../ui/Input';
-import Card from '@/components/ui/Card'; // NEW
+import Card from '@/components/ui/Card';
 
 export default function ShareWithEventSelector({
   userId,
@@ -118,17 +118,8 @@ export default function ShareWithEventSelector({
       ? `space-y-3 ${className}`.trim()
       : `p-4 md:p-5 space-y-3 ${className}`.trim();
 
-  const Wrapper = ({ children }) =>
-    variant === 'embedded' ? (
-      <div className={wrapperClass}>{children}</div>
-    ) : (
-      <Card padded={false} className={wrapperClass}>
-        {children}
-      </Card>
-    );
-
-  return (
-    <Wrapper>
+  const content = (
+    <>
       <h2 className="font-semibold text-base text-gray-900">
         {includePast ? 'Shared in events' : 'Share with live events'}
       </h2>
@@ -136,9 +127,11 @@ export default function ShareWithEventSelector({
       <div>
         <Input
           type="text"
+          name="eventSearch"
           placeholder="Search team events"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          autoComplete="off"
         />
       </div>
 
@@ -146,30 +139,34 @@ export default function ShareWithEventSelector({
         <p className="text-center text-sm text-gray-500">No match found</p>
       )}
 
-      {filteredTeams.map(team => (
+      {filteredTeams.map((team) => (
         <details
           key={team.id}
           open={openMap[team.id]}
-          onToggle={e => setOpenMap(prev => ({ ...prev, [team.id]: e.target.open }))}
+          onToggle={(e) => setOpenMap((prev) => ({ ...prev, [team.id]: e.target.open }))}
           className="mb-3"
         >
           <summary className="cursor-pointer p-2 bg-gray-100 rounded-2xl">
             {highlight(team.name, search) || 'Unnamed Team'}
           </summary>
+
           <div className="mt-2 pl-4 space-y-1">
             {(teamEvents[team.id] || [])
-              // only include events that have started
-              .filter(evt => evt.startDate <= today)
-              // if not includePast, also require still live
-              .filter(evt => includePast || (evt.endDate >= today))
-              // sort most recent start first
+              .filter((evt) => evt.startDate <= today)
+              .filter((evt) => includePast || evt.endDate >= today)
               .sort((a, b) => b.startDate - a.startDate)
-              .map(evt => {
+              .map((evt) => {
                 const vis = evt.resultsVisibility || 'team';
                 const isStaffOnly = vis === 'staff';
+                const checkboxId = `share-${team.id}-${evt.id}`;
+                const checkboxName = `shareEvents[${team.id}]`;
+
                 return (
                   <label key={evt.id} className="flex items-center space-x-2">
                     <input
+                      id={checkboxId}
+                      name={checkboxName}
+                      value={evt.id}
                       type="checkbox"
                       checked={selected[team.id]?.includes(evt.id) || false}
                       onChange={() => toggle(team.id, evt.id)}
@@ -181,11 +178,6 @@ export default function ShareWithEventSelector({
                           className={`inline-flex items-center px-2 py-0.5 rounded text-xs ${
                             isStaffOnly ? 'bg-indigo-100 text-indigo-700' : 'bg-green-100 text-green-700'
                           }`}
-                          title={
-                            isStaffOnly
-                              ? 'Only the team owner and moderators will see tests shared to this event'
-                              : 'All team members will see tests shared to this event'
-                          }
                         >
                           {isStaffOnly ? 'Owner/mods' : 'Team members'}
                         </span>
@@ -200,7 +192,7 @@ export default function ShareWithEventSelector({
           </div>
         </details>
       ))}
-      {/* Compact info bar for visibility badges */}
+
       <div className="pt-3 flex flex-wrap items-center gap-2 text-xs">
         <span className="inline-flex items-center px-2 py-0.5 rounded bg-green-100 text-green-700 font-semibold">
           Team members
@@ -209,8 +201,15 @@ export default function ShareWithEventSelector({
         <span className="inline-flex items-center px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 font-semibold">
           Owner/mods
         </span>
-        <span className="text-gray-600">Only staff sees</span>
       </div>
-    </Wrapper>
+    </>
+  );
+
+  return variant === 'embedded' ? (
+    <div className={wrapperClass}>{content}</div>
+  ) : (
+    <Card padded={false} className={wrapperClass}>
+      {content}
+    </Card>
   );
 }

@@ -1,6 +1,5 @@
-import React, { useContext } from 'react';
+import React, { useContext, useId } from 'react';
 import PropTypes from 'prop-types';
-// Adjust the import path if needed.
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 
 const Input = ({
@@ -17,20 +16,64 @@ const Input = ({
   className = '',
   ...props
 }) => {
-  // Use glove mode from context (if available) to adjust input padding and size
   const { gloveMode } = useContext(UserPreferencesContext) || { gloveMode: false };
   const gloveClasses = gloveMode ? 'p-4 text-xl' : 'p-2';
 
-  // Use the label prop if provided; otherwise, fallback to placeholder text for the label
+  const reactId = useId();
   const displayLabel = label || placeholder;
+
+  // Prefer explicit id, then name, then a stable generated id.
+  const inputId = props.id || name || `input-${reactId}`;
+
+  // Ensure form fields have a name when possible (helps audits/autofill).
+  // NOTE: for fields using a generic handleInputChange that relies on e.target.name,
+  // you should still pass `name` explicitly from the caller.
+  const inputName = name || props.name || inputId;
+
   const labelStyles = 'text-text block mb-1';
 
+  // ✅ Special case: radio groups should not use a single <label for="...">.
+  if (type === 'radio') {
+    return (
+      <fieldset className="min-w-0" disabled={disabled} aria-required={required}>
+        {displayLabel ? (
+          <legend className={labelStyles}>
+            {displayLabel} {required && <span className="text-xl text-red-500">*</span>}
+          </legend>
+        ) : null}
+
+        <div className="flex items-center space-x-4 mt-1">
+          {options?.map((option, index) => {
+            const radioId = `${inputId}-${index}`;
+            return (
+              <div key={index} className="inline-flex items-center space-x-1 text-text">
+                <input
+                  id={radioId}
+                  type="radio"
+                  name={inputName}
+                  value={option.value}
+                  checked={value === option.value}
+                  onChange={onChange}
+                  required={required}
+                  disabled={disabled}
+                  className={`${gloveClasses} accent-btn border border-gray-300 h-5 w-5`}
+                />
+                <label htmlFor={radioId}>{option.label}</label>
+              </div>
+            );
+          })}
+        </div>
+      </fieldset>
+    );
+  }
+
   let inputElement;
+
   if (type === 'textarea') {
     inputElement = (
       <textarea
-        id={name}
-        name={name}
+        id={inputId}
+        name={inputName}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
@@ -43,8 +86,8 @@ const Input = ({
   } else if (type === 'select') {
     inputElement = (
       <select
-        id={name}
-        name={name}
+        id={inputId}
+        name={inputName}
         value={value}
         onChange={onChange}
         required={required}
@@ -52,7 +95,6 @@ const Input = ({
         className={`w-full bg-container text-text border border-gray-300 rounded-2xl ${gloveClasses} ${className}`}
         {...props}
       >
-        {/* Only render a placeholder option if provided */}
         {placeholder ? <option value="">{placeholder}</option> : null}
         {options?.map((option, index) => (
           <option key={index} value={option.value}>
@@ -61,33 +103,13 @@ const Input = ({
         ))}
       </select>
     );
-  } else if (type === 'radio') {
-    inputElement = (
-      <div className="flex items-center space-x-4 mt-1">
-        {options?.map((option, index) => (
-          <label key={index} className="inline-flex items-center space-x-1 text-text">
-            <input
-              type="radio"
-              name={name}
-              value={option.value}
-              checked={value === option.value}
-              onChange={onChange}
-              required={required}
-              disabled={disabled}
-              className={`${gloveClasses} accent-btn border border-gray-300 h-5 w-5`}
-            />
-            <span>{option.label}</span>
-          </label>
-        ))}
-      </div>
-    );
   } else if (type === 'range') {
     inputElement = (
       <div className="flex flex-col">
         <input
-          id={name}
+          id={inputId}
           type="range"
-          name={name}
+          name={inputName}
           value={value}
           onChange={onChange}
           required={required}
@@ -101,12 +123,11 @@ const Input = ({
       </div>
     );
   } else {
-    // Default case for 'text', 'number', etc.
     inputElement = (
       <input
-        id={name}
+        id={inputId}
         type={type}
-        name={name}
+        name={inputName}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
@@ -120,11 +141,11 @@ const Input = ({
 
   return (
     <div>
-      {displayLabel && (
-        <label htmlFor={name} className={labelStyles}>
+      {displayLabel ? (
+        <label htmlFor={inputId} className={labelStyles}>
           {displayLabel} {required && <span className="text-xl absolute text-red-500">*</span>}
         </label>
-      )}
+      ) : null}
       {inputElement}
     </div>
   );
@@ -133,7 +154,8 @@ const Input = ({
 Input.propTypes = {
   label: PropTypes.string,
   type: PropTypes.oneOf(['text', 'number', 'textarea', 'select', 'radio', 'range']),
-  name: PropTypes.string.isRequired,
+  // Many callers currently omit name; keep it optional here, but prefer passing it explicitly.
+  name: PropTypes.string,
   value: PropTypes.any,
   onChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
