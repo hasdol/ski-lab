@@ -18,6 +18,7 @@ import { TEAM_PLAN_CAPS } from '@/lib/constants/teamPlanCaps';
 import Input from '@/components/ui/Input';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import JoinByCodePreviewModal from './components/JoinByCodePreviewModal';
+import SignInRequiredCard from '@/components/common/SignInRequiredCard';
 
 export default function TeamsPage() {
   const { user, userData } = useAuth();
@@ -230,20 +231,11 @@ export default function TeamsPage() {
               <UserTeamsList teams={teams} />
             )
           ) : (
-            <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-2xl mt-4">
-              <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <RiTeamLine className="text-gray-500 text-2xl" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Sign In Required
-              </h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                Please sign in to view and manage your teams.
-              </p>
-              <Button onClick={() => router.push('/login')} variant="primary">
-                Sign In
-              </Button>
-            </div>
+            <SignInRequiredCard
+              icon={<RiTeamLine className="text-gray-500 text-2xl" />}
+              resourceLabel="teams"
+              onSignIn={() => router.push('/login')}
+            />
           )}
         </>
       )}

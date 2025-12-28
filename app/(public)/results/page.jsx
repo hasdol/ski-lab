@@ -27,6 +27,8 @@ import ResultCard from './components/ResultCard';
 import { deleteTestResultEverywhere } from '@/lib/firebase/firestoreFunctions';
 import PageHeader from '@/components/layout/PageHeader';
 import UserPicker from '@/components/UserPicker/UserPicker';
+import SignInRequiredCard from '@/components/common/SignInRequiredCard';
+import EmptyStateCard from '@/components/common/EmptyStateCard';
 
 const VIEW_USER_STORAGE_KEY = 'viewUserId'; // <── ADD THIS
 
@@ -202,7 +204,7 @@ const Results = () => {
                 title="Pick user"
               >
                 <RiUser3Line />
-                <span className="max-w-[140px] truncate">
+                <span className="max-w-35 truncate">
                   {viewUserId
                     ? (accessibleUsers.owners.find(o => o.id === viewUserId)?.displayName || 'User')
                     : (accessibleUsers.self?.displayName || 'Me')}
@@ -243,7 +245,7 @@ const Results = () => {
           >
             <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
               <div className="flex items-start gap-3">
-                <RiInformationLine className="text-blue-500 mt-0.5 flex-shrink-0" />
+                <RiInformationLine className="text-blue-500 mt-0.5 shrink-0" />
                 <div className="text-blue-800">
                   <h3 className="block font-semibold mb-4">How the Results page works:</h3>
                   <ul className="list-disc ml-4 space-y-1">
@@ -336,34 +338,20 @@ const Results = () => {
         )}
 
         {!loading && resultsToShow.length === 0 && user && (
-          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-2xl">
-            <div className="bg-gray-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <RiBarChart2Line className="text-gray-500 text-2xl" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No Results Yet
-            </h3>
-            <p className="text-gray-600 max-w-md mx-auto">
-              Try adjusting your filters or start a new test to see results here.
-            </p>
-          </div>
+          <EmptyStateCard
+            className="py-8 border-2 border-dashed border-gray-300 rounded-2xl"
+            icon={<RiBarChart2Line className="text-gray-500 text-2xl" />}
+            title="No Results Yet"
+            description="Try adjusting your filters or start a new test to see results here."
+          />
         )}
 
         {!user && (
-          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-2xl">
-            <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <RiBarChart2Line className="text-gray-500 text-2xl" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Sign In Required
-            </h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
-              Please sign in to view and manage your results.
-            </p>
-            <Button onClick={() => router.push('/login')} variant="primary">
-              Sign In
-            </Button>
-          </div>
+          <SignInRequiredCard
+            icon={<RiBarChart2Line className="text-gray-500 text-2xl" />}
+            resourceLabel="results"
+            onSignIn={() => router.push('/login')}
+          />
         )}
 
         {/* Result Cards */}

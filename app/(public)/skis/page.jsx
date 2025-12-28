@@ -37,6 +37,8 @@ import { PLAN_LIMITS } from '@/lib/constants/planLimits';
 import useIsStandalone from '@/hooks/useIsStandalone';
 import PageHeader from '@/components/layout/PageHeader';
 import Card from '@/components/ui/Card'; // NEW
+import SignInRequiredCard from '@/components/common/SignInRequiredCard';
+import EmptyStateCard from '@/components/common/EmptyStateCard';
 import { listAccessibleUsers, listUserSkis, subscribeSharesAsReader } from '@/lib/firebase/shareFunctions';
 import UserPicker from '@/components/UserPicker/UserPicker';
 import { RiUser3Line } from 'react-icons/ri';
@@ -594,27 +596,23 @@ const Skis = () => {
           </div>
         )}
         {skis.length === 0 && !loading && user && (
-          <GettingStartedGuide
-            onAddSki={handleAddSki}
-            onLearnMore={() => router.push('/about')}
-          />
-        )}
-        {!user && (
-          <Card
-            padded={false}
-            className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg mt-4 bg-white ring-0 shadow-none backdrop-blur-0"
+          <EmptyStateCard
+            icon={<TiFlowParallel className="text-gray-500 text-2xl" />}
+            title="Welcome to Ski Lab!"
+            description="Get started by adding your first skis."
+            
+            primaryAction={{ label: 'Add Ski', onClick: handleAddSki }}
+            secondaryAction={{ label: 'Learn More', onClick: () => router.push('/about') }}
           >
-            <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <TiFlowParallel className="text-gray-500 text-2xl" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Sign In Required</h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
-              Please sign in to view and manage your skis.
-            </p>
-            <Button onClick={() => router.push('/login')} variant="primary">
-              Sign In
-            </Button>
-          </Card>
+          </EmptyStateCard>
+        )}
+
+        {!user && (
+          <SignInRequiredCard
+            icon={<TiFlowParallel className="text-gray-500 text-2xl" />}
+            resourceLabel="skis"
+            onSignIn={() => router.push('/login')}
+          />
         )}
       </div>
 
