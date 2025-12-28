@@ -88,11 +88,6 @@ function Section({ eyebrow, title, subtitle, children, className = '' }) {
   );
 }
 
-export const metadata = {
-  title: 'Ski Lab',
-  description: 'Modern solution for managing XC skis. Built for athletes — by athletes.',
-  alternates: { canonical: '/' },
-};
 
 export default function HomePage() {
   const { user, checkingStatus } = useAuth();
