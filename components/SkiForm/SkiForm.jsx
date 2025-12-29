@@ -320,7 +320,6 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
             value={formData.stiffnessHalf}
             onChange={handleChange}
             placeholder='e.g. 1.3'
-            required
           />
           <Input
             label='Stiffness (full weight)'
@@ -329,7 +328,6 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
             value={formData.stiffnessFull}
             onChange={handleChange}
             placeholder='e.g. 0.3'
-            required
           />
         </div>
         {/* Display preview of combined stiffness */}
