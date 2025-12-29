@@ -6,7 +6,7 @@ export default function UserPicker({
   isOpen,
   onClose,
   self,              // { id, displayName }
-  owners = [],       // [{ id, displayName }]
+  owners = [],       // [{ id, displayName, accessLevel }]
   currentId,         // null => self
   onSelect,          // (idOrNull) => void
 }) {
@@ -103,27 +103,45 @@ export default function UserPicker({
                   {isSelected(null) && <RiCheckLine className="text-blue-600" />}
                 </button>
 
-                <div className="px-4 pt-4 pb-2 text-xs uppercase text-gray-500">People you can read</div>
+                <div className="px-4 pt-4 pb-2 text-xs uppercase text-gray-500">
+                  People you can access
+                </div>
+
                 {filteredOwners.length === 0 ? (
                   <div className="px-4 py-3 text-sm text-gray-500">No users</div>
-                ) : filteredOwners.map(o => (
-                  <button
-                    key={o.id}
-                    className={`w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 ${isSelected(o.id) ? 'bg-blue-50' : ''}`}
-                    onClick={() => select(o.id)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center text-xs font-semibold">
-                        {(o.displayName || 'U').slice(0,1).toUpperCase()}
+                ) : (
+                  filteredOwners.map(o => (
+                    <button
+                      key={o.id}
+                      className={`w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 ${isSelected(o.id) ? 'bg-blue-50' : ''}`}
+                      onClick={() => select(o.id)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center text-xs font-semibold">
+                          {(o.displayName || 'U').slice(0, 1).toUpperCase()}
+                        </div>
+
+                        <div className="text-left">
+                          <div className="text-sm font-medium">{o.displayName || 'User'}</div>
+
+                          <div className="mt-0.5">
+                            <span
+                              className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                                o.accessLevel === 'write'
+                                  ? 'bg-red-50 text-red-700 border-red-200'
+                                  : 'bg-green-50 text-green-700 border-green-200'
+                              }`}
+                            >
+                              {o.accessLevel === 'write' ? 'Write' : 'Read'}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-left">
-                        <div className="text-sm font-medium">{o.displayName || 'User'}</div>
-                        {/* removed raw UID */}
-                      </div>
-                    </div>
-                    {isSelected(o.id) && <RiCheckLine className="text-blue-600" />}
-                  </button>
-                ))}
+
+                      {isSelected(o.id) && <RiCheckLine className="text-blue-600" />}
+                    </button>
+                  ))
+                )}
               </div>
             </motion.div>
           </>

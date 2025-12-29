@@ -8,7 +8,7 @@ import { mapRankingsToTournamentData } from '@/helpers/helpers';
 import SummaryResultList from './components/SummaryResultList';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { TournamentContext } from '@/context/TournamentContext';
-import { addTestResult } from '@/lib/firebase/firestoreFunctions';
+import { addTestResult, addCrossUserTestResult } from '@/lib/firebase/firestoreFunctions';
 import { shareTestResult } from '@/lib/firebase/teamFunctions';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -142,8 +142,19 @@ const TestSummaryPage = () => {
   const ownerUid =
     !isManualMode && selectedSkis?.[0]?.ownerUid ? selectedSkis[0].ownerUid : user?.uid;
 
-  const isWriterTestingOtherUser = !!ownerUid && !!user?.uid && ownerUid !== user.uid;
-  const canShareToEvents = !isWriterTestingOtherUser;
+  // For multi-user tests, compute ALL involved owners
+  const selectedOwnerUids = Array.from(
+    new Set(
+      (!isManualMode ? selectedSkis : inventorySkis)
+        .map(s => s?.ownerUid || user?.uid)
+        .filter(Boolean)
+    )
+  );
+
+  const isWriterTestingOtherUser =
+    selectedOwnerUids.length === 1 && !!user?.uid && selectedOwnerUids[0] !== user.uid;
+
+  const canShareToEvents = !isWriterTestingOtherUser && selectedOwnerUids.length === 1;
 
   /* ───────────── save results ───────────── */
   const handleSaveResults = async (e) => {
@@ -166,13 +177,39 @@ const TestSummaryPage = () => {
     }
 
     const skiSource = isManualMode ? inventorySkis : selectedSkis;
-    const { rankings: payloadRankings } = mapRankingsToTournamentData(resultRankings, skiSource);
+    const { rankings: payloadRankingsRaw } = mapRankingsToTournamentData(resultRankings, skiSource);
+
+    // Attach ownerUid to each ranking entry so we can update correct /users/{owner}/skis/{skiId}
+    const ownerBySkiId = new Map(
+      (skiSource || []).map(s => [s.id, s.ownerUid || ownerUid || user?.uid]).filter(([id, ou]) => id && ou)
+    );
+
+    const payloadRankings = (payloadRankingsRaw || []).map(r => ({
+      ...r,
+      ownerUid: r.ownerUid || ownerBySkiId.get(r.skiId) || ownerUid || user?.uid,
+    }));
+
+    const involvedOwners = Array.from(new Set(payloadRankings.map(r => r.ownerUid).filter(Boolean)));
 
     try {
       setLoading(true);
 
-      const newId = await addTestResult(ownerUid, { rankings: payloadRankings }, additionalData);
+      let newId;
 
+      if (involvedOwners.length <= 1) {
+        // Single-owner (existing behavior)
+        newId = await addTestResult(ownerUid, { rankings: payloadRankings }, additionalData);
+      } else {
+        // Multi-owner cross-test
+        newId = await addCrossUserTestResult({
+          writerUid: user.uid,
+          ownerUids: involvedOwners,
+          rankings: payloadRankings,
+          additionalData,
+        });
+      }
+
+      // Only share to events when single-owner AND testing as that owner
       if (canShareToEvents && selectedEvents.length) {
         const baseTestData = { ...additionalData, rankings: payloadRankings };
         try {

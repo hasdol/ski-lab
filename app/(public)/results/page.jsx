@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDebounce } from 'use-debounce';
 import {
@@ -50,6 +50,21 @@ const Results = () => {
   const [accessibleUsers, setAccessibleUsers] = useState({ self: null, owners: [] });
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false); // + add this
+
+  const ownerNameByUid = useMemo(() => {
+    const m = {};
+    const self = accessibleUsers?.self;
+    if (self?.id) m[self.id] = self.displayName || 'Me';
+
+    for (const o of accessibleUsers?.owners || []) {
+      if (o?.id) m[o.id] = o.displayName || 'User';
+    }
+
+    // ensure current signed-in user is present as a fallback
+    if (user?.uid && !m[user.uid]) m[user.uid] = user.displayName || 'Me';
+
+    return m;
+  }, [accessibleUsers, user]);
 
   const handleUserSelect = (idOrNull) => {        // <── ADD THIS
     const val = idOrNull || null;
@@ -368,7 +383,8 @@ const Results = () => {
                   debouncedSearch={debouncedSearch}
                   handleEdit={handleEdit}
                   handleDelete={handleDelete}
-                  canEdit={!viewUserId} // hide actions when viewing someone else
+                  canEdit={!viewUserId}
+                  ownerNameByUid={ownerNameByUid} // NEW
                 />
               </motion.div>
             ))}

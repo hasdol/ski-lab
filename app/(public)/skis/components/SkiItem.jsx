@@ -15,22 +15,24 @@ import { UserPreferencesContext } from '@/context/UserPreferencesContext';
 import { isNew, highlightSearchTerm } from '@/helpers/helpers';
 import Button from '@/components/ui/Button';
 
-const SkiItem = ({
-  ski,
-  search = '',
-  handleCheckboxChange,
-  handleEdit,
-  handleArchive,
-  handleDelete,
-  handleUnarchive,
-  selectedSkis,
-  expandedSkiId,
-  toggleDetails,
-  allExpanded = false,
-  ownerUserId,
-  readOnly = false,     // controls edit/archive/delete actions
-  selectable = true,    // NEW: controls selection UI/behavior
-}) => {
+export default function SkiItem(props) {
+  const {
+    ski,
+    search = '',
+    handleCheckboxChange,
+    handleEdit,
+    handleArchive,
+    handleDelete,
+    handleUnarchive,
+    selectedSkis,
+    expandedSkiId,
+    toggleDetails,
+    allExpanded = false,
+    ownerUserId,
+    readOnly = false,     // controls edit/archive/delete actions
+    selectable = true,    // NEW: controls selection UI/behavior
+  } = props;
+
   const { gloveMode } = useContext(UserPreferencesContext);
   const showDetails = allExpanded || (ski.id === expandedSkiId);
   const [showFullSerial, setShowFullSerial] = useState(false);
@@ -69,17 +71,20 @@ const SkiItem = ({
     dp: 'accent-fuchsia-700'
   };
 
+  const selectionKey = ski?._key ?? ski?.id;
+  const isSelected = !!selectedSkis?.[selectionKey];
+
   return (
     <div className={`rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 ${showDetails ? '' : 'hover:bg-gray-100'}`}>
       <div
         className="py-2 px-3 flex items-center cursor-pointer"
-        onClick={() => { if (selectable) handleCheckboxChange(ski.id); }}
+        onClick={() => { if (selectable) handleCheckboxChange(selectionKey); }}
       >
         {selectable && (
           <input
             type="checkbox"
-            checked={selectedSkis[ski.id] || false}
-            readOnly
+            checked={isSelected}
+            onChange={() => handleCheckboxChange(selectionKey)}
             className={`mr-3 accent-btn border-2 rounded ${gloveMode ? 'w-10 h-10' : 'w-4 h-4'} ${styleCheckboxColors[ski.style] || 'accent-gray-400 border-gray-300'}`}
             aria-label="Select ski"
           />
@@ -127,5 +132,3 @@ const SkiItem = ({
     </div>
   );
 };
-
-export default SkiItem;

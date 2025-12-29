@@ -43,7 +43,9 @@ import { listAccessibleUsers, listUserSkis, subscribeSharesAsReader } from '@/li
 import UserPicker from '@/components/UserPicker/UserPicker';
 import { RiUser3Line } from 'react-icons/ri';
 
-const VIEW_USER_STORAGE_KEY = 'viewUserId'; // <── ADD THIS
+const VIEW_USER_STORAGE_KEY = 'viewUserId';
+
+const makeSkiKey = (ownerUid, skiId) => `${ownerUid}:${skiId}`;
 
 const Skis = () => {
   const isStandalone = useIsStandalone();
@@ -67,10 +69,8 @@ const Skis = () => {
       else localStorage.removeItem(VIEW_USER_STORAGE_KEY);
     }
   };
-  // Clear any selection/expanded when switching user
+  // Clear ONLY expanded details when switching user (keep multi-user selection)
   useEffect(() => {
-    setSelectedMap({});
-    setSelectedSkisDataMap(new Map());
     setExpandedSkiId(null);
   }, [viewUserId]);
 
@@ -177,28 +177,43 @@ const Skis = () => {
 
   const canSelectForTest = !isRemoteView || remoteAccessLevel === 'write';
 
+  // Attach owner + stable composite key to every ski in the currently viewed list
+  const skisForView = useMemo(() => {
+    if (!ownerUidForView) return skis;
+    return (skis || []).map(s => ({
+      ...s,
+      ownerUid: s.ownerUid || ownerUidForView,
+      _key: s._key || makeSkiKey(ownerUidForView, s.id),
+    }));
+  }, [skis, ownerUidForView]);
+
   // --- selection + persistence
   const [selectedMap, setSelectedMap] = useState({});
   const [selectedSkisDataMap, setSelectedSkisDataMap] = useState(() => new Map());
 
-  const toggleSelect = (id) => {
+  const toggleSelect = (selectionKey) => {
     // Allow selecting own skis; allow selecting others only with write access
     if (isRemoteView && !canSelectForTest) return;
 
     setSelectedMap(prev => {
-      const nowSelected = !prev[id];
-      const newMap = { ...prev, [id]: nowSelected };
+      const nowSelected = !prev[selectionKey];
+      const newMap = { ...prev, [selectionKey]: nowSelected };
 
       setSelectedSkisDataMap(prevMap => {
         const m = new Map(prevMap);
+
         if (nowSelected) {
-          const skiObj = skis.find(s => s.id === id);
+          const skiObj = skisForView.find(s => (s._key ?? s.id) === selectionKey);
           if (skiObj) {
-            // IMPORTANT: persist who owns these skis so testing can save to that owner's results
-            m.set(id, { ...skiObj, ownerUid: ownerUidForView });
+            // Persist ownerUid so later saving can write into correct user collections
+            m.set(selectionKey, {
+              ...skiObj,
+              ownerUid: skiObj.ownerUid || ownerUidForView,
+              _key: skiObj._key || selectionKey,
+            });
           }
         } else {
-          m.delete(id);
+          m.delete(selectionKey);
         }
         return m;
       });
@@ -212,29 +227,33 @@ const Skis = () => {
 
   // --- detail toggle
   const [expandedSkiId, setExpandedSkiId] = useState(null);
-  const toggleDetails = (id) => {
-    setExpandedSkiId(prev => (prev === id ? null : id));
+  // selectionKey-aware now (supports multi-owner displayed extras)
+  const toggleDetails = (selectionKey) => {
+    setExpandedSkiId(prev => (prev === selectionKey ? null : selectionKey));
   };
 
   // --- build displayedSkis: matching items first, then selected extras
   const displayedSkis = useMemo(() => {
-    const matched = skis;
-    const matchedIds = new Set(matched.map(s => s.id));
+    const matched = skisForView || [];
+    const matchedKeys = new Set(matched.map(s => s._key ?? makeSkiKey(ownerUidForView, s.id)));
+
     const extras = Array.from(selectedSkisDataMap.values())
-      .filter(s => s && !matchedIds.has(s.id) && s.locked !== true); // exclude locked extras
+      .filter(s => s && !matchedKeys.has(s._key) && s.locked !== true);
+
     if (extras.length) {
       const compare = (a, b) => {
         const aVal = a[sortField] ?? '';
         const bVal = b[sortField] ?? '';
-        const cmp = typeof aVal === 'number' && typeof bVal === 'number'
-          ? aVal - bVal
-          : String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
+        const cmp =
+          typeof aVal === 'number' && typeof bVal === 'number'
+            ? aVal - bVal
+            : String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
         return sortDirection === 'asc' ? cmp : -cmp;
       };
       extras.sort(compare);
     }
     return [...matched, ...extras];
-  }, [skis, selectedSkisDataMap, sortField, sortDirection]);
+  }, [skisForView, selectedSkisDataMap, sortField, sortDirection, ownerUidForView]);
 
   // ensure we know how many skis are selected so we can add bottom padding
   const selectionCount = getSelectedList().length;
@@ -517,7 +536,7 @@ const Skis = () => {
 
       {/* Ski list (cards or table) */}
       <div className="mb-5">
-        {loading && !skis.length ? ( // use hook's loading + skis
+        {loading && !skisForView.length ? (
           <div className="flex justify-center items-center mt-10"><Spinner /></div>
         ) : viewMode === 'card' ? (
           <AnimatePresence>
@@ -534,16 +553,12 @@ const Skis = () => {
                       <span className="text-xs text-gray-400 font-normal">{skis.length} ski{skis.length > 1 ? 's' : ''}</span>
                     </div>
                     {skis.map(ski => (
-                      <motion.div
-                        key={ski.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                      >
+                      <motion.div key={ski._key ?? ski.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                         <SkiItem
                           ski={ski}
                           search={debouncedTerm}
-                          handleCheckboxChange={toggleSelect}
-                          selectedSkis={selectedMap}
+                          handleCheckboxChange={toggleSelect}   // now expects selectionKey
+                          selectedSkis={selectedMap}            // keyed by selectionKey
                           expandedSkiId={expandedSkiId}
                           toggleDetails={toggleDetails}
                           handleArchive={handleArchive}
@@ -564,9 +579,8 @@ const Skis = () => {
         ) : (
           <SkiTable
             skis={displayedSkis}
-            search={debouncedTerm}
             selectedSkis={selectedMap}
-            onToggleSelect={toggleSelect} // no-op when viewing others
+            onToggleSelect={toggleSelect}
             expandedSkiId={expandedSkiId}
             onToggleDetails={toggleDetails}
             sortField={sortField}

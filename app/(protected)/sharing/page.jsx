@@ -11,8 +11,8 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { FaSlideshare } from 'react-icons/fa';
-import { RiShieldUserLine, RiEditLine } from 'react-icons/ri'; // New icons
 import Card from '@/components/ui/Card'; // NEW
+import Toggle from '@/components/ui/Toggle';
 
 import useUser from '@/hooks/useUser';
 
@@ -45,6 +45,7 @@ export default function SharingPage() {
   const { user } = useAuth();
   const [shareCode, setShareCode] = useState('');
   const [loadingCode, setLoadingCode] = useState(true);
+  const [showShareCode, setShowShareCode] = useState(false);
   const [requestCode, setRequestCode] = useState('');
 
   const [owners, setOwners] = useState([]);   // users I can read
@@ -229,13 +230,25 @@ export default function SharingPage() {
             <Spinner /> <span>Loading code…</span>
           </div>
         ) : shareCode ? (
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-lg tracking-widest bg-blue-50 text-blue-700 px-3 py-1.5 rounded-2xl border border-blue-200">
-              {shareCode}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <span className="font-mono text-lg tracking-widest bg-blue-50 text-blue-700 px-3 py-1.5 rounded-2xl border border-blue-200 w-fit">
+              {showShareCode ? shareCode : '•'.repeat(Math.max(6, shareCode.length))}
             </span>
-            <Button variant="secondary" onClick={handleCopy} className="text-sm">
-              Copy
-            </Button>
+
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-600">Show</span>
+                <Toggle
+                  enabled={showShareCode}
+                  setEnabled={setShowShareCode}
+                  label="Show share code"
+                />
+              </div>
+
+              <Button variant="secondary" onClick={handleCopy} className="text-sm">
+                Copy
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="text-sm text-gray-600">No code available.</div>
@@ -248,7 +261,7 @@ export default function SharingPage() {
       {/* Request access by code */}
       <Card className="p-6 space-y-4 mb-6">
         <h2 className="text-lg font-semibold text-gray-800">Request access</h2>
-        <form onSubmit={handleRequestByCode} className="flex flex-col md:flex-row gap-3">
+        <form onSubmit={handleRequestByCode} className="flex flex-col md:flex-row gap-3 md:items-end">
           <Input
             type="text"
             placeholder="Enter owner’s share code"
@@ -257,7 +270,7 @@ export default function SharingPage() {
             className="md:flex-1"
             required
           />
-          <Button type="submit" variant="primary" className="md:w-auto" loading={sendingRequest}>
+          <Button type="submit" variant="primary" className="h-fit" loading={sendingRequest}>
             Send request
           </Button>
         </form>
