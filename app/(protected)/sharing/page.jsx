@@ -13,6 +13,7 @@ import Spinner from '@/components/common/Spinner/Spinner';
 import { FaSlideshare } from 'react-icons/fa';
 import Card from '@/components/ui/Card'; // NEW
 import Toggle from '@/components/ui/Toggle';
+import { RiInformationLine } from 'react-icons/ri'; // NEW
 
 import useUser from '@/hooks/useUser';
 
@@ -41,11 +42,34 @@ function UserChip({ uid }) {
   );
 }
 
+// NEW: read/write info banner
+function AccessInfoBanner() {
+  return (
+    <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
+      <div className="flex items-start gap-3">
+        <RiInformationLine className="text-blue-500 mt-0.5 shrink-0" />
+        <div className="text-blue-800">
+          <h3 className="block font-semibold mb-2">Access levels:</h3>
+          <ul className="list-disc ml-4 space-y-1 text-sm">
+            <li>
+              <span className="font-medium">Read-only</span>: can view your skis and results. Cannot change your data.
+            </li>
+            <li>
+              <span className="font-medium">Write</span>: can create tests in your account and modify ski data. Grant only to trusted users.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SharingPage() {
   const { user } = useAuth();
   const [shareCode, setShareCode] = useState('');
   const [loadingCode, setLoadingCode] = useState(true);
   const [showShareCode, setShowShareCode] = useState(false);
+  const [showAccessInfo, setShowAccessInfo] = useState(false);
   const [requestCode, setRequestCode] = useState('');
 
   const [owners, setOwners] = useState([]);   // users I can read
@@ -222,6 +246,8 @@ export default function SharingPage() {
         actions={null}
       />
 
+
+
       {/* Your share code */}
       <Card className="space-y-4">
         <h2 className="text-lg font-semibold text-gray-800">Your share code</h2>
@@ -275,6 +301,21 @@ export default function SharingPage() {
           </Button>
         </form>
       </Card>
+
+      {/* NEW: access info toggle */}
+      <div className="flex items-center justify-between bg-white/70 backdrop-blur-xl ring-1 ring-black/5 rounded-2xl p-3">
+        <div className="min-w-0">
+          <span className="text-sm font-medium text-gray-800">Read vs Write access</span>
+          <p className="text-xs text-gray-600">Show a quick explanation of access levels.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-600">Show</span>
+          <Toggle enabled={showAccessInfo} setEnabled={setShowAccessInfo} label="Show access info" />
+        </div>
+      </div>
+
+      {/* NEW: access info banner (conditional) */}
+      {showAccessInfo && <AccessInfoBanner />}
 
       {/* Pending requests */}
       <div className="grid gap-6 md:grid-cols-2">
