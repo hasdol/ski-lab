@@ -110,6 +110,9 @@ service cloud.firestore {
           )
           && !('locked' in request.resource.data);
 
+        // NEW: owner-only delete (allowed even if locked)
+        allow delete: if request.auth != null && request.auth.uid == userId;
+
         // ✅ Block editing locked skis (owner can still delete them).
         // ✅ Allow writers to update unlocked skis (e.g. adding testIds)
         allow update: if request.auth != null
