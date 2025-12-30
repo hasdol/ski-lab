@@ -41,7 +41,7 @@ export default function ReindexMyKeywords() {
 
   return (
     <Button onClick={handleReindex} disabled={running} variant="secondary">
-      {running ? 'Re-indexing…' : 'Re-index My Keywords'}
+      {running ? 'Re-indexing…' : 'Re-index My Result Keywords'}
     </Button>
   );
 }

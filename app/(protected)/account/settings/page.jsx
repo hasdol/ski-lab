@@ -7,6 +7,7 @@ import { GiWinterGloves } from 'react-icons/gi';
 import { FaHandsClapping } from 'react-icons/fa6';
 import { RiEditLine, RiUserLine, RiSettings3Line } from 'react-icons/ri';
 import { MdOutlineSecurity } from "react-icons/md";
+import KeywordReindexTools from './components/KeywordReindexTools';
 
 import { useRouter } from 'next/navigation';
 
@@ -162,6 +163,8 @@ export default function SettingsPage() {
             </p>
           )}
         </Card>
+
+        <KeywordReindexTools />
 
         {/* Management Section */}
         <Card>
