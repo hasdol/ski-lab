@@ -14,6 +14,9 @@ import { formatDate } from '@/helpers/helpers';
 import TeamEventDashboard from '@/components/analytics/TeamEventDashboard';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase/firebaseConfig';
+import PageHeader from '@/components/layout/PageHeader';
+import Card from '@/components/ui/Card';
+import { MdEvent } from 'react-icons/md';
 
 export default function EventPage() {
   const { teamId, eventId } = useParams();
@@ -59,8 +62,8 @@ export default function EventPage() {
   }
   if (error) {
     return (
-      <div className="mx-auto">
-        <div className="bg-red-50 text-red-700 rounded-2xl p-6">
+      <div className="p-4 max-w-4xl w-full self-center">
+        <div className="bg-red-50 text-red-700 rounded-2xl p-6 border border-red-200">
           Error: {error.message}
         </div>
       </div>
@@ -68,8 +71,8 @@ export default function EventPage() {
   }
   if (!eventData) {
     return (
-      <div className="mx-auto">
-        <div className="bg-yellow-50 text-yellow-800 rounded-2xl p-6">
+      <div className="p-4 max-w-4xl w-full self-center">
+        <div className="bg-yellow-50 text-yellow-800 rounded-2xl p-6 border border-yellow-200">
           No event found
         </div>
       </div>
@@ -82,45 +85,59 @@ export default function EventPage() {
   const startFmt = formatDate(start);
   const endFmt = formatDate(end);
 
-  return (
-    <div className="max-w-4xl w-full self-center p-4">
-      <div className="flex items-center justify-between">
-        <Button onClick={handleBack} variant="secondary">
-          Back 
+  const headerActions = (
+    <div className="flex flex-col sm:flex-row gap-2 items-center">
+      <Button onClick={handleBack} variant="secondary">
+        Back
+      </Button>
+      {canManage && (
+        <Button onClick={handleEdit} variant="primary">
+          Edit Event
         </Button>
-        {canManage && (
-          <Button onClick={handleEdit} variant="primary">
-            Edit Event
-          </Button>
-        )}
-      </div>
+      )}
+    </div>
+  );
 
-      <div className=" space-y-6">
-        <div className="text-center">
+  return (
+    <div className="p-4 max-w-4xl w-full self-center">
+      <PageHeader
+        icon={<MdEvent className="text-blue-600 text-2xl" />}
+        title={eventData.name}
+        subtitle={`${startFmt} – ${endFmt}`}
+        actions={headerActions}
+      />
+
+      <Card className="mb-6">
+        <div className="flex flex-col items-center text-center gap-3">
           <UploadableImage
             photoURL={eventData.imageURL}
             variant="event"
             clickable={false}
-            className="mx-auto mb-4 w-full max-h-40 object-contain"
+            className="mx-auto w-full max-h-40 object-contain"
           />
-          <h1 className="text-3xl font-semibold text-gray-800 mb-1">
-            {eventData.name}
-          </h1>
-          <p className="text-sm text-gray-600">{startFmt} - {endFmt}</p>
         </div>
+      </Card>
 
-        <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} canSeeDashboard={canSeeDashboard} />
+      <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} canSeeDashboard={canSeeDashboard} />
 
-        <div className="m-4">
-          {activeTab === 'Info' && <EventOverview eventData={eventData} />}
-          {activeTab === 'Tests' && <EventTests teamId={teamId} eventId={eventId} eventData={eventData} />}
-          {activeTab === 'Weather' && <EventWeather eventData={eventData} />}
-          {activeTab === 'Dashboard' && canSeeDashboard && (
-            <TeamEventDashboard teamId={teamId} eventId={eventId} />
-          )}
-        </div>
+      <div className="mt-4">
+        {activeTab === 'Info' && (
+          <Card>
+            <EventOverview eventData={eventData} />
+          </Card>
+        )}
+        {activeTab === 'Tests' && (
+          <EventTests teamId={teamId} eventId={eventId} eventData={eventData} />
+        )}
+        {activeTab === 'Weather' && (
+          <Card>
+            <EventWeather eventData={eventData} />
+          </Card>
+        )}
+        {activeTab === 'Dashboard' && canSeeDashboard && (
+          <TeamEventDashboard teamId={teamId} eventId={eventId} />
+        )}
       </div>
-
     </div>
   );
 }

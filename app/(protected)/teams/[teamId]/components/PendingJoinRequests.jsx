@@ -53,7 +53,8 @@ export default function PendingJoinRequests({ teamId }) {
     fetchTeamAndCap();
   }, [teamId, user?.uid, userData?.plan, userData?.planMembersCap]);
 
-  const isFull = memberCap !== null && memberCount >= memberCap;
+  // Treat 0/invalid as "no cap"
+  const isFull = Number.isFinite(memberCap) && memberCap > 0 && memberCount >= memberCap;
 
   const handleAccept = async (requestId) => {
     if (isFull) {
@@ -94,8 +95,8 @@ export default function PendingJoinRequests({ teamId }) {
 
   return (
     <div className="bg-white rounded-lg shadow p-4">
-      {/* NEW: cap banner */}
-      {memberCap !== null && (
+      {/* cap banner */}
+      {Number.isFinite(memberCap) && memberCap > 0 && (
         <div className={`mb-3 rounded-lg px-3 py-2 text-sm ${isFull ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-800'}`}>
           Members: {memberCount} / {memberCap} {isFull && '— team is full'}
         </div>

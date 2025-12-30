@@ -10,7 +10,7 @@ import PageHeader from '@/components/layout/PageHeader';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Spinner from '@/components/common/Spinner/Spinner';
-import { FaSlideshare } from 'react-icons/fa';
+import { FaEye, FaFlask, FaInbox, FaKey, FaPaperPlane, FaShareAlt, FaSlideshare, FaUserShield } from 'react-icons/fa';
 import Card from '@/components/ui/Card'; // NEW
 import Toggle from '@/components/ui/Toggle';
 import { RiInformationLine } from 'react-icons/ri'; // NEW
@@ -244,8 +244,11 @@ export default function SharingPage() {
       {/* Your share code */}
       <Card className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-800">Share your data</h2>
-          <p className="text-sm text-gray-600">Send your code to someone.</p>
+          <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <FaShareAlt className="text-blue-600" />
+            Share your data
+          </h2>
+          <p className="text-sm text-gray-600">Send your personal code to someone.</p>
         </div>
         {loadingCode ? (
           <div className="flex items-center gap-2 text-gray-600">
@@ -281,8 +284,10 @@ export default function SharingPage() {
       {/* Request access by code */}
       <Card className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-800">Request access</h2>
-          <p className="text-sm text-gray-600">Enter someone else’s code.</p>
+          <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <FaKey className="text-blue-600" />
+            Request access
+          </h2>
         </div>
         <form onSubmit={handleRequestByCode} className="flex flex-col md:flex-row gap-3 md:items-end">
           <Input
@@ -319,7 +324,10 @@ export default function SharingPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="space-y-3">
           <div className="flex items-baseline justify-between gap-3">
-            <h3 className="font-semibold text-gray-800">Requests to you</h3>
+            <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+              <FaInbox className="text-gray-600" />
+              Requests to you
+            </h3>
             <span className="text-xs text-gray-500">{incoming.length} pending</span>
           </div>
           {incoming.length === 0 ? (
@@ -332,26 +340,26 @@ export default function SharingPage() {
                     <NameOrChip uid={r.fromUid} fallbackName={r.fromDisplayName} />
                   </div>
                   <div className="flex gap-2 justify-end">
-                    <Button 
-                      variant="primary" 
-                      className="text-xs" 
-                      onClick={() => handleRespond(r.id, 'approved', 'read')} 
+                    <Button
+                      variant="primary"
+                      className="text-xs"
+                      onClick={() => handleRespond(r.id, 'approved', 'read')}
                       loading={respondingId === r.id}
                     >
                       Grant View
                     </Button>
-                    <Button 
-                      variant="secondary" 
-                      className="text-xs" 
-                      onClick={() => handleRespond(r.id, 'approved', 'write')} 
+                    <Button
+                      variant="secondary"
+                      className="text-xs"
+                      onClick={() => handleRespond(r.id, 'approved', 'write')}
                       loading={respondingId === r.id}
                     >
                       Grant Testing
                     </Button>
-                    <Button 
-                      variant="secondary" 
-                      className="text-xs" 
-                      onClick={() => handleRespond(r.id, 'declined')} 
+                    <Button
+                      variant="secondary"
+                      className="text-xs"
+                      onClick={() => handleRespond(r.id, 'declined')}
                       loading={respondingId === r.id}
                     >
                       Decline
@@ -365,7 +373,10 @@ export default function SharingPage() {
 
         <Card className="space-y-3">
           <div className="flex items-baseline justify-between gap-3">
-            <h3 className="font-semibold text-gray-800">Requests you sent</h3>
+            <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+              <FaPaperPlane className="text-gray-600" />
+              Requests you sent
+            </h3>
             <span className="text-xs text-gray-500">{outgoing.length} pending</span>
           </div>
           {outgoing.length === 0 ? (
@@ -387,7 +398,84 @@ export default function SharingPage() {
 
       <div className="grid gap-6 md:grid-cols-2 mt-6">
         <Card className="space-y-3">
-          <h3 className="font-semibold text-gray-800">Accounts you can view</h3>
+          <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+            <FaUserShield className="text-gray-600" />
+            People who can access your data
+          </h3>
+          {readers.length === 0 ? (
+            <div className="text-sm text-gray-500">Nobody has access to your data yet.</div>
+          ) : (
+            <ul className="space-y-2">
+              {readers.map((s) => (
+                <li key={s.id} className="flex flex-col gap-2 border border-gray-200 rounded-2xl p-3">
+                  <div className="flex items-center justify-between">
+                    <NameOrChip uid={s.readerUid} fallbackName={s.readerDisplayName} />
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="inline-flex items-center bg-slate-100 rounded-2xl p-1 ring-1 ring-black/5"
+                        role="group"
+                        aria-label="Access level"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => s.accessLevel !== 'read' && handleAccessChange(s.readerUid, 'read')}
+                          disabled={revokingUid === s.readerUid || updatingAccessUid === s.readerUid}
+                          aria-pressed={s.accessLevel === 'read'}
+                          className={[
+                            'inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-medium transition',
+                            s.accessLevel === 'read'
+                              ? 'bg-white text-gray-900 shadow-sm ring-1 ring-black/5'
+                              : 'text-gray-600 hover:text-gray-900 hover:bg-white/60',
+                          ].join(' ')}
+                        >
+                          <FaEye className="text-[12px]" />
+                          View
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => s.accessLevel !== 'write' && handleAccessChange(s.readerUid, 'write')}
+                          disabled={revokingUid === s.readerUid || updatingAccessUid === s.readerUid}
+                          aria-pressed={s.accessLevel === 'write'}
+                          className={[
+                            'inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-medium transition',
+                            s.accessLevel === 'write'
+                              ? 'bg-white text-gray-900 shadow-sm ring-1 ring-black/5'
+                              : 'text-gray-600 hover:text-gray-900 hover:bg-white/60',
+                          ].join(' ')}
+                        >
+                          <FaFlask className="text-[12px]" />
+                          Testing
+                        </button>
+                      </div>
+
+                      {updatingAccessUid === s.readerUid ? (
+                        <span className="text-gray-500" aria-label="Updating access">
+                          <Spinner />
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-end mt-1 pt-2 border-t border-gray-100">
+                    <Button
+                      variant="danger"
+                      className="text-xs py-1 h-auto"
+                      onClick={() => handleRevoke(s.readerUid)}
+                      loading={revokingUid === s.readerUid}
+                      disabled={updatingAccessUid === s.readerUid}
+                    >
+                      Revoke
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+        <Card className="space-y-3">
+          <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+            <FaEye className="text-gray-600" />
+            Accounts you can view
+          </h3>
           {owners.length === 0 ? (
             <div className="text-sm text-gray-500">You don’t have access to anyone yet.</div>
           ) : (
@@ -410,58 +498,7 @@ export default function SharingPage() {
           )}
         </Card>
 
-        <Card className="space-y-3">
-          <h3 className="font-semibold text-gray-800">People who can access your data</h3>
-          {readers.length === 0 ? (
-            <div className="text-sm text-gray-500">Nobody has access to your data yet.</div>
-          ) : (
-            <ul className="space-y-2">
-              {readers.map((s) => (
-                <li key={s.id} className="flex flex-col gap-2 border border-gray-200 rounded-2xl p-3">
-                  <div className="flex items-center justify-between">
-                    <NameOrChip uid={s.readerUid} fallbackName={s.readerDisplayName} />
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${s.accessLevel === 'write' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}`}>
-                      {s.accessLevel === 'write' ? 'Testing Access' : 'View Access'}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mt-1 pt-2 border-t border-gray-100">
-                    {s.accessLevel === 'write' ? (
-                      <Button
-                        variant="secondary"
-                        className="text-xs py-1 h-auto"
-                        onClick={() => handleAccessChange(s.readerUid, 'read')}
-                        loading={updatingAccessUid === s.readerUid}
-                        disabled={revokingUid === s.readerUid}
-                      >
-                        Change to View access
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="secondary"
-                        className="text-xs py-1 h-auto"
-                        onClick={() => handleAccessChange(s.readerUid, 'write')}
-                        loading={updatingAccessUid === s.readerUid}
-                        disabled={revokingUid === s.readerUid}
-                      >
-                        Change to Testing access
-                      </Button>
-                    )}
-                    <Button
-                      variant="danger"
-                      className="text-xs py-1 h-auto"
-                      onClick={() => handleRevoke(s.readerUid)}
-                      loading={revokingUid === s.readerUid}
-                      disabled={updatingAccessUid === s.readerUid}
-                    >
-                      Revoke
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
+
       </div>
     </div>
   );
