@@ -49,15 +49,10 @@ function AccessInfoBanner() {
       <div className="flex items-start gap-3">
         <RiInformationLine className="text-blue-500 mt-0.5 shrink-0" />
         <div className="text-blue-800">
-          <h3 className="block font-semibold mb-2">Access levels:</h3>
-          <ul className="list-disc ml-4 space-y-1 text-sm">
-            <li>
-              <span className="font-medium">Read-only</span>: can view your skis and results. Cannot change your data.
-            </li>
-            <li>
-              <span className="font-medium">Write</span>: can create tests in your account and modify ski data. Grant only to trusted users.
-            </li>
-          </ul>
+          <h3 className="block font-semibold mb-1">Access levels</h3>
+          <p className="text-sm">
+            <span className="font-medium">View</span> = read-only. <span className="font-medium">Testing</span> = can create tests in your account.
+          </p>
         </div>
       </div>
     </div>
@@ -179,7 +174,7 @@ export default function SharingPage() {
 
   const handleRespond = async (requestId, action, accessLevel = 'read') => {
     if (action === 'approved' && accessLevel === 'write') {
-      if (!confirm('Warning: Giving write access allows this user to create tests and modify ski data in your account. Are you sure?')) return;
+      if (!confirm('Warning: Giving Testing access lets this user create tests in your account (and run cross-user tests). Are you sure?')) return;
     }
     try {
       setRespondingId(requestId);
@@ -195,7 +190,7 @@ export default function SharingPage() {
 
   const handleAccessChange = async (readerUid, newLevel) => {
     if (newLevel === 'write') {
-      if (!confirm('Warning: Giving write access allows this user to create tests and modify ski data in your account. Are you sure?')) return;
+      if (!confirm('Warning: Giving Testing access lets this user create tests in your account (and run cross-user tests). Are you sure?')) return;
     }
     try {
       setUpdatingAccessUid(readerUid);
@@ -242,15 +237,16 @@ export default function SharingPage() {
       <PageHeader
         icon={<FaSlideshare className="text-blue-600 text-2xl" />}
         title="Sharing"
-        subtitle="Share access or request to view another user’s data"
+        subtitle="Request access, and manage who has access to you."
         actions={null}
       />
 
-
-
       {/* Your share code */}
       <Card className="space-y-4">
-        <h2 className="text-lg font-semibold text-gray-800">Your share code</h2>
+        <div>
+          <h2 className="text-lg font-semibold text-gray-800">Share your data</h2>
+          <p className="text-sm text-gray-600">Send your code to someone.</p>
+        </div>
         {loadingCode ? (
           <div className="flex items-center gap-2 text-gray-600">
             <Spinner /> <span>Loading code…</span>
@@ -279,14 +275,15 @@ export default function SharingPage() {
         ) : (
           <div className="text-sm text-gray-600">No code available.</div>
         )}
-        <p className="text-sm text-gray-600">
-          Share this code with someone who should be able to view your skis and results.
-        </p>
+        <p className="text-xs text-gray-500">Only share with trusted people.</p>
       </Card>
 
       {/* Request access by code */}
-      <Card className="p-6 space-y-4 mb-6">
-        <h2 className="text-lg font-semibold text-gray-800">Request access</h2>
+      <Card className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-800">Request access</h2>
+          <p className="text-sm text-gray-600">Enter someone else’s code.</p>
+        </div>
         <form onSubmit={handleRequestByCode} className="flex flex-col md:flex-row gap-3 md:items-end">
           <Input
             type="text"
@@ -300,13 +297,14 @@ export default function SharingPage() {
             Send request
           </Button>
         </form>
+        <p className="text-xs text-gray-500">The owner chooses View or Testing access.</p>
       </Card>
 
       {/* NEW: access info toggle */}
       <div className="flex items-center justify-between bg-white/70 backdrop-blur-xl ring-1 ring-black/5 rounded-2xl p-3">
         <div className="min-w-0">
-          <span className="text-sm font-medium text-gray-800">Read vs Write access</span>
-          <p className="text-xs text-gray-600">Show a quick explanation of access levels.</p>
+          <span className="text-sm font-medium text-gray-800">What does “Testing access” mean?</span>
+          <p className="text-xs text-gray-600">Quick explanation.</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-600">Show</span>
@@ -319,8 +317,11 @@ export default function SharingPage() {
 
       {/* Pending requests */}
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="p-6 space-y-3">
-          <h3 className="font-semibold text-gray-800">Requests to you</h3>
+        <Card className="space-y-3">
+          <div className="flex items-baseline justify-between gap-3">
+            <h3 className="font-semibold text-gray-800">Requests to you</h3>
+            <span className="text-xs text-gray-500">{incoming.length} pending</span>
+          </div>
           {incoming.length === 0 ? (
             <div className="text-sm text-gray-500">No pending requests.</div>
           ) : (
@@ -332,23 +333,23 @@ export default function SharingPage() {
                   </div>
                   <div className="flex gap-2 justify-end">
                     <Button 
-                      variant="secondary" 
+                      variant="primary" 
                       className="text-xs" 
                       onClick={() => handleRespond(r.id, 'approved', 'read')} 
                       loading={respondingId === r.id}
                     >
-                      Approve (Read-only)
+                      Grant View
                     </Button>
                     <Button 
-                      variant="primary" 
+                      variant="secondary" 
                       className="text-xs" 
                       onClick={() => handleRespond(r.id, 'approved', 'write')} 
                       loading={respondingId === r.id}
                     >
-                      Approve (Write)
+                      Grant Testing
                     </Button>
                     <Button 
-                      variant="danger" 
+                      variant="secondary" 
                       className="text-xs" 
                       onClick={() => handleRespond(r.id, 'declined')} 
                       loading={respondingId === r.id}
@@ -362,8 +363,11 @@ export default function SharingPage() {
           )}
         </Card>
 
-        <Card className="p-6 space-y-3">
-          <h3 className="font-semibold text-gray-800">Requests you sent</h3>
+        <Card className="space-y-3">
+          <div className="flex items-baseline justify-between gap-3">
+            <h3 className="font-semibold text-gray-800">Requests you sent</h3>
+            <span className="text-xs text-gray-500">{outgoing.length} pending</span>
+          </div>
           {outgoing.length === 0 ? (
             <div className="text-sm text-gray-500">No pending requests.</div>
           ) : (
@@ -382,8 +386,8 @@ export default function SharingPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 mt-6">
-        <Card className="p-6 space-y-3">
-          <h3 className="font-semibold text-gray-800">You can view</h3>
+        <Card className="space-y-3">
+          <h3 className="font-semibold text-gray-800">Accounts you can view</h3>
           {owners.length === 0 ? (
             <div className="text-sm text-gray-500">You don’t have access to anyone yet.</div>
           ) : (
@@ -393,7 +397,7 @@ export default function SharingPage() {
                   {/* prefer denormalized name to avoid cross-user profile reads */}
                   <NameOrChip uid={s.ownerUid} fallbackName={s.ownerDisplayName} />
                   <Button
-                    variant="danger"
+                    variant="secondary"
                     className="text-sm"
                     onClick={() => handleLeave(s.ownerUid)}
                     loading={leavingUid === s.ownerUid}
@@ -406,8 +410,8 @@ export default function SharingPage() {
           )}
         </Card>
 
-        <Card className="p-6 space-y-3">
-          <h3 className="font-semibold text-gray-800">Can view you</h3>
+        <Card className="space-y-3">
+          <h3 className="font-semibold text-gray-800">People who can access your data</h3>
           {readers.length === 0 ? (
             <div className="text-sm text-gray-500">Nobody has access to your data yet.</div>
           ) : (
@@ -416,36 +420,39 @@ export default function SharingPage() {
                 <li key={s.id} className="flex flex-col gap-2 border border-gray-200 rounded-2xl p-3">
                   <div className="flex items-center justify-between">
                     <NameOrChip uid={s.readerUid} fallbackName={s.readerDisplayName} />
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${s.accessLevel === 'write' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
-                      {s.accessLevel === 'write' ? 'Write Access' : 'Read Only'}
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${s.accessLevel === 'write' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}`}>
+                      {s.accessLevel === 'write' ? 'Testing Access' : 'View Access'}
                     </span>
                   </div>
                   
                   <div className="flex items-center justify-between mt-1 pt-2 border-t border-gray-100">
-                    <div className="flex gap-2">
-                      {s.accessLevel === 'write' ? (
-                        <button 
-                          onClick={() => handleAccessChange(s.readerUid, 'read')}
-                          disabled={updatingAccessUid === s.readerUid}
-                          className="text-xs text-blue-600 hover:underline"
-                        >
-                          Downgrade to Read-only
-                        </button>
-                      ) : (
-                        <button 
-                          onClick={() => handleAccessChange(s.readerUid, 'write')}
-                          disabled={updatingAccessUid === s.readerUid}
-                          className="text-xs text-blue-600 hover:underline"
-                        >
-                          Upgrade to Write
-                        </button>
-                      )}
-                    </div>
+                    {s.accessLevel === 'write' ? (
+                      <Button
+                        variant="secondary"
+                        className="text-xs py-1 h-auto"
+                        onClick={() => handleAccessChange(s.readerUid, 'read')}
+                        loading={updatingAccessUid === s.readerUid}
+                        disabled={revokingUid === s.readerUid}
+                      >
+                        Change to View access
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="secondary"
+                        className="text-xs py-1 h-auto"
+                        onClick={() => handleAccessChange(s.readerUid, 'write')}
+                        loading={updatingAccessUid === s.readerUid}
+                        disabled={revokingUid === s.readerUid}
+                      >
+                        Change to Testing access
+                      </Button>
+                    )}
                     <Button
                       variant="danger"
                       className="text-xs py-1 h-auto"
                       onClick={() => handleRevoke(s.readerUid)}
                       loading={revokingUid === s.readerUid}
+                      disabled={updatingAccessUid === s.readerUid}
                     >
                       Revoke
                     </Button>
