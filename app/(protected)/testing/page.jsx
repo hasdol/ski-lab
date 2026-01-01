@@ -384,7 +384,7 @@ const Testing = () => {
                                           ref={provided.innerRef}
                                           {...provided.draggableProps}
                                           {...provided.dragHandleProps}
-                                          className={`p-2 rounded-md flex justify-between items-center transition ${
+                                          className={`p-2 rounded-2xl flex justify-between items-center transition ${
                                             isWinner ? 'bg-blue-100' : 'bg-gray-50'
                                           }`}
                                         >
@@ -407,7 +407,7 @@ const Testing = () => {
                                               {hasMoreDigits && !showFullSerial && <span className="text-gray-400 ml-1">...</span>}
                                             </span>
                                           </div>
-                                          {isWinner && <span className="bg-blue-200 text-blue-800 px-2 py-1 rounded-xl text-xs">Winner</span>}
+                                          {isWinner && <span className="bg-blue-200 text-blue-800 px-2 py-1 rounded-2xl text-xs">Winner</span>}
                                         </div>
                                       )}
                                     </Draggable>
