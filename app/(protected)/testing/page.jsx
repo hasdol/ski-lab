@@ -65,6 +65,8 @@ const Testing = () => {
     setIsDragging(true);
     if (start.type === 'MATCH') {
       setDraggedMatchIndex(start.source.index);
+      setDragSource(null);
+      return;
     }
     setDragSource({
       matchIndex: parseInt(start.source.droppableId),
@@ -74,6 +76,9 @@ const Testing = () => {
 
   const handleDragUpdate = (update) => {
     if (!update.destination) return;
+
+    // Only track ski targets for ski drags
+    if (update.type === 'MATCH') return;
 
     setDragTarget({
       matchIndex: parseInt(update.destination.droppableId),
@@ -370,6 +375,12 @@ const Testing = () => {
                                   // Highlight ski being dragged
                                   const isDragSource = dragSource?.matchIndex === mi && dragSource?.skiIndex === si;
 
+                                  const isSkiDragging = isDragging && !!dragSource && draggedMatchIndex == null;
+                                  const isPreviewTarget =
+                                    isSkiDragging &&
+                                    isDragTarget &&
+                                    !(dragSource?.matchIndex === mi && dragSource?.skiIndex === si);
+
                                   // REPLACE local useState with derived flag from parent state
                                   const showFullSerial = fullSerialIds.has(ski.id);
                                   const serialDisplay = showFullSerial
@@ -384,12 +395,15 @@ const Testing = () => {
                                           ref={provided.innerRef}
                                           {...provided.draggableProps}
                                           {...provided.dragHandleProps}
-                                          className={`p-2 rounded-2xl flex justify-between items-center transition ${
-                                            isWinner ? 'bg-blue-100' : 'bg-gray-50'
-                                          }`}
+                                          className={`p-2 rounded-2xl flex justify-between items-center transition border ${
+                                            isWinner ? 'bg-blue-100 border-blue-200' : 'bg-white border-gray-200'
+                                          }
+                                          ${isSkiDragging && isDragSource ? 'ring-2 ring-blue-400 opacity-80' : ''}
+                                          ${isSkiDragging && isPreviewTarget ? 'ring-2 ring-green-400 bg-green-50' : ''}
+                                          `}
                                         >
                                           <div
-                                            className="flex items-center flex-grow cursor-pointer"
+                                            className="flex items-center grow cursor-pointer"
                                             onClick={() => handleWinnerClick(match.id, ski.id)}
                                           >
                                             <div className="bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center mr-3">
@@ -407,12 +421,40 @@ const Testing = () => {
                                               {hasMoreDigits && !showFullSerial && <span className="text-gray-400 ml-1">...</span>}
                                             </span>
                                           </div>
-                                          {isWinner && <span className="bg-blue-200 text-blue-800 px-2 py-1 rounded-2xl text-xs">Winner</span>}
+                                          <div className="flex items-center gap-2">
+                                            {isSkiDragging && isPreviewTarget && (
+                                              <span className="bg-green-200 text-green-800 px-2 py-1 rounded-2xl text-xs">Swap</span>
+                                            )}
+                                            {isWinner && (
+                                              <span className="bg-blue-200 text-blue-800 px-2 py-1 rounded-2xl text-xs">Winner</span>
+                                            )}
+                                          </div>
                                         </div>
                                       )}
                                     </Draggable>
                                   );
                                 })}
+
+                                {/* Visual empty slot target when duel has only 1 ski */}
+                                {match.skis.length === 1 && (() => {
+                                  const emptyIndex = match.skis.length;
+                                  const isSkiDragging = isDragging && !!dragSource && draggedMatchIndex == null;
+                                  const isEmptySlotTarget =
+                                    isSkiDragging &&
+                                    dragTarget?.matchIndex === mi &&
+                                    dragTarget?.skiIndex === emptyIndex &&
+                                    !(dragSource?.matchIndex === mi && dragSource?.skiIndex === emptyIndex);
+
+                                  return (
+                                    <div
+                                      className={`p-2 rounded-2xl border-2 border-dashed flex items-center justify-center text-sm transition
+                                        ${isEmptySlotTarget ? 'ring-2 ring-green-400 bg-green-50 border-green-300 text-green-800' : 'border-gray-300 bg-gray-50 text-gray-500'}
+                                      `}
+                                    >
+                                      {isEmptySlotTarget ? 'Drop here' : 'Empty slot'}
+                                    </div>
+                                  );
+                                })()}
                                 {prov.placeholder}
                               </div>
                             )}
