@@ -306,11 +306,11 @@ const Testing = () => {
               </Button>
               <Button
                 variant='danger'
-                onClick={() => window.confirm('Reset tournament?') && (resetTournament(), router.push('/skis'))}
-                title="Reset"
+                onClick={() => window.confirm('Delete test?') && (resetTournament(), router.push('/skis'))}
+                title="Delete"
                 className='flex items-center'
               >
-                <MdDelete className='mr-1'/> Reset Test
+                <MdDelete className='mr-1'/> Delete Test
               </Button>
             </div>
           }
@@ -358,7 +358,7 @@ const Testing = () => {
                               <span {...mProv.dragHandleProps} className="cursor-move text-gray-600 ">
                                 <RiDragMove2Line size={20}/>
                               </span>
-                              <span className="font-medium text-gray-700">Duel {mi + 1}</span>
+                              <span className="font-medium text-sm text-gray-700">Duel {mi + 1}</span>
                             </div>
                             {isDone && <span className="text-blue-600 text-sm font-medium">Completed</span>}
                           </div>
@@ -395,7 +395,7 @@ const Testing = () => {
                                           ref={provided.innerRef}
                                           {...provided.draggableProps}
                                           {...provided.dragHandleProps}
-                                          className={`p-2 rounded-2xl flex justify-between items-center transition border ${
+                                          className={`p-3 rounded-2xl flex justify-between items-center transition border ${
                                             isWinner ? 'bg-blue-100 border-blue-200' : 'bg-white border-gray-200'
                                           }
                                           ${isSkiDragging && isDragSource ? 'ring-2 ring-blue-400 opacity-80' : ''}
@@ -406,20 +406,25 @@ const Testing = () => {
                                             className="flex items-center grow cursor-pointer"
                                             onClick={() => handleWinnerClick(match.id, ski.id)}
                                           >
-                                            <div className="bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center mr-3">
-                                              <span className="font-medium text-gray-700">{si + 1}</span>
-                                            </div>
-                                            <span
-                                              className="font-medium cursor-pointer"
-                                              title={showFullSerial ? "Show last 3 digits" : "Show full serial number"}
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                toggleSerialDigits(ski.id);
-                                              }}
-                                            >
-                                              {serialDisplay}
-                                              {hasMoreDigits && !showFullSerial && <span className="text-gray-400 ml-1">...</span>}
+                                            <span className="text-gray-400 mr-3 cursor-move" title="Drag ski to reorder">
+                                              <RiDragMove2Line size={18} />
                                             </span>
+                                            <div className="flex flex-row items-center gap-3">
+                                              <span
+                                                className="font-semibold cursor-pointer"
+                                                title={showFullSerial ? "Show last 3 digits" : "Show full serial number"}
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  toggleSerialDigits(ski.id);
+                                                }}
+                                              >
+                                                {serialDisplay}
+                                                {hasMoreDigits && !showFullSerial && <span className="text-gray-400 ml-1">...</span>}
+                                              </span>
+                                              {ski.grind && (
+                                                <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full">{ski.grind}</span>
+                                              )}
+                                            </div>
                                           </div>
                                           <div className="flex items-center gap-2">
                                             {isSkiDragging && isPreviewTarget && (

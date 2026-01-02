@@ -93,4 +93,8 @@ const baseConfig = {
   },
 };
 
-export default withPWA(baseConfig);
+// `next-pwa` adds Webpack config internally; Turbopack warns if Webpack is configured.
+// Since PWA is disabled in development anyway, skip wrapping entirely for `next dev`.
+const config = isProd ? withPWA(baseConfig) : baseConfig;
+
+export default config;
