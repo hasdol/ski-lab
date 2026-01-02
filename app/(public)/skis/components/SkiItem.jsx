@@ -89,9 +89,9 @@ export default function SkiItem(props) {
             aria-label="Select ski"
           />
         )}
-        <div className="flex items-center gap-2 grow">
+        <div className="flex items-center gap-3 grow">
           <span
-            className="font-medium cursor-pointer"
+            className="font-semibold cursor-pointer"
             title={showFullSerial ? "Show last 3 digits" : "Show full serial number"}
             onClick={(e) => {
               e.stopPropagation();
@@ -101,8 +101,11 @@ export default function SkiItem(props) {
             {serialDisplay}
             {hasMoreDigits && !showFullSerial && <span className="text-gray-400 ml-1">...</span>}
           </span>
-          <span className="text-gray-400">•</span>
-          <span className="text-gray-600">{highlightSearchTerm(ski.grind, search)}</span>
+          {ski.grind && (
+            <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full">
+              {highlightSearchTerm(ski.grind, search)}
+            </span>
+          )}
         </div>
         {!gloveMode && !allExpanded && (
           <button
