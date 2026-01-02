@@ -44,7 +44,7 @@ const SummaryResultList = ({ rankings, onScoreChange }) => {
                             pattern="[0-9]*"
                             value={item.cumulativeScore}
                             onChange={e => onScoreChange && onScoreChange(item.skiId, Number(e.target.value))}
-                            className="w-16 px-2 py-1 border border-gray-400 rounded text-right"
+                            className="w-16 px-2 py-1 border border-gray-400 rounded-2xl text-right"
                             min={0}
                         />
                         <span className="hidden text-xs md:block">cm</span>

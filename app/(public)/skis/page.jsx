@@ -28,7 +28,6 @@ import {
   RiAddLine,
   RiLockLine,
   RiCloseLine,
-  RiDeleteBinLine
 } from 'react-icons/ri';
 import { TiFlowParallel } from "react-icons/ti";
 import { VscDebugContinue } from "react-icons/vsc";
@@ -36,10 +35,10 @@ import Search from '../../../components/Search/Search';
 import { PLAN_LIMITS } from '@/lib/constants/planLimits';
 import useIsStandalone from '@/hooks/useIsStandalone';
 import PageHeader from '@/components/layout/PageHeader';
-import Card from '@/components/ui/Card'; // NEW
+import Card from '@/components/ui/Card';
 import SignInRequiredCard from '@/components/common/SignInRequiredCard';
 import EmptyStateCard from '@/components/common/EmptyStateCard';
-import { listAccessibleUsers, listUserSkis, subscribeSharesAsReader } from '@/lib/firebase/shareFunctions';
+import { listAccessibleUsers, subscribeSharesAsReader } from '@/lib/firebase/shareFunctions';
 import UserPicker from '@/components/UserPicker/UserPicker';
 import { RiUser3Line } from 'react-icons/ri';
 
@@ -54,11 +53,16 @@ const Skis = () => {
   const { user, userData } = useAuth();
 
   // FIX: pull state from TournamentContext (used in selection bar and start test)
-  const { currentRound, setSelectedSkis, resetTournament } = useContext(TournamentContext);
+  const {
+    selectedSkis: tournamentSelectedSkis,
+    currentRound,
+    roundNumber,
+    setSelectedSkis,
+    resetTournament,
+  } = useContext(TournamentContext);
   // NEW: user filter
   const [accessibleUsers, setAccessibleUsers] = useState({ self: null, owners: [] });
   const [viewUserId, setViewUserId] = useState(null); // null => self
-  const [owners, setOwners] = useState([]); // owners I can read
   const [isPickerOpen, setIsPickerOpen] = useState(false); // NEW
 
   const handleUserSelect = (idOrNull) => {        // <── ADD THIS
@@ -141,8 +145,16 @@ const Skis = () => {
   }, [user, accessibleUsers]);
 
   useEffect(() => {
-    if (!user) { setOwners([]); setViewUserId(null); return; }
-    const unsub = subscribeSharesAsReader(user.uid, setOwners);
+    if (!user) { setViewUserId(null); return; }
+    const unsub = subscribeSharesAsReader(user.uid, () => {
+      // Keep accessible user list in sync when shares change.
+      (async () => {
+        try {
+          const acc = await listAccessibleUsers();
+          setAccessibleUsers(acc);
+        } catch {}
+      })();
+    });
     return () => unsub();
   }, [user]);
 
@@ -176,6 +188,9 @@ const Skis = () => {
   }, [accessibleUsers.owners, viewUserId]);
 
   const canSelectForTest = !isRemoteView || remoteAccessLevel === 'write';
+
+  const tournamentInProgress =
+    (tournamentSelectedSkis?.length ?? 0) > 0 || (currentRound?.length ?? 0) > 0;
 
   // Attach owner + stable composite key to every ski in the currently viewed list
   const skisForView = useMemo(() => {
@@ -269,8 +284,21 @@ const Skis = () => {
   const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this ski?') && confirm('Are you really sure? You can not undo this')) {
       await mutate(() => deleteSki(id));
-      setSelectedMap(m => ({ ...m, [id]: false }));
-      setSelectedSkisDataMap(m => { const mm = new Map(m); mm.delete(id); return mm; });
+      // Clear selection for both plain ids and composite keys like "ownerUid:skiId".
+      setSelectedMap(prev => {
+        const next = { ...prev };
+        Object.keys(next).forEach((k) => {
+          if (k === id || k.endsWith(`:${id}`)) delete next[k];
+        });
+        return next;
+      });
+      setSelectedSkisDataMap(prev => {
+        const next = new Map(prev);
+        Array.from(next.keys()).forEach((k) => {
+          if (k === id || String(k).endsWith(`:${id}`)) next.delete(k);
+        });
+        return next;
+      });
     }
   };
   const handleArchive = async (id) => {
@@ -304,12 +332,23 @@ const Skis = () => {
   const handleStartTournament = () => {
     const list = getSelectedList();
     if (list.length < 2) return alert('Select at least two skis');
-    if (currentRound.length && !confirm('Do you want to overwrite the existing test?')) return;
+    if (tournamentInProgress && !confirm('Start a new test and overwrite the existing one?')) return;
     resetTournament();
     setSelectedSkis(list);
     router.push('/testing');
   };
-  const handleContinueTest = () => router.push('/testing/summary');
+  const handleContinueTest = () => router.push('/testing');
+  const handleResetTest = () => {
+    if (!tournamentInProgress) return;
+    if (!confirm('Reset the ongoing test? This will clear current test progress.')) return;
+    resetTournament();
+  };
+
+  const handleClearSelection = () => {
+    setSelectedMap({});
+    setSelectedSkisDataMap(new Map());
+    setExpandedSkiId(null);
+  };
 
   // --- header actions
   const headerActions = (
@@ -324,7 +363,7 @@ const Skis = () => {
             title="Pick user"
           >
             <RiUser3Line />
-            <span className="max-w-[140px] truncate">
+            <span className="max-w-35 truncate">
               {viewUserId
                 ? (accessibleUsers.owners.find(o => o.id === viewUserId)?.displayName || 'User')
                 : (accessibleUsers.self?.displayName || 'Me')}
@@ -385,6 +424,30 @@ const Skis = () => {
         actions={headerActions}
       />
 
+      {!!user && tournamentInProgress && (
+        <Card padded={false} className="p-3 mb-4">
+          <div className="flex flex-row items-center justify-between gap-2">
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-gray-700 mb-1">Ongoing test</div>
+              <div className="text-xs text-gray-600">
+                {tournamentSelectedSkis?.length ? (
+                  <>
+                    {tournamentSelectedSkis.length} ski{tournamentSelectedSkis.length > 1 ? 's' : ''} • Round {roundNumber || 1}
+                  </>
+                ) : (
+                  <>Test in progress</>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <Button onClick={handleContinueTest} variant="secondary" className='text-sm'>Continue</Button>
+              <Button onClick={handleResetTest} variant="danger" className='text-sm'>Reset</Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Info Box */}
       <AnimatePresence>
         {showInfo && (
@@ -395,7 +458,7 @@ const Skis = () => {
           >
             <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
               <div className="flex items-start gap-3">
-                <RiInformationLine className="text-blue-500 mt-0.5 flex-shrink-0" />
+                <RiInformationLine className="text-blue-500 mt-0.5 shrink-0" />
                 <div className="text-blue-800">
                   <h3 className="block font-semibold mb-4">How the Skis page works:</h3>
                   <ul className="list-disc ml-4 space-y-1">
@@ -471,6 +534,7 @@ const Skis = () => {
             {getSelectedList().length} ski{getSelectedList().length > 1 ? 's' : ''} selected
           </div>
           <div className="flex gap-2">
+            <Button onClick={handleClearSelection} variant="secondary">Clear</Button>
             <Button
               onClick={handleStartTournament}
               variant="primary"
@@ -478,9 +542,6 @@ const Skis = () => {
             >
               New Test
             </Button>
-            {!!currentRound.length && (
-              <Button onClick={handleContinueTest} variant="primary"><VscDebugContinue /></Button>
-            )}
           </div>
         </div>
       )}
@@ -642,30 +703,6 @@ const Skis = () => {
     </div>
   );
 };
-
-// Add this new component near the top of the file
-function GettingStartedGuide({ onAddSki, onLearnMore }) {
-  return (
-    <Card
-      padded={false}
-      className="flex flex-col items-center p-6 border border-dashed border-gray-300 rounded-lg bg-white ring-0 shadow-none backdrop-blur-0"
-    >
-      <h2 className="text-xl font-bold mb-2">Welcome to Ski Lab!</h2>
-      <p className="text-gray-600 text-center mb-4">
-        Let's get started! Follow these simple steps:
-      </p>
-      <ol className="list-decimal list-inside text-gray-700 mb-4 space-y-1">
-        <li>Click on the "Add Ski" button below to add your first ski.</li>
-        <li>Fill in your ski's details.</li>
-        <li>Once added, start testing and managing your skis.</li>
-      </ol>
-      <div className="flex space-x-4">
-        <Button onClick={onAddSki} variant="primary">Add Ski</Button>
-        <Button onClick={onLearnMore} variant="secondary">Learn More</Button>
-      </div>
-    </Card>
-  );
-}
 
 function groupSkisByStyle(skis) {
   const groups = { classic: [], skate: [], dp: [] };

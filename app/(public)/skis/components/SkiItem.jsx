@@ -34,7 +34,8 @@ export default function SkiItem(props) {
   } = props;
 
   const { gloveMode } = useContext(UserPreferencesContext);
-  const showDetails = allExpanded || (ski.id === expandedSkiId);
+  const selectionKey = ski?._key ?? ski?.id;
+  const showDetails = allExpanded || (selectionKey === expandedSkiId);
   const [showFullSerial, setShowFullSerial] = useState(false);
 
   const serialDisplay = showFullSerial
@@ -71,7 +72,6 @@ export default function SkiItem(props) {
     dp: 'accent-fuchsia-700'
   };
 
-  const selectionKey = ski?._key ?? ski?.id;
   const isSelected = !!selectedSkis?.[selectionKey];
 
   return (
@@ -89,7 +89,7 @@ export default function SkiItem(props) {
             aria-label="Select ski"
           />
         )}
-        <div className="flex items-center gap-2 flex-grow">
+        <div className="flex items-center gap-2 grow">
           <span
             className="font-medium cursor-pointer"
             title={showFullSerial ? "Show last 3 digits" : "Show full serial number"}
@@ -108,7 +108,7 @@ export default function SkiItem(props) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              toggleDetails(ski.id);
+              toggleDetails(selectionKey);
             }}
             className="py-3 px-2"
           >
