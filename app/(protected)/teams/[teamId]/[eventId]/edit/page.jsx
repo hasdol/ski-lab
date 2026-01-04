@@ -156,6 +156,8 @@ export default function EditEventPage() {
               value={desc}
               onChange={e => setDesc(e.target.value)}
               placeholder="Description"
+              rows={6}
+              className="h-40"
             />
             <p className="text-xs text-gray-500">
               Supports Markdown (e.g. <span className="font-mono"># Heading</span>, <span className="font-mono">## Subheading</span>, lists, links).
