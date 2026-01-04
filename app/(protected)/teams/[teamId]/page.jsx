@@ -22,6 +22,7 @@ import { TEAM_PLAN_CAPS } from '@/lib/constants/teamPlanCaps';
 import TeamInfo from './components/TeamInfo';
 import TeamEventDashboard from '@/components/analytics/TeamEventDashboard';
 import Card from '@/components/ui/Card';
+import { formatDateRange } from '@/helpers/helpers';
 
 export default function TeamDetailPage() {
   const { teamId } = useParams();
@@ -329,7 +330,7 @@ export default function TeamDetailPage() {
                                   <h3 className="font-semibold text-gray-800">{evt.name}</h3>
                                   <p className="flex items-center text-sm text-gray-500 mt-1">
                                     <MdEvent className="mr-1" />
-                                    {start.toLocaleDateString()} – {end.toLocaleDateString()}
+                                    {formatDateRange(start, end)}
                                   </p>
                                   {/* Visibility badge */}
                                   <span

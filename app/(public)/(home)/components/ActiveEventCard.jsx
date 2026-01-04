@@ -2,13 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FiClock, FiChevronRight } from 'react-icons/fi';
-
-const formatDate = (d) => {
-  if (!d) return '';
-  if (typeof d?.toDate === 'function') d = d.toDate();
-  if (typeof d === 'string') d = new Date(d);
-  return d instanceof Date && !isNaN(d) ? d.toLocaleDateString('nb-NO', { day: '2-digit', month: 'short' }) : '';
-};
+import { formatDayMonthShort } from '@/helpers/helpers';
 
 const getInitials = (name = '') =>
   name
@@ -20,8 +14,8 @@ const getInitials = (name = '') =>
     .toUpperCase();
 
 const ActiveEventCard = ({ event = {}, team = {}, onClick = () => {} }) => {
-  const start = formatDate(event.startDate);
-  const end = formatDate(event.endDate);
+  const start = formatDayMonthShort(event.startDate);
+  const end = formatDayMonthShort(event.endDate);
   const dateRange = start && end ? `${start} — ${end}` : start || end || '';
   const initials = getInitials(team.name || event.name || 'SL');
   const participantCount = event.participants?.length ?? event.participantCount ?? null;

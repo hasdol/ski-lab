@@ -291,11 +291,6 @@ const EditResultPage = () => {
                 onChange={handleInputChange}
                 required
               />
-              {resultData.timestamp && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Norwegian format: {formatDate(resultData.timestamp)}
-                </p>
-              )}
             </div>
 
             {/* Shared events selector */}

@@ -153,7 +153,7 @@ const Input = ({
 
 Input.propTypes = {
   label: PropTypes.string,
-  type: PropTypes.oneOf(['text', 'number', 'textarea', 'select', 'radio', 'range']),
+  type: PropTypes.oneOf(['text', 'number', 'date', 'datetime-local', 'textarea', 'select', 'radio', 'range']),
   // Many callers currently omit name; keep it optional here, but prefer passing it explicitly.
   name: PropTypes.string,
   value: PropTypes.any,

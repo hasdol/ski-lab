@@ -7,6 +7,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Spinner from '@/components/common/Spinner/Spinner';
 import Card from '@/components/ui/Card';
+import { formatDate } from '@/helpers/helpers';
 
 export default function TeamInfo({ teamId, canPost }) {
   const { user } = useAuth();
@@ -89,7 +90,7 @@ export default function TeamInfo({ teamId, canPost }) {
                       </div>
                       {createdAt && (
                         <div className="text-xs text-gray-500">
-                          {createdAt.toLocaleString()}
+                          {formatDate(createdAt, true)}
                         </div>
                       )}
                     </div>

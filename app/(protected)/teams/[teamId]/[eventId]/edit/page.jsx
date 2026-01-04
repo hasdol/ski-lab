@@ -7,6 +7,7 @@ import useEvent from '@/hooks/useEvent';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import UploadableImage from '@/components/UploadableImage/UploadableImage';
+import { formatDateForInput, parseDateInput } from '@/helpers/helpers';
 import { useAuth } from '@/context/AuthContext';
 import GeocodeInput from '@/components/GeocodeInput/GeocodeInput';
 import Spinner from '@/components/common/Spinner/Spinner';
@@ -40,8 +41,16 @@ export default function EditEventPage() {
     if (eventData) {
       setName(eventData.name || '');
       setDesc(eventData.description || '');
-      setStartDate(eventData.startDate ? new Date(eventData.startDate.seconds * 1000).toISOString().slice(0,10) : '');
-      setEndDate(eventData.endDate ? new Date(eventData.endDate.seconds * 1000).toISOString().slice(0,10) : '');
+      setStartDate(
+        eventData.startDate
+          ? formatDateForInput(new Date(eventData.startDate.seconds * 1000))
+          : ''
+      );
+      setEndDate(
+        eventData.endDate
+          ? formatDateForInput(new Date(eventData.endDate.seconds * 1000))
+          : ''
+      );
       setImageURL(eventData.imageURL || '');
       setLocation(eventData.location || { lat: null, lon: null, address: '' });
       setResultsVisibility(eventData.resultsVisibility || 'team'); // NEW
@@ -65,9 +74,10 @@ export default function EditEventPage() {
         setImageURL(finalImage);
       }
 
-      const start = new Date(startDate);
+      const start = parseDateInput(startDate);
+      const end = parseDateInput(endDate);
+
       start.setHours(0, 0, 0, 0);
-      const end = new Date(endDate);
       end.setHours(23, 59, 59, 999);
 
       await updateEvent(teamId, eventId, {
@@ -149,12 +159,8 @@ export default function EditEventPage() {
                 label="Start date"
                 value={startDate}
                 onChange={e => setStartDate(e.target.value)}
+                lang="nb-NO"
               />
-              {startDate && (
-                <p className="text-sm text-gray-500">
-                  Norwegian format: {new Date(startDate).toLocaleDateString('nb-NO')}
-                </p>
-              )}
             </div>
             <div>
               <Input
@@ -162,12 +168,8 @@ export default function EditEventPage() {
                 label="End date"
                 value={endDate}
                 onChange={e => setEndDate(e.target.value)}
+                lang="nb-NO"
               />
-              {endDate && (
-                <p className="text-sm text-gray-500">
-                  Norwegian format: {new Date(endDate).toLocaleDateString('nb-NO')}
-                </p>
-              )}
             </div>
           </div>
 

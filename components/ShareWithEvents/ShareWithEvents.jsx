@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { getUserTeamsWithEvents } from '@/lib/firebase/firestoreFunctions';
 import Input from '../ui/Input';
 import Card from '@/components/ui/Card';
+import { formatDateRange } from '@/helpers/helpers';
 
 export default function ShareWithEventSelector({
   userId,
@@ -244,7 +245,7 @@ export default function ShareWithEventSelector({
                             {evt.name}
                           </div>
                           <div className="text-xs text-gray-500">
-                            {evt.startDate.toLocaleDateString('nb-NO')} – {evt.endDate.toLocaleDateString('nb-NO')}
+                            {formatDateRange(evt.startDate, evt.endDate)}
                           </div>
                         </div>
 

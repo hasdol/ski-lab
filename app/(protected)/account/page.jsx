@@ -10,12 +10,7 @@ import Spinner from '@/components/common/Spinner/Spinner';
 import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import PageHeader from '@/components/layout/PageHeader'; // Add this import
 import Card from '@/components/ui/Card'
-
-const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const options = { day: '2-digit', month: 'long', year: 'numeric' };
-    return date.toLocaleDateString('nb-NO', options);
-};
+import { formatDateWithOptions } from '@/helpers/helpers';
 
 const ProfileImageSection = ({ userData, updateProfileImage, deleteProfileImage, isChangingImg }) => {
     const handleRemoveImage = async () => {
@@ -102,7 +97,9 @@ const ProfileInfoSection = ({ user, userData, errorMessage, router }) => {
             <div>
                 <p className="text-sm text-gray-500">
                     Joined: <span className="font-medium">
-                        {user?.metadata.creationTime ? formatDate(user.metadata.creationTime) : ''}
+                        {user?.metadata.creationTime
+                          ? formatDateWithOptions(user.metadata.creationTime, { day: '2-digit', month: 'long', year: 'numeric' })
+                          : ''}
                     </span>
                 </p>
             </div>

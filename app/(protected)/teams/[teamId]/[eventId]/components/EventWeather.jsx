@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   RiSunLine,
   RiCloudLine,
@@ -9,6 +10,7 @@ import {
   RiSnowyLine,
 } from 'react-icons/ri';
 import Button from '@/components/ui/Button';
+import { formatDate, formatTimeShort, formatWeekdayShort, getOsloDateKey } from '@/helpers/helpers';
 
 /* ————— endpoint selection ————— */
 const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'ski-lab-dev';
@@ -21,6 +23,11 @@ export default function EventWeather({ eventData }) {
   const [forecast, setForecast]   = useState(null);
   const [loading, setLoading]     = useState(true);
   const [selectedDay, setSelectedDay] = useState(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   /* ─────────────────────────  FETCH  ───────────────────────── */
   useEffect(() => {
@@ -44,11 +51,8 @@ export default function EventWeather({ eventData }) {
     const daily = {};
 
     data.properties.timeseries.forEach((entry) => {
-      const date = new Date(entry.time).toDateString();
-      const time = new Date(entry.time).toLocaleTimeString('en', {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+      const dateKey = getOsloDateKey(entry.time) || new Date(entry.time).toISOString().slice(0, 10);
+      const time = formatTimeShort(entry.time);
 
       const instant = entry.data.instant.details;
       const next1h = entry.data.next_1_hours?.details || {};
@@ -63,9 +67,9 @@ export default function EventWeather({ eventData }) {
         symbol,
       };
 
-      if (!daily[date]) {
-        daily[date] = {
-          date,
+      if (!daily[dateKey]) {
+        daily[dateKey] = {
+          date: dateKey,
           minTemp: instant.air_temperature,
           maxTemp: instant.air_temperature,
           totalPrecip: hourObj.precip,
@@ -75,12 +79,12 @@ export default function EventWeather({ eventData }) {
           hourly: [hourObj],
         };
       } else {
-        daily[date].minTemp = Math.min(daily[date].minTemp, instant.air_temperature);
-        daily[date].maxTemp = Math.max(daily[date].maxTemp, instant.air_temperature);
-        daily[date].totalPrecip += hourObj.precip;
-        daily[date].maxWind = Math.max(daily[date].maxWind, instant.wind_speed);
-        daily[date].maxHumidity = Math.max(daily[date].maxHumidity, instant.relative_humidity);
-        daily[date].hourly.push(hourObj);
+        daily[dateKey].minTemp = Math.min(daily[dateKey].minTemp, instant.air_temperature);
+        daily[dateKey].maxTemp = Math.max(daily[dateKey].maxTemp, instant.air_temperature);
+        daily[dateKey].totalPrecip += hourObj.precip;
+        daily[dateKey].maxWind = Math.max(daily[dateKey].maxWind, instant.wind_speed);
+        daily[dateKey].maxHumidity = Math.max(daily[dateKey].maxHumidity, instant.relative_humidity);
+        daily[dateKey].hourly.push(hourObj);
       }
     });
 
@@ -103,46 +107,48 @@ export default function EventWeather({ eventData }) {
 
   /* ──────────────────────  RENDER  ──────────────────────- */
   return (
-    <div className="mt-4">
-      <h2 className="text-xl font-semibold mb-4">
-        {eventData.location.address} (yr.no)
-      </h2>
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900">
+          Weather
+        </h2>
+        <p className="text-sm text-gray-600">
+          {eventData.location.address} (yr.no)
+        </p>
+      </div>
 
       {loading && <p className="text-gray-400">Loading …</p>}
 
       {forecast?.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-7 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
           {forecast.map((day, index) => (
             <Button
               key={index}
               variant="secondary"
               onClick={() => setSelectedDay(index)}
+              className="w-full"
             >
-              <div className="grid grid-cols-5 md:grid-cols-1 items-center">
-                <div>
-                  {
-                    new Date(day.date).toLocaleDateString('en', {
-                      weekday: 'short',
-                    })
-                  }
+              <div className="flex flex-col items-center gap-1">
+                <div className="text-sm font-medium text-gray-800">
+                  {formatWeekdayShort(day.date)}
                 </div>
 
-                <div className="text-2xl my-2 flex justify-self-center">
+                <div className="text-2xl flex justify-self-center">
                   {getWeatherIcon(day.symbol)}
                 </div>
 
-                <div className="flex justify-center">
-                  <span className={`${day.minTemp?.toFixed(0)<1?'text-blue-500':'text-delete'}`}>
+                <div className="flex items-baseline justify-center text-sm">
+                  <span className={`${day.minTemp?.toFixed(0) < 1 ? 'text-blue-500' : 'text-delete'}`}>
                     {day.minTemp?.toFixed(0)}
                   </span>
-                  <span className="mx-1">/</span>
-                  <span className={`${day.maxTemp?.toFixed(0)<1?'text-blue-500':'text-delete'}`}>
+                  <span className="mx-1 text-gray-500">/</span>
+                  <span className={`${day.maxTemp?.toFixed(0) < 1 ? 'text-blue-500' : 'text-delete'}`}>
                     {day.maxTemp?.toFixed(0)}°C
                   </span>
                 </div>
 
-                <div className="text-sm">{day.totalPrecip.toFixed(1)} mm</div>
-                <div className="text-sm">{day.maxHumidity.toFixed(0)} %</div>
+                <div className="text-xs text-gray-600">{day.totalPrecip.toFixed(1)} mm</div>
+                <div className="text-xs text-gray-600">{day.maxHumidity.toFixed(0)} %</div>
               </div>
             </Button>
           ))}
@@ -152,54 +158,53 @@ export default function EventWeather({ eventData }) {
       )}
 
       {/* ───────────── Hourly modal ───────────── */}
-      {selectedDay !== null && (
-        <div className="fixed inset-0 backdrop-blur flex items-center justify-center z-50">
-          <div className="bg-white border border-gray-300 rounded-md p-4 mx-2 shadow-md w-full max-w-2xl relative">
-            <h3 className="flex space-x-1 text-lg font-semibold mb-4">
-              <span>{forecast[selectedDay].date.slice(0, 3)}</span>
-              <span>-</span>
-              <span>{forecast[selectedDay].date.slice(4)}</span>
-            </h3>
+      {mounted && selectedDay !== null && forecast?.[selectedDay]
+        ? createPortal(
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
+              <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-lg ring-1 ring-black/10">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  {formatDate(forecast[selectedDay].date)}
+                </h3>
 
-            <div className="max-h-[70vh] overflow-y-auto">
-              <div className="grid grid-cols-6 font-semibold text-gray-600 text-xs border-b pb-2 mb-2">
-                <div>Time</div>
-                <div></div>
-                <div>Temp</div>
-                <div>Precip</div>
-                <div>Wind</div>
-                <div>Humidity</div>
-              </div>
+                <div className="max-h-[70vh] overflow-y-auto">
+                  <div className="grid grid-cols-6 font-semibold text-gray-600 text-xs border-b pb-2 mb-2">
+                    <div>Time</div>
+                    <div></div>
+                    <div>Temp</div>
+                    <div>Precip</div>
+                    <div>Wind</div>
+                    <div>Humidity</div>
+                  </div>
 
-              {forecast[selectedDay].hourly.map((h, i) => (
-                <div
-                  key={i}
-                  className={`grid grid-cols-6 text-sm py-2 border-b border-gray-300 hover:bg-gray-50 transition-all ${
-                    i % 2 === 0 ? 'bg-gray-50/50' : ''
-                  }`}
-                >
-                  <div>{h.time}</div>
-                  <div>{getWeatherIcon(h.symbol)}</div>
-                  <div>{h.temp.toFixed(1)}°C</div>
-                  <div>{h.precip.toFixed(1)} mm</div>
-                  <div>{h.wind.toFixed(1)} m/s</div>
-                  <div>{h.humidity.toFixed(0)} %</div>
+                  {forecast[selectedDay].hourly.map((h, i) => (
+                    <div
+                      key={i}
+                      className={`grid grid-cols-6 text-sm py-2 border-b border-gray-200 hover:bg-gray-50 transition-colors ${
+                        i % 2 === 0 ? 'bg-gray-50/50' : ''
+                      }`}
+                    >
+                      <div>{h.time}</div>
+                      <div>{getWeatherIcon(h.symbol)}</div>
+                      <div>{h.temp.toFixed(1)}°C</div>
+                      <div>{h.precip.toFixed(1)} mm</div>
+                      <div>{h.wind.toFixed(1)} m/s</div>
+                      <div>{h.humidity.toFixed(0)} %</div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            <Button
-              onClick={() => setSelectedDay(null)}
-              variant="secondary"
-              className="mt-4 text-xs"
-            >
-              Close
-            </Button>
-          </div>
-        </div>
-      )}
+                <div className="flex justify-end mt-4">
+                  <Button onClick={() => setSelectedDay(null)} variant="secondary">
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )
+        : null}
 
-      <p className="mt-1 text-xs text-gray-500">
+      <p className="text-xs text-gray-500">
         Weather data ©{' '}
         <a
           href="https://www.met.no/"

@@ -229,12 +229,8 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
                   placeholder='Grind date'
                   required
                   disabled={isEdit}
+                  lang="nb-NO"
                 />
-                {formData.grindDate && (
-                  <p className="absolute -bottom-4 text-xs text-gray-500 mt-1">
-                    Norwegian format: {formatDate(formData.grindDate)}
-                  </p>
-                )}
               </div>
             </div>
 
@@ -261,12 +257,8 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
                       value={formData.newGrindDate || ''}
                       onChange={handleChange}
                       placeholder='New grind date'
+                      lang="nb-NO"
                     />
-                    {formData.newGrindDate && (
-                      <p className="absolute -bottom-4 text-xs text-gray-500 mt-1">
-                        Norwegian format: {formatDate(formData.newGrindDate)}
-                      </p>
-                    )}
                   </div>
                 </div>
               </>

@@ -6,17 +6,10 @@ import PageHeader from '@/components/layout/PageHeader';
 import { APP_VERSION, RELEASES } from '@/lib/releases';
 import Button from '@/components/ui/Button';
 import { MdUpdate } from "react-icons/md";
+import { formatDateWithOptions } from '@/helpers/helpers';
 
 
 
-
-function formatDate(iso) {
-    try {
-        return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-    } catch {
-        return iso;
-    }
-}
 
 // add above ReleasesPage()
 function renderTextWithLinks(text) {
@@ -68,7 +61,9 @@ export default function ReleasesPage() {
               <h2 className="text-lg font-semibold text-gray-900">
                 {r.version} <span className="text-gray-500 font-normal">— {r.title}</span>
               </h2>
-              <div className="text-sm text-gray-500">{formatDate(r.date)}</div>
+              <div className="text-sm text-gray-500">
+                {formatDateWithOptions(r.date, { year: 'numeric', month: 'short', day: 'numeric' })}
+              </div>
             </div>
 
             {Array.isArray(r.items) && r.items.length > 0 && (
