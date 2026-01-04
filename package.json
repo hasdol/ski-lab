@@ -6,10 +6,8 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "postbuild": "next-sitemap",
-
     "build:dev": "env-cmd -f .env.development npm run build",
     "build:live": "env-cmd -f .env.production npm run build",
-
     "start": "next start",
     "lint": "next lint",
     "deploy": "vercel --prod"
@@ -33,9 +31,11 @@
     "react-dom": "^19.1.0",
     "react-flagkit": "^2.0.4",
     "react-icons": "^5.5.0",
+    "react-markdown": "^10.1.0",
     "react-virtualized-auto-sizer": "^1.0.26",
     "react-window": "^1.8.11",
     "recharts": "^2.15.3",
+    "remark-gfm": "^4.0.1",
     "stripe": "^18.2.1",
     "tailwindcss-animated": "^2.0.0",
     "use-debounce": "^10.0.4",

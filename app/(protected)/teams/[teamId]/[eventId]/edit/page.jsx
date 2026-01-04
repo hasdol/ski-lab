@@ -70,7 +70,7 @@ export default function EditEventPage() {
     try {
       let finalImage = imageURL;
       if (file) {
-        finalImage = await uploadEventImage(teamId, eventId, file);
+        finalImage = await uploadEventImage(teamId, eventId, file, user?.uid);
         setImageURL(finalImage);
       }
 
@@ -150,7 +150,17 @@ export default function EditEventPage() {
       ) : (
         <Card className="p-6 space-y-6">
           <Input value={name} onChange={e => setName(e.target.value)} placeholder="Event name" />
-          <Input type="textarea" value={desc} onChange={e => setDesc(e.target.value)} placeholder="Description" />
+          <div className="space-y-1">
+            <Input
+              type="textarea"
+              value={desc}
+              onChange={e => setDesc(e.target.value)}
+              placeholder="Description"
+            />
+            <p className="text-xs text-gray-500">
+              Supports Markdown (e.g. <span className="font-mono"># Heading</span>, <span className="font-mono">## Subheading</span>, lists, links).
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
