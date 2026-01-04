@@ -135,22 +135,20 @@ export default function EditTeamPage() {
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto p-4">
-        <div className="bg-red-50 text-red-800 border border-red-200 rounded-lg p-6">
-          Error loading team: {error.message}
-        </div>
+      <div className="bg-red-50 text-red-800 border border-red-200 rounded-lg p-6">
+        Error loading team: {error.message}
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl md:min-w-xl w-full self-center p-4">
+    <>
       <PageHeader
         icon={<RiTeamLine className="text-blue-600 text-2xl" />}
         title="Edit Team"
         subtitle="Edit the selected team"
         actions={
-          <Button onClick={handleBack} className='flex items-center' variant="secondary"><MdArrowBack className='mr-1'/> Back</Button>
+          <Button onClick={handleBack} className='flex items-center' variant="secondary"><MdArrowBack className='mr-1'/> Back to Team</Button>
         }
       />
 
@@ -265,6 +263,6 @@ export default function EditTeamPage() {
           )}
         </div>
       </Card>
-    </div>
+    </>
   );
 }

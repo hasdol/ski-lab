@@ -121,14 +121,14 @@ export default function EditEventPage() {
   if (!eventData && !loading) return <div>No event found</div>;
 
   return (
-    <div className="p-4 max-w-4xl w-full self-center">
+    <>
       <PageHeader
         icon={<RiCalendarEventLine className="text-blue-600 text-2xl" />}
         title="Edit Event"
         subtitle="Edit the selected event"
         actions={
           <Button onClick={() => router.push(`/teams/${teamId}/${eventId}`)} className='flex items-center' variant="secondary"><MdArrowBack className='mr-1'/>
-            Back
+            Back to Event
           </Button>
         }
       />
@@ -233,6 +233,6 @@ export default function EditEventPage() {
           </div>
         </Card>
       )}
-    </div>
+    </>
   );
 }

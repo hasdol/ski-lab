@@ -8,5 +8,9 @@ export const metadata = {
 };
 
 export default function TeamsLayout({ children }) {
-  return <>{children}</>;
+  return (
+    <div className="p-4 max-w-4xl w-full self-center">
+      {children}
+    </div>
+  );
 }

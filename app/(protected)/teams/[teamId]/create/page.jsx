@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { createEvent, updateEvent } from '@/lib/firebase/teamFunctions';
+import { createEvent, deleteEvent, updateEvent } from '@/lib/firebase/teamFunctions';
 import { uploadEventImage } from '@/lib/firebase/storageFunctions';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -10,6 +10,7 @@ import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import GeocodeInput from '@/components/GeocodeInput/GeocodeInput';
 import PageHeader from '@/components/layout/PageHeader';
 import { RiCalendarEventLine } from "react-icons/ri";
+import { MdArrowBack } from 'react-icons/md';
 
 
 export default function CreateEventPage() {
@@ -78,12 +79,20 @@ export default function CreateEventPage() {
   };
 
   return (
-    <div className="max-w-4xl md:min-w-xl w-full self-center p-4">
+    <>
       <PageHeader
         icon={<RiCalendarEventLine className="text-blue-600 text-2xl" />}
         title="Create Event"
         subtitle="Create a new event for your team"
-        actions={null}
+        actions={
+          <Button
+            onClick={() => router.push(`/teams/${teamId}`)}
+            className='flex items-center'
+            variant="secondary"
+          >
+            <MdArrowBack className='mr-1'/> Back to Team
+          </Button>
+        }
       />
 
       <div className="rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 p-6 space-y-6">
@@ -134,15 +143,6 @@ export default function CreateEventPage() {
             clickable={true}
           />
         </div>
-        
-        <div className="flex gap-3 mt-6">
-          <Button onClick={handleCreate} variant="primary" loading={uploading}>
-            Create
-          </Button>
-          <Button onClick={() => router.push(`/teams/${teamId}`)} variant="secondary">
-            Cancel
-          </Button>
-        </div>
 
         <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
           <h3 className="font-medium text-gray-900 mb-2">Result visibility</h3>
@@ -169,7 +169,13 @@ export default function CreateEventPage() {
             </label>
           </div>
         </div>
+
+        <div className="flex gap-3 mt-6">
+          <Button onClick={handleCreate} variant="primary" loading={uploading}>
+            Create
+          </Button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

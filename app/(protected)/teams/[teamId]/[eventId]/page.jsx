@@ -16,7 +16,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase/firebaseConfig';
 import PageHeader from '@/components/layout/PageHeader';
 import Card from '@/components/ui/Card';
-import { MdEvent } from 'react-icons/md';
+import { MdEvent, MdArrowBack } from 'react-icons/md';
 
 export default function EventPage() {
   const { teamId, eventId } = useParams();
@@ -62,19 +62,15 @@ export default function EventPage() {
   }
   if (error) {
     return (
-      <div className="p-4 max-w-4xl w-full self-center">
-        <div className="bg-red-50 text-red-700 rounded-2xl p-6 border border-red-200">
-          Error: {error.message}
-        </div>
+      <div className="bg-red-50 text-red-700 rounded-2xl p-6 border border-red-200">
+        Error: {error.message}
       </div>
     );
   }
   if (!eventData) {
     return (
-      <div className="p-4 max-w-4xl w-full self-center">
-        <div className="bg-yellow-50 text-yellow-800 rounded-2xl p-6 border border-yellow-200">
-          No event found
-        </div>
+      <div className="bg-yellow-50 text-yellow-800 rounded-2xl p-6 border border-yellow-200">
+        No event found
       </div>
     );
   }
@@ -86,9 +82,9 @@ export default function EventPage() {
   const endFmt = formatDate(end);
 
   const headerActions = (
-    <div className="flex flex-col sm:flex-row gap-2 items-center">
-      <Button onClick={handleBack} variant="secondary">
-        Back
+    <div className="flex flex-wrap gap-2 items-center justify-end">
+      <Button onClick={handleBack} className='flex items-center' variant="secondary">
+        <MdArrowBack className='mr-1'/> Back to Team
       </Button>
       {canManage && (
         <Button onClick={handleEdit} variant="primary">
@@ -99,7 +95,7 @@ export default function EventPage() {
   );
 
   return (
-    <div className="p-4 max-w-4xl w-full self-center">
+    <>
       <PageHeader
         icon={<MdEvent className="text-blue-600 text-2xl" />}
         title={eventData.name}
@@ -138,6 +134,6 @@ export default function EventPage() {
           <TeamEventDashboard teamId={teamId} eventId={eventId} />
         )}
       </div>
-    </div>
+    </>
   );
 }

@@ -9,7 +9,7 @@ import { removeTeamMember, leaveTeam } from '@/lib/firebase/teamFunctions';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { motion } from 'framer-motion';
 import PendingJoinRequests from '@/app/(protected)/teams/[teamId]/components/PendingJoinRequests';
-import { MdEvent, MdPublicOff, MdPublic } from "react-icons/md";
+import { MdEvent, MdPublicOff, MdPublic, MdArrowBack } from "react-icons/md";
 import { RiTeamLine } from 'react-icons/ri';
 import PageHeader from '@/components/layout/PageHeader';
 
@@ -118,18 +118,14 @@ export default function TeamDetailPage() {
   );
 
   if (error) return (
-    <div className="max-w-4xl mx-auto p-4">
-      <div className="bg-red-50 text-red-800 border border-red-200 rounded-lg p-6">
-        Error loading team: {error.message}
-      </div>
+    <div className="bg-red-50 text-red-800 border border-red-200 rounded-lg p-6">
+      Error loading team: {error.message}
     </div>
   );
 
   if (!team && !loading) return (
-    <div className="max-w-4xl mx-auto p-4">
-      <div className="bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg p-6">
-        No team found
-      </div>
+    <div className="bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg p-6">
+      No team found
     </div>
   );
 
@@ -147,9 +143,9 @@ export default function TeamDetailPage() {
   });
 
   const headerActions = (
-    <div className="flex flex-col sm:flex-row gap-2 items-center">
-      <Button onClick={handleBack} variant="secondary">
-        Back to Teams
+    <div className="flex flex-wrap gap-2 items-center justify-end">
+      <Button onClick={handleBack} className='flex items-center' variant="secondary">
+        <MdArrowBack className='mr-1'/> Back to Teams
       </Button>
       {teamAdmin && (
         <Button
@@ -185,7 +181,7 @@ export default function TeamDetailPage() {
   );
 
   return (
-    <div className="p-4 max-w-4xl w-full self-center">
+    <>
       <PageHeader
         icon={<RiTeamLine className="text-blue-600 text-2xl" />}
         title={
@@ -450,6 +446,6 @@ export default function TeamDetailPage() {
           {/* Removed Members card from dashboard (now in Members tab) */}
         </div>
       )}
-    </div>
+    </>
   );
 }

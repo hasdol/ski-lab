@@ -28,7 +28,7 @@ const Button = ({
       variantStyles = 'bg-slate-200 hover:bg-slate-300 text-gray-800 active:scale-[0.98]';
       break;
     case 'danger':
-      variantStyles = 'bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors active:scale-[0.98] focus:ring-2 focus:ring-red-300';
+      variantStyles = 'bg-red-100 text-red-600 hover:bg-red-200 transition-colors active:scale-[0.98] focus:ring-2 focus:ring-red-300';
       break;
     case 'upgrade':
       variantStyles = 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] focus:ring-2 focus:ring-blue-300 shadow-sm';

@@ -8,7 +8,7 @@ import Button from '@/components/ui/Button';
 import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import Input from '@/components/ui/Input';
 import { RiTeamLine } from 'react-icons/ri';
-import { MdPublic, MdPublicOff } from 'react-icons/md';
+import { MdArrowBack, MdPublic, MdPublicOff } from 'react-icons/md';
 import Toggle from '@/components/ui/Toggle';
 import PageHeader from '@/components/layout/PageHeader';
 
@@ -53,12 +53,20 @@ export default function CreateTeamPage() {
   };
 
   return (
-    <div className="max-w-4xl w-full self-center p-4">
+    <>
       <PageHeader
         icon={<RiTeamLine className="text-blue-600 text-2xl" />}
         title="Create Team"
         subtitle="Set up a new team for collaboration"
-        actions={null}
+        actions={
+          <Button
+            onClick={() => router.push('/teams')}
+            className='flex items-center'
+            variant="secondary"
+          >
+            <MdArrowBack className='mr-1'/> Back to Teams
+          </Button>
+        }
       />
 
       <div className="p-6 rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 space-y-6">
@@ -119,15 +127,8 @@ export default function CreateTeamPage() {
           >
             Create Team
           </Button>
-          <Button 
-            onClick={() => router.push('/teams')} 
-            variant="secondary"
-            className="flex-1"
-          >
-            Cancel
-          </Button>
         </div>
       </div>
-    </div>
+    </>
   );
 }

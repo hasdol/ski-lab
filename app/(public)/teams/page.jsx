@@ -122,7 +122,7 @@ export default function TeamsPage() {
   );
 
   return (
-    <div className="p-4 max-w-4xl w-full self-center">
+    <>
       <PageHeader
         icon={<RiTeamLine className="text-blue-600 text-2xl" />}
         title="Teams"
@@ -290,6 +290,6 @@ export default function TeamsPage() {
           setCodeInput('');
         }}
       />
-    </div>
+    </>
   );
 }
