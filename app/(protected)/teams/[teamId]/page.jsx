@@ -280,20 +280,20 @@ export default function TeamDetailPage() {
         )}
 
       <Card className="mb-6">
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-stretch md:items-start">
           {/* Image: no fixed box; scales naturally with a max-height */}
-          <div className="w-full md:w-5/12 lg:w-1/3">
+          <div className="w-full md:w-5/12 lg:w-1/3 flex justify-center md:justify-start">
             <UploadableImage
               photoURL={team.imageURL}
               variant="team"
               alt="team image"
               clickable={false}
-              className="w-full h-auto max-h-64 object-contain"
+              className="w-full max-w-xs md:max-w-none h-auto max-h-24 md:max-h-32 object-contain"
             />
           </div>
 
           {/* Content */}
-          <div className="flex-1 space-y-5">
+          <div className="flex-1 w-full space-y-5">
             <div className="space-y-2">
               <div className="text-xs font-semibold text-gray-500 tracking-wide uppercase">About</div>
               {team.description ? (
