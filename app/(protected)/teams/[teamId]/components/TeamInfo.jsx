@@ -17,7 +17,7 @@ export default function TeamInfo({ teamId, canPost }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [posting, setPosting] = useState(false);
-  const [showComposer, setShowComposer] = useState(true);
+  const [showComposer, setShowComposer] = useState(false);
 
   const handlePost = async () => {
     if (!canPost || !user) return;
