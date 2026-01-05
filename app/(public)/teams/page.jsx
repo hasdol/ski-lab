@@ -72,7 +72,18 @@ export default function TeamsPage() {
   const ownedTeamsCount =
     (teams || []).filter((t) => t.createdBy === user?.uid).length;
   const maxTeams = userData?.planTeamsCap ?? TEAM_PLAN_CAPS[userData?.plan]?.teams ?? 0;
-  const atTeamCap = canCreateTeam && maxTeams > 0 && ownedTeamsCount >= maxTeams;
+  const teamsCap = Number.isFinite(maxTeams) ? Number(maxTeams) : null;
+  const atTeamCap = canCreateTeam && teamsCap != null && teamsCap > 0 && ownedTeamsCount >= teamsCap;
+
+  const teamsCapStatus =
+    teamsCap == null
+      ? null
+      : (
+          (teamsCap > 0 && ownedTeamsCount >= teamsCap) ||
+          (teamsCap === 0 && ownedTeamsCount > 0)
+        )
+        ? (teamsCap === 0 || ownedTeamsCount > teamsCap ? 'over' : 'full')
+        : null;
 
   // NEW: preview a team by code (no side effects)
   const handleFindTeamByCode = async (e) => {
@@ -129,13 +140,37 @@ export default function TeamsPage() {
         subtitle={
           <>
             <span>
-              <span className="font-semibold text-gray-700">{ownedTeamsCount}</span> / {maxTeams} teams created
-              <span className="ml-2">({userData?.plan?.charAt(0).toUpperCase() + userData?.plan?.slice(1)} plan)</span>
+              <span className="font-semibold text-gray-700">{ownedTeamsCount}</span>
+              {teamsCap != null && teamsCap > 0 ? ` / ${teamsCap}` : ''} teams created
+
+              {teamsCapStatus && (
+                <span className="ml-2 text-red-600 font-semibold">
+                  ({teamsCapStatus === 'over' ? 'Over cap' : 'Full'})
+                </span>
+              )}
+
+              {userData?.plan && (
+                <span className="ml-2">
+                  ({userData.plan.charAt(0).toUpperCase() + userData.plan.slice(1)} plan)
+                </span>
+              )}
             </span>
           </>
         }
         actions={headerActions}
       />
+
+      {/* Cap warning (only when action is blocked by cap) */}
+      {user && canCreateTeam && atTeamCap && (
+        <div className="flex flex-col gap-3 md:flex-row mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-2xl p-5 items-center justify-between">
+          <span>
+            Team limit reached for your plan ({ownedTeamsCount} / {teamsCap}). Upgrade to create more teams.
+          </span>
+          <Button variant="primary" onClick={() => router.push('/pricing')}>
+            Upgrade
+          </Button>
+        </div>
+      )}
 
       {/* Info Box */}
       <AnimatePresence>

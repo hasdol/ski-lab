@@ -37,9 +37,9 @@ export default function TeamDetailPage() {
   const isMod = team?.mods?.includes(user?.uid);
   const isCreator = team?.createdBy === user?.uid;
   const teamAdmin = isCreator || isMod;
-  const canManageEvents = teamAdmin; // old: canManage
-  // Replace uses of `canManage` for team actions:
-  // const canManage = ['coach', 'company'].includes(userData?.plan);
+
+  const creatorPlanAllowsTeams = ['coach', 'company', 'admin'].includes(userData?.plan);
+  const canCreateNewEvents = teamAdmin && (!isCreator || creatorPlanAllowsTeams);
 
   // Fetch pending join requests count — creator only
   useEffect(() => {
@@ -78,10 +78,8 @@ export default function TeamDetailPage() {
       ? userData.planMembersCap
       : (TEAM_PLAN_CAPS[userData?.plan]?.members ?? null);
 
-    // FIX: treat 0/invalid as "no cap to display" (prevents "members0")
-    const cap =
-      Number.isFinite(capRaw) && Number(capRaw) > 0 ? Number(capRaw) : null;
-
+    // Keep explicit caps, even 0 (downgraded teams). Treat non-finite as unknown.
+    const cap = Number.isFinite(capRaw) ? Number(capRaw) : null;
     setMemberCap(cap);
   }, [isCreator, userData?.plan, userData?.planMembersCap]);
 
@@ -169,9 +167,14 @@ export default function TeamDetailPage() {
       <span className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1">
         <span>
           <span className="font-semibold text-gray-700">{team.members.length}</span>
-          {memberCap != null ? ` / ${memberCap}` : ''} members
-          {memberCap != null && team.members.length >= memberCap && (
-            <span className="ml-2 text-red-600 font-semibold">(Full)</span>
+          {memberCap != null && memberCap > 0 ? ` / ${memberCap}` : ''} members
+          {memberCap != null && (
+            (memberCap > 0 && team.members.length >= memberCap) ||
+            (memberCap === 0 && team.members.length > 0)
+          ) && (
+            <span className="ml-2 text-red-600 font-semibold">
+              {memberCap === 0 || team.members.length > memberCap ? '(Over cap)' : '(Full)'}
+            </span>
           )}
         </span>
         <span>
@@ -199,11 +202,25 @@ export default function TeamDetailPage() {
         actions={headerActions}
       />
 
-      {/* Upgrade notice for owners who can't manage events anymore */}
-      {isCreator && !canManageEvents && (
+      {/* Plan/cap warnings */}
+      {isCreator && !creatorPlanAllowsTeams && (
         <div className="flex flex-col gap-3 md:flex-row mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-2xl p-5 items-center justify-between">
           <span>
-            Your current plan doesn’t allow team management. Upgrade to manage teams.
+            Your current plan doesn’t include team management. You can view existing content, but can’t create new team events.
+          </span>
+          <Button variant="primary" onClick={() => router.push('/pricing')}>
+            Upgrade
+          </Button>
+        </div>
+      )}
+
+      {isCreator && memberCap != null && (
+        (memberCap > 0 && team.members.length >= memberCap) ||
+        (memberCap === 0 && team.members.length > 0)
+      ) && (
+        <div className="flex flex-col gap-3 md:flex-row mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-2xl p-5 items-center justify-between">
+          <span>
+            Team member limit reached for your current plan. New members can’t join until you upgrade or remove members.
           </span>
           <Button variant="primary" onClick={() => router.push('/pricing')}>
             Upgrade
@@ -303,6 +320,8 @@ export default function TeamDetailPage() {
                   onClick={() => router.push(`/teams/${teamId}/create`)}
                   variant="primary"
                   className="flex mx-auto"
+                  disabled={!canCreateNewEvents}
+                  title={!canCreateNewEvents ? (isCreator ? 'Upgrade required to create new team events' : 'Team owner must have a team plan to create events') : 'Create a new event'}
                 >
                   Create New Event
                 </Button>

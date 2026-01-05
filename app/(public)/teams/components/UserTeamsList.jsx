@@ -7,8 +7,9 @@ import { useAuth } from '@/context/AuthContext';
 import { RiVipCrownLine } from 'react-icons/ri';
 import { MdPublicOff, MdPublic } from 'react-icons/md';
 import Card from '@/components/ui/Card';
+import { TEAM_PLAN_CAPS } from '@/lib/constants/teamPlanCaps';
 
-const TeamCard = ({ team, isCreator, isMod, onView }) => {
+const TeamCard = ({ team, isCreator, isMod, memberCap, onView }) => {
   const getInitials = (name = '') =>
     name
       .split(' ')
@@ -19,6 +20,10 @@ const TeamCard = ({ team, isCreator, isMod, onView }) => {
       .toUpperCase();
 
   const initials = getInitials(team.name || 'T');
+  const membersCount = Array.isArray(team.members) ? team.members.length : 0;
+  const capKnown = Number.isFinite(memberCap);
+  const isFull = capKnown && memberCap > 0 && membersCount >= memberCap;
+  const isOverCap = capKnown && ((memberCap === 0 && membersCount > 0) || (memberCap > 0 && membersCount > memberCap));
 
   return (
     <Card
@@ -65,8 +70,16 @@ const TeamCard = ({ team, isCreator, isMod, onView }) => {
                 MOD
               </span>
             )}
+
+            {/* Member cap badge (only meaningful for the owner) */}
+            {isCreator && capKnown && (isFull || isOverCap) && (
+              <span className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold ${isOverCap ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-800'}`}>
+                {isOverCap ? 'Over cap' : 'Full'}
+              </span>
+            )}
+
             <span className="text-xs text-gray-500">
-              {team.members.length} member{team.members.length !== 1 && 's'}
+              {membersCount} member{membersCount !== 1 && 's'}
             </span>
           </div>
         </div>
@@ -83,7 +96,11 @@ const TeamCard = ({ team, isCreator, isMod, onView }) => {
 
 export default function UserTeamsList({ teams, onTeamUpdate }) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, userData } = useAuth();
+
+  const memberCap = Number.isFinite(userData?.planMembersCap)
+    ? Number(userData.planMembersCap)
+    : (TEAM_PLAN_CAPS[userData?.plan]?.members ?? null);
 
   return (
     <div className="grid gap-4 my-4">
@@ -99,6 +116,7 @@ export default function UserTeamsList({ teams, onTeamUpdate }) {
             team={team}
             isCreator={isCreator}
             isMod={isMod}
+            memberCap={isCreator ? memberCap : null}
             onView={() => router.push(`/teams/${team.id}`)}
           />
         );

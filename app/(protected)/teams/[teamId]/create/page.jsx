@@ -11,12 +11,14 @@ import GeocodeInput from '@/components/GeocodeInput/GeocodeInput';
 import PageHeader from '@/components/layout/PageHeader';
 import { RiCalendarEventLine } from "react-icons/ri";
 import { MdArrowBack } from 'react-icons/md';
+import { db } from '@/lib/firebase/firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
 
 
 export default function CreateEventPage() {
   const { teamId } = useParams();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, userData } = useAuth();
 
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
@@ -27,6 +29,23 @@ export default function CreateEventPage() {
   const [uploading, setUploading] = useState(false);
   const [location, setLocation] = useState({ lat: null, lon: null, address: '' });
   const [resultsVisibility, setResultsVisibility] = useState('team'); // NEW: per-event
+  const [teamCreatorId, setTeamCreatorId] = useState(null);
+
+  const isCreator = !!user?.uid && !!teamCreatorId && user.uid === teamCreatorId;
+  const creatorPlanAllowsTeams = ['coach', 'company', 'admin'].includes(userData?.plan);
+  const canCreateEvent = !!user?.uid && (!isCreator || creatorPlanAllowsTeams);
+
+  React.useEffect(() => {
+    (async () => {
+      if (!teamId) return;
+      try {
+        const snap = await getDoc(doc(db, 'teams', teamId));
+        if (snap.exists()) setTeamCreatorId(snap.data()?.createdBy ?? null);
+      } catch (e) {
+        console.error('Failed to load team metadata', e);
+      }
+    })();
+  }, [teamId]);
 
 
   const handleFileChange = (e) => {
@@ -39,12 +58,15 @@ export default function CreateEventPage() {
 
   const handleCreate = async () => {
     if (!name || !startDate || !endDate || !location.lat) return;
+    if (!canCreateEvent) return;
+
+    let eventRef;
 
     try {
       setUploading(true);
 
       // 1. First create the event without an image
-      const eventRef = await createEvent(
+      eventRef = await createEvent(
         teamId,
         name,
         desc,
@@ -69,6 +91,7 @@ export default function CreateEventPage() {
       router.push(`/teams/${teamId}`);
     } catch (err) {
       console.error('Create event failed', err);
+      alert(err?.message || 'Create event failed.');
       // Optional: Delete event if image upload fails
       if (eventRef?.id) {
         await deleteEvent(teamId, eventRef.id);
@@ -94,6 +117,17 @@ export default function CreateEventPage() {
           </Button>
         }
       />
+
+      {isCreator && !creatorPlanAllowsTeams && (
+        <div className="flex flex-col gap-3 md:flex-row mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-2xl p-5 items-center justify-between">
+          <span>
+            Your current plan doesn’t include team management, so you can’t create new team events.
+          </span>
+          <Button variant="primary" onClick={() => router.push('/pricing')}>
+            Upgrade
+          </Button>
+        </div>
+      )}
 
       <div className="rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 p-6 space-y-6">
 
@@ -171,7 +205,7 @@ export default function CreateEventPage() {
         </div>
 
         <div className="flex gap-3 mt-6">
-          <Button onClick={handleCreate} variant="primary" loading={uploading}>
+          <Button onClick={handleCreate} variant="primary" loading={uploading} disabled={!canCreateEvent}>
             Create
           </Button>
         </div>

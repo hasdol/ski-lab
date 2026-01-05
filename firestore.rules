@@ -182,6 +182,19 @@ service cloud.firestore {
         return request.auth != null
           && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ['coach','company']);
       }
+
+      function isAdminLocal() {
+        return request.auth != null && request.auth.token.admin == true;
+      }
+
+      // The team "owner" plan controls whether the team can create new events.
+      function teamOwnerAllowsTeams(teamId) {
+        return isAdminLocal()
+          || (
+            get(/databases/$(database)/documents/users/$(teamDoc(teamId).data.createdBy)).data.plan
+              in ['coach','company','admin']
+          );
+      }
       function isTeamCreator() { return request.auth != null && request.auth.uid == teamDoc(teamId).data.createdBy; }
       function isTeamModLocal() { return request.auth != null && (request.auth.uid in teamDoc(teamId).data.mods); }
       function isStaffLocal() { return isTeamCreator() || isTeamModLocal(); }
@@ -215,7 +228,8 @@ service cloud.firestore {
           return get(/databases/$(database)/documents/teams/$(teamId)/events/$(eventId)).data.resultsVisibility == 'staff';
         }
 
-        allow create: if isStaffLocal();
+        // Creating new events requires a team-capable plan on the team owner.
+        allow create: if isStaffLocal() && teamOwnerAllowsTeams(teamId);
         allow read: if isTeamMemberLocal() || isStaffLocal();
         allow update, delete: if isStaffLocal();
 
