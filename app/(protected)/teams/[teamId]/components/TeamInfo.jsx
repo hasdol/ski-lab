@@ -83,32 +83,27 @@ export default function TeamInfo({ teamId, canPost }) {
     <div className="space-y-6">
       {canPost && (
         <Card padded={false} className="p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div className="space-y-1">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
               <div className="text-xs font-semibold text-gray-500 tracking-wide uppercase">Post</div>
-              <h3 className="font-semibold text-gray-900">New update</h3>
+              <h3 className="font-semibold text-gray-900">New team update</h3>
+              <p className="text-sm text-gray-600">Share notes, schedule changes, or announcements.</p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">
-                {showComposer ? 'Hide' : 'Show'}
-              </span>
-              <Toggle
-                enabled={showComposer}
-                setEnabled={setShowComposer}
-                label="Toggle new info entry"
-              />
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="text-sm text-gray-600">{showComposer ? 'Hide' : 'Show'}</span>
+              <Toggle enabled={showComposer} setEnabled={setShowComposer} label="Toggle new team info entry" />
             </div>
           </div>
 
           {showComposer && (
-            <>
+            <div className="mt-5 pt-5 border-t border-black/5 space-y-4">
               <Input
                 type="text"
                 placeholder="Title (optional)"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <Input
                   type="textarea"
                   placeholder="Write your update"
@@ -121,40 +116,54 @@ export default function TeamInfo({ teamId, canPost }) {
                   Supports Markdown (e.g. <span className="font-mono"># Heading</span>, <span className="font-mono">## Subheading</span>, lists, links).
                 </p>
               </div>
-              <div className="flex justify-end">
-                <Button onClick={handlePost} variant="primary" loading={posting}>
-                  Post
+              <div className="flex items-center justify-end gap-2">
+                <Button
+                  onClick={handlePost}
+                  variant="primary"
+                  loading={posting}
+                  disabled={!title.trim() && !content.trim()}
+                >
+                  Post update
                 </Button>
               </div>
-            </>
+            </div>
           )}
         </Card>
       )}
 
       <Card padded={false} className="p-5">
-        <div className="space-y-1 mb-4">
-          <div className="text-xs font-semibold text-gray-500 tracking-wide uppercase">Info</div>
-          <h3 className="font-semibold text-gray-900">Team updates</h3>
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="min-w-0">
+            <div className="text-xs font-semibold text-gray-500 tracking-wide uppercase">Info</div>
+            <h3 className="font-semibold text-gray-900">Team updates</h3>
+            <p className="text-sm text-gray-600">Latest notes shared with the team.</p>
+          </div>
         </div>
         {loading ? (
           <div className="flex justify-center py-6"><Spinner /></div>
         ) : error ? (
           <div className="text-red-600 text-sm">Failed to load info.</div>
         ) : entries.length === 0 ? (
-          <div className="text-gray-500 text-sm italic">No entries yet.</div>
+          <div className="rounded-2xl bg-white/50 ring-1 ring-black/5 p-6 text-center">
+            <div className="text-sm text-gray-700 font-medium">No updates yet</div>
+            <div className="text-sm text-gray-600 mt-1">
+              {canPost ? 'Post the first update to keep everyone in sync.' : 'Check back later for team announcements.'}
+            </div>
+          </div>
         ) : (
           <ul className="space-y-4">
             {entries.map((e) => {
               const createdAt =
                 e.createdAt?.toDate ? e.createdAt.toDate() : null;
               const isEditing = editingId === e.id;
+              const displayTitle = (isEditing ? editTitle : e.title) || '';
               return (
                 <li
                   key={e.id}
-                  className="rounded-2xl bg-white/60 ring-1 ring-black/5 p-4"
+                  className="rounded-2xl bg-white/60 ring-1 ring-black/5 p-4 transition-colors hover:bg-white/70"
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
                       {isEditing ? (
                         <Input
                           type="text"
@@ -163,18 +172,21 @@ export default function TeamInfo({ teamId, canPost }) {
                           onChange={(ev) => setEditTitle(ev.target.value)}
                         />
                       ) : (
-                        <div className="font-semibold text-gray-900">
-                          {e.title || 'Update'}
-                        </div>
-                      )}
-                      {createdAt && (
-                        <div className="text-xs text-gray-500">
-                          {formatDate(createdAt, true)}
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <div className="font-semibold text-gray-900 break-words">
+                            {displayTitle.trim() ? displayTitle : 'Update'}
+                          </div>
+                          {createdAt && (
+                            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                              {formatDate(createdAt, true)}
+                            </span>
+                          )}
                         </div>
                       )}
                     </div>
+
                     {canPost && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 shrink-0">
                         {isEditing ? (
                           <>
                             <Button
@@ -190,6 +202,7 @@ export default function TeamInfo({ teamId, canPost }) {
                               className="text-xs px-3 py-1"
                               onClick={saveEdit}
                               loading={savingEdit}
+                              disabled={!editTitle.trim() && !editContent.trim()}
                             >
                               Save
                             </Button>
@@ -215,8 +228,9 @@ export default function TeamInfo({ teamId, canPost }) {
                       </div>
                     )}
                   </div>
+
                   {isEditing ? (
-                    <div className="mt-2">
+                    <div className="mt-3 space-y-3">
                       <Input
                         type="textarea"
                         placeholder="Write your update"
@@ -225,10 +239,13 @@ export default function TeamInfo({ teamId, canPost }) {
                         rows={10}
                         className="min-h-40"
                       />
+                      <div className="text-xs text-gray-500">
+                        Supports Markdown.
+                      </div>
                     </div>
                   ) : (
                     e.content && (
-                      <div className="mt-2">
+                      <div className="mt-3 pt-3 border-t border-black/5">
                         <Markdown>{e.content}</Markdown>
                       </div>
                     )
