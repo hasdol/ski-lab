@@ -151,15 +151,33 @@ export default function TeamDetailPage() {
   // Categorize events
   const now = new Date();
   const categorized = { live: [], upcoming: [], past: [] };
+
+  const toMillis = (v) => {
+    if (!v) return null;
+    if (typeof v.toMillis === 'function') return v.toMillis(); // Firestore Timestamp
+    if (typeof v.seconds === 'number') return v.seconds * 1000; // Timestamp-like
+    if (v instanceof Date) return v.getTime();
+    const parsed = Date.parse(v);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const getStartMs = (evt) => toMillis(evt?.startDate) ?? 0;
   events.forEach(evt => {
-    const start = evt.startDate?.seconds && new Date(evt.startDate.seconds * 1000);
-    const end = evt.endDate?.seconds && new Date(evt.endDate.seconds * 1000);
+    const startMs = toMillis(evt.startDate);
+    const endMs = toMillis(evt.endDate);
+    const start = startMs ? new Date(startMs) : null;
+    const end = endMs ? new Date(endMs) : null;
     if (start && end) {
       if (now >= start && now <= end) categorized.live.push(evt);
       else if (now < start) categorized.upcoming.push(evt);
       else categorized.past.push(evt);
     }
   });
+
+  // Sort events by date (instead of implicit Firestore order, which can look like name order)
+  categorized.live.sort((a, b) => getStartMs(a) - getStartMs(b));
+  categorized.upcoming.sort((a, b) => getStartMs(a) - getStartMs(b));
+  categorized.past.sort((a, b) => getStartMs(b) - getStartMs(a));
 
   const headerActions = (
     <div className="flex flex-wrap gap-2 items-center justify-end">
@@ -381,8 +399,8 @@ export default function TeamDetailPage() {
                 </h2>
                 <div className="grid grid-cols-1 gap-3">
                   {events.map((evt) => {
-                    const start = new Date(evt.startDate.seconds * 1000);
-                    const end = new Date(evt.endDate.seconds * 1000);
+                    const start = new Date(toMillis(evt.startDate));
+                    const end = new Date(toMillis(evt.endDate));
                     const vis = evt.resultsVisibility || 'team';
                     return (
                       <motion.div

@@ -251,6 +251,16 @@ service cloud.firestore {
           allow update, delete: if isStaffLocal()
             || (request.auth != null && resource.data.userId == request.auth.uid);
         }
+
+        // Event timeline (Event Info tab)
+        match /timeline/{entryId} {
+          allow read: if isTeamMemberLocal() || isStaffLocal();
+          allow create: if isStaffLocal()
+            && validTimelineCreate(request.resource.data);
+          allow update: if isStaffLocal()
+            && request.writeFields.hasOnly(['title','content']);
+          allow delete: if isStaffLocal();
+        }
       }
 
       // Team timeline (Info tab)

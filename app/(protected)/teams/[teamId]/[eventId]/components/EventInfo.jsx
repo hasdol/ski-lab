@@ -1,8 +1,8 @@
 'use client';
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { addTeamInfoEntry, deleteTeamInfoEntry, updateTeamInfoEntry } from '@/lib/firebase/teamFunctions';
-import { useTeamInfo } from '@/hooks/useTeamInfo';
+import { addEventInfoEntry, deleteEventInfoEntry, updateEventInfoEntry } from '@/lib/firebase/teamFunctions';
+import { useEventInfo } from '@/hooks/useEventInfo';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Toggle from '@/components/ui/Toggle';
@@ -11,9 +11,9 @@ import Card from '@/components/ui/Card';
 import { formatDate } from '@/helpers/helpers';
 import Markdown from '@/components/common/Markdown/Markdown';
 
-export default function TeamInfo({ teamId, canPost }) {
+export default function EventInfo({ teamId, eventId, canPost }) {
   const { user } = useAuth();
-  const { entries, loading, error } = useTeamInfo(teamId);
+  const { entries, loading, error } = useEventInfo(teamId, eventId);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [posting, setPosting] = useState(false);
@@ -29,7 +29,7 @@ export default function TeamInfo({ teamId, canPost }) {
     if (!title.trim() && !content.trim()) return;
     setPosting(true);
     try {
-      await addTeamInfoEntry(teamId, { title, content, createdBy: user.uid });
+      await addEventInfoEntry(teamId, eventId, { title, content, createdBy: user.uid });
       setTitle('');
       setContent('');
     } catch (e) {
@@ -44,7 +44,7 @@ export default function TeamInfo({ teamId, canPost }) {
     if (!canPost) return;
     if (!confirm('Delete this entry?')) return;
     try {
-      await deleteTeamInfoEntry(teamId, id);
+      await deleteEventInfoEntry(teamId, eventId, id);
     } catch (e) {
       console.error('Delete failed:', e);
       alert(e.message || 'Failed to delete.');
@@ -69,7 +69,7 @@ export default function TeamInfo({ teamId, canPost }) {
 
     setSavingEdit(true);
     try {
-      await updateTeamInfoEntry(teamId, editingId, { title: editTitle, content: editContent });
+      await updateEventInfoEntry(teamId, eventId, editingId, { title: editTitle, content: editContent });
       cancelEdit();
     } catch (e) {
       console.error('Update failed:', e);
@@ -89,14 +89,8 @@ export default function TeamInfo({ teamId, canPost }) {
               <h3 className="font-semibold text-gray-900">New update</h3>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">
-                {showComposer ? 'Hide' : 'Show'}
-              </span>
-              <Toggle
-                enabled={showComposer}
-                setEnabled={setShowComposer}
-                label="Toggle new info entry"
-              />
+              <span className="text-sm text-gray-600">{showComposer ? 'Hide' : 'Show'}</span>
+              <Toggle enabled={showComposer} setEnabled={setShowComposer} label="Toggle new info entry" />
             </div>
           </div>
 
@@ -134,10 +128,12 @@ export default function TeamInfo({ teamId, canPost }) {
       <Card padded={false} className="p-5">
         <div className="space-y-1 mb-4">
           <div className="text-xs font-semibold text-gray-500 tracking-wide uppercase">Info</div>
-          <h3 className="font-semibold text-gray-900">Team updates</h3>
+          <h3 className="font-semibold text-gray-900">Event updates</h3>
         </div>
         {loading ? (
-          <div className="flex justify-center py-6"><Spinner /></div>
+          <div className="flex justify-center py-6">
+            <Spinner />
+          </div>
         ) : error ? (
           <div className="text-red-600 text-sm">Failed to load info.</div>
         ) : entries.length === 0 ? (
@@ -145,8 +141,7 @@ export default function TeamInfo({ teamId, canPost }) {
         ) : (
           <ul className="space-y-4">
             {entries.map((e) => {
-              const createdAt =
-                e.createdAt?.toDate ? e.createdAt.toDate() : null;
+              const createdAt = e.createdAt?.toDate ? e.createdAt.toDate() : null;
               const isEditing = editingId === e.id;
               return (
                 <li
@@ -163,15 +158,9 @@ export default function TeamInfo({ teamId, canPost }) {
                           onChange={(ev) => setEditTitle(ev.target.value)}
                         />
                       ) : (
-                        <div className="font-semibold text-gray-900">
-                          {e.title || 'Update'}
-                        </div>
+                        <div className="font-semibold text-gray-900">{e.title || 'Update'}</div>
                       )}
-                      {createdAt && (
-                        <div className="text-xs text-gray-500">
-                          {formatDate(createdAt, true)}
-                        </div>
-                      )}
+                      {createdAt && <div className="text-xs text-gray-500">{formatDate(createdAt, true)}</div>}
                     </div>
                     {canPost && (
                       <div className="flex gap-2">

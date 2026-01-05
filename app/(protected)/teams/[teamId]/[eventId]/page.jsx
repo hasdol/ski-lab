@@ -17,7 +17,7 @@ import PageHeader from '@/components/layout/PageHeader';
 import Card from '@/components/ui/Card';
 import Markdown from '@/components/common/Markdown/Markdown';
 import { MdEvent, MdArrowBack } from 'react-icons/md';
-import TeamInfo from '../components/TeamInfo';
+import EventInfo from './components/EventInfo';
 
 export default function EventPage() {
   const { teamId, eventId } = useParams();
@@ -166,7 +166,7 @@ export default function EventPage() {
       <div className="mt-4">
         {activeTab === 'Info' && (
           <div className="mb-6 w-full">
-            <TeamInfo teamId={teamId} canPost={canSeeDashboard} />
+            <EventInfo teamId={teamId} eventId={eventId} canPost={canSeeDashboard} />
           </div>
         )}
         {activeTab === 'Tests' && (
