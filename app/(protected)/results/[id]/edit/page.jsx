@@ -11,13 +11,29 @@ import Button from '@/components/ui/Button'
 import ShareWithEventSelector from '@/components/ShareWithEvents/ShareWithEvents'
 import {
   shareTestResult,
-  // we'll add this util in teamFunctions
   unshareTestResult,
+  shareCrossUserTestResult,
+  unshareCrossUserTestResult,
 } from '@/lib/firebase/teamFunctions'
 import Spinner from '@/components/common/Spinner/Spinner'
 import { updateTestResultBothPlaces } from '@/lib/firebase/firestoreFunctions'
-import PageHeader from '@/components/layout/PageHeader'
 import { RiBarChart2Line } from 'react-icons/ri'
+import Card from '@/components/ui/Card'
+import SummaryResultList from '@/app/(protected)/testing/summary/components/SummaryResultList'
+
+
+const SectionCard = ({ title, subtitle, children, right }) => (
+  <Card as="section" padded={false} className="p-4 md:p-5">
+    <div className="flex items-start justify-between gap-3 mb-4">
+      <div className="min-w-0">
+        <h2 className="text-base md:text-lg font-semibold text-gray-900">{title}</h2>
+        {subtitle ? <p className="text-sm text-gray-600 mt-1">{subtitle}</p> : null}
+      </div>
+      {right ? <div className="flex-shrink-0">{right}</div> : null}
+    </div>
+    {children}
+  </Card>
+)
 
 
 const EditResultPage = () => {
@@ -29,6 +45,9 @@ const EditResultPage = () => {
   const [resultData, setResultData] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedEvents, setSelectedEvents] = useState([])
+
+  const ownersInvolved = Array.isArray(result?.ownersInvolved) ? result.ownersInvolved : []
+  const isCrossTest = !!result?.isCrossTest
 
   // Initialize form and event selections
   useEffect(() => {
@@ -52,6 +71,7 @@ const EditResultPage = () => {
         },
         timestamp: result.timestamp?.toDate ? result.timestamp.toDate() : new Date(),
         rankings: result.rankings ? [...result.rankings] : [],
+        ownerDisplayNameByUid: result.ownerDisplayNameByUid || {},
       })
       // Pre-select shared events
       setSelectedEvents(Array.isArray(result.sharedIn) ? [...result.sharedIn] : [])
@@ -119,20 +139,42 @@ const EditResultPage = () => {
         o => !selectedEvents.some(sel => sel.teamId === o.teamId && sel.eventId === o.eventId)
       )
 
-      // Update base data and remaining shared events
-      await updateTestResultBothPlaces(user.uid, id, payload, selectedEvents)
+      // IMPORTANT: Only sync event copies that already exist.
+      // New selections may not have an event doc yet; trying to setDoc() them here can be treated
+      // as a CREATE and fail rules (missing userId / insufficient permissions).
+      const stillShared = selectedEvents.filter(
+        sel => original.some(o => o.teamId === sel.teamId && o.eventId === sel.eventId)
+      )
+
+      // Update base data + existing shared event copies
+      await updateTestResultBothPlaces(user.uid, id, payload, stillShared)
 
       // Share newly added events
       if (added.length) {
         await Promise.all(
-          added.map(({ teamId, eventId }) => shareTestResult(teamId, eventId, user.uid, id, payload))
+          added.map(({ teamId, eventId }) => {
+            if (isCrossTest && ownersInvolved.length > 0) {
+              return shareCrossUserTestResult(teamId, eventId, ownersInvolved, id, payload, user.uid)
+            }
+            return shareTestResult(teamId, eventId, user.uid, id, payload)
+          })
         )
       }
       // Unshare removed events (delete from event and remove from user.sharedIn)
       if (removed.length) {
         await Promise.all(
-          removed.map(({ teamId, eventId }) => unshareTestResult(teamId, eventId, user.uid, id))
+          removed.map(({ teamId, eventId }) => {
+            if (isCrossTest && ownersInvolved.length > 0) {
+              return unshareCrossUserTestResult(teamId, eventId, ownersInvolved, id)
+            }
+            return unshareTestResult(teamId, eventId, user.uid, id)
+          })
         )
+      }
+
+      // Now that new event docs (if any) have been created, sync all selected event copies.
+      if (selectedEvents.length) {
+        await updateTestResultBothPlaces(user.uid, id, payload, selectedEvents)
       }
 
       router.back()
@@ -143,45 +185,52 @@ const EditResultPage = () => {
     }
   }
 
-  if (loading) return <div className='flex justify-center'><Spinner /></div>
-  if (error) return <div>Error: {error.message}</div>
-  if (!resultData) return <div>No result data found</div>
-
   return (
-    <div className="p-4 max-w-4xl w-full self-center">
-      <PageHeader
-        icon={<RiBarChart2Line className="text-blue-600 text-2xl" />}
-        title="Edit Test Result"
-        subtitle="Review and manage test result"
-        actions={null}
-      />
+    <div className="p-4 max-w-4xl w-full mx-auto space-y-6">
+      {/* Header (match Test Summary styling) */}
+      <div className="flex flex-col items-center md:flex-row gap-4">
+        <div className="bg-blue-100 p-3 rounded-xl">
+          <RiBarChart2Line className="text-blue-600 text-2xl" />
+        </div>
+        <div className="text-center md:text-left">
+          <h1 className="text-2xl font-bold text-gray-900">Edit Test Result</h1>
+          <p className="text-sm text-gray-600 mt-1">Review, adjust, then save.</p>
+        </div>
+        <div className="md:ml-auto flex gap-2">
+          <Button type="button" variant="secondary" onClick={() => router.back()} size="sm">
+            Back
+          </Button>
+        </div>
+      </div>
 
-      {loading && <div className='flex justify-center'><Spinner /></div>}
-
-      {error ? (
+      {loading ? (
+        <div className="flex justify-center items-center h-28">
+          <Spinner />
+        </div>
+      ) : error ? (
         <div>Error: {error.message}</div>
       ) : !resultData ? (
         <div>No result data found</div>
       ) : (
-        <form onSubmit={handleSubmit} className="rounded-2xl bg-white/75 backdrop-blur-xl ring-1 ring-black/5 shadow-xs overflow-hidden transition-colors duration-200 p-6 space-y-6">
-          {/* Scores */}
-          {resultData.rankings.map((r, i) => (
-            <div key={i} className="relative flex flex-col">
-              <label className="font-semibold mb-1">
-                {`${r.serialNumber || 'Deleted'} - ${r.grind || ''}`}
-              </label>
-              <Input
-                type="number"
-                name={`score-${i}`}
-                value={r.score}
-                onChange={handleInputChange}
-              />
-              <span className="absolute right-2 bottom-1 text-xs">cm</span>
-            </div>
-          ))}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <SectionCard title="Results" subtitle="Adjust differences if needed.">
+            <SummaryResultList
+              rankings={(resultData.rankings || []).map((r) => ({
+                skiId: r.skiId,
+                serialNumber: r.serialNumber || 'Deleted',
+                cumulativeScore: Number(r.score) || 0,
+              }))}
+              onScoreChange={(skiId, newScore) => {
+                const idx = (resultData.rankings || []).findIndex((r) => r.skiId === skiId)
+                if (idx >= 0) {
+                  handleInputChange({ target: { name: `score-${idx}`, value: newScore } })
+                }
+              }}
+            />
+          </SectionCard>
 
-          <h3 className="mt-10 mb-2 text-2xl font-semibold text-gray-800">Test details</h3>
-          <div className="space-y-4">
+          <SectionCard title="Details" subtitle="Basic conditions and notes for this test.">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               type="text"
               name="location"
@@ -260,8 +309,8 @@ const EditResultPage = () => {
               onChange={handleInputChange}
             />
 
-            {/* NEW: Test execution satisfaction slider */}
-            <div>
+            {/* Test execution satisfaction slider */}
+            <div className="md:col-span-2 rounded-2xl border border-gray-200 bg-gray-50/40 p-4">
               <label htmlFor="testQuality" className="text-sm font-medium text-gray-700 flex justify-between">
                 Test execution satisfaction
                 <span className="text-blue-600 font-semibold">{resultData.testQuality}</span>
@@ -293,24 +342,29 @@ const EditResultPage = () => {
               />
             </div>
 
-            {/* Shared events selector */}
+          </div>
+          </SectionCard>
+
+          <SectionCard title="Sharing" subtitle="Optionally share this test into team events.">
             <ShareWithEventSelector
               userId={user.uid}
               isVisible={true}
               includePast={true}
               initialSelectedEvents={result.sharedIn}
               onSelect={setSelectedEvents}
+              requiredMemberUids={isCrossTest ? ownersInvolved : []}
+              variant="embedded"
             />
-          </div>
 
-          <div className="flex space-x-4 my-5">
-            <Button type="submit" variant="primary" loading={isSubmitting}>
-              Save
-            </Button>
-            <Button variant="secondary" onClick={() => router.back()}>
-              Back
-            </Button>
-          </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button type="submit" variant="primary" loading={isSubmitting}>
+                Save
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => router.back()}>
+                Back
+              </Button>
+            </div>
+          </SectionCard>
         </form>
       )}
     </div>

@@ -41,10 +41,17 @@ const ResultDetailsPage = () => {
     fetchData();
   }, [user, id]);
 
-  // Delete handler
-  const confirmDelete = async () => {
+  // Delete handler (location-aware)
+  const confirmDelete = async ({ deletePrivate, deleteEvents }) => {
     try {
-      await deleteTestResultEverywhere({ userId: user.uid, testId: id });
+      await deleteTestResultEverywhere({
+        userId: user.uid,
+        testId: id,
+        options: {
+          deletePrivate: !!deletePrivate,
+          deleteEvents: Array.isArray(deleteEvents) ? deleteEvents : [],
+        },
+      });
       router.push('/results');
     } catch (err) {
       console.error(err);
@@ -109,6 +116,8 @@ const ResultDetailsPage = () => {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onConfirm={confirmDelete}
+        userId={user?.uid}
+        testId={id}
       />
     </div>
   );

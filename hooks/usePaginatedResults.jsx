@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   collection,
+  collectionGroup,
+  documentId,
   getDocs,
   orderBy,
   query,
@@ -15,6 +17,15 @@ import { useAuth } from '@/context/AuthContext';
 
 const PAGE = 10;
 const MIN_CHARS = 3;
+
+function extractTeamEventFromPath(path) {
+  // teams/{teamId}/events/{eventId}/testResults/{testId}
+  const parts = String(path || '').split('/');
+  if (parts.length >= 6 && parts[0] === 'teams' && parts[2] === 'events') {
+    return { teamId: parts[1], eventId: parts[3], testId: parts[5] };
+  }
+  return null;
+}
 
 /**
  * Hook for paginated, prefix-searchable test results.
@@ -96,7 +107,54 @@ export default function usePaginatedResults({
         d.temperature <= temp1
       );
 
-      setDocs(filtered);
+      // If a result is shared into events but its private doc lacks `sharedIn` (common in cross-user tests
+      // due to rules preventing one user from updating another user's docs), derive it from event copies.
+      const needDerive = filtered.filter((d) => !Array.isArray(d.sharedIn) || d.sharedIn.length === 0);
+      if (needDerive.length > 0) {
+        const ids = needDerive.map((d) => d.id).slice(0, 10);
+        try {
+          const cg = collectionGroup(db, 'testResults');
+          const cgSnap = await getDocs(
+            query(
+              cg,
+              // Event copies always include originalTestDocPath; user private docs do not.
+              // Using a range query avoids matching missing fields.
+              where('originalTestDocPath', '>', ''),
+              where(documentId(), 'in', ids)
+            )
+          );
+          const map = {};
+          cgSnap.docs.forEach((docSnap) => {
+            const loc = extractTeamEventFromPath(docSnap.ref.path);
+            if (!loc) return;
+            map[loc.testId] = map[loc.testId] || [];
+            map[loc.testId].push({ teamId: loc.teamId, eventId: loc.eventId });
+          });
+
+          // Dedup lists
+          Object.keys(map).forEach((k) => {
+            const seen = new Set();
+            map[k] = (map[k] || []).filter((x) => {
+              const kk = `${x.teamId}::${x.eventId}`;
+              if (seen.has(kk)) return false;
+              seen.add(kk);
+              return true;
+            });
+          });
+
+          const enriched = filtered.map((d) => {
+            if (Array.isArray(d.sharedIn) && d.sharedIn.length > 0) return d;
+            const derived = map[d.id];
+            return derived && derived.length > 0 ? { ...d, sharedIn: derived } : d;
+          });
+          setDocs(enriched);
+        } catch (e) {
+          console.warn('Unable to derive sharedIn from event copies:', e);
+          setDocs(filtered);
+        }
+      } else {
+        setDocs(filtered);
+      }
       if (snap.docs.length < PAGE) setExhausted(true);
     } catch (err) {
       console.error('Error fetching results:', err);
@@ -120,7 +178,47 @@ export default function usePaginatedResults({
         d.temperature <= temp1
       );
 
-      setDocs(prev => [...prev, ...filtered]);
+      const needDerive = filtered.filter((d) => !Array.isArray(d.sharedIn) || d.sharedIn.length === 0);
+      if (needDerive.length > 0) {
+        const ids = needDerive.map((d) => d.id).slice(0, 10);
+        try {
+          const cg = collectionGroup(db, 'testResults');
+          const cgSnap = await getDocs(
+            query(
+              cg,
+              where('originalTestDocPath', '>', ''),
+              where(documentId(), 'in', ids)
+            )
+          );
+          const map = {};
+          cgSnap.docs.forEach((docSnap) => {
+            const loc = extractTeamEventFromPath(docSnap.ref.path);
+            if (!loc) return;
+            map[loc.testId] = map[loc.testId] || [];
+            map[loc.testId].push({ teamId: loc.teamId, eventId: loc.eventId });
+          });
+          Object.keys(map).forEach((k) => {
+            const seen = new Set();
+            map[k] = (map[k] || []).filter((x) => {
+              const kk = `${x.teamId}::${x.eventId}`;
+              if (seen.has(kk)) return false;
+              seen.add(kk);
+              return true;
+            });
+          });
+          const enriched = filtered.map((d) => {
+            if (Array.isArray(d.sharedIn) && d.sharedIn.length > 0) return d;
+            const derived = map[d.id];
+            return derived && derived.length > 0 ? { ...d, sharedIn: derived } : d;
+          });
+          setDocs(prev => [...prev, ...enriched]);
+        } catch (e) {
+          console.warn('Unable to derive sharedIn from event copies:', e);
+          setDocs(prev => [...prev, ...filtered]);
+        }
+      } else {
+        setDocs(prev => [...prev, ...filtered]);
+      }
       if (snap.docs.length < PAGE) setExhausted(true);
     } catch (err) {
       console.error('Error loading more results:', err);

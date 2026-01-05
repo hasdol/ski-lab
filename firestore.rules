@@ -161,6 +161,12 @@ service cloud.firestore {
 
         // ✅ Only owner can edit/delete test results
         allow update, delete: if request.auth != null && request.auth.uid == userId;
+
+        // ✅ Shared writer can ONLY update sharing markers.
+        // This enables cross-user tests to keep `sharedIn` in sync across owners.
+        allow update: if request.auth != null
+          && hasWriteAccess(userId)
+          && request.writeFields.hasOnly(['sharedIn']);
       }
     }
 

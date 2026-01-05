@@ -394,7 +394,7 @@ const Testing = () => {
                                         <div
                                           ref={provided.innerRef}
                                           {...provided.draggableProps}
-                                          {...provided.dragHandleProps}
+                                          onClick={() => handleWinnerClick(match.id, ski.id)}
                                           className={`p-3 rounded-2xl flex justify-between items-center transition border ${
                                             isWinner ? 'bg-blue-100 border-blue-200' : 'bg-white border-gray-200'
                                           }
@@ -404,9 +404,13 @@ const Testing = () => {
                                         >
                                           <div
                                             className="flex items-center grow cursor-pointer"
-                                            onClick={() => handleWinnerClick(match.id, ski.id)}
                                           >
-                                            <span className="text-gray-400 mr-3 cursor-move" title="Drag ski to reorder">
+                                            <span
+                                              {...provided.dragHandleProps}
+                                              className="text-gray-400 mr-3 cursor-move"
+                                              title="Drag ski to reorder"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
                                               <RiDragMove2Line size={18} />
                                             </span>
                                             <div className="flex flex-row items-center gap-3">

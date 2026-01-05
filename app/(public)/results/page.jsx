@@ -150,18 +150,15 @@ const Results = () => {
     setCurrentTestId(id);
     setModalOpen(true);
   };
-  const handleModalConfirm = async (scope) => {
+  const handleModalConfirm = async ({ deletePrivate, deleteEvents }) => {
     try {
-      // When no event context, always delete the private copy
-      const options =
-        scope === 'all'
-          ? { deletePrivate: true, deleteShared: true, deleteCurrentEvent: true }
-          : { deletePrivate: true, deleteShared: false, deleteCurrentEvent: false };
-
       const response = await deleteTestResultEverywhere({
         userId: user.uid,
         testId: currentTestId,
-        options
+        options: {
+          deletePrivate: !!deletePrivate,
+          deleteEvents: Array.isArray(deleteEvents) ? deleteEvents : [],
+        },
       });
       alert(response.message);
     } catch (err) {
@@ -402,6 +399,8 @@ const Results = () => {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onConfirm={handleModalConfirm}
+        userId={user?.uid}
+        testId={currentTestId}
       />
 
       <UserPicker

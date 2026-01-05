@@ -9,7 +9,7 @@ import SummaryResultList from './components/SummaryResultList';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { TournamentContext } from '@/context/TournamentContext';
 import { addTestResult, addCrossUserTestResult } from '@/lib/firebase/firestoreFunctions';
-import { shareTestResult } from '@/lib/firebase/teamFunctions';
+import { shareTestResult, shareCrossUserTestResult } from '@/lib/firebase/teamFunctions';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import ShareWithEventSelector from '@/components/ShareWithEvents/ShareWithEvents';
@@ -17,6 +17,7 @@ import { WEATHER_ENDPOINT } from '@/lib/firebase/weatherEndpoint';
 import { SiTestrail } from 'react-icons/si';
 import { MdDelete, MdArrowBack } from 'react-icons/md';
 import Card from '@/components/ui/Card'; // NEW
+import { listAccessibleUsers } from '@/lib/firebase/shareFunctions';
 
 const SectionCard = ({ title, subtitle, children, right }) => (
   <Card as="section" padded={false} className="p-4 md:p-5">
@@ -36,7 +37,7 @@ const TestSummaryPage = () => {
   const searchParams = useSearchParams(); // replaced window-based parsing
   const isManualMode = searchParams?.get('manual') === '1';
 
-  const { user } = useAuth();
+  const { user, userData } = useAuth();
   const { selectedSkis, calculateRankings, resetTournament, restoreRoundFromHistory } =
     useContext(TournamentContext);
 
@@ -118,7 +119,7 @@ const TestSummaryPage = () => {
           ).then((r) => r.json());
 
           place = rev.address?.quarter || rev.address?.city || rev.address?.town || '';
-        } catch (_) {}
+        } catch (_) { }
 
         setAdditionalData((prev) => ({
           ...prev,
@@ -154,7 +155,11 @@ const TestSummaryPage = () => {
   const isWriterTestingOtherUser =
     selectedOwnerUids.length === 1 && !!user?.uid && selectedOwnerUids[0] !== user.uid;
 
-  const canShareToEvents = !isWriterTestingOtherUser && selectedOwnerUids.length === 1;
+  // Sharing rules:
+  // - If testing solely on behalf of another user (single-owner, not you), disable.
+  // - Otherwise allow, but for cross-user tests the event selector will only enable teams
+  //   where ALL involved owners are members.
+  const canShareToEvents = !isWriterTestingOtherUser;
 
   /* ───────────── save results ───────────── */
   const handleSaveResults = async (e) => {
@@ -191,6 +196,31 @@ const TestSummaryPage = () => {
 
     const involvedOwners = Array.from(new Set(payloadRankings.map(r => r.ownerUid).filter(Boolean)));
 
+    // Best-effort: resolve display names for involved owners so cross-user result cards can show names
+    // without requiring cross-account shares at view time.
+    let ownerDisplayNameByUid = {};
+    if (involvedOwners.length > 1) {
+      try {
+        const acc = await listAccessibleUsers();
+        const all = [acc?.self, ...(acc?.owners || [])].filter(Boolean);
+        const map = {};
+        for (const u of all) {
+          if (u?.id && u?.displayName) map[u.id] = u.displayName;
+        }
+        // Ensure current user has a label even if /users/{uid} read fails.
+        if (user?.uid) {
+          map[user.uid] =
+            map[user.uid] || userData?.displayName || user?.displayName || user.uid;
+        }
+        ownerDisplayNameByUid = involvedOwners.reduce((out, uid) => {
+          if (map[uid]) out[uid] = map[uid];
+          return out;
+        }, {});
+      } catch {
+        // ignore; we'll fall back to UIDs
+      }
+    }
+
     try {
       setLoading(true);
 
@@ -206,17 +236,31 @@ const TestSummaryPage = () => {
           ownerUids: involvedOwners,
           rankings: payloadRankings,
           additionalData,
+          ownerDisplayNameByUid,
         });
       }
 
-      // Only share to events when single-owner AND testing as that owner
+      // Share to events when allowed. For cross-user tests, we only allow selecting teams
+      // that include all owners (enforced in ShareWithEventSelector).
       if (canShareToEvents && selectedEvents.length) {
-        const baseTestData = { ...additionalData, rankings: payloadRankings };
+        const baseTestData = {
+          ...additionalData,
+          rankings: payloadRankings,
+          isCrossTest: involvedOwners.length > 1,
+          ownersInvolved: involvedOwners,
+          createdBy: user.uid,
+          ...(Object.keys(ownerDisplayNameByUid || {}).length
+            ? { ownerDisplayNameByUid }
+            : {}),
+        };
         try {
           await Promise.all(
-            selectedEvents.map(({ teamId, eventId }) =>
-              shareTestResult(teamId, eventId, ownerUid, newId, baseTestData)
-            )
+            selectedEvents.map(({ teamId, eventId }) => {
+              if (involvedOwners.length <= 1) {
+                return shareTestResult(teamId, eventId, ownerUid, newId, baseTestData);
+              }
+              return shareCrossUserTestResult(teamId, eventId, involvedOwners, newId, baseTestData, user.uid);
+            })
           );
         } catch (shareErr) {
           console.error('Sharing to events failed:', shareErr);
@@ -324,6 +368,8 @@ const TestSummaryPage = () => {
           </Button>
         </div>
       </div>
+
+
 
       {/* Section 1: Results */}
       <SectionCard
@@ -514,22 +560,34 @@ const TestSummaryPage = () => {
           )}
         </SectionCard>
 
+        {selectedOwnerUids.length > 1 && (
+          <div className="rounded-2xl border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-800">
+            <div className="font-semibold">Cross-user test</div>
+            <div>
+              This test includes skis from multiple users. Sharing to an event is only available for teams where all involved users are members.
+            </div>
+          </div>
+        )}
+
         {/* Section 3: Sharing */}
         <SectionCard
           title="Sharing"
           subtitle={
             canShareToEvents
-              ? 'Optionally share this test into team events.'
+              ? (selectedOwnerUids.length > 1
+                ? 'Optionally share this cross-user test into eligible team events.'
+                : 'Optionally share this test into team events.')
               : 'Sharing is disabled when testing on behalf of another user.'
           }
         >
           {canShareToEvents ? (
             <ShareWithEventSelector
-              userId={ownerUid}
+              userId={user?.uid}
               isVisible={true}
               onSelect={setSelectedEvents}
               includePast={false}
               variant="embedded"
+              requiredMemberUids={selectedOwnerUids}
             />
           ) : (
             <div className="text-sm text-gray-600">

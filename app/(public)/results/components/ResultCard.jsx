@@ -1,10 +1,14 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { doc, getDoc } from 'firebase/firestore';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import { RiEditLine, RiDeleteBinLine, RiGroup3Line, RiUser3Line } from 'react-icons/ri';
+import { RiEditLine, RiDeleteBinLine, RiGroup3Line, RiUser3Line, RiShareForwardLine } from 'react-icons/ri';
 import { MdEvent } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
+import useOutsideClick from '@/hooks/useOutsideClick';
+import { db } from '@/lib/firebase/firebaseConfig';
 
 
 import {
@@ -23,6 +27,11 @@ export default function ResultCard({
   footerLeft,
   ownerNameByUid = {}, // NEW (optional)
 }) {
+  const router = useRouter();
+  const sharedPopoverRef = useRef(null);
+  const [sharedOpen, setSharedOpen] = useState(false);
+  const [sharedNames, setSharedNames] = useState({}); // key -> { teamName, eventName }
+  const [sharedNamesLoading, setSharedNamesLoading] = useState(false);
   const date = result.timestamp?.seconds
     ? new Date(result.timestamp.seconds * 1000)
     : result.timestamp instanceof Date
@@ -44,11 +53,97 @@ export default function ResultCard({
     null;
 
   const isCrossTest = !!result?.isCrossTest;
+  const isShared =
+    (Array.isArray(result?.sharedIn) && result.sharedIn.length > 0) ||
+    !!result?.originalTestDocPath;
+
+  const sharedEvents = useMemo(() => {
+    const arr = Array.isArray(result?.sharedIn) ? result.sharedIn : [];
+    // Deduplicate while preserving order
+    const seen = new Set();
+    return arr.filter((x) => {
+      const k = `${x?.teamId || ''}::${x?.eventId || ''}`;
+      if (!x?.teamId || !x?.eventId) return false;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  }, [result?.sharedIn]);
+
+  const canNavigateToSharedEvent = sharedEvents.length > 0;
+
+  useOutsideClick(sharedPopoverRef, () => setSharedOpen(false));
+
+  const goToEvent = ({ teamId, eventId }) => {
+    if (!teamId || !eventId) return;
+    setSharedOpen(false);
+    router.push(`/teams/${teamId}/${eventId}`);
+  };
+
+  const handleSharedClick = (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    if (!canNavigateToSharedEvent) return;
+
+    setSharedOpen((prev) => !prev);
+  };
+
+  useEffect(() => {
+    if (!sharedOpen) return;
+    if (!sharedEvents.length) return;
+
+    let cancelled = false;
+
+    const load = async () => {
+      const missing = sharedEvents.filter((ev) => {
+        const key = `${ev.teamId}::${ev.eventId}`;
+        return !sharedNames[key];
+      });
+      if (missing.length === 0) return;
+
+      setSharedNamesLoading(true);
+      try {
+        const entries = await Promise.all(
+          missing.map(async (ev) => {
+            const [teamSnap, eventSnap] = await Promise.all([
+              getDoc(doc(db, 'teams', ev.teamId)),
+              getDoc(doc(db, 'teams', ev.teamId, 'events', ev.eventId)),
+            ]);
+
+            return {
+              key: `${ev.teamId}::${ev.eventId}`,
+              teamName: teamSnap.exists() ? (teamSnap.data()?.name || null) : null,
+              eventName: eventSnap.exists() ? (eventSnap.data()?.name || null) : null,
+            };
+          })
+        );
+
+        if (cancelled) return;
+        setSharedNames((prev) => {
+          const next = { ...prev };
+          for (const e of entries) next[e.key] = { teamName: e.teamName, eventName: e.eventName };
+          return next;
+        });
+      } catch {
+        // best-effort; fall back to IDs
+      } finally {
+        if (!cancelled) setSharedNamesLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [sharedOpen, sharedEvents, sharedNames]);
 
   const formatOwnerLabel = (uid) => {
     if (!uid) return '';
     const label = ownerNameByUid?.[uid];
     if (label) return label;
+
+    const embedded = result?.ownerDisplayNameByUid?.[uid];
+    if (embedded) return embedded;
     // fallback: short uid
     return `${uid.slice(0, 6)}…${uid.slice(-4)}`;
   };
@@ -70,12 +165,67 @@ export default function ResultCard({
                 {highlightSearchTerm(result.location, debouncedSearch)}
               </p>
 
-              {isCrossTest && (
-                <div className="mt-1">
-                  <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs px-2 py-0.5 rounded-full  bg-blue-50 text-blue-700">
-                    <RiGroup3Line  />
-                    Cross-user test
-                  </span>
+              {(isCrossTest || isShared) && (
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {isCrossTest && (
+                    <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                      <RiGroup3Line />
+                      Cross-user test
+                    </span>
+                  )}
+
+                  {isShared && (
+                    <span className="relative" ref={sharedPopoverRef}>
+                      <button
+                        type="button"
+                        onClick={handleSharedClick}
+                        disabled={!canNavigateToSharedEvent}
+                        className={`inline-flex items-center gap-1 text-[11px] sm:text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 ${canNavigateToSharedEvent ? 'hover:bg-indigo-100' : ''}`}
+                        title={!canNavigateToSharedEvent ? 'Shared in events' : 'Shared in events'}
+                      >
+                        <RiShareForwardLine />
+                        Shared
+                      </button>
+
+                      {sharedOpen && sharedEvents.length > 0 && (
+                        <div className="absolute z-50 mt-2 w-64 rounded-2xl border border-gray-200 bg-white shadow-lg p-2">
+                          <div className="px-2 py-1 text-[11px] font-semibold text-gray-500 uppercase">
+                            Shared in
+                          </div>
+                          <div className="flex flex-col">
+                            {sharedNamesLoading && (
+                              <div className="px-2 py-2 text-sm text-gray-500">Loading…</div>
+                            )}
+                            {sharedEvents.map((ev) => (
+                              <button
+                                key={`${ev.teamId}::${ev.eventId}`}
+                                type="button"
+                                onClick={(e) => {
+                                  e?.preventDefault?.();
+                                  e?.stopPropagation?.();
+                                  goToEvent(ev);
+                                }}
+                                className="text-left px-2 py-2 rounded-xl hover:bg-gray-50 text-sm"
+                              >
+                                {(() => {
+                                  const key = `${ev.teamId}::${ev.eventId}`;
+                                  const n = sharedNames[key] || {};
+                                  const teamLabel = n.teamName || 'Team';
+                                  const eventLabel = n.eventName || 'Event';
+                                  return (
+                                    <>
+                                      <div className="font-medium truncate">{eventLabel}</div>
+                                      <div className="text-xs text-gray-500 truncate">{teamLabel}</div>
+                                    </>
+                                  );
+                                })()}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </span>
+                  )}
                 </div>
               )}
             </div>
@@ -186,7 +336,7 @@ export default function ResultCard({
 
         <div className="mt-2 flex items-center gap-2 text-xs">
           {testQuality != null && (
-            <span className={`inline-flex items-center px-2 py-0.5 rounded ${testQuality > 7 ? 'bg-blue-100 text-blue-700' : testQuality<3 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'} font-medium`}>
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-2xl ${testQuality > 7 ? 'bg-blue-100 text-blue-700' : testQuality<3 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'} font-medium`}>
               Test Execution {testQuality} / 10
             </span>
           )}

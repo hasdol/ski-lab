@@ -86,19 +86,18 @@ export default function EventTests({ teamId, eventId, eventData }) {
   };
 
   // Confirm deletion using our unified deletion function
-  const handleModalConfirm = async (scope) => {
+  const handleModalConfirm = async ({ deletePrivate, deleteEvents }) => {
     if (!currentTestId) return;
     try {
-      const options = scope === 'all'
-        ? { deletePrivate: true, deleteShared: true, deleteCurrentEvent: true }
-        : { deletePrivate: false, deleteShared: false, deleteCurrentEvent: true };
-
       const response = await deleteTestResultEverywhere({
         userId: user.uid,
         testId: currentTestId,
         currentTeamId: teamId,
         currentEventId: eventId,
-        options
+        options: {
+          deletePrivate: !!deletePrivate,
+          deleteEvents: Array.isArray(deleteEvents) ? deleteEvents : [],
+        }
       });
       alert(response.message);
       // Optionally update UI state to remove the deleted test result.
@@ -145,6 +144,10 @@ export default function EventTests({ teamId, eventId, eventData }) {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onConfirm={handleModalConfirm}
+        userId={user?.uid}
+        testId={currentTestId}
+        currentTeamId={teamId}
+        currentEventId={eventId}
       />
     </div>
   );
