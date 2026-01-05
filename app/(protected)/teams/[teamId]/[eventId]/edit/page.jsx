@@ -15,6 +15,8 @@ import PageHeader from '@/components/layout/PageHeader';
 import Card from '@/components/ui/Card'; // NEW
 import { RiCalendarEventLine } from 'react-icons/ri';
 import { MdArrowBack } from "react-icons/md";
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase/firebaseConfig';
 
 
 export default function EditEventPage() {
@@ -22,6 +24,9 @@ export default function EditEventPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { eventData, loading, error } = useEvent(teamId, eventId);
+
+  const [teamMeta, setTeamMeta] = useState(null);
+  const [teamMetaLoaded, setTeamMetaLoaded] = useState(false);
 
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
@@ -36,6 +41,24 @@ export default function EditEventPage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRemovingImage, setIsRemovingImage] = useState(false);
+
+  useEffect(() => {
+    if (!teamId) return;
+    const ref = doc(db, 'teams', teamId);
+    const unsub = onSnapshot(
+      ref,
+      (snap) => {
+        setTeamMeta(snap.exists() ? snap.data() : null);
+        setTeamMetaLoaded(true);
+      },
+      () => setTeamMetaLoaded(true)
+    );
+    return () => unsub();
+  }, [teamId]);
+
+  const isOwner = teamMeta?.createdBy === user?.uid;
+  const isMod = (teamMeta?.mods || []).includes(user?.uid);
+  const canManage = isOwner || isMod;
 
   useEffect(() => {
     if (eventData) {
@@ -66,6 +89,7 @@ export default function EditEventPage() {
   };
 
   const handleUpdate = async () => {
+    if (!canManage) return;
     setIsUpdating(true);
     try {
       let finalImage = imageURL;
@@ -100,6 +124,7 @@ export default function EditEventPage() {
   };
 
   const handleDelete = async () => {
+    if (!canManage) return;
     if (!confirm('Are you sure you want to delete the event?')) return;
     setIsDeleting(true);
     try {
@@ -114,6 +139,7 @@ export default function EditEventPage() {
   };
 
   const handleRemoveImage = async () => {
+    if (!canManage) return;
     setIsRemovingImage(true);
     try {
       await deleteEventImage(teamId, eventId);
@@ -147,6 +173,17 @@ export default function EditEventPage() {
         <div className="flex justify-center">
           <Spinner />
         </div>
+      ) : teamMetaLoaded && !canManage ? (
+        <Card className="p-6">
+          <div className="text-sm text-gray-700">
+            You don’t have permission to edit this event. Only the team owner and moderators can edit events.
+          </div>
+          <div className="mt-4">
+            <Button variant="secondary" onClick={() => router.push(`/teams/${teamId}/${eventId}`)}>
+              Back to Event
+            </Button>
+          </div>
+        </Card>
       ) : (
         <Card className="p-6 space-y-6">
           <Input value={name} onChange={e => setName(e.target.value)} placeholder="Event name" />
@@ -238,10 +275,10 @@ export default function EditEventPage() {
           </div>
 
           <div className="flex gap-2">
-            <Button onClick={handleUpdate} variant="primary" loading={isUpdating}>
+            <Button onClick={handleUpdate} variant="primary" loading={isUpdating} disabled={!canManage}>
               Update
             </Button>
-            <Button onClick={handleDelete} variant="danger" loading={isDeleting}>
+            <Button onClick={handleDelete} variant="danger" loading={isDeleting} disabled={!canManage}>
               Delete
             </Button>
           </div>

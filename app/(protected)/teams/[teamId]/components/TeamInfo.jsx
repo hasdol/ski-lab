@@ -5,9 +5,11 @@ import { addTeamInfoEntry, deleteTeamInfoEntry } from '@/lib/firebase/teamFuncti
 import { useTeamInfo } from '@/hooks/useTeamInfo';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import Toggle from '@/components/ui/Toggle';
 import Spinner from '@/components/common/Spinner/Spinner';
 import Card from '@/components/ui/Card';
 import { formatDate } from '@/helpers/helpers';
+import Markdown from '@/components/common/Markdown/Markdown';
 
 export default function TeamInfo({ teamId, canPost }) {
   const { user } = useAuth();
@@ -15,6 +17,7 @@ export default function TeamInfo({ teamId, canPost }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [posting, setPosting] = useState(false);
+  const [showComposer, setShowComposer] = useState(true);
 
   const handlePost = async () => {
     if (!canPost || !user) return;
@@ -47,24 +50,48 @@ export default function TeamInfo({ teamId, canPost }) {
     <div className="space-y-4">
       {canPost && (
         <Card>
-          <h3 className="font-semibold text-gray-800">New info entry</h3>
-          <Input
-            type="text"
-            placeholder="Title (optional)"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <Input
-            type="textarea"
-            placeholder='Write your update'
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
-          <div className="flex justify-end">
-            <Button onClick={handlePost} variant="primary" loading={posting}>
-              Post
-            </Button>
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="font-semibold text-gray-800">New info entry</h3>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">
+                {showComposer ? 'Hide' : 'Show'}
+              </span>
+              <Toggle
+                enabled={showComposer}
+                setEnabled={setShowComposer}
+                label="Toggle new info entry"
+              />
+            </div>
           </div>
+
+          {showComposer && (
+            <>
+              <Input
+                type="text"
+                placeholder="Title (optional)"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <div className="space-y-1">
+                <Input
+                  type="textarea"
+                  placeholder="Write your update"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  rows={10}
+                  className="min-h-48"
+                />
+                <p className="text-xs text-gray-500">
+                  Supports Markdown (e.g. <span className="font-mono"># Heading</span>, <span className="font-mono">## Subheading</span>, lists, links).
+                </p>
+              </div>
+              <div className="flex justify-end">
+                <Button onClick={handlePost} variant="primary" loading={posting}>
+                  Post
+                </Button>
+              </div>
+            </>
+          )}
         </Card>
       )}
 
@@ -105,9 +132,9 @@ export default function TeamInfo({ teamId, canPost }) {
                     )}
                   </div>
                   {e.content && (
-                    <p className="text-sm text-gray-800 mt-2 whitespace-pre-wrap">
-                      {e.content}
-                    </p>
+                    <div className="mt-2">
+                      <Markdown>{e.content}</Markdown>
+                    </div>
                   )}
                 </li>
               );

@@ -6,7 +6,6 @@ import useEvent from '@/hooks/useEvent';
 import Button from '@/components/ui/Button';
 import UploadableImage from '@/components/UploadableImage/UploadableImage';
 import EventTabs from './components/EventTabs';
-import EventOverview from './components/EventOverview';
 import EventTests from './components/EventTests';
 import EventWeather from './components/EventWeather';
 import Spinner from '@/components/common/Spinner/Spinner';
@@ -16,7 +15,9 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase/firebaseConfig';
 import PageHeader from '@/components/layout/PageHeader';
 import Card from '@/components/ui/Card';
+import Markdown from '@/components/common/Markdown/Markdown';
 import { MdEvent, MdArrowBack } from 'react-icons/md';
+import TeamInfo from '../components/TeamInfo';
 
 export default function EventPage() {
   const { teamId, eventId } = useParams();
@@ -24,7 +25,6 @@ export default function EventPage() {
   const { eventData, loading, error } = useEvent(teamId, eventId);
   const { userData, user } = useAuth();
 
-  const canManage = ['coach', 'company'].includes(userData?.plan);
   const [activeTab, setActiveTab] = useState('Info');
   const [teamMeta, setTeamMeta] = useState(null);
 
@@ -41,6 +41,7 @@ export default function EventPage() {
   const isOwner = teamMeta?.createdBy === user?.uid;
   const isMod = (teamMeta?.mods || []).includes(user?.uid);
   const canSeeDashboard = isOwner || isMod;
+  const canManage = canSeeDashboard;
 
   // If activeTab is Dashboard but user lost permission, force Info
   useEffect(() => {
@@ -80,6 +81,8 @@ export default function EventPage() {
   const end = eventData.endDate?.seconds && new Date(eventData.endDate.seconds * 1000);
   const startFmt = formatDate(start);
   const endFmt = formatDate(end);
+  const vis = eventData?.resultsVisibility ?? 'team';
+  const address = eventData?.location?.address || '';
 
   const headerActions = (
     <div className="flex flex-wrap gap-2 items-center justify-end">
@@ -104,13 +107,57 @@ export default function EventPage() {
       />
 
       <Card className="mb-6">
-        <div className="flex flex-col items-center text-center gap-3">
-          <UploadableImage
-            photoURL={eventData.imageURL}
-            variant="event"
-            clickable={false}
-            className="mx-auto w-full max-h-40 object-contain"
-          />
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+          {/* Image: no fixed box; scales naturally with a max-height */}
+          <div className="w-full md:w-5/12 lg:w-1/3">
+            <UploadableImage
+              photoURL={eventData.imageURL}
+              variant="event"
+              alt="event image"
+              clickable={false}
+              className="w-full h-auto max-h-64 object-contain"
+            />
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 space-y-5">
+            <div className="space-y-2">
+              <div className="text-xs font-semibold text-gray-500 tracking-wide uppercase">About</div>
+              {eventData.description ? (
+                <div className="text-gray-800 text-base leading-relaxed">
+                  <Markdown>{eventData.description}</Markdown>
+                </div>
+              ) : (
+                <div className="text-gray-500 italic">Welcome! More information will be available soon.</div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="text-xs font-semibold text-gray-500 tracking-wide uppercase">Info</div>
+              <div className="space-y-2 text-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <span className="text-gray-500">Location</span>
+                  <span className="text-gray-800">{address || 'No location set.'}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <span className="text-gray-500">Sharing</span>
+                  <span
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold ${vis === 'staff'
+                      ? 'bg-indigo-100 text-indigo-700'
+                      : 'bg-green-100 text-green-700'
+                      }`}
+                    title={
+                      vis === 'staff'
+                        ? 'Only owner & mods can view event test results'
+                        : 'All team members can view event test results'
+                    }
+                  >
+                    {vis === 'staff' ? 'Owner/mods only' : 'Team members'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </Card>
 
@@ -118,9 +165,9 @@ export default function EventPage() {
 
       <div className="mt-4">
         {activeTab === 'Info' && (
-          <Card>
-            <EventOverview eventData={eventData} />
-          </Card>
+          <div className="mb-6 w-full">
+            <TeamInfo teamId={teamId} canPost={canSeeDashboard} />
+          </div>
         )}
         {activeTab === 'Tests' && (
           <EventTests teamId={teamId} eventId={eventId} eventData={eventData} />
