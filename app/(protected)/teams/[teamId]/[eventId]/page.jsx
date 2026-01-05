@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import useEvent from '@/hooks/useEvent';
@@ -27,6 +27,14 @@ export default function EventPage() {
 
   const [activeTab, setActiveTab] = useState('Info');
   const [teamMeta, setTeamMeta] = useState(null);
+  const tabPanelRef = useRef(null);
+
+  const focusTabPanel = () => {
+    requestAnimationFrame(() => {
+      tabPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      tabPanelRef.current?.focus({ preventScroll: true });
+    });
+  };
 
   // Subscribe to team meta for owner/mod check
   useEffect(() => {
@@ -161,9 +169,14 @@ export default function EventPage() {
         </div>
       </Card>
 
-      <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} canSeeDashboard={canSeeDashboard} />
+      <EventTabs
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        canSeeDashboard={canSeeDashboard}
+        onTabChange={focusTabPanel}
+      />
 
-      <div className="mt-4">
+      <div ref={tabPanelRef} tabIndex={-1} className="mt-4 outline-none scroll-mt-24 md:scroll-mt-8">
         {activeTab === 'Info' && (
           <div className="mb-6 w-full">
             <EventInfo teamId={teamId} eventId={eventId} canPost={canSeeDashboard} />

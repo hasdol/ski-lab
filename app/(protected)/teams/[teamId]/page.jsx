@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import useSingleTeam from '@/hooks/useSingleTeam';
@@ -31,6 +31,15 @@ export default function TeamDetailPage() {
   const { team, events, loading, error } = useSingleTeam(teamId);
 
   const [activeTab, setActiveTab] = useState('events');
+  const tabPanelRef = useRef(null);
+
+  const setActiveTabAndFocus = (nextTab) => {
+    setActiveTab(nextTab);
+    requestAnimationFrame(() => {
+      tabPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      tabPanelRef.current?.focus({ preventScroll: true });
+    });
+  };
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
   const [memberCap, setMemberCap] = useState(null);
   const [memberProfiles, setMemberProfiles] = useState([]); // <-- FIX: define state
@@ -321,45 +330,45 @@ export default function TeamDetailPage() {
       </Card>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200 mb-6">
+      <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
         <button
-          className={`px-4 py-2 font-medium text-sm ${activeTab === 'events'
+          className={`px-4 py-2 font-medium text-sm whitespace-nowrap focus-visible:outline-none ${activeTab === 'events'
             ? 'text-blue-600 border-b-2 border-blue-600'
             : 'text-gray-500 hover:text-gray-700'
             }`}
-          onClick={() => setActiveTab('events')}
+          onClick={() => setActiveTabAndFocus('events')}
         >
           Events
         </button>
 
         <button
-          className={`px-4 py-2 font-medium text-sm ${activeTab === 'info'
+          className={`px-4 py-2 font-medium text-sm whitespace-nowrap focus-visible:outline-none ${activeTab === 'info'
             ? 'text-blue-600 border-b-2 border-blue-600'
             : 'text-gray-500 hover:text-gray-700'
             }`}
-          onClick={() => setActiveTab('info')}
+          onClick={() => setActiveTabAndFocus('info')}
         >
           Info
         </button>
 
         {/* NEW: Members tab */}
         <button
-          className={`px-4 py-2 font-medium text-sm ${activeTab === 'members'
+          className={`px-4 py-2 font-medium text-sm whitespace-nowrap focus-visible:outline-none ${activeTab === 'members'
             ? 'text-blue-600 border-b-2 border-blue-600'
             : 'text-gray-500 hover:text-gray-700'
             }`}
-          onClick={() => setActiveTab('members')}
+          onClick={() => setActiveTabAndFocus('members')}
         >
           Members
         </button>
 
         {teamAdmin && (
           <button
-            className={`px-4 py-2 font-medium text-sm ${activeTab === 'dashboard'
+            className={`px-4 py-2 font-medium text-sm whitespace-nowrap focus-visible:outline-none ${activeTab === 'dashboard'
               ? 'text-blue-600 border-b-2 border-blue-600'
               : 'text-gray-500 hover:text-gray-700'
               }`}
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => setActiveTabAndFocus('dashboard')}
             title="Owner/moderator dashboard"
           >
             <span className="inline-flex items-center gap-2">
@@ -378,142 +387,144 @@ export default function TeamDetailPage() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'events' && (
-        <div className="space-y-6 w-full">
-          {teamAdmin && (
-            <Button
-              onClick={() => router.push(`/teams/${teamId}/create`)}
-              variant="primary"
-              className="flex mx-auto"
-              disabled={!canCreateNewEvents}
-              title={!canCreateNewEvents ? (isCreator ? 'Upgrade required to create new team events' : 'Team owner must have a team plan to create events') : 'Create a new event'}
-            >
-              Create New Event
-            </Button>
-          )}
-          {Object.entries(categorized).map(([category, events]) => (
-            events.length > 0 && (
-              <div key={category} className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4 capitalize">
-                  {category} Events
-                </h2>
-                <div className="grid grid-cols-1 gap-3">
-                  {events.map((evt) => {
-                    const start = new Date(toMillis(evt.startDate));
-                    const end = new Date(toMillis(evt.endDate));
-                    const vis = evt.resultsVisibility || 'team';
-                    return (
-                      <motion.div
-                        key={evt.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                      >
-                        <Card>
-                          <div className="flex justify-between items-center space-x-4">
-                            <div>
-                              <h3 className="font-semibold text-gray-800">{evt.name}</h3>
-                              <p className="flex items-center text-sm text-gray-500 mt-1">
-                                <MdEvent className="mr-1" />
-                                {formatDateRange(start, end)}
-                              </p>
-                              {/* Visibility badge */}
-                              <span
-                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold mt-2 ${vis === 'staff'
-                                    ? 'bg-indigo-100 text-indigo-700'
-                                    : 'bg-green-100 text-green-700'
-                                  }`}
-                                title={
-                                  vis === 'staff'
-                                    ? 'Only owner & mods can view event test results'
-                                    : 'All team members can view event test results'
-                                }
+      <div ref={tabPanelRef} tabIndex={-1} className="outline-none scroll-mt-24 md:scroll-mt-8">
+        {activeTab === 'events' && (
+          <div className="space-y-6 w-full">
+            {teamAdmin && (
+              <Button
+                onClick={() => router.push(`/teams/${teamId}/create`)}
+                variant="primary"
+                className="flex mx-auto"
+                disabled={!canCreateNewEvents}
+                title={!canCreateNewEvents ? (isCreator ? 'Upgrade required to create new team events' : 'Team owner must have a team plan to create events') : 'Create a new event'}
+              >
+                Create New Event
+              </Button>
+            )}
+            {Object.entries(categorized).map(([category, events]) => (
+              events.length > 0 && (
+                <div key={category} className="mb-6">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-4 capitalize">
+                    {category} Events
+                  </h2>
+                  <div className="grid grid-cols-1 gap-3">
+                    {events.map((evt) => {
+                      const start = new Date(toMillis(evt.startDate));
+                      const end = new Date(toMillis(evt.endDate));
+                      const vis = evt.resultsVisibility || 'team';
+                      return (
+                        <motion.div
+                          key={evt.id}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                        >
+                          <Card>
+                            <div className="flex justify-between items-center space-x-4">
+                              <div>
+                                <h3 className="font-semibold text-gray-800">{evt.name}</h3>
+                                <p className="flex items-center text-sm text-gray-500 mt-1">
+                                  <MdEvent className="mr-1" />
+                                  {formatDateRange(start, end)}
+                                </p>
+                                {/* Visibility badge */}
+                                <span
+                                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold mt-2 ${vis === 'staff'
+                                      ? 'bg-indigo-100 text-indigo-700'
+                                      : 'bg-green-100 text-green-700'
+                                    }`}
+                                  title={
+                                    vis === 'staff'
+                                      ? 'Only owner & mods can view event test results'
+                                      : 'All team members can view event test results'
+                                  }
+                                >
+                                  {vis === 'staff' ? 'Sharing: Owner/mods only' : 'Sharing: Team members'}
+                                </span>
+                              </div>
+
+                              <Button
+                                onClick={() => router.push(`/teams/${team.id}/${evt.id}`)}
+                                variant="secondary"
+                                className="text-sm"
                               >
-                                {vis === 'staff' ? 'Sharing: Owner/mods only' : 'Sharing: Team members'}
-                              </span>
+                                View
+                              </Button>
                             </div>
-
-                            <Button
-                              onClick={() => router.push(`/teams/${team.id}/${evt.id}`)}
-                              variant="secondary"
-                              className="text-sm"
-                            >
-                              View
-                            </Button>
-                          </div>
-                        </Card>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </div>
-            )
-          ))}
-        </div>
-      )}
-
-      {activeTab === 'info' && (
-        <div className="mb-6 w-full">
-          <TeamInfo teamId={teamId} canPost={isCreator || isMod} />
-        </div>
-      )}
-
-      {/* NEW: Members content */}
-      {activeTab === 'members' && (
-        <div className="mb-6 space-y-6">
-          {teamAdmin ? (
-            <Card className="space-y-3">
-              <h2 className="text-lg font-semibold text-gray-800">Members</h2>
-              <div className="space-y-3 mb-2">
-                {memberProfiles.map((m) => (
-                  <div
-                    key={m.uid}
-                    className="flex items-center justify-between space-x-4 border-b border-gray-200 p-2"
-                  >
-                    <div className="flex items-center">
-                      {m.photoURL ? (
-                        <img
-                          src={m.photoURL}
-                          alt={m.displayName || m.uid}
-                          className="w-8 h-8 rounded-full mr-3"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-3">
-                          <span className="text-gray-600 font-medium">
-                            {(m.displayName || m.uid).charAt(0)}
-                          </span>
-                        </div>
-                      )}
-                      <div className="font-medium flex items-center gap-2">
-                        {m.displayName || m.uid}
-                        {team.mods?.includes(m.uid) && m.uid !== team.createdBy && (
-                          <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs">MOD</span>
-                        )}
-                        {m.uid === team.createdBy && (
-                          <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs">OWNER</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {m.uid !== user.uid && (
-                      <Button
-                        variant="danger"
-                        className="text-xs px-3 py-1"
-                        onClick={() => handleKick(m.uid)}
-                      >
-                        Remove
-                      </Button>
-                    )}
+                          </Card>
+                        </motion.div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
-            </Card>
-          ) : (
-            <Card className="text-sm text-gray-600">
-              Member list is visible to the team owner and mods.
-            </Card>
-          )}
-        </div>
-      )}
+                </div>
+              )
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'info' && (
+          <div className="mb-6 w-full">
+            <TeamInfo teamId={teamId} canPost={isCreator || isMod} />
+          </div>
+        )}
+
+        {/* Members content */}
+        {activeTab === 'members' && (
+          <div className="mb-6 space-y-6">
+            {teamAdmin ? (
+              <Card className="space-y-3">
+                <h2 className="text-lg font-semibold text-gray-800">Members</h2>
+                <div className="space-y-3 mb-2">
+                  {memberProfiles.map((m) => (
+                    <div
+                      key={m.uid}
+                      className="flex items-center justify-between space-x-4 border-b border-gray-200 p-2"
+                    >
+                      <div className="flex items-center">
+                        {m.photoURL ? (
+                          <img
+                            src={m.photoURL}
+                            alt={m.displayName || m.uid}
+                            className="w-8 h-8 rounded-full mr-3"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-3">
+                            <span className="text-gray-600 font-medium">
+                              {(m.displayName || m.uid).charAt(0)}
+                            </span>
+                          </div>
+                        )}
+                        <div className="font-medium flex items-center gap-2">
+                          {m.displayName || m.uid}
+                          {team.mods?.includes(m.uid) && m.uid !== team.createdBy && (
+                            <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs">MOD</span>
+                          )}
+                          {m.uid === team.createdBy && (
+                            <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs">OWNER</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {m.uid !== user.uid && (
+                        <Button
+                          variant="danger"
+                          className="text-xs px-3 py-1"
+                          onClick={() => handleKick(m.uid)}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            ) : (
+              <Card className="text-sm text-gray-600">
+                Member list is visible to the team owner and mods.
+              </Card>
+            )}
+          </div>
+        )}
+      </div>
 
       {activeTab === 'dashboard' && teamAdmin && (
         <div className="mb-6 space-y-6">

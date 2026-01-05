@@ -119,7 +119,7 @@ export default function EventTests({ teamId, eventId, eventData }) {
   if (visibleResults.length === 0) {
     if (isRestricted) {
       return (
-        <div className="my-6 bg-gray-50 border border-gray-200 p-4 rounded text-sm text-gray-600">
+        <div className="my-6 bg-white border border-gray-200 p-4 rounded-2xl text-sm text-gray-600">
           Event test results are restricted to team staff. You have not shared any tests here yet.
         </div>
       );
