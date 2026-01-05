@@ -745,10 +745,15 @@ exports.cancelUserDeletion = onCall(async (request) => {
 exports.createTeam = onCall(async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'User must be authenticated.');
   const uid = request.auth.uid;
-  const { name, isPublic = false } = request.data || {};
+  const { name, isPublic = false, description = '' } = request.data || {};
   if (!name || typeof name !== 'string') {
     throw new HttpsError('invalid-argument', 'Missing or invalid team name.');
   }
+
+  const teamDescriptionRaw = typeof description === 'string' ? description.trim() : '';
+  const teamDescription = teamDescriptionRaw.length > 1000
+    ? teamDescriptionRaw.slice(0, 1000)
+    : teamDescriptionRaw;
 
   // Load user to determine plan
   const userRef = db.collection('users').doc(uid);
@@ -774,6 +779,7 @@ exports.createTeam = onCall(async (request) => {
   const teamRef = db.collection('teams').doc(); // generate id
   const doc = {
     name,
+    description: teamDescription,
     imageURL: '',
     joinCode: generateTeamCode(),
     createdBy: uid,

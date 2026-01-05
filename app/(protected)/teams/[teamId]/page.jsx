@@ -10,7 +10,7 @@ import Spinner from '@/components/common/Spinner/Spinner';
 import { motion } from 'framer-motion';
 import PendingJoinRequests from '@/app/(protected)/teams/[teamId]/components/PendingJoinRequests';
 import { MdEvent, MdPublicOff, MdPublic, MdArrowBack } from "react-icons/md";
-import { RiTeamLine } from 'react-icons/ri';
+import { RiTeamLine, RiVerifiedBadgeFill } from 'react-icons/ri';
 import PageHeader from '@/components/layout/PageHeader';
 
 import { getFunctions, httpsCallable } from 'firebase/functions';
@@ -110,6 +110,26 @@ export default function TeamDetailPage() {
     }
   };
 
+  const [copied, setCopied] = useState(false);
+  const copyJoinCode = async () => {
+    try {
+      const code = team?.joinCode || '';
+      if (!code) return;
+
+      // Clipboard API may be unavailable outside secure contexts.
+      if (typeof navigator === 'undefined' || !navigator.clipboard?.writeText) {
+        window.prompt('Copy join code:', code);
+        return;
+      }
+
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (e) {
+      console.error('Copy failed', e);
+    }
+  };
+
   if (loading) return (
     <div className="flex justify-center py-12">
       <Spinner size="lg" className="text-blue-600" />
@@ -144,7 +164,7 @@ export default function TeamDetailPage() {
   const headerActions = (
     <div className="flex flex-wrap gap-2 items-center justify-end">
       <Button onClick={handleBack} className='flex items-center' variant="secondary">
-        <MdArrowBack className='mr-1'/> Back to Teams
+        <MdArrowBack className='mr-1' /> Back to Teams
       </Button>
       {teamAdmin && (
         <Button
@@ -172,14 +192,26 @@ export default function TeamDetailPage() {
             (memberCap > 0 && team.members.length >= memberCap) ||
             (memberCap === 0 && team.members.length > 0)
           ) && (
-            <span className="ml-2 text-red-600 font-semibold">
-              {memberCap === 0 || team.members.length > memberCap ? '(Over cap)' : '(Full)'}
-            </span>
-          )}
+              <span className="ml-2 text-red-600 font-semibold">
+                {memberCap === 0 || team.members.length > memberCap ? '(Over cap)' : '(Full)'}
+              </span>
+            )}
         </span>
         <span>
           <span className="font-semibold text-gray-700">{events.length}</span> events
         </span>
+
+        {team.isPublic ? (
+          <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
+            <MdPublic />
+            Public
+          </span>
+        ) : (
+          <span className="flex items-center gap-1 px-2 py-0.5 bg-gray-200 text-gray-700 rounded text-xs font-semibold">
+            <MdPublicOff />
+            Private
+          </span>
+        )}
       </span>
     </>
   );
@@ -191,10 +223,11 @@ export default function TeamDetailPage() {
         title={
           <span className="inline-flex items-center justify-center md:justify-start gap-2">
             {team.name}
-            {team.isPublic ? (
-              <MdPublic title="Public Team" className="text-blue-600" />
-            ) : (
-              <MdPublicOff title="Private Team" className="text-gray-700" />
+            {team.verified && (
+              <span className="inline-flex items-center text-blue-700 font-semibold">
+                <RiVerifiedBadgeFill className="text-blue-600" aria-hidden="true" />
+                <span className="sr-only">Verified</span>
+              </span>
             )}
           </span>
         }
@@ -218,40 +251,54 @@ export default function TeamDetailPage() {
         (memberCap > 0 && team.members.length >= memberCap) ||
         (memberCap === 0 && team.members.length > 0)
       ) && (
-        <div className="flex flex-col gap-3 md:flex-row mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-2xl p-5 items-center justify-between">
-          <span>
-            Team member limit reached for your current plan. New members can’t join until you upgrade or remove members.
-          </span>
-          <Button variant="primary" onClick={() => router.push('/pricing')}>
-            Upgrade
-          </Button>
-        </div>
-      )}
+          <div className="flex flex-col gap-3 md:flex-row mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-2xl p-5 items-center justify-between">
+            <span>
+              Team member limit reached for your current plan. New members can’t join until you upgrade or remove members.
+            </span>
+            <Button variant="primary" onClick={() => router.push('/pricing')}>
+              Upgrade
+            </Button>
+          </div>
+        )}
 
       <Card className="mb-6">
-        <div className="flex flex-col items-center text-center gap-3">
-          <UploadableImage
-            photoURL={team.imageURL}
-            variant="team"
-            alt="team image"
-            clickable={false}
-            className="mx-auto w-full max-h-40 object-contain"
-          />
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+          {/* Image: no fixed box; scales naturally with a max-height */}
+          <div className="w-full md:w-5/12 lg:w-1/3">
+            <UploadableImage
+              photoURL={team.imageURL}
+              variant="team"
+              alt="team image"
+              clickable={false}
+              className="w-full h-auto max-h-64 object-contain"
+            />
+          </div>
 
-          {/*
-            Show join code to:
-              - team creator (isCreator)
-              - users with manage privileges (canManage)
-              - or when the team is public
-          */}
-          {(teamAdmin || team.isPublic) && (
-            <div className="px-4 py-2 bg-blue-50 border border-blue-200 rounded-2xl text-sm text-blue-800 text-center">
-              <span className="font-medium">Join code:</span>
-              <span className="font-mono ml-2 bg-blue-100 px-2 py-1 rounded-lg">
-                {team.joinCode}
-              </span>
+          {/* Content */}
+          <div className="flex-1 space-y-5">
+            <div className="space-y-2">
+              <div className="text-xs font-semibold text-gray-500 tracking-wide uppercase">About</div>
+              {team.description ? (
+                <div className="text-gray-800 text-base leading-relaxed whitespace-pre-wrap">
+                  {team.description}
+                </div>
+              ) : (
+                <div className="text-gray-500">No team description provided.</div>
+              )}
             </div>
-          )}
+
+            {(teamAdmin || team.isPublic) && (
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-gray-500 tracking-wide uppercase">Join code</div>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <span className="font-semibold bg-blue-50 ring-1 ring-blue-200 text-blue-800 px-4 py-2 rounded-2xl">{team.joinCode}</span>
+                  <Button onClick={copyJoinCode} variant="secondary" className="text-sm"> 
+                    {copied ? 'Copied' : 'Copy'}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </Card>
 
@@ -315,75 +362,74 @@ export default function TeamDetailPage() {
       {/* Tab Content */}
       {activeTab === 'events' && (
         <div className="space-y-6 w-full">
-              {teamAdmin && (
-                <Button
-                  onClick={() => router.push(`/teams/${teamId}/create`)}
-                  variant="primary"
-                  className="flex mx-auto"
-                  disabled={!canCreateNewEvents}
-                  title={!canCreateNewEvents ? (isCreator ? 'Upgrade required to create new team events' : 'Team owner must have a team plan to create events') : 'Create a new event'}
-                >
-                  Create New Event
-                </Button>
-              )}
-              {Object.entries(categorized).map(([category, events]) => (
-                events.length > 0 && (
-                  <div key={category} className="mb-6">
-                    <h2 className="text-lg font-semibold text-gray-800 mb-4 capitalize">
-                      {category} Events
-                    </h2>
-                    <div className="grid grid-cols-1 gap-3">
-                      {events.map((evt) => {
-                        const start = new Date(evt.startDate.seconds * 1000);
-                        const end = new Date(evt.endDate.seconds * 1000);
-                        const vis = evt.resultsVisibility || 'team';
-                        return (
-                          <motion.div
-                            key={evt.id}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                          >
-                            <Card>
-                              <div className="flex justify-between items-center space-x-4">
-                                <div>
-                                  <h3 className="font-semibold text-gray-800">{evt.name}</h3>
-                                  <p className="flex items-center text-sm text-gray-500 mt-1">
-                                    <MdEvent className="mr-1" />
-                                    {formatDateRange(start, end)}
-                                  </p>
-                                  {/* Visibility badge */}
-                                  <span
-                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold mt-2 ${
-                                      vis === 'staff'
-                                        ? 'bg-indigo-100 text-indigo-700'
-                                        : 'bg-green-100 text-green-700'
-                                    }`}
-                                    title={
-                                      vis === 'staff'
-                                        ? 'Only owner & mods can view event test results'
-                                        : 'All team members can view event test results'
-                                    }
-                                  >
-                                    {vis === 'staff' ? 'Sharing: Owner/mods only' : 'Sharing: Team members'}
-                                  </span>
-                                </div>
+          {teamAdmin && (
+            <Button
+              onClick={() => router.push(`/teams/${teamId}/create`)}
+              variant="primary"
+              className="flex mx-auto"
+              disabled={!canCreateNewEvents}
+              title={!canCreateNewEvents ? (isCreator ? 'Upgrade required to create new team events' : 'Team owner must have a team plan to create events') : 'Create a new event'}
+            >
+              Create New Event
+            </Button>
+          )}
+          {Object.entries(categorized).map(([category, events]) => (
+            events.length > 0 && (
+              <div key={category} className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4 capitalize">
+                  {category} Events
+                </h2>
+                <div className="grid grid-cols-1 gap-3">
+                  {events.map((evt) => {
+                    const start = new Date(evt.startDate.seconds * 1000);
+                    const end = new Date(evt.endDate.seconds * 1000);
+                    const vis = evt.resultsVisibility || 'team';
+                    return (
+                      <motion.div
+                        key={evt.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                      >
+                        <Card>
+                          <div className="flex justify-between items-center space-x-4">
+                            <div>
+                              <h3 className="font-semibold text-gray-800">{evt.name}</h3>
+                              <p className="flex items-center text-sm text-gray-500 mt-1">
+                                <MdEvent className="mr-1" />
+                                {formatDateRange(start, end)}
+                              </p>
+                              {/* Visibility badge */}
+                              <span
+                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold mt-2 ${vis === 'staff'
+                                    ? 'bg-indigo-100 text-indigo-700'
+                                    : 'bg-green-100 text-green-700'
+                                  }`}
+                                title={
+                                  vis === 'staff'
+                                    ? 'Only owner & mods can view event test results'
+                                    : 'All team members can view event test results'
+                                }
+                              >
+                                {vis === 'staff' ? 'Sharing: Owner/mods only' : 'Sharing: Team members'}
+                              </span>
+                            </div>
 
-                                <Button
-                                  onClick={() => router.push(`/teams/${team.id}/${evt.id}`)}
-                                  variant="secondary"
-                                  className="text-sm"
-                                >
-                                  View
-                                </Button>
-                              </div>
-                            </Card>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )
-              ))}
+                            <Button
+                              onClick={() => router.push(`/teams/${team.id}/${evt.id}`)}
+                              variant="secondary"
+                              className="text-sm"
+                            >
+                              View
+                            </Button>
+                          </div>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            )
+          ))}
         </div>
       )}
 

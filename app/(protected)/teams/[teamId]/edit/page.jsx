@@ -25,6 +25,7 @@ export default function EditTeamPage() {
   const { team, loading, error } = useSingleTeam(teamId);
 
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [imageURL, setImageURL] = useState('');
   const [isPublic, setIsPublic] = useState(false);
   const [file, setFile] = useState(null);
@@ -37,6 +38,7 @@ export default function EditTeamPage() {
   useEffect(() => {
     if (!team) return;
     setName(team.name || '');
+    setDescription(team.description || '');
     setImageURL(team.imageURL || '');
     setIsPublic(team.isPublic || false);
     setMods(team.mods || []);
@@ -75,7 +77,12 @@ export default function EditTeamPage() {
         finalImage = await uploadTeamImage(teamId, file, user.uid);
         setImageURL(finalImage);
       }
-      await updateTeam(teamId, { name, imageURL: finalImage, isPublic });
+      await updateTeam(teamId, {
+        name,
+        description,
+        imageURL: finalImage,
+        isPublic,
+      });
       router.push(`/teams/${teamId}`);
     } catch (e) {
       console.error(e);
@@ -159,6 +166,16 @@ export default function EditTeamPage() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
+          className="w-full"
+        />
+
+        <Input
+          type="textarea"
+          name="teamDescription"
+          label="Team description (optional)"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={5}
           className="w-full"
         />
 
@@ -247,18 +264,19 @@ export default function EditTeamPage() {
           </div>
         </div>
 
-        <div className="flex justify-between gap-3 pt-4">
-          <Button onClick={handleUpdate} variant="primary" loading={isUpdating} >
-            Update
-          </Button>
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-4">
+          <div className="flex gap-2">
+            <Button onClick={handleBack} variant="secondary">
+              Cancel
+            </Button>
+            <Button onClick={handleUpdate} variant="primary" loading={isUpdating}>
+              Save changes
+            </Button>
+          </div>
+
           {team && user.uid === team.createdBy && (
-            <Button
-              onClick={handleDelete}
-              variant="danger"
-              disabled={isDeleting}
-              
-            >
-              {isDeleting ? 'Deleting...' : 'Delete Team'}
+            <Button onClick={handleDelete} variant="danger" loading={isDeleting}>
+              Delete team
             </Button>
           )}
         </div>

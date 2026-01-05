@@ -200,10 +200,10 @@ service cloud.firestore {
       function isStaffLocal() { return isTeamCreator() || isTeamModLocal(); }
 
       function teamWritableKeysOwner() {
-        return ['name','imageURL','isPublic','keywords_en'];
+        return ['name','description','imageURL','isPublic','keywords_en'];
       }
       function teamWritableKeysMod() {
-        return ['name','imageURL','isPublic'];
+        return ['name','description','imageURL','isPublic'];
       }
 
       allow create: if isCoachOrCompany();
@@ -211,7 +211,12 @@ service cloud.firestore {
       allow read: if resource.data.isPublic == true
         || (request.auth != null && request.auth.uid in resource.data.members)
         || isTeamCreator()
-        || isTeamModLocal();
+        || isTeamModLocal()
+        || isAdminLocal();
+
+      // Admin can verify/unverify teams
+      allow update: if isAdminLocal()
+        && request.writeFields.hasOnly(['verified']);
 
       allow update: if isTeamCreator()
         && request.writeFields.hasOnly(teamWritableKeysOwner());

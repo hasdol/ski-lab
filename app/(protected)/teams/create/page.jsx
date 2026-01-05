@@ -16,6 +16,7 @@ import PageHeader from '@/components/layout/PageHeader';
 export default function CreateTeamPage() {
   const { user, userData } = useAuth();
   const [teamName, setTeamName] = useState('');
+  const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(false);
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -37,7 +38,7 @@ export default function CreateTeamPage() {
       setUploading(true);
 
       // Create team without team-level results visibility
-      const teamId = await createTeam(user.uid, teamName, isPublic);
+      const teamId = await createTeam(user.uid, teamName, isPublic, description);
 
       if (file && (userData?.plan === 'coach' || userData?.plan === 'company')) {
         uploadedImageURL = await uploadTeamImage(teamId, file, user.uid);
@@ -77,6 +78,17 @@ export default function CreateTeamPage() {
           value={teamName}
           onChange={(e) => setTeamName(e.target.value)}
           required
+          className="w-full"
+        />
+
+        <Input
+          type="textarea"
+          name="teamDescription"
+          label="Team description (optional)"
+          placeholder="Add a short description of your team"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={4}
           className="w-full"
         />
 

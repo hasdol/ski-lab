@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
-import { RiVipCrownLine } from 'react-icons/ri';
+import { RiVipCrownLine, RiVerifiedBadgeFill } from 'react-icons/ri';
 import { MdPublicOff, MdPublic } from 'react-icons/md';
 import Card from '@/components/ui/Card';
 import { TEAM_PLAN_CAPS } from '@/lib/constants/teamPlanCaps';
@@ -44,7 +44,16 @@ const TeamCard = ({ team, isCreator, isMod, memberCap, onView }) => {
         </div>
 
         <div className="flex-1">
-          <h3 className="text-sm font-semibold text-gray-900">{team.name}</h3>
+          <div className='flex space-x-1'>
+            <h3 className="text-sm font-semibold text-gray-900">{team.name}</h3>
+            {team.verified && (
+              <span className="flex items-center gap-1 text-blue-700 rounded font-semibold">
+                <RiVerifiedBadgeFill className="text-blue-600" aria-hidden="true" />
+                <span className="sr-only">Verified</span>
+              </span>
+            )}
+          </div>
+
           <div className="flex flex-wrap items-center gap-2 mt-1">
             {/* Visibility badge */}
             {team.isPublic ? (
@@ -58,6 +67,8 @@ const TeamCard = ({ team, isCreator, isMod, memberCap, onView }) => {
                 Private
               </span>
             )}
+
+
             {/* Owner badge */}
             {isCreator && (
               <span className="flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-bold">
@@ -90,8 +101,8 @@ const TeamCard = ({ team, isCreator, isMod, memberCap, onView }) => {
           View
         </Button>
       </div>
-      </Card>
-    );
+    </Card>
+  );
 };
 
 export default function UserTeamsList({ teams, onTeamUpdate }) {

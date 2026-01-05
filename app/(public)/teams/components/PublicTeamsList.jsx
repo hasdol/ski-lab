@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { motion } from 'framer-motion';
 import { MdPublic } from 'react-icons/md';
-import { RiVipCrownLine } from 'react-icons/ri';
+import { RiVipCrownLine, RiVerifiedBadgeFill } from 'react-icons/ri';
 import { useAuth } from '@/context/AuthContext';
 import Card from '@/components/ui/Card';
 
@@ -46,47 +46,57 @@ const PublicTeamCard = ({ team, isJoined, onJoin }) => {
         </div>
 
         <div className="flex-1">
-          <h3 className="text-sm font-semibold text-gray-900">{team.name}</h3>
-          <div className="flex flex-wrap items-center gap-2 mt-1">
-            {/* Public badge */}
-            <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
-              <MdPublic />
-              Public
-            </span>
-            {/* Owner badge */}
-            {isCreator && (
-              <span className="flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-bold">
-                <RiVipCrownLine className="text-yellow-500" />
-                Owner
+          <div className='flex space-x-1'>
+
+            <h3 className="text-sm font-semibold text-gray-900">{team.name}</h3>
+            {team.verified && (
+              <span className="flex items-center gap-1 text-blue-700 rounded font-semibold">
+                <RiVerifiedBadgeFill className="text-blue-600" aria-hidden="true" />
+                <span className="sr-only">Verified</span>
               </span>
             )}
-            {!isCreator && isMod && (
-              <span className="flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs font-semibold">
-                MOD
+            </div>
+            <div className="flex flex-wrap items-center gap-2 mt-1">
+              {/* Public badge */}
+              <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
+                <MdPublic />
+                Public
               </span>
-            )}
-            <span className="text-xs text-gray-500">
-              {team.members?.length || 0} member{team.members?.length !== 1 ? 's' : ''}
-            </span>
+
+              {/* Owner badge */}
+              {isCreator && (
+                <span className="flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-bold">
+                  <RiVipCrownLine className="text-yellow-500" />
+                  Owner
+                </span>
+              )}
+              {!isCreator && isMod && (
+                <span className="flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs font-semibold">
+                  MOD
+                </span>
+              )}
+              <span className="text-xs text-gray-500">
+                {team.members?.length || 0} member{team.members?.length !== 1 ? 's' : ''}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="mt-4 sm:mt-0 sm:ml-4 w-full sm:w-auto">
-        <Button
-          onClick={() => {
-            if (isJoined) {
-              router.push(`/teams/${team.id}`);
-            } else if (onJoin) {
-              onJoin(team);
-            }
-          }}
-          variant={isJoined ? 'secondary' : 'primary'}
-          className="text-sm w-full sm:w-auto"
-        >
-          {isJoined ? 'View' : 'Join'}
-        </Button>
-      </div>
+        <div className="mt-4 sm:mt-0 sm:ml-4 w-full sm:w-auto">
+          <Button
+            onClick={() => {
+              if (isJoined) {
+                router.push(`/teams/${team.id}`);
+              } else if (onJoin) {
+                onJoin(team);
+              }
+            }}
+            variant={isJoined ? 'secondary' : 'primary'}
+            className="text-sm w-full sm:w-auto"
+          >
+            {isJoined ? 'View' : 'Join'}
+          </Button>
+        </div>
     </Card>
   );
 };
