@@ -88,7 +88,7 @@ export default function CreateEventPage() {
         await updateEvent(teamId, eventRef.id, { imageURL: finalImageURL });
       }
 
-      router.push(`/teams/${teamId}`);
+      router.push(`/teams/${teamId}/${eventRef.id}`);
     } catch (err) {
       console.error('Create event failed', err);
       alert(err?.message || 'Create event failed.');
