@@ -9,6 +9,7 @@ import {
   RiRoadsterLine,
   RiFlashlightLine
 } from "react-icons/ri";
+import { MdVisibility, MdVisibilityOff } from 'react-icons/md';
 
 import SkiDetail from './details/SkiDetails';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
@@ -90,17 +91,26 @@ export default function SkiItem(props) {
           />
         )}
         <div className="flex items-center gap-3 grow">
-          <span
-            className="font-semibold cursor-pointer"
-            title={showFullSerial ? "Show last 3 digits" : "Show full serial number"}
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowFullSerial((prev) => !prev);
-            }}
-          >
-            {serialDisplay}
-            {hasMoreDigits && !showFullSerial && <span className="text-gray-400 ml-1">...</span>}
-          </span>
+          <div className="flex items-center gap-0.5">
+            <span className="font-semibold">{serialDisplay}</span>
+            {hasMoreDigits && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowFullSerial((prev) => !prev);
+                }}
+                title={showFullSerial ? 'Hide full serial' : 'Show full serial'}
+                aria-label={showFullSerial ? 'Hide full serial' : 'Show full serial'}
+                className="text-gray-500 hover:text-gray-700 p-1"
+              >
+                {showFullSerial ? (
+                  <MdVisibilityOff size={18} />
+                ) : (
+                  <MdVisibility size={18} />
+                )}
+              </button>
+            )}
+          </div>
           {ski.grind && (
             <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full">
               {highlightSearchTerm(ski.grind, search)}

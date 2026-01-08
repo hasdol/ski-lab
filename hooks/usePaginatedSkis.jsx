@@ -35,6 +35,7 @@ export default function usePaginatedSkis({
 
   const keywordField = 'keywords_en';
   const effectiveUid = ownerUserId || user?.uid || null; // NEW
+  const isRemoteView = !!effectiveUid && !!user?.uid && effectiveUid !== user.uid;
 
   const buildBaseQuery = useCallback(() => {
     if (!effectiveUid) return null;
@@ -47,8 +48,12 @@ export default function usePaginatedSkis({
         ? query(colRef, where(keywordField, 'array-contains', term))
         : query(colRef);
 
-    // ✅ SECURITY: don't return locked skis in normal inventory queries
-    if (!includeLocked) {
+    // NOTE:
+    // - For remote/shared views: Firestore rules deny reading locked skis, so we must
+    //   constrain the query to `locked == false` to avoid permission-denied.
+    // - For own inventory: allow docs that don't yet have `locked` set (treat as unlocked)
+    //   and filter out `locked === true` client-side.
+    if (!includeLocked && isRemoteView) {
       baseQuery = query(baseQuery, where('locked', '==', false));
     }
 
@@ -76,6 +81,7 @@ export default function usePaginatedSkis({
     sortField,
     sortDirection,
     includeLocked,
+    isRemoteView,
   ]);
 
   const fetchPage = useCallback(async (startAfterDoc = null) => {
@@ -94,7 +100,12 @@ export default function usePaginatedSkis({
         break;
       }
 
-      const pageDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      let pageDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      // For own inventory, treat missing `locked` as unlocked.
+      if (!includeLocked && !isRemoteView) {
+        pageDocs = pageDocs.filter(d => d.locked !== true);
+      }
       accumulated = accumulated.concat(pageDocs);
       if (snap.docs.length < PAGE_SIZE) localExhausted = true;
       localCursor = snap.docs[snap.docs.length - 1];

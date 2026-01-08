@@ -4,6 +4,7 @@ import { Timestamp } from 'firebase/firestore';
 import { RiArrowDownDoubleLine, RiDeleteBinLine } from "react-icons/ri";
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import Toggle from '@/components/ui/Toggle';
 import { useRouter } from 'next/navigation';
 // Import the helper instead of using a local version
 import { formatDate } from '@/helpers/helpers';
@@ -11,6 +12,7 @@ import { formatDate } from '@/helpers/helpers';
 const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [allowSerialLetters, setAllowSerialLetters] = useState(false);
   const [formData, setFormData] = useState({
     serialNumber: '',
     brand: '',
@@ -50,6 +52,12 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
   }, [initialData, isEdit]);
 
   useEffect(() => {
+    // If an existing serial contains any letters, automatically enable alphanumeric mode.
+    const serial = String(initialData?.serialNumber ?? '').trim();
+    if (/[a-zA-Z]/.test(serial)) setAllowSerialLetters(true);
+  }, [initialData?.serialNumber]);
+
+  useEffect(() => {
     // Parse incoming stiffness ("half/full") into the two new fields when editing
     if (initialData?.stiffness && (formData.stiffnessHalf === '' && formData.stiffnessFull === '')) {
       const raw = String(initialData.stiffness).trim();
@@ -64,6 +72,18 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'serialNumber') {
+      const normalized = allowSerialLetters
+        ? String(value).replace(/\s+/g, '')
+        : String(value).replace(/\D+/g, '');
+      setFormData(prev => ({
+        ...prev,
+        serialNumber: normalized,
+      }));
+      return;
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: value,
@@ -164,13 +184,32 @@ const SkiForm = ({ initialData = {}, onSubmit, isEdit = false }) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           label='Serial number'
-          type="number"
+          type="text"
           name="serialNumber"
           value={formData.serialNumber}
           onChange={handleChange}
           placeholder='Serial number'
           required
+          inputMode={allowSerialLetters ? 'text' : 'numeric'}
+          pattern={allowSerialLetters ? undefined : '[0-9]*'}
+          autoComplete="off"
         />
+        <div className="flex items-center justify-between -mt-2">
+          <span className="text-sm text-text">Allow letters</span>
+          <Toggle
+            enabled={allowSerialLetters}
+            setEnabled={(enabled) => {
+              setAllowSerialLetters(enabled);
+              if (!enabled) {
+                setFormData(prev => ({
+                  ...prev,
+                  serialNumber: String(prev.serialNumber || '').replace(/\D+/g, ''),
+                }));
+              }
+            }}
+            label="Allow letters in serial number"
+          />
+        </div>
         <Input
           label='Style'
           type="select"
