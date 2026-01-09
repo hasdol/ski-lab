@@ -1,11 +1,11 @@
 // pages/SignUp.js
-'use client';
+ 'use client';
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { registerWithEmailAndPassword } from '@/lib/firebase/authFunctions';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { RiUserAddLine } from 'react-icons/ri';
 import { updateProfile, deleteUser } from 'firebase/auth';
 import { db } from '@/lib/firebase/firebaseConfig';
 import { doc, setDoc, deleteDoc } from 'firebase/firestore';
@@ -60,16 +60,18 @@ const SignUp = () => {
   };
 
   return (
-    <div className="p-4 max-w-4xl w-full self-center md:w-1/3 md:mx-auto">
-      <PageHeader
-        icon={<RiUserAddLine className="text-blue-600 text-2xl" />}
-        title="Sign Up"
-        subtitle="Create a new user"
-        actions={null}
-      />
+    <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-6 pt-12 md:px-10 md:pt-20">
+      <div className="w-full max-w-md">
+        <PageHeader
+          icon={<Image src="/ski-lab-icon.png" alt="Ski‑Lab" width={72} height={72} className="rounded-3xl ring-1 ring-black/5 shadow-sm" />}
+          iconBg="bg-transparent"
+          title="Sign Up"
+          subtitle="Create a new user"
+          actions={null}
+        />
 
-      <Card>
-        <form onSubmit={handleSignUp} className="space-y-4">
+        <Card className="w-full">
+          <form onSubmit={handleSignUp} className="space-y-4">
           {/* New Username field */}
           <Input
             id="username"
@@ -106,8 +108,8 @@ const SignUp = () => {
           <Button type="submit" loading={isLoading} variant="primary">
             Sign Up
           </Button>
-        </form>
-        <div className="mt-6 text-sm">
+          </form>
+          <div className="mt-6 text-sm">
           <p>
             Already have an account?{' '}
             <button onClick={() => router.push('/login')} className="underline" aria-label="Login">
@@ -115,7 +117,8 @@ const SignUp = () => {
             </button>
           </p>
         </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };

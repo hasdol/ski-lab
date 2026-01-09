@@ -1,11 +1,11 @@
 // pages/PasswordReset.js
-'use client';
+ 'use client';
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { sendPasswordReset } from '@/lib/firebase/authFunctions';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { RiResetLeftFill } from 'react-icons/ri';
 import PageHeader from '@/components/layout/PageHeader';
 import Card from '@/components/ui/Card';
 
@@ -37,16 +37,18 @@ const PasswordReset = () => {
   };
 
   return (
-    <div className="p-4 max-w-4xl w-full self-center md:w-1/3 md:mx-auto">
-      <PageHeader
-        icon={<RiResetLeftFill className="text-blue-600 text-2xl" />}
-        title="Reset Password"
-        subtitle="Reset your password"
-        actions={null}
-      />
+    <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-6 pt-12 md:px-10 md:pt-20">
+      <div className="w-full max-w-md">
+        <PageHeader
+          icon={<Image src="/ski-lab-icon.png" alt="Ski‑Lab" width={72} height={72} className="rounded-3xl ring-1 ring-black/5 shadow-sm" />}
+          iconBg="bg-transparent"
+          title="Reset Password"
+          subtitle="Reset your password"
+          actions={null}
+        />
 
-      <Card>
-        <form onSubmit={handleResetPassword} className="space-y-4">
+        <Card className="w-full">
+          <form onSubmit={handleResetPassword} className="space-y-4">
           <Input
             id="resetEmail"
             type="email"
@@ -59,15 +61,16 @@ const PasswordReset = () => {
           />
           {resetError && <p className="bg-red-100 text-red-700 p-3 rounded-lg">{resetError}</p>}
           <div className="flex gap-2">
-            <Button type="submit" loading={isResetting} variant="primary">
+            <Button type="submit" loading={isResetting} variant="danger">
               Reset Password
             </Button>
             <Button type="button" variant="secondary" onClick={() => router.push('/login')}>
               Back
             </Button>
           </div>
-        </form>
-      </Card>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 };

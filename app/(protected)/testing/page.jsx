@@ -5,7 +5,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import TestingHelpModal from '@/app/(protected)/testing/components/TestingHelpModal';
 import { TournamentContext } from '@/context/TournamentContext';
 import { RiQuestionLine, RiDragMove2Line } from 'react-icons/ri';
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { IoMdAlert } from "react-icons/io";
 
 import Button from '@/components/ui/Button';
@@ -410,17 +410,26 @@ const Testing = () => {
                                               <RiDragMove2Line size={18} />
                                             </span>
                                             <div className="flex flex-row items-center gap-3">
-                                              <span
-                                                className="font-semibold cursor-pointer"
-                                                title={showFullSerial ? "Show last 3 digits" : "Show full serial number"}
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  toggleSerialDigits(ski.id);
-                                                }}
-                                              >
-                                                {serialDisplay}
-                                                {hasMoreDigits && !showFullSerial && <span className="text-gray-400 ml-1">...</span>}
-                                              </span>
+                                              <div className="flex items-center gap-1">
+                                                <span className="font-semibold">{serialDisplay}</span>
+                                                {hasMoreDigits && (
+                                                  <button
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      toggleSerialDigits(ski.id);
+                                                    }}
+                                                    title={showFullSerial ? 'Hide full serial' : 'Show full serial'}
+                                                    aria-label={showFullSerial ? 'Hide full serial' : 'Show full serial'}
+                                                    className="text-gray-500 hover:text-gray-700 p-1"
+                                                  >
+                                                    {showFullSerial ? (
+                                                      <MdVisibilityOff size={18} />
+                                                    ) : (
+                                                      <MdVisibility size={18} />
+                                                    )}
+                                                  </button>
+                                                )}
+                                              </div>
                                               {ski.grind && (
                                                 <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full">{ski.grind}</span>
                                               )}

@@ -1,11 +1,11 @@
 // pages/Login.js
-'use client';
+ 'use client';
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { loginWithEmailAndPassword } from '@/lib/firebase/authFunctions';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { RiLoginBoxLine } from 'react-icons/ri';
 import PageHeader from '@/components/layout/PageHeader'; // Add this import
 import Card from '@/components/ui/Card'
 
@@ -48,16 +48,18 @@ const Login = () => {
   };
 
   return (
-    <div className="p-4 max-w-4xl w-full self-center md:w-1/3 md:mx-auto">
-      <PageHeader
-        icon={<RiLoginBoxLine className="text-blue-600 text-2xl" />}
-        title="Login"
-        subtitle="Enter your credentials"
-        actions={null}
-      />
+    <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-6 pt-12 md:px-10 md:pt-20">
+      <div className="w-full max-w-md">
+        <PageHeader
+          icon={<Image src="/ski-lab-icon.png" alt="Ski‑Lab" width={72} height={72} className="rounded-3xl ring-1 ring-black/5 shadow-sm" />}
+          iconBg="bg-transparent"
+          title="Login"
+          subtitle="Enter your credentials"
+          actions={null}
+        />
 
-      <Card>
-        <form onSubmit={handleSignIn} className="space-y-4">
+        <Card className="w-full">
+          <form onSubmit={handleSignIn} className="space-y-4">
           <Input
             id="email"
             type="email"
@@ -88,8 +90,8 @@ const Login = () => {
           >
             Login
           </Button>
-        </form>
-        <div className="mt-6 text-sm flex flex-col space-y-2">
+          </form>
+          <div className="mt-6 text-sm flex flex-col space-y-2">
           <p>
             Don't have an account?{' '}
             <button
@@ -111,7 +113,8 @@ const Login = () => {
             </button>
           </p>
         </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };

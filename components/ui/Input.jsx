@@ -1,6 +1,8 @@
-import React, { useContext, useId } from 'react';
+import React, { useContext, useId, useState } from 'react';
 import PropTypes from 'prop-types';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
+import { MdVisibility, MdVisibilityOff } from "react-icons/md";
+
 
 const Input = ({
   label,
@@ -122,6 +124,39 @@ const Input = ({
         </span>
       </div>
     );
+  } else if (type === 'password') {
+    const [showPassword, setShowPassword] = useState(false);
+    const actualType = showPassword ? 'text' : 'password';
+
+    inputElement = (
+      <div className="relative">
+        <input
+          id={inputId}
+          type={actualType}
+          name={inputName}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          className={`w-full bg-white text-text border border-gray-300 rounded-2xl ${gloveClasses} text-base pr-16 ${className} ${disabled && 'bg-gray-100!'}`}
+          {...props}
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword((s) => !s)}
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-zinc-800 px-2 py-1"
+          aria-pressed={showPassword}
+          aria-label={showPassword ? 'Hide password' : 'Show password'}
+        >
+          {showPassword ? (
+            <MdVisibilityOff className="h-5 w-5" />
+          ) : (
+            <MdVisibility className="h-5 w-5" />
+          )}
+        </button>
+      </div>
+    );
   } else {
     inputElement = (
       <input
@@ -153,7 +188,7 @@ const Input = ({
 
 Input.propTypes = {
   label: PropTypes.string,
-  type: PropTypes.oneOf(['text', 'number', 'date', 'datetime-local', 'textarea', 'select', 'radio', 'range']),
+  type: PropTypes.oneOf(['text', 'email', 'password', 'number', 'date', 'datetime-local', 'textarea', 'select', 'radio', 'range']),
   // Many callers currently omit name; keep it optional here, but prefer passing it explicitly.
   name: PropTypes.string,
   value: PropTypes.any,
