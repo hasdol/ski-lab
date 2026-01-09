@@ -9,7 +9,7 @@ export default function KeywordReindexTools() {
     return (
         <Card className="p-5 md:p-6">
             <div className="space-y-2">
-                <h2 className="text-xl font-medium text-gray-800 mb-6">Search repair tool</h2>
+                <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-600 mb-5">Search repair tool</h2>
                 <p className="text-xs text-gray-600">
                     If search stops finding your skis or results, re-index the keyword fields used by search.
                 </p>

@@ -1,13 +1,13 @@
 'use client';
 import React, { createContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/firebaseConfig';
 
 export const UserPreferencesContext = createContext();
 
 /**
- * Only gloveMode is left.  The language toggle & i18n changes are gone.
+ * User preferences stored locally and synced to Firestore when signed in.
  */
 export const UserPreferencesProvider = ({ children }) => {
   const { user } = useAuth();
@@ -18,6 +18,10 @@ export const UserPreferencesProvider = ({ children }) => {
     document.documentElement.classList.remove('dark');
     const storedGlove = localStorage.getItem('gloveMode');
     if (storedGlove) setGloveMode(storedGlove === 'true');
+
+    // Clean up legacy language preference storage.
+    localStorage.removeItem('language');
+    document.documentElement.lang = 'en';
   }, []);
 
   /* Keep syncing gloveMode with Firestore */
@@ -37,17 +41,25 @@ export const UserPreferencesProvider = ({ children }) => {
     setGloveMode(next);
     localStorage.setItem('gloveMode', next);
     if (user) {
-      await setDoc(
-        doc(db, 'users', user.uid),
-        { preferences: { gloveModePreference: next } },
-        { merge: true }
-      );
+      try {
+        await updateDoc(doc(db, 'users', user.uid), {
+          'preferences.gloveModePreference': next,
+        });
+      } catch (err) {
+        // If rules deny the write, keep local state and don't break the UI.
+        if (err?.code !== 'permission-denied') throw err;
+        console.warn('Preference write denied (gloveModePreference). Using local-only.');
+      }
     }
   };
 
   return (
     <UserPreferencesContext.Provider
-      value={{ gloveMode, setGloveMode: toggleGloveMode, colormode: 'light' }}
+      value={{
+        gloveMode,
+        setGloveMode: toggleGloveMode,
+        colormode: 'light',
+      }}
     >
       {children}
     </UserPreferencesContext.Provider>

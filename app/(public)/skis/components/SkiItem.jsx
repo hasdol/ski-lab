@@ -85,7 +85,11 @@ export default function SkiItem(props) {
           <input
             type="checkbox"
             checked={isSelected}
-            onChange={() => handleCheckboxChange(selectionKey)}
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => {
+              e.stopPropagation();
+              handleCheckboxChange(selectionKey);
+            }}
             className={`mr-3 accent-btn border-2 rounded ${gloveMode ? 'w-10 h-10' : 'w-4 h-4'} ${styleCheckboxColors[ski.style] || 'accent-gray-400 border-gray-300'}`}
             aria-label="Select ski"
           />

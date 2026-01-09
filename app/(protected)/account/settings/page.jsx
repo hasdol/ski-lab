@@ -5,11 +5,9 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { getAuth, signOut as firebaseSignOut } from 'firebase/auth';
 import { GiWinterGloves } from 'react-icons/gi';
 import { FaHandsClapping } from 'react-icons/fa6';
-import { RiEditLine, RiUserLine, RiSettings3Line } from 'react-icons/ri';
+import { RiSettings3Line } from 'react-icons/ri';
 import { MdOutlineSecurity } from "react-icons/md";
 import KeywordReindexTools from './components/KeywordReindexTools';
-
-import { useRouter } from 'next/navigation';
 
 import Spinner from '@/components/common/Spinner/Spinner';
 import { UserPreferencesContext } from '@/context/UserPreferencesContext';
@@ -18,18 +16,34 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import PageHeader from '@/components/layout/PageHeader'; // Add this import
 import Card from '@/components/ui/Card'
+import Toggle from '@/components/ui/Toggle';
 
 export default function SettingsPage() {
   const { user, userData } = useAuth();
   const { resetPassword, updateDisplayName } = useProfileActions(user);
   const { gloveMode, setGloveMode } = useContext(UserPreferencesContext);
-  const router = useRouter();
+
+  const SettingRow = ({ title, description, children, rightClassName = '' }) => (
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+      <div className="sm:pr-6 sm:max-w-xl">
+        <div className="font-medium text-zinc-900">{title}</div>
+        {description ? <div className="text-xs text-zinc-500 mt-1">{description}</div> : null}
+      </div>
+      <div className={[
+        'flex items-center justify-between sm:justify-end gap-3 sm:gap-4',
+        rightClassName,
+      ].join(' ')}>
+        {children}
+      </div>
+    </div>
+  );
 
   const [newDisplayName, setNewDisplayName] = useState(userData?.displayName || '');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
 
   const handleDisplayNameUpdate = async () => {
     setIsLoading(true);
@@ -90,94 +104,101 @@ export default function SettingsPage() {
       <div className="mt-6 grid grid-cols-1 gap-6">
         {/* Username Section - spans both columns */}
         <Card>
-          <h2 className="text-xl font-medium text-gray-800 mb-6">Your Username</h2>
-          {isEditingUsername ? (
-            <div className="space-y-4">
-              <Input
-                type="text"
-                label="Username"
-                value={newDisplayName}
-                onChange={(e) => setNewDisplayName(e.target.value)}
-                placeholder="Enter your new username"
-                className="w-full"
-              />
-              <div className="flex space-x-4">
-                <Button variant="primary" onClick={handleDisplayNameUpdate}>
-                  Save
-                </Button>
-                <Button variant="secondary" onClick={() => setIsEditingUsername(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div
-              className="cursor-pointer"
-              onClick={() => setIsEditingUsername(true)}
+          <div className="text-xs font-semibold uppercase tracking-widest text-zinc-600 mb-5">Account</div>
+
+          <div className="space-y-6">
+            <SettingRow
+              title="Username"
+              description="Shown to others"
+              rightClassName={isEditingUsername ? 'w-full sm:w-auto' : ''}
             >
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Username
-              </label>
-              <div className="mt-1 flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-2xl hover:bg-gray-100 transition">
-                <RiUserLine className="text-gray-600 text-2xl" />
-                <span className="flex-1 mx-4 text-gray-800">
-                  {userData?.displayName ? userData.displayName : (
-                    <span className="bg-yellow-50 border border-yellow-400 text-yellow-800 px-2 py-1 rounded-2xl">
-                      No username
-                    </span>
-                  )}
-                </span>
-                <RiEditLine className="text-gray-600 text-2xl" />
-              </div>
-            </div>
-          )}
-          {error && <div className="mt-4 p-3 rounded-2xl bg-red-50 text-red-700">{error}</div>}
-          {success && <div className="mt-4 p-3 rounded-2xl bg-green-50 text-green-700">{success}</div>}
+              {isEditingUsername ? (
+                <div className="w-full sm:w-80 space-y-3">
+                  <Input
+                    type="text"
+                    label=""
+                    placeholder=""
+                    aria-label="Username"
+                    value={newDisplayName}
+                    onChange={(e) => setNewDisplayName(e.target.value)}
+                    className="w-full"
+                  />
+                  <div className="flex gap-3 justify-end">
+                    <Button variant="secondary" onClick={() => setIsEditingUsername(false)}>
+                      Cancel
+                    </Button>
+                    <Button variant="primary" onClick={handleDisplayNameUpdate}>
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <span className={userData?.displayName ? 'text-sm text-zinc-900' : 'text-sm text-zinc-500'}>
+                    {userData?.displayName || 'Not set'}
+                  </span>
+                  <Button variant="secondary" onClick={() => setIsEditingUsername(true)}>
+                    Edit
+                  </Button>
+                </div>
+              )}
+            </SettingRow>
+
+            {error && <div className="p-3 rounded-2xl bg-red-50 text-red-700">{error}</div>}
+            {success && <div className="p-3 rounded-2xl bg-green-50 text-green-700">{success}</div>}
+          </div>
         </Card>
 
-        {/* Preferences Section */}
+        {/* Preferences Section (clean, unified) */}
         <Card>
-          <h2 className="text-xl font-medium text-gray-800 mb-6">Preferences</h2>
-          <div className="flex items-center space-x-4">
-            <label
-              className="inline-flex relative items-center cursor-pointer"
-              onClick={(e) => e.stopPropagation()} // Prevent click bubbling up
+          <div className="text-xs font-semibold uppercase tracking-widest text-zinc-600 mb-5">Preferences</div>
+
+          <div className="space-y-6">
+            {/* Glove mode row (concise) */}
+            <SettingRow
+              title="Glove Mode"
+              description="Larger input fields and buttons are enabled for easier interactions during tests."
             >
-              <input
-                type="checkbox"
-                className="sr-only peer"
-                checked={gloveMode}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  setGloveMode();
-                }}
+              <div className="text-zinc-700">
+                {gloveMode ? <GiWinterGloves size={20} /> : <FaHandsClapping size={20} />}
+              </div>
+              <Toggle
+                enabled={!!gloveMode}
+                setEnabled={() => setGloveMode()}
+                label="Glove Mode"
               />
-              <div className="w-12 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 transition duration-300 ease-in-out peer-checked:bg-blue-500 after:absolute after:top-0.5 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-6" />
-            </label>
-            {gloveMode ? <GiWinterGloves size={24} /> : <FaHandsClapping size={24} />}
-            <span className="text-lg text-gray-700">Glove Mode</span>
+            </SettingRow>
           </div>
-          {!gloveMode && (
-            <p className="px-4 py-2 mt-5 bg-blue-100 text-blue-800 rounded-2xl text-center">
-              Larger input fields and buttons are enabled for easier interactions during tests.
-            </p>
-          )}
         </Card>
 
         <KeywordReindexTools />
 
         {/* Management Section */}
         <Card>
-          <h2 className="flex text-xl font-medium text-gray-800 items-center mb-6">
-            Management <MdOutlineSecurity className="ml-2 text-2xl" />
-          </h2>
-          <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 w-full">
-            <Button variant="danger" onClick={resetPassword} className="flex-1">
-              Reset Password
-            </Button>
-            <Button variant="danger" onClick={handleDeleteAccount} className="flex-1">
-              Delete Account
-            </Button>
+          <div className="text-xs font-semibold uppercase tracking-widest text-zinc-600 mb-5">Security</div>
+
+          <div className="space-y-6">
+            <SettingRow
+              title="Reset password"
+              description="Email reset link"
+              rightClassName="justify-start sm:justify-end"
+            >
+              <Button variant="danger" onClick={resetPassword}>
+                Reset Password
+              </Button>
+            </SettingRow>
+
+            <div className="border-t border-gray-100" />
+
+            <SettingRow
+              title="Delete account"
+              description="Permanent"
+              rightClassName="justify-start sm:justify-end"
+            >
+              <Button variant="danger" onClick={handleDeleteAccount}>
+                Delete Account
+              </Button>
+            </SettingRow>
           </div>
         </Card>
       </div>

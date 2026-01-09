@@ -601,7 +601,7 @@ const Skis = () => {
           <div className="flex justify-center items-center mt-10"><Spinner /></div>
         ) : viewMode === 'card' ? (
           <AnimatePresence>
-            <div className={gloveMode ? 'grid grid-cols-2 gap-2' : 'flex flex-col space-y-2'}>
+            <div className={gloveMode ? 'flex flex-col space-y-3' : 'flex flex-col space-y-2'}>
               {Object.entries(groupSkisByStyle(displayedSkis)).map(([style, skis]) =>
                 skis.length > 0 && (
                   <React.Fragment key={style}>
