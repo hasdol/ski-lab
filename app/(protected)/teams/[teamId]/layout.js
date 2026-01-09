@@ -12,7 +12,7 @@ export const metadata = {
 
 export default function TeamDashboardLayout({ children }) {
   return (
-    <div className="p-4 max-w-4xl w-full self-center">
+    <div className="p-4 max-w-6xl w-full self-center">
       {children}
     </div>
   );

@@ -40,7 +40,13 @@ export const mapRankingsToTournamentData = (rankings, selectedSkis) => {
         construction: ski.construction ?? '',
         grind: ski.grind ?? '',
         grindDate: ski.grindDate ?? null, // Timestamp or null
-        dateAdded: ski.dateAdded ?? null  // Timestamp or null
+        dateAdded: ski.dateAdded ?? null,  // Timestamp or null
+
+        // Optional: event product tests (pseudo-ski entries)
+        ...(ski.productId ? { productId: ski.productId } : {}),
+        ...(ski.productBrand ? { productBrand: ski.productBrand } : {}),
+        ...(ski.productName ? { productName: ski.productName } : {}),
+        ...(ski.teamSkiId ? { teamSkiId: ski.teamSkiId } : {}),
       };
     })
   };

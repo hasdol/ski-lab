@@ -9,7 +9,7 @@ import SummaryResultList from './components/SummaryResultList';
 import Spinner from '@/components/common/Spinner/Spinner';
 import { TournamentContext } from '@/context/TournamentContext';
 import { addTestResult, addCrossUserTestResult } from '@/lib/firebase/firestoreFunctions';
-import { shareTestResult, shareCrossUserTestResult } from '@/lib/firebase/teamFunctions';
+import { shareTestResult, shareCrossUserTestResult, addEventProductTestResult } from '@/lib/firebase/teamFunctions';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import ShareWithEventSelector from '@/components/ShareWithEvents/ShareWithEvents';
@@ -26,7 +26,7 @@ const SectionCard = ({ title, subtitle, children, right }) => (
         <h2 className="text-base md:text-lg font-semibold text-gray-900">{title}</h2>
         {subtitle ? <p className="text-sm text-gray-600 mt-1">{subtitle}</p> : null}
       </div>
-      {right ? <div className="flex-shrink-0">{right}</div> : null}
+      {right ? <div className="shrink-0">{right}</div> : null}
     </div>
     {children}
   </Card>
@@ -40,6 +40,8 @@ const TestSummaryPage = () => {
   const { user, userData } = useAuth();
   const { selectedSkis, calculateRankings, resetTournament, restoreRoundFromHistory } =
     useContext(TournamentContext);
+
+  const { tournamentMeta, setSelectedSkis, setTournamentMeta } = useContext(TournamentContext);
 
   const { skis: inventorySkis } = useSkis(); // inventory hook
 
@@ -183,6 +185,97 @@ const TestSummaryPage = () => {
 
     const skiSource = isManualMode ? inventorySkis : selectedSkis;
     const { rankings: payloadRankingsRaw } = mapRankingsToTournamentData(resultRankings, skiSource);
+
+    // Event-scoped product tests (started from event page): save only to the event, not to users.
+    if (tournamentMeta?.mode === 'eventProduct') {
+      if (!tournamentMeta?.teamId || !tournamentMeta?.eventId) {
+        alert('Missing event context for product test. Please start again from the event page.');
+        return;
+      }
+
+      try {
+        setLoading(true);
+
+        const groupId = tournamentMeta.groupId || null;
+        const groupIndex = Number(tournamentMeta.groupIndex) || 1;
+        const testsCount = Number(tournamentMeta.testsCount) || 1;
+
+        const distanceBeforeTestRaw = Number(tournamentMeta.distanceBeforeTest);
+        const distanceBeforeTest = Number.isFinite(distanceBeforeTestRaw) && distanceBeforeTestRaw >= 0 ? distanceBeforeTestRaw : 0;
+        const distanceBetweenTests = testsCount > 1 ? Number(tournamentMeta.distanceBetweenTests) : null;
+        const hasBetween = Number.isFinite(distanceBetweenTests) && distanceBetweenTests > 0;
+        const distanceAtTest = hasBetween
+          ? distanceBeforeTest + (groupIndex - 1) * distanceBetweenTests
+          : distanceBeforeTest;
+
+        await addEventProductTestResult(tournamentMeta.teamId, tournamentMeta.eventId, {
+          ...additionalData,
+          rankings: payloadRankingsRaw,
+          // Linkage / protocol info
+          groupId,
+          groupIndex,
+          testsCount,
+          distanceBetweenTests: testsCount > 1 ? (hasBetween ? distanceBetweenTests : null) : null,
+          distanceBeforeTest,
+          distanceAtTest,
+          runsPerTest: Number(tournamentMeta.runsPerTest) || 1,
+          glidesPerRun: Number(tournamentMeta.glidesPerRun) || 2,
+          assignments: Array.isArray(tournamentMeta.assignments) ? tournamentMeta.assignments : [],
+        });
+
+        // Multi-test protocol: continue until groupIndex == testsCount
+        if (testsCount > 1 && groupIndex < testsCount) {
+          const nextIndex = groupIndex + 1;
+          const nextDistanceAtTest = hasBetween ? distanceBeforeTest + (nextIndex - 1) * distanceBetweenTests : null;
+          const pseudoSkis = (tournamentMeta.assignments || []).map((a) => ({
+            id: a.teamSkiId,
+            serialNumber: a.serialNumber,
+            grind: a.grind,
+            base: '',
+            brand: '',
+            model: '',
+            style: '',
+            construction: '',
+            skiType: '',
+            teamSkiId: a.teamSkiId,
+            productId: a.productId,
+            productBrand: a.productBrand,
+            productName: a.productName,
+          }));
+
+          resetTournament();
+          setSelectedSkis(pseudoSkis);
+          setTournamentMeta({
+            ...tournamentMeta,
+            groupIndex: nextIndex,
+          });
+
+          alert(
+            `Saved test ${groupIndex} of ${testsCount}.\n\nNext: run test ${nextIndex} of ${testsCount}` +
+              (hasBetween ? ` (next target: ${nextDistanceAtTest} m, step: ${distanceBetweenTests} m).` : '.')
+          );
+          router.push('/testing');
+          return;
+        }
+
+        // Finished last test in group
+        const teamId = tournamentMeta.teamId;
+        const eventId = tournamentMeta.eventId;
+
+        resetTournament();
+        setHasSubmitted(true);
+        setSelectedEvents([]);
+        if (typeof window !== 'undefined') localStorage.removeItem('tournamentState');
+
+        router.push(`/teams/${teamId}/${eventId}?tab=Dashboard`);
+      } catch (err) {
+        console.error('Product test save failed:', err);
+        alert(err.message || 'Error saving product test');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
 
     // Attach ownerUid to each ranking entry so we can update correct /users/{owner}/skis/{skiId}
     const ownerBySkiId = new Map(
@@ -569,38 +662,51 @@ const TestSummaryPage = () => {
           </div>
         )}
 
-        {/* Section 3: Sharing */}
-        <SectionCard
-          title="Sharing"
-          subtitle={
-            canShareToEvents
-              ? (selectedOwnerUids.length > 1
-                ? 'Optionally share this cross-user test into eligible team events.'
-                : 'Optionally share this test into team events.')
-              : 'Sharing is disabled when testing on behalf of another user.'
-          }
-        >
-          {canShareToEvents ? (
-            <ShareWithEventSelector
-              userId={user?.uid}
-              isVisible={true}
-              onSelect={setSelectedEvents}
-              includePast={false}
-              variant="embedded"
-              requiredMemberUids={selectedOwnerUids}
-            />
-          ) : (
-            <div className="text-sm text-gray-600">
-              Save the result normally. If you need sharing, run the test as the owner of the skis.
+        {/* Section 3: Sharing (disabled for event-scoped product tests) */}
+        {tournamentMeta?.mode === 'eventProduct' ? (
+          <SectionCard
+            title="Saving"
+            subtitle="This product test is saved to the event dashboard (not to any user account)."
+          >
+            <div className="mt-2 flex justify-end">
+              <Button type="submit" loading={loading} variant="primary">
+                Save
+              </Button>
             </div>
-          )}
+          </SectionCard>
+        ) : (
+          <SectionCard
+            title="Sharing"
+            subtitle={
+              canShareToEvents
+                ? (selectedOwnerUids.length > 1
+                  ? 'Optionally share this cross-user test into eligible team events.'
+                  : 'Optionally share this test into team events.')
+                : 'Sharing is disabled when testing on behalf of another user.'
+            }
+          >
+            {canShareToEvents ? (
+              <ShareWithEventSelector
+                userId={user?.uid}
+                isVisible={true}
+                onSelect={setSelectedEvents}
+                includePast={false}
+                variant="embedded"
+                requiredMemberUids={selectedOwnerUids}
+              />
+            ) : (
+              <div className="text-sm text-gray-600">
+                Save the result normally. If you need sharing, run the test as the owner of the skis.
+              </div>
+            )}
 
-          <div className="mt-4 flex justify-end">
-            <Button type="submit" loading={loading} variant="primary">
-              Save
-            </Button>
-          </div>
-        </SectionCard>
+            <div className="mt-4 flex justify-end">
+              <Button type="submit" loading={loading} variant="primary">
+                Save
+              </Button>
+            </div>
+          </SectionCard>
+        )}
       </form>
     </div>
   );

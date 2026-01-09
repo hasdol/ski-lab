@@ -8,6 +8,9 @@ export const TournamentProvider = ({ children }) => {
   // State
   // ------------------------------
   const [selectedSkis, setSelectedSkis] = useState([]);
+  // Optional meta for non-standard tournaments (e.g. event-scoped product tests)
+  // Example: { mode: 'eventProduct', teamId, eventId, groupId, groupIndex, testsCount, distanceBetweenTests, runsPerTest, glidesPerRun, assignments: [...] }
+  const [tournamentMeta, setTournamentMeta] = useState(null);
   const [currentRound, setCurrentRound] = useState([]);
   const [roundsHistory, setRoundsHistory] = useState([]);
   const [lossPath, setLossPath] = useState({});
@@ -36,6 +39,7 @@ export const TournamentProvider = ({ children }) => {
 
         // Restore everything you saved:
         if (parsed.selectedSkis) setSelectedSkis(parsed.selectedSkis);
+        if (parsed.tournamentMeta) setTournamentMeta(parsed.tournamentMeta);
         if (parsed.currentRound) setCurrentRound(parsed.currentRound);
         if (parsed.roundsHistory) setRoundsHistory(parsed.roundsHistory);
         if (parsed.lossPath) setLossPath(parsed.lossPath);
@@ -65,6 +69,7 @@ export const TournamentProvider = ({ children }) => {
     // Otherwise, store the current state
     const dataToStore = {
       selectedSkis,
+      tournamentMeta,
       currentRound,
       roundsHistory,
       lossPath,
@@ -84,6 +89,7 @@ export const TournamentProvider = ({ children }) => {
     }
   }, [
     selectedSkis,
+    tournamentMeta,
     currentRound,
     roundsHistory,
     lossPath,
@@ -109,6 +115,7 @@ export const TournamentProvider = ({ children }) => {
   // ------------------------------
   const resetTournament = () => {
     setSelectedSkis([]);
+    setTournamentMeta(null);
     setCurrentRound([]);
     setRoundsHistory([]);
     setLossPath({});
@@ -279,6 +286,8 @@ export const TournamentProvider = ({ children }) => {
       value={{
         selectedSkis,
         setSelectedSkis,
+        tournamentMeta,
+        setTournamentMeta,
         currentRound,
         setCurrentRound,
         roundsHistory,

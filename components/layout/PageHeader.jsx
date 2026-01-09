@@ -7,7 +7,7 @@ const PageHeader = ({ icon, title, subtitle, actions, iconBg = 'bg-blue-100' }) 
       <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
       <p className="text-xs text-gray-600 mt-1 flex flex-col gap-2">{subtitle}</p>
     </div>
-    <div className="md:ml-auto flex gap-2">{actions}</div>
+    <div className="md:ml-auto flex w-full sm:w-auto flex-col sm:flex-row sm:items-center sm:justify-end gap-2 *:w-full sm:*:w-auto">{actions}</div>
   </div>
 );
 

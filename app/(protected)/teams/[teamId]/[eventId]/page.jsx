@@ -1,6 +1,6 @@
 'use client';
 import React, { useRef, useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import useEvent from '@/hooks/useEvent';
 import Button from '@/components/ui/Button';
@@ -18,16 +18,23 @@ import Card from '@/components/ui/Card';
 import Markdown from '@/components/common/Markdown/Markdown';
 import { MdEvent, MdArrowBack } from 'react-icons/md';
 import EventInfo from './components/EventInfo';
+import ProductTestSetupModal from './components/ProductTestSetupModal';
+import { TournamentContext } from '@/context/TournamentContext';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function EventPage() {
   const { teamId, eventId } = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { eventData, loading, error } = useEvent(teamId, eventId);
   const { userData, user } = useAuth();
+
+  const { resetTournament, setSelectedSkis, setTournamentMeta } = React.useContext(TournamentContext);
 
   const [activeTab, setActiveTab] = useState('Info');
   const [teamMeta, setTeamMeta] = useState(null);
   const tabPanelRef = useRef(null);
+  const [productSetupOpen, setProductSetupOpen] = useState(false);
 
   const focusTabPanel = () => {
     requestAnimationFrame(() => {
@@ -50,6 +57,7 @@ export default function EventPage() {
   const isMod = (teamMeta?.mods || []).includes(user?.uid);
   const canSeeDashboard = isOwner || isMod;
   const canManage = canSeeDashboard;
+  const canStartProductTest = canSeeDashboard;
 
   // If activeTab is Dashboard but user lost permission, force Info
   useEffect(() => {
@@ -58,8 +66,67 @@ export default function EventPage() {
     }
   }, [activeTab, canSeeDashboard]);
 
+  // Allow deep-linking into a specific tab
+  useEffect(() => {
+    const tab = searchParams?.get('tab');
+    if (!tab) return;
+    if (tab === 'Dashboard' && canSeeDashboard) setActiveTab('Dashboard');
+    if (tab === 'Tests') setActiveTab('Tests');
+    if (tab === 'Weather') setActiveTab('Weather');
+    if (tab === 'Info') setActiveTab('Info');
+  }, [searchParams, canSeeDashboard]);
+
   const handleBack = () => router.push(`/teams/${teamId}`);
   const handleEdit = () => router.push(`/teams/${teamId}/${eventId}/edit`);
+  const handleStartProductTest = () => setProductSetupOpen(true);
+
+  const handleSetupAndStart = ({ testsCount, distanceBetweenTests, distanceBeforeTest, runsPerTest, glidesPerRun, assignments }) => {
+    if (!Array.isArray(assignments) || assignments.length < 2) {
+      alert('Select at least two team test skis and assign products.');
+      return;
+    }
+
+    const groupId = uuidv4();
+
+    // Use existing testing flow by mapping assignments into "ski-like" entries.
+    // These are NOT saved as user skis; they only live in the tournament state.
+    const pseudoSkis = assignments.map((a) => ({
+      id: a.teamSkiId,
+      serialNumber: a.serialNumber,
+      grind: a.grind,
+      // keep analytics-compatible fields (unused in product tests but harmless)
+      base: '',
+      brand: '',
+      model: '',
+      style: '',
+      construction: '',
+      skiType: '',
+      // product assignment
+      teamSkiId: a.teamSkiId,
+      productId: a.productId,
+      productBrand: a.productBrand,
+      productName: a.productName,
+    }));
+
+    resetTournament();
+    setSelectedSkis(pseudoSkis);
+    setTournamentMeta({
+      mode: 'eventProduct',
+      teamId,
+      eventId,
+      groupId,
+      groupIndex: 1,
+      testsCount,
+      distanceBetweenTests: testsCount > 1 ? Number(distanceBetweenTests) : null,
+      distanceBeforeTest: Number(distanceBeforeTest) >= 0 ? Number(distanceBeforeTest) : 0,
+      runsPerTest,
+      glidesPerRun,
+      assignments,
+    });
+
+    setProductSetupOpen(false);
+    router.push('/testing');
+  };
 
 
   if (loading) {
@@ -95,7 +162,7 @@ export default function EventPage() {
   const headerActions = (
     <div className="flex flex-wrap gap-2 items-center justify-end">
       <Button onClick={handleBack} className='flex items-center' variant="secondary">
-        <MdArrowBack className='mr-1'/> Back to Team
+        <MdArrowBack className='mr-1' /> Back to Team
       </Button>
       {canManage && (
         <Button onClick={handleEdit} variant="primary">
@@ -103,16 +170,26 @@ export default function EventPage() {
         </Button>
       )}
     </div>
+
   );
 
   return (
     <>
+      <ProductTestSetupModal
+        isOpen={productSetupOpen}
+        onClose={() => setProductSetupOpen(false)}
+        teamId={teamId}
+        onStart={handleSetupAndStart}
+      />
+
       <PageHeader
         icon={<MdEvent className="text-blue-600 text-2xl" />}
         title={eventData.name}
         subtitle={`${startFmt} – ${endFmt}`}
         actions={headerActions}
       />
+
+
 
       <Card className="mb-6">
         <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
@@ -126,6 +203,7 @@ export default function EventPage() {
               className="w-full h-auto max-h-64 object-contain"
             />
           </div>
+
 
           {/* Content */}
           <div className="flex-1 space-y-5">
@@ -168,6 +246,15 @@ export default function EventPage() {
           </div>
         </div>
       </Card>
+
+      {canStartProductTest && (
+        <div className='my-5'>
+          <Button onClick={handleStartProductTest} variant="primary">
+            Start product test
+          </Button>
+        </div>
+
+      )}
 
       <EventTabs
         activeTab={activeTab}

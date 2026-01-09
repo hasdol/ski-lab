@@ -258,6 +258,12 @@ service cloud.firestore {
             || (request.auth != null && resource.data.userId == request.auth.uid);
         }
 
+        // Product tests (event-scoped, owner/mod only)
+        match /productTests/{productTestId} {
+          allow read: if isStaffLocal();
+          allow create, update, delete: if isStaffLocal();
+        }
+
         // Event timeline (Event Info tab)
         match /timeline/{entryId} {
           allow read: if isTeamMemberLocal() || isStaffLocal();
@@ -267,6 +273,17 @@ service cloud.firestore {
             && request.writeFields.hasOnly(['title','content']);
           allow delete: if isStaffLocal();
         }
+      }
+
+      // Team-managed inventory for testing (owner/mod only)
+      match /testSkis/{teamSkiId} {
+        allow read: if isStaffLocal();
+        allow create, update, delete: if isStaffLocal();
+      }
+
+      match /products/{productId} {
+        allow read: if isStaffLocal();
+        allow create, update, delete: if isStaffLocal();
       }
 
       // Team timeline (Info tab)

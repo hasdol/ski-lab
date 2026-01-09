@@ -23,6 +23,7 @@ import TeamInfo from './components/TeamInfo';
 import TeamEventDashboard from '@/components/analytics/TeamEventDashboard';
 import Card from '@/components/ui/Card';
 import { formatDateRange } from '@/helpers/helpers';
+import TeamTestInventory from './components/TeamTestInventory';
 
 export default function TeamDetailPage() {
   const { teamId } = useParams();
@@ -536,6 +537,8 @@ export default function TeamDetailPage() {
               <PendingJoinRequests teamId={teamId} />
             </Card>
           )}
+
+          <TeamTestInventory teamId={teamId} />
 
           <TeamEventDashboard teamId={teamId} />
           {/* Removed Members card from dashboard (now in Members tab) */}
