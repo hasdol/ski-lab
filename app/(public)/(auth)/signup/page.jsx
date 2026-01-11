@@ -41,7 +41,7 @@ const SignUp = () => {
           { merge: true }
         );
 
-        router.push('/skis');
+        router.push('/welcome');
       } catch (innerErr) {
         // Best‑effort rollback: delete user doc and Auth user
         try {
