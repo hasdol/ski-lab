@@ -38,7 +38,13 @@ export default function EventPage() {
 
   const focusTabPanel = () => {
     requestAnimationFrame(() => {
-      tabPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const rect = tabPanelRef.current?.getBoundingClientRect();
+      if (rect) {
+        const y = window.scrollY + rect.top;
+        window.scrollTo({ top: Math.max(0, y - 12), behavior: 'smooth' });
+      } else {
+        tabPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
       tabPanelRef.current?.focus({ preventScroll: true });
     });
   };
@@ -59,9 +65,9 @@ export default function EventPage() {
   const canManage = canSeeDashboard;
   const canStartProductTest = canSeeDashboard;
 
-  // If activeTab is Dashboard but user lost permission, force Info
+  // If activeTab is Analytics but user lost permission, force Info
   useEffect(() => {
-    if (activeTab === 'Dashboard' && !canSeeDashboard) {
+    if (activeTab === 'Analytics' && !canSeeDashboard) {
       setActiveTab('Info');
     }
   }, [activeTab, canSeeDashboard]);
@@ -70,10 +76,20 @@ export default function EventPage() {
   useEffect(() => {
     const tab = searchParams?.get('tab');
     if (!tab) return;
-    if (tab === 'Dashboard' && canSeeDashboard) setActiveTab('Dashboard');
-    if (tab === 'Tests') setActiveTab('Tests');
-    if (tab === 'Weather') setActiveTab('Weather');
-    if (tab === 'Info') setActiveTab('Info');
+
+    let next = null;
+    if ((tab === 'Dashboard' || tab === 'Analytics') && canSeeDashboard) next = 'Analytics';
+    if (tab === 'Tests') next = 'Tests';
+    if (tab === 'Weather') next = 'Weather';
+    if (tab === 'Info') next = 'Info';
+    if (!next) return;
+
+    setActiveTab((prev) => {
+      if (prev === next) return prev;
+      return next;
+    });
+    // Ensure deep-linked tab landings also reset scroll position.
+    focusTabPanel();
   }, [searchParams, canSeeDashboard]);
 
   const handleBack = () => router.push(`/teams/${teamId}`);
@@ -160,7 +176,7 @@ export default function EventPage() {
   const address = eventData?.location?.address || '';
 
   const headerActions = (
-    <div className="flex flex-wrap gap-2 items-center justify-end">
+    <div className="flex flex-wrap gap-2 items-center justify-center">
       <Button onClick={handleBack} className='flex items-center' variant="secondary">
         <MdArrowBack className='mr-1' /> Back to Team
       </Button>
@@ -277,7 +293,7 @@ export default function EventPage() {
             <EventWeather eventData={eventData} />
           </Card>
         )}
-        {activeTab === 'Dashboard' && canSeeDashboard && (
+        {activeTab === 'Analytics' && canSeeDashboard && (
           <TeamEventDashboard teamId={teamId} eventId={eventId} />
         )}
       </div>

@@ -267,7 +267,7 @@ const TestSummaryPage = () => {
         setSelectedEvents([]);
         if (typeof window !== 'undefined') localStorage.removeItem('tournamentState');
 
-        router.push(`/teams/${teamId}/${eventId}?tab=Dashboard`);
+        router.push(`/teams/${teamId}/${eventId}?tab=Analytics`);
       } catch (err) {
         console.error('Product test save failed:', err);
         alert(err.message || 'Error saving product test');
@@ -666,7 +666,7 @@ const TestSummaryPage = () => {
         {tournamentMeta?.mode === 'eventProduct' ? (
           <SectionCard
             title="Saving"
-            subtitle="This product test is saved to the event dashboard (not to any user account)."
+            subtitle="This product test is saved to Event Analytics (not to any user account)."
           >
             <div className="mt-2 flex justify-end">
               <Button type="submit" loading={loading} variant="primary">

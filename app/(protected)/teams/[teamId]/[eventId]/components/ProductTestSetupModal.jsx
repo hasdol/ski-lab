@@ -200,10 +200,10 @@ export default function ProductTestSetupModal({ isOpen, onClose, teamId, onStart
                 )}
 
                 {(!testSkis || testSkis.length === 0) && (
-                  <div className="py-3 text-sm text-gray-600">No team test skis yet. Add them in the team Dashboard.</div>
+                  <div className="py-3 text-sm text-gray-600">No team test skis yet. Add them in Team Inventory.</div>
                 )}
                 {(!products || products.length === 0) && (
-                  <div className="py-3 text-sm text-gray-600">No products yet. Add them in the team Dashboard.</div>
+                  <div className="py-3 text-sm text-gray-600">No products yet. Add them in Team Inventory.</div>
                 )}
 
                 <div className="mt-3 space-y-2">

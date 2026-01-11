@@ -363,6 +363,9 @@ export default function TeamEventDashboard({ teamId, eventId }) {
   const [dashboardView, setDashboardView] = useState('member'); // 'member' | 'team'
   const [groupBy, setGroupBy] = useState('grind'); // member only: 'grind' | 'base'
 
+  // Product analytics sub-tabs (only relevant in event scope)
+  const [productAnalyticsTab, setProductAnalyticsTab] = useState('heatmap'); // 'heatmap' | 'falloff' | 'history'
+
   // Member filters (affect member heatmap + top list)
   const [memberFilterSource, setMemberFilterSource] = useState('all');
   const [memberFilterGrain, setMemberFilterGrain] = useState('all');
@@ -451,6 +454,7 @@ export default function TeamEventDashboard({ teamId, eventId }) {
 
   const productSeries = useMemo(() => {
     // Distance-series list shown on the dashboard (no filters here; filters are inside the fall-off modal).
+    // IMPORTANT: must be distance tests only; fall-off is meaningless without a distance axis.
     const byProduct = new Map();
     (productTests || []).forEach((t) => {
       const testsCount = Number(t.testsCount);
@@ -459,6 +463,9 @@ export default function TeamEventDashboard({ teamId, eventId }) {
       if (!Number.isFinite(groupIndex) || groupIndex <= 0) return;
 
       const x = distanceAtTestFromDoc(t);
+      if (x == null) return;
+      const xNum = Number(x);
+      if (!Number.isFinite(xNum)) return;
 
       const rankings = Array.isArray(t.rankings) ? [...t.rankings] : [];
       if (rankings.length === 0) return;
@@ -480,8 +487,8 @@ export default function TeamEventDashboard({ teamId, eventId }) {
 
           if (!byProduct.has(label)) byProduct.set(label, new Map());
           const byX = byProduct.get(label);
-          if (!byX.has(x)) byX.set(x, []);
-          byX.get(x).push({ rel, testId: t.id });
+          if (!byX.has(xNum)) byX.set(xNum, []);
+          byX.get(xNum).push({ rel, testId: t.id });
         }
 
         currentRank += tieCount;
@@ -494,7 +501,7 @@ export default function TeamEventDashboard({ teamId, eventId }) {
         .map(([x, entries]) => {
           const ys = entries.map((e) => e.rel);
           return {
-            x: Number(x),
+            x,
             y: ys.length ? ys.reduce((a, b) => a + b, 0) / ys.length : null,
             n: ys.length,
             entries,
@@ -815,21 +822,26 @@ export default function TeamEventDashboard({ teamId, eventId }) {
       {/* Header + View switch + Filters */}
       <div className="flex items-start md:items-center justify-between gap-3 flex-col md:flex-row">
         <div className="space-y-2">
-          <div className="inline-flex rounded-2xl overflow-hidden border border-gray-200 bg-white">
-            <button
-              type="button"
-              className={`px-3 py-1.5 text-sm ${dashboardView === 'member' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
-              onClick={() => setDashboardView('member')}
-            >
-              Member tests
-            </button>
-            <button
-              type="button"
-              className={`px-3 py-1.5 text-sm ${dashboardView === 'team' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
-              onClick={() => setDashboardView('team')}
-            >
-              Product tests
-            </button>
+          <div className="inline-flex flex-col gap-1">
+            <div className="text-[11px] uppercase tracking-wide text-gray-500">Analytics view</div>
+            <div className="inline-flex rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-sm">
+              <button
+                type="button"
+                className={`px-3 py-1.5 text-sm ${dashboardView === 'member' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                onClick={() => setDashboardView('member')}
+                aria-current={dashboardView === 'member' ? 'page' : undefined}
+              >
+                Member tests
+              </button>
+              <button
+                type="button"
+                className={`px-3 py-1.5 text-sm ${dashboardView === 'team' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                onClick={() => setDashboardView('team')}
+                aria-current={dashboardView === 'team' ? 'page' : undefined}
+              >
+                Product tests
+              </button>
+            </div>
           </div>
 
           {/* Tabs above — card titles live inside each section now */}
@@ -944,7 +956,7 @@ export default function TeamEventDashboard({ teamId, eventId }) {
               </div>
 
               {/* Heatmap */}
-              <div className="mt-4 overflow-x-auto">
+              <div className="mt-4 overflow-x-auto touch-pan-y">
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="border-b border-gray-200">
@@ -1015,7 +1027,39 @@ export default function TeamEventDashboard({ teamId, eventId }) {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900">Product tests</h4>
-                  <div className="text-xs text-gray-500">Single tests and distance tests (wear / fall-off)</div>
+                  <div className="text-xs text-gray-500">Heatmap can include single + distance tests. Fall-off is distance tests only.</div>
+                </div>
+              </div>
+
+              <div className="mt-3">
+                <div className="pl-3 border-l-2 border-gray-200">
+                  <div className="text-[11px] uppercase tracking-wide text-gray-500">Product analytics</div>
+                  <div className="mt-1 inline-flex rounded-xl overflow-hidden border border-gray-200 bg-gray-50 p-1">
+                    <button
+                      type="button"
+                      className={`px-3 py-1.5 text-sm rounded-lg ${productAnalyticsTab === 'heatmap' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-700 hover:bg-white/70'}`}
+                      onClick={() => setProductAnalyticsTab('heatmap')}
+                      aria-current={productAnalyticsTab === 'heatmap' ? 'page' : undefined}
+                    >
+                      Heatmap
+                    </button>
+                    <button
+                      type="button"
+                      className={`px-3 py-1.5 text-sm rounded-lg ${productAnalyticsTab === 'falloff' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-700 hover:bg-white/70'}`}
+                      onClick={() => setProductAnalyticsTab('falloff')}
+                      aria-current={productAnalyticsTab === 'falloff' ? 'page' : undefined}
+                    >
+                      Fall-off
+                    </button>
+                    <button
+                      type="button"
+                      className={`px-3 py-1.5 text-sm rounded-lg ${productAnalyticsTab === 'history' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-700 hover:bg-white/70'}`}
+                      onClick={() => setProductAnalyticsTab('history')}
+                      aria-current={productAnalyticsTab === 'history' ? 'page' : undefined}
+                    >
+                      History
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -1027,391 +1071,386 @@ export default function TeamEventDashboard({ teamId, eventId }) {
                 <div className="py-3 text-gray-500">No product tests yet</div>
               ) : (
                 <>
-                  {/* Product heatmap */}
-                  <div className="mt-3 flex flex-wrap items-end justify-between gap-2">
-                    <div className="grid grid-cols-2 md:grid-cols-6 gap-2 w-full">
-                      <div className="col-span-2 md:col-span-2">
-                        <label className="block text-xs text-gray-600 mb-1">Type</label>
-                        <div className="inline-flex rounded-2xl overflow-hidden border border-gray-200 bg-white w-full">
-                          <button
-                            type="button"
-                            className={`px-3 py-1.5 text-sm flex-1 ${teamHeatmapTestType === 'all' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
-                            onClick={() => setTeamHeatmapTestType('all')}
-                          >
-                            All
-                          </button>
-                          <button
-                            type="button"
-                            className={`px-3 py-1.5 text-sm flex-1 ${teamHeatmapTestType === 'single' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
-                            onClick={() => setTeamHeatmapTestType('single')}
-                          >
-                            Single
-                          </button>
-                          <button
-                            type="button"
-                            className={`px-3 py-1.5 text-sm flex-1 ${teamHeatmapTestType === 'distance' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
-                            onClick={() => setTeamHeatmapTestType('distance')}
-                          >
-                            Distance
-                          </button>
+                  {productAnalyticsTab === 'heatmap' && (
+                    <>
+                      <div className="mt-3 flex flex-wrap items-end justify-between gap-2">
+                        <div className="grid grid-cols-2 md:grid-cols-6 gap-2 w-full">
+                          <div className="col-span-2 md:col-span-2">
+                            <label className="block text-xs text-gray-600 mb-1">Type</label>
+                            <div className="inline-flex rounded-2xl overflow-hidden border border-gray-200 bg-white w-full">
+                              <button
+                                type="button"
+                                className={`px-3 py-1.5 text-sm flex-1 ${teamHeatmapTestType === 'all' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
+                                onClick={() => setTeamHeatmapTestType('all')}
+                              >
+                                All
+                              </button>
+                              <button
+                                type="button"
+                                className={`px-3 py-1.5 text-sm flex-1 ${teamHeatmapTestType === 'single' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
+                                onClick={() => setTeamHeatmapTestType('single')}
+                              >
+                                Single
+                              </button>
+                              <button
+                                type="button"
+                                className={`px-3 py-1.5 text-sm flex-1 ${teamHeatmapTestType === 'distance' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
+                                onClick={() => setTeamHeatmapTestType('distance')}
+                              >
+                                Distance
+                              </button>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Source</label>
+                            <select
+                              className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
+                              value={teamHeatmapFilterSource}
+                              onChange={(e) => setTeamHeatmapFilterSource(e.target.value)}
+                            >
+                              <option value="all">All</option>
+                              <option value="natural">Natural</option>
+                              <option value="artificial">Artificial</option>
+                              <option value="mix">Mix</option>
+                              <option value="unknown">Unknown</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Snow type</label>
+                            <select
+                              className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
+                              value={teamHeatmapFilterGrain}
+                              onChange={(e) => setTeamHeatmapFilterGrain(e.target.value)}
+                            >
+                              <option value="all">All</option>
+                              <option value="fresh">Fresh</option>
+                              <option value="fine_grained">Fine grained</option>
+                              <option value="coarse_grained">Coarse grained</option>
+                              <option value="wet">Wet</option>
+                              <option value="icy">Icy</option>
+                              <option value="sugary">Sugary</option>
+                              <option value="unknown">Unknown</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Temperature</label>
+                            <select
+                              className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
+                              value={teamHeatmapFilterTemp}
+                              onChange={(e) => {
+                                const v = e.target.value === 'all' ? 'all' : Number(e.target.value);
+                                setTeamHeatmapFilterTemp(v);
+                              }}
+                            >
+                              <option value="all">All</option>
+                              {teamAvailableTemps.map((t) => (
+                                <option key={t} value={t}>{t}°C</option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div className="col-span-2 md:col-span-1">
+                            <label className="block text-xs text-gray-600 mb-1">Day</label>
+                            <select
+                              className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
+                              value={teamHeatmapFilterDay}
+                              onChange={(e) => setTeamHeatmapFilterDay(e.target.value)}
+                            >
+                              <option value="all">All</option>
+                              {teamAvailableDays.map((d) => (
+                                <option key={d} value={d}>{d}</option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Source</label>
-                        <select
-                          className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
-                          value={teamHeatmapFilterSource}
-                          onChange={(e) => setTeamHeatmapFilterSource(e.target.value)}
-                        >
-                          <option value="all">All</option>
-                          <option value="natural">Natural</option>
-                          <option value="artificial">Artificial</option>
-                          <option value="mix">Mix</option>
-                          <option value="unknown">Unknown</option>
-                        </select>
+                      {!teamHeatmapProductRows.length ? (
+                        <div className="py-3 text-gray-500">No product tests match the selected filters</div>
+                      ) : (
+                        (() => {
+                          const p = productHeatmap;
+                          if (!p) return null;
+                          const pShownTemps = teamHeatmapFilterTemp === 'all' ? p.tempList : p.tempList.filter((t) => t === teamHeatmapFilterTemp);
+                          return (
+                            <div className="mt-4 overflow-x-auto touch-pan-y">
+                              <table className="w-full border-collapse">
+                                <thead>
+                                  <tr className="border-b border-gray-200">
+                                    <th className="text-left text-gray-600 font-medium pb-2 pr-2">Product</th>
+                                    {pShownTemps.map((t) => (
+                                      <th key={t} className="text-center text-gray-600 font-medium pb-2 px-2">{t}°C</th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {p.groupList.map((g) => (
+                                    <tr key={g} className="border-b border-gray-100">
+                                      <td className="text-sm text-gray-700 font-medium py-2 pr-2">{g}</td>
+                                      {pShownTemps.map((t) => {
+                                        const c = p.cells[g]?.[t];
+                                        const val = c?.avg10;
+                                        const ratio = val == null ? 0 : Math.max(0, Math.min(1, val / 10));
+                                        const bg = val == null ? '#f8fafc' : lerpColor(lowHex, highHex, ratio);
+                                        const fg = ratio > 0.6 ? '#fff' : '#0f172a';
+                                        return (
+                                          <td key={`${g}-${t}`} className="py-2 px-2 text-center">
+                                            {val == null ? (
+                                              <span className="text-sm text-gray-400">--</span>
+                                            ) : (
+                                              <div
+                                                className="w-8 h-8 rounded-full mx-auto flex items-center justify-center text-xs font-semibold"
+                                                style={{ backgroundColor: bg, color: fg, textShadow: fg === '#fff' ? '0 1px 0 rgba(0,0,0,0.35)' : 'none' }}
+                                                title={`${val.toFixed(1)} / 10 (${c.count} tests) at ${t}°C`}
+                                              >
+                                                {val.toFixed(1)}
+                                              </div>
+                                            )}
+                                          </td>
+                                        );
+                                      })}
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          );
+                        })()
+                      )}
+                    </>
+                  )}
+
+                  {productAnalyticsTab === 'falloff' && (
+                    <div className="mt-5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <h5 className="text-base font-semibold text-gray-900">Fall-off (distance tests)</h5>
+                          <div className="text-xs text-gray-500">Higher is better. Shows how products change across repeated tests.</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-xs text-gray-600">X-axis: {seriesUsesMeters ? 'distance' : 'test number'}</div>
+                          <Button
+                            variant="secondary"
+                            onClick={() => setCombinedFalloffOpen(true)}
+                            disabled={!productSeries.length}
+                          >
+                            Combined chart
+                          </Button>
+                        </div>
                       </div>
 
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Snow type</label>
-                        <select
-                          className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
-                          value={teamHeatmapFilterGrain}
-                          onChange={(e) => setTeamHeatmapFilterGrain(e.target.value)}
-                        >
-                          <option value="all">All</option>
-                          <option value="fresh">Fresh</option>
-                          <option value="fine_grained">Fine grained</option>
-                          <option value="coarse_grained">Coarse grained</option>
-                          <option value="wet">Wet</option>
-                          <option value="icy">Icy</option>
-                          <option value="sugary">Sugary</option>
-                          <option value="unknown">Unknown</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Temperature</label>
-                        <select
-                          className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
-                          value={teamHeatmapFilterTemp}
-                          onChange={(e) => {
-                            const v = e.target.value === 'all' ? 'all' : Number(e.target.value);
-                            setTeamHeatmapFilterTemp(v);
-                          }}
-                        >
-                          <option value="all">All</option>
-                          {teamAvailableTemps.map((t) => (
-                            <option key={t} value={t}>{t}°C</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="col-span-2 md:col-span-1">
-                        <label className="block text-xs text-gray-600 mb-1">Day</label>
-                        <select
-                          className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
-                          value={teamHeatmapFilterDay}
-                          onChange={(e) => setTeamHeatmapFilterDay(e.target.value)}
-                        >
-                          <option value="all">All</option>
-                          {teamAvailableDays.map((d) => (
-                            <option key={d} value={d}>{d}</option>
-                          ))}
-                        </select>
-                      </div>
+                      {!productSeries.length ? (
+                        <div className="mt-2 text-gray-500 text-sm">No distance-series tests yet</div>
+                      ) : (
+                        <div className="mt-3 space-y-2">
+                          {productSeries.slice(0, 8).map((s) => {
+                            const first = s.points[0];
+                            const last = s.points[s.points.length - 1];
+                            const delta = last && first ? last.y - first.y : null;
+                            const pointLabel = s.points
+                              .slice(0, 4)
+                              .map((p) => `${formatDistance(p.x) || p.x} → ${p.y.toFixed(1)}`)
+                              .join('  •  ');
+                            return (
+                              <button
+                                type="button"
+                                key={s.product}
+                                className="w-full text-left flex items-center justify-between gap-3 rounded border border-gray-200 bg-white px-3 py-2"
+                                onClick={() => setFalloffModal({ product: s.product })}
+                              >
+                                <div className="min-w-0">
+                                  <div className="text-sm font-medium text-gray-900 truncate">{s.product}</div>
+                                  <div className="text-xs text-gray-500">
+                                    {s.points.length} points • Δ {delta == null ? '--' : `${delta >= 0 ? '+' : ''}${delta.toFixed(1)}`} / 10
+                                  </div>
+                                  <div className="text-xs text-gray-600 mt-1 truncate" title={pointLabel}>
+                                    {pointLabel}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <Sparkline points={s.points} />
+                                </div>
+                              </button>
+                            );
+                          })}
+                          <div className="text-xs text-gray-500">
+                            Tip: Click a product to filter fall-off by conditions.
+                            {seriesUsesMeters && (
+                              <span> Distance between tests is taken from the protocol (e.g. {formatDistance((productTests || []).find((t) => Number(t.testsCount) > 1)?.distanceBetweenTests) || '—'}).</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  )}
 
-                  {!teamHeatmapProductRows.length ? (
-                    <div className="py-3 text-gray-500">No product tests match the selected filters</div>
-                  ) : (
-                    (() => {
-                      const p = productHeatmap;
-                      if (!p) return null;
-                      const pShownTemps = teamHeatmapFilterTemp === 'all' ? p.tempList : p.tempList.filter((t) => t === teamHeatmapFilterTemp);
-                      return (
-                        <div className="mt-4 overflow-x-auto">
+                  {productAnalyticsTab === 'history' && (
+                    <div className="mt-6">
+                      <h5 className="text-base font-semibold text-gray-900">Test history</h5>
+                      <div className="text-xs text-gray-500">Click a test to view, edit, or delete</div>
+
+                      <div className="mt-3 grid grid-cols-2 md:grid-cols-6 gap-2 w-full">
+                        <div className="col-span-2 md:col-span-2">
+                          <label className="block text-xs text-gray-600 mb-1">Type</label>
+                          <div className="inline-flex rounded-2xl overflow-hidden border border-gray-200 bg-white w-full">
+                            <button
+                              type="button"
+                              className={`px-3 py-1.5 text-sm flex-1 ${teamHistoryTestType === 'all' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
+                              onClick={() => setTeamHistoryTestType('all')}
+                            >
+                              All
+                            </button>
+                            <button
+                              type="button"
+                              className={`px-3 py-1.5 text-sm flex-1 ${teamHistoryTestType === 'single' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
+                              onClick={() => setTeamHistoryTestType('single')}
+                            >
+                              Single
+                            </button>
+                            <button
+                              type="button"
+                              className={`px-3 py-1.5 text-sm flex-1 ${teamHistoryTestType === 'distance' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
+                              onClick={() => setTeamHistoryTestType('distance')}
+                            >
+                              Distance
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs text-gray-600 mb-1">Source</label>
+                          <select
+                            className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
+                            value={teamHistoryFilterSource}
+                            onChange={(e) => setTeamHistoryFilterSource(e.target.value)}
+                          >
+                            <option value="all">All</option>
+                            <option value="natural">Natural</option>
+                            <option value="artificial">Artificial</option>
+                            <option value="mix">Mix</option>
+                            <option value="unknown">Unknown</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs text-gray-600 mb-1">Snow type</label>
+                          <select
+                            className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
+                            value={teamHistoryFilterGrain}
+                            onChange={(e) => setTeamHistoryFilterGrain(e.target.value)}
+                          >
+                            <option value="all">All</option>
+                            <option value="fresh">Fresh</option>
+                            <option value="fine_grained">Fine grained</option>
+                            <option value="coarse_grained">Coarse grained</option>
+                            <option value="wet">Wet</option>
+                            <option value="icy">Icy</option>
+                            <option value="sugary">Sugary</option>
+                            <option value="unknown">Unknown</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs text-gray-600 mb-1">Temperature</label>
+                          <select
+                            className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
+                            value={teamHistoryFilterTemp}
+                            onChange={(e) => {
+                              const v = e.target.value === 'all' ? 'all' : Number(e.target.value);
+                              setTeamHistoryFilterTemp(v);
+                            }}
+                          >
+                            <option value="all">All</option>
+                            {teamAvailableTemps.map((t) => (
+                              <option key={t} value={t}>{t}°C</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="col-span-2 md:col-span-1">
+                          <label className="block text-xs text-gray-600 mb-1">Day</label>
+                          <select
+                            className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
+                            value={teamHistoryFilterDay}
+                            onChange={(e) => setTeamHistoryFilterDay(e.target.value)}
+                          >
+                            <option value="all">All</option>
+                            {teamAvailableDays.map((d) => (
+                              <option key={d} value={d}>{d}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      {!filteredProductTests.length ? (
+                        <div className="mt-2 text-gray-500 text-sm">No tests match the selected filters</div>
+                      ) : (
+                        <div className="mt-3 overflow-x-auto touch-pan-y">
                           <table className="w-full border-collapse">
                             <thead>
                               <tr className="border-b border-gray-200">
-                                <th className="text-left text-gray-600 font-medium pb-2 pr-2">Product</th>
-                                {pShownTemps.map((t) => (
-                                  <th key={t} className="text-center text-gray-600 font-medium pb-2 px-2">{t}°C</th>
-                                ))}
+                                <th className="text-left text-gray-600 font-medium pb-2 pr-2">When</th>
+                                <th className="text-left text-gray-600 font-medium pb-2 pr-2">Type</th>
+                                <th className="text-left text-gray-600 font-medium pb-2 pr-2">Distance</th>
+                                <th className="hidden md:table-cell text-left text-gray-600 font-medium pb-2 pr-2">Summary</th>
+                                <th className="text-right text-gray-600 font-medium pb-2">Actions</th>
                               </tr>
                             </thead>
                             <tbody>
-                              {p.groupList.map((g) => (
-                                <tr key={g} className="border-b border-gray-100">
-                                  <td className="text-sm text-gray-700 font-medium py-2 pr-2">{g}</td>
-                                  {pShownTemps.map((t) => {
-                                    const c = p.cells[g]?.[t];
-                                    const val = c?.avg10;
-                                    const ratio = val == null ? 0 : Math.max(0, Math.min(1, val / 10));
-                                    const bg = val == null ? '#f8fafc' : lerpColor(lowHex, highHex, ratio);
-                                    const fg = ratio > 0.6 ? '#fff' : '#0f172a';
-                                    return (
-                                      <td key={`${g}-${t}`} className="py-1 px-2 text-center">
-                                        {val == null ? (
-                                          <span className="text-sm text-gray-400">--</span>
-                                        ) : (
-                                          <div
-                                            className="w-8 h-8 rounded-full mx-auto flex items-center justify-center text-xs font-semibold"
-                                            style={{ backgroundColor: bg, color: fg, textShadow: fg === '#fff' ? '0 1px 0 rgba(0,0,0,0.35)' : 'none' }}
-                                            title={`${val.toFixed(1)} / 10 (${c.count} entries) at ${t}°C`}
-                                          >
-                                            {val.toFixed(1)}
-                                          </div>
-                                        )}
-                                      </td>
-                                    );
-                                  })}
-                                </tr>
-                              ))}
+                              {filteredProductTests.slice(0, 50).map((t) => {
+                                const isDistance = Number(t.testsCount) > 1;
+                                const idx = safeNumber(t.groupIndex, 1);
+                                const count = safeNumber(t.testsCount, 1);
+                                const at = distanceAtTestFromDoc(t);
+                                const atLabel = at != null ? (formatDistance(at) || `${Math.round(at)} m`) : '--';
+                                const ts = t.timestamp?.toDate ? t.timestamp.toDate() : (t.timestamp?._seconds ? new Date(t.timestamp._seconds * 1000) : null);
+                                const when = ts ? formatDateWithOptions(ts, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '--';
+                                const top = getRankedListFromTest(t)[0]?.label || '—';
+                                const selected = selectedProductTestId === t.id;
+                                return (
+                                  <tr key={t.id} className={`border-b border-gray-100 ${selected ? 'bg-blue-50/30' : ''}`}>
+                                    <td className="text-sm text-gray-700 py-2 pr-2 whitespace-nowrap">{when}</td>
+                                    <td className="py-2 pr-2">
+                                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${isDistance ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700'}`}>
+                                        {isDistance ? `Distance ${idx}/${count}` : 'Single'}
+                                      </span>
+                                    </td>
+                                    <td className="text-sm text-gray-700 py-2 pr-2 whitespace-nowrap">{atLabel}</td>
+                                    <td className="hidden md:table-cell text-sm text-gray-700 py-2 pr-2 min-w-50">Top: <span className="font-medium">{top}</span></td>
+                                    <td className="py-2 text-right whitespace-nowrap">
+                                      <Button
+                                        variant="secondary"
+                                        className="mr-2"
+                                        onClick={() => setSelectedProductTestId(t.id)}
+                                      >
+                                        View
+                                      </Button>
+                                      <Button
+                                        variant="danger"
+                                        onClick={async () => {
+                                          if (!confirm('Delete this product test? This cannot be undone.')) return;
+                                          await deleteEventProductTestResult(teamId, eventId, t.id);
+                                          if (selectedProductTestId === t.id) setSelectedProductTestId(null);
+                                        }}
+                                      >
+                                        Delete
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
                             </tbody>
                           </table>
-                        </div>
-                      );
-                    })()
-                  )}
-
-                  {/* Fall-off (distance series) */}
-                  <div className="mt-5">
-                    <div className="flex items-center justify-between gap-2">
-                      <div>
-                        <h5 className="text-base font-semibold text-gray-900">Fall-off (distance tests)</h5>
-                        <div className="text-xs text-gray-500">Higher is better. Shows how products change across repeated tests.</div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="text-xs text-gray-600">X-axis: {seriesUsesMeters ? 'distance' : 'test number'}</div>
-                        <Button
-                          variant="secondary"
-                          onClick={() => setCombinedFalloffOpen(true)}
-                          disabled={!productSeries.length}
-                        >
-                          Combined chart
-                        </Button>
-                      </div>
-                    </div>
-
-                    {!productSeries.length ? (
-                      <div className="mt-2 text-gray-500 text-sm">No distance-series tests yet</div>
-                    ) : (
-                      <div className="mt-3 space-y-2">
-                        {productSeries.slice(0, 8).map((s) => {
-                          const first = s.points[0];
-                          const last = s.points[s.points.length - 1];
-                          const delta = last && first ? last.y - first.y : null;
-                          const pointLabel = s.points
-                            .slice(0, 4)
-                            .map((p) => {
-                              const xLabel = seriesUsesMeters ? (formatDistance(p.x) || `${Math.round(p.x)} m`) : `#${Math.round(p.x) + 1}`;
-                              return `${xLabel}: ${p.y.toFixed(1)}`;
-                            })
-                            .join('  •  ');
-                          return (
-                            <button
-                              type="button"
-                              key={s.product}
-                              className="w-full text-left flex items-center justify-between gap-3 rounded border border-gray-200 bg-white px-3 py-2"
-                              onClick={() => {
-                                setFalloffModal({ product: s.product });
-                                setFalloffSelectedX(null);
-                              }}
-                            >
-                              <div className="min-w-0">
-                                <div className="text-sm font-medium text-gray-900 truncate">{s.product}</div>
-                                <div className="text-xs text-gray-500">
-                                  {s.points.length} points • Δ {delta == null ? '--' : `${delta >= 0 ? '+' : ''}${delta.toFixed(1)}`} / 10
-                                </div>
-                                <div className="text-xs text-gray-600 mt-1 truncate" title={pointLabel}>
-                                  {pointLabel}
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <Sparkline points={s.points} />
-                              </div>
-                            </button>
-                          );
-                        })}
-                        <div className="text-xs text-gray-500">
-                          Tip: Click a product to filter fall-off by conditions.
-                          {seriesUsesMeters && (
-                            <span> Distance between tests is taken from the protocol (e.g. {formatDistance((productTests || []).find((t) => Number(t.testsCount) > 1)?.distanceBetweenTests) || '—'}).</span>
+                          {filteredProductTests.length > 50 && (
+                            <div className="mt-2 text-xs text-gray-500">Showing latest 50 tests. Use filters to narrow.</div>
                           )}
                         </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Test history */}
-                  <div className="mt-6">
-                    <h5 className="text-base font-semibold text-gray-900">Test history</h5>
-                    <div className="text-xs text-gray-500">Click a test to view, edit, or delete</div>
-
-                    <div className="mt-3 grid grid-cols-2 md:grid-cols-6 gap-2 w-full">
-                      <div className="col-span-2 md:col-span-2">
-                        <label className="block text-xs text-gray-600 mb-1">Type</label>
-                        <div className="inline-flex rounded-2xl overflow-hidden border border-gray-200 bg-white w-full">
-                          <button
-                            type="button"
-                            className={`px-3 py-1.5 text-sm flex-1 ${teamHistoryTestType === 'all' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
-                            onClick={() => setTeamHistoryTestType('all')}
-                          >
-                            All
-                          </button>
-                          <button
-                            type="button"
-                            className={`px-3 py-1.5 text-sm flex-1 ${teamHistoryTestType === 'single' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
-                            onClick={() => setTeamHistoryTestType('single')}
-                          >
-                            Single
-                          </button>
-                          <button
-                            type="button"
-                            className={`px-3 py-1.5 text-sm flex-1 ${teamHistoryTestType === 'distance' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'}`}
-                            onClick={() => setTeamHistoryTestType('distance')}
-                          >
-                            Distance
-                          </button>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Source</label>
-                        <select
-                          className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
-                          value={teamHistoryFilterSource}
-                          onChange={(e) => setTeamHistoryFilterSource(e.target.value)}
-                        >
-                          <option value="all">All</option>
-                          <option value="natural">Natural</option>
-                          <option value="artificial">Artificial</option>
-                          <option value="mix">Mix</option>
-                          <option value="unknown">Unknown</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Snow type</label>
-                        <select
-                          className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
-                          value={teamHistoryFilterGrain}
-                          onChange={(e) => setTeamHistoryFilterGrain(e.target.value)}
-                        >
-                          <option value="all">All</option>
-                          <option value="fresh">Fresh</option>
-                          <option value="fine_grained">Fine grained</option>
-                          <option value="coarse_grained">Coarse grained</option>
-                          <option value="wet">Wet</option>
-                          <option value="icy">Icy</option>
-                          <option value="sugary">Sugary</option>
-                          <option value="unknown">Unknown</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Temperature</label>
-                        <select
-                          className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
-                          value={teamHistoryFilterTemp}
-                          onChange={(e) => {
-                            const v = e.target.value === 'all' ? 'all' : Number(e.target.value);
-                            setTeamHistoryFilterTemp(v);
-                          }}
-                        >
-                          <option value="all">All</option>
-                          {teamAvailableTemps.map((t) => (
-                            <option key={t} value={t}>{t}°C</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="col-span-2 md:col-span-1">
-                        <label className="block text-xs text-gray-600 mb-1">Day</label>
-                        <select
-                          className="w-full border border-gray-300 rounded-2xl px-2 py-1.5 text-sm"
-                          value={teamHistoryFilterDay}
-                          onChange={(e) => setTeamHistoryFilterDay(e.target.value)}
-                        >
-                          <option value="all">All</option>
-                          {teamAvailableDays.map((d) => (
-                            <option key={d} value={d}>{d}</option>
-                          ))}
-                        </select>
-                      </div>
+                      )}
                     </div>
-
-                    {!filteredProductTests.length ? (
-                      <div className="mt-2 text-gray-500 text-sm">No tests match the selected filters</div>
-                    ) : (
-                      <div className="mt-3 overflow-x-auto">
-                        <table className="w-full border-collapse">
-                          <thead>
-                            <tr className="border-b border-gray-200">
-                              <th className="text-left text-gray-600 font-medium pb-2 pr-2">When</th>
-                              <th className="text-left text-gray-600 font-medium pb-2 pr-2">Type</th>
-                              <th className="text-left text-gray-600 font-medium pb-2 pr-2">Distance</th>
-                              <th className="hidden md:table-cell text-left text-gray-600 font-medium pb-2 pr-2">Summary</th>
-                              <th className="text-right text-gray-600 font-medium pb-2">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {filteredProductTests.slice(0, 50).map((t) => {
-                              const isDistance = Number(t.testsCount) > 1;
-                              const idx = safeNumber(t.groupIndex, 1);
-                              const count = safeNumber(t.testsCount, 1);
-                              const at = distanceAtTestFromDoc(t);
-                              const atLabel = at != null ? (formatDistance(at) || `${Math.round(at)} m`) : '--';
-                              const ts = t.timestamp?.toDate ? t.timestamp.toDate() : (t.timestamp?._seconds ? new Date(t.timestamp._seconds * 1000) : null);
-                              const when = ts ? formatDateWithOptions(ts, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '--';
-                              const top = getRankedListFromTest(t)[0]?.label || '—';
-                              const selected = selectedProductTestId === t.id;
-                              return (
-                                <tr key={t.id} className={`border-b border-gray-100 ${selected ? 'bg-blue-50/30' : ''}`}>
-                                  <td className="text-sm text-gray-700 py-2 pr-2 whitespace-nowrap">{when}</td>
-                                  <td className="py-2 pr-2">
-                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${isDistance ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700'}`}>
-                                      {isDistance ? `Distance ${idx}/${count}` : 'Single'}
-                                    </span>
-                                  </td>
-                                  <td className="text-sm text-gray-700 py-2 pr-2 whitespace-nowrap">{atLabel}</td>
-                                  <td className="hidden md:table-cell text-sm text-gray-700 py-2 pr-2 min-w-50">Top: <span className="font-medium">{top}</span></td>
-                                  <td className="py-2 text-right whitespace-nowrap">
-                                    <Button
-                                      variant="secondary"
-                                      className="mr-2"
-                                      onClick={() => {
-                                        setSelectedProductTestId(t.id);
-                                        setIsEditingProductTest(false);
-                                      }}
-                                    >
-                                      View
-                                    </Button>
-                                    <Button
-                                      variant="danger"
-                                      onClick={async () => {
-                                        if (!confirm('Delete this product test? This cannot be undone.')) return;
-                                        await deleteEventProductTestResult(teamId, eventId, t.id);
-                                        if (selectedProductTestId === t.id) setSelectedProductTestId(null);
-                                      }}
-                                    >
-                                      Delete
-                                    </Button>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                        {filteredProductTests.length > 50 && (
-                          <div className="mt-2 text-xs text-gray-500">Showing latest 50 tests. Use filters to narrow.</div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
+                  )}
                 </>
               )}
             </div>

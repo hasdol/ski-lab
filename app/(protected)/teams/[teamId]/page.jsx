@@ -33,14 +33,30 @@ export default function TeamDetailPage() {
 
   const [activeTab, setActiveTab] = useState('events');
   const tabPanelRef = useRef(null);
+  const tabsScrollRef = useRef(null);
+  const tabButtonRefs = useRef({});
 
   const setActiveTabAndFocus = (nextTab) => {
     setActiveTab(nextTab);
     requestAnimationFrame(() => {
-      tabPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Always bring tab content back to the top so switching to a shorter tab
+      // doesn't leave you stranded mid-page.
+      const rect = tabPanelRef.current?.getBoundingClientRect();
+      if (rect) {
+        const y = window.scrollY + rect.top;
+        window.scrollTo({ top: Math.max(0, y - 12), behavior: 'smooth' });
+      } else {
+        tabPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
       tabPanelRef.current?.focus({ preventScroll: true });
     });
   };
+
+  useEffect(() => {
+    const el = tabButtonRefs.current?.[activeTab];
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }, [activeTab]);
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
   const [memberCap, setMemberCap] = useState(null);
   const [memberProfiles, setMemberProfiles] = useState([]); // <-- FIX: define state
@@ -62,10 +78,10 @@ export default function TeamDetailPage() {
     return () => unsubscribe();
   }, [teamId, teamAdmin]);
 
-  // Load member profiles when owner/mod views Dashboard OR Members tab
+  // Load member profiles when owner/mod views Analytics OR Members tab
   useEffect(() => {
     if (!teamAdmin) return;
-    if (activeTab !== 'dashboard' && activeTab !== 'members') return;
+    if (activeTab !== 'analytics' && activeTab !== 'members') return;
 
     (async () => {
       try {
@@ -190,7 +206,7 @@ export default function TeamDetailPage() {
   categorized.past.sort((a, b) => getStartMs(b) - getStartMs(a));
 
   const headerActions = (
-    <div className="flex flex-wrap gap-2 items-center justify-end">
+    <div className="flex flex-wrap gap-2 items-center justify-center">
       <Button onClick={handleBack} className='flex items-center' variant="secondary">
         <MdArrowBack className='mr-1' /> Back to Teams
       </Button>
@@ -331,60 +347,104 @@ export default function TeamDetailPage() {
       </Card>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
-        <button
-          className={`px-4 py-2 font-medium text-sm whitespace-nowrap focus-visible:outline-none ${activeTab === 'events'
-            ? 'text-blue-600 border-b-2 border-blue-600'
-            : 'text-gray-500 hover:text-gray-700'
-            }`}
-          onClick={() => setActiveTabAndFocus('events')}
+      <div className="border-b border-gray-200 mb-6">
+        <div
+          ref={tabsScrollRef}
+          className="flex gap-1 overflow-x-auto scrollbar-hide"
+          role="tablist"
+          aria-label="Team sections"
         >
-          Events
-        </button>
-
-        <button
-          className={`px-4 py-2 font-medium text-sm whitespace-nowrap focus-visible:outline-none ${activeTab === 'info'
-            ? 'text-blue-600 border-b-2 border-blue-600'
-            : 'text-gray-500 hover:text-gray-700'
-            }`}
-          onClick={() => setActiveTabAndFocus('info')}
-        >
-          Info
-        </button>
-
-        {/* NEW: Members tab */}
-        <button
-          className={`px-4 py-2 font-medium text-sm whitespace-nowrap focus-visible:outline-none ${activeTab === 'members'
-            ? 'text-blue-600 border-b-2 border-blue-600'
-            : 'text-gray-500 hover:text-gray-700'
-            }`}
-          onClick={() => setActiveTabAndFocus('members')}
-        >
-          Members
-        </button>
-
-        {teamAdmin && (
           <button
-            className={`px-4 py-2 font-medium text-sm whitespace-nowrap focus-visible:outline-none ${activeTab === 'dashboard'
+            ref={(el) => {
+              if (el) tabButtonRefs.current.events = el;
+            }}
+            role="tab"
+            aria-selected={activeTab === 'events'}
+            className={`shrink-0 px-4 py-2 font-medium text-sm whitespace-nowrap focus-visible:outline-none ${activeTab === 'events'
               ? 'text-blue-600 border-b-2 border-blue-600'
               : 'text-gray-500 hover:text-gray-700'
               }`}
-            onClick={() => setActiveTabAndFocus('dashboard')}
-            title="Owner/moderator dashboard"
+            onClick={() => setActiveTabAndFocus('events')}
           >
-            <span className="inline-flex items-center gap-2">
-              Dashboard
-              {pendingRequestCount > 0 && (
-                <span
-                  className="inline-flex items-center justify-center min-w-5 h-5 px-1 text-xs font-semibold text-white bg-red-600 rounded-full"
-                  aria-label={`${pendingRequestCount} pending join request${pendingRequestCount > 1 ? 's' : ''}`}
-                >
-                  {pendingRequestCount}
-                </span>
-              )}
-            </span>
+            Events
           </button>
-        )}
+
+          <button
+            ref={(el) => {
+              if (el) tabButtonRefs.current.info = el;
+            }}
+            role="tab"
+            aria-selected={activeTab === 'info'}
+            className={`shrink-0 px-4 py-2 font-medium text-sm whitespace-nowrap focus-visible:outline-none ${activeTab === 'info'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-500 hover:text-gray-700'
+              }`}
+            onClick={() => setActiveTabAndFocus('info')}
+          >
+            Info
+          </button>
+
+          <button
+            ref={(el) => {
+              if (el) tabButtonRefs.current.members = el;
+            }}
+            role="tab"
+            aria-selected={activeTab === 'members'}
+            className={`shrink-0 px-4 py-2 font-medium text-sm whitespace-nowrap focus-visible:outline-none ${activeTab === 'members'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-500 hover:text-gray-700'
+              }`}
+            onClick={() => setActiveTabAndFocus('members')}
+          >
+            Members
+          </button>
+
+          {teamAdmin && (
+            <button
+              ref={(el) => {
+                if (el) tabButtonRefs.current.analytics = el;
+              }}
+              role="tab"
+              aria-selected={activeTab === 'analytics'}
+              className={`shrink-0 px-4 py-2 font-medium text-sm whitespace-nowrap focus-visible:outline-none ${activeTab === 'analytics'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+                }`}
+              onClick={() => setActiveTabAndFocus('analytics')}
+              title="Owner/moderator analytics"
+            >
+              <span className="inline-flex items-center gap-2">
+                Analytics
+                {pendingRequestCount > 0 && (
+                  <span
+                    className="inline-flex items-center justify-center min-w-5 h-5 px-1 text-xs font-semibold text-white bg-red-600 rounded-full"
+                    aria-label={`${pendingRequestCount} pending join request${pendingRequestCount > 1 ? 's' : ''}`}
+                  >
+                    {pendingRequestCount}
+                  </span>
+                )}
+              </span>
+            </button>
+          )}
+
+          {teamAdmin && (
+            <button
+              ref={(el) => {
+                if (el) tabButtonRefs.current.inventory = el;
+              }}
+              role="tab"
+              aria-selected={activeTab === 'inventory'}
+              className={`shrink-0 px-4 py-2 font-medium text-sm whitespace-nowrap focus-visible:outline-none ${activeTab === 'inventory'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+                }`}
+              onClick={() => setActiveTabAndFocus('inventory')}
+              title="Team test skis and products"
+            >
+              Inventory
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tab Content */}
@@ -527,7 +587,7 @@ export default function TeamDetailPage() {
         )}
       </div>
 
-      {activeTab === 'dashboard' && teamAdmin && (
+      {activeTab === 'analytics' && teamAdmin && (
         <div className="mb-6 space-y-6">
           {pendingRequestCount > 0 && (
             <Card className="space-y-3">
@@ -538,10 +598,18 @@ export default function TeamDetailPage() {
             </Card>
           )}
 
-          <TeamTestInventory teamId={teamId} />
-
           <TeamEventDashboard teamId={teamId} />
-          {/* Removed Members card from dashboard (now in Members tab) */}
+          {/* Removed Members card from analytics (now in Members tab) */}
+        </div>
+      )}
+
+      {activeTab === 'inventory' && teamAdmin && (
+        <div className="mb-6 space-y-6">
+          <Card className="space-y-1">
+            <h2 className="text-lg font-semibold text-gray-800">Team test inventory</h2>
+            <div className="text-sm text-gray-600">Manage team test skis and products used in product tests.</div>
+          </Card>
+          <TeamTestInventory teamId={teamId} />
         </div>
       )}
     </>
