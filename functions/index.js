@@ -545,6 +545,19 @@ exports.onSkiDeleted = onDocumentDeleted('users/{userId}/skis/{skiId}', async (e
    ------------------------------------------------------------------ */
 
 // ------------------------------------------------------------------
+// Helper: delete docs in batches (Firestore)
+// ------------------------------------------------------------------
+async function deleteQueryInPages(q, pageSize = 500) {
+  while (true) {
+    const snap = await q.limit(pageSize).get();
+    if (snap.empty) break;
+    const batch = db.batch();
+    snap.docs.forEach((d) => batch.delete(d.ref));
+    await batch.commit();
+  }
+}
+
+// ------------------------------------------------------------------
 // Helper: delete a single file if it exists (server-side storage API)
 // ------------------------------------------------------------------
 async function deleteFileIfExists(path) {
@@ -591,16 +604,15 @@ async function wipeEventsOfTeam(teamId, uid = null) {
     await deleteFileIfExists(`teams/${teamId}/events/${evtId}/event.jpg`);
 
     // 2) delete testResults sub-collection in pages of 500
-    const testsRef = evt.ref.collection('testResults');
-    while (true) {
-      const page = await testsRef.limit(500).get();
-      if (page.empty) break;
-      const batch = db.batch();
-      page.docs.forEach((d) => batch.delete(d.ref));
-      await batch.commit();
-    }
+    await deleteQueryInPages(evt.ref.collection('testResults'));
 
-    // 3) delete the event document
+    // 3) delete productTests sub-collection
+    await deleteQueryInPages(evt.ref.collection('productTests'));
+
+    // 4) delete event timeline entries
+    await deleteQueryInPages(evt.ref.collection('timeline'));
+
+    // 5) delete the event document
     await evt.ref.delete();
   }
 }
@@ -614,16 +626,41 @@ async function wipeWholeTeam(teamId) {
 
   // 2) Delete all joinRequests documents in the team.
   const joinRequestsRef = db.collection(`teams/${teamId}/joinRequests`);
-  const joinRequestsSnap = await joinRequestsRef.get();
-  for (const doc of joinRequestsSnap.docs) {
-    await doc.ref.delete();
-  }
+  await deleteQueryInPages(joinRequestsRef);
 
-  // 3) Delete the team-level image.
+  // 3) Delete team-level subcollections
+  await deleteQueryInPages(db.collection(`teams/${teamId}/testSkis`));
+  await deleteQueryInPages(db.collection(`teams/${teamId}/products`));
+  await deleteQueryInPages(db.collection(`teams/${teamId}/timeline`));
+
+  // 4) Delete the team-level image.
   await deleteFileIfExists(`teams/${teamId}/team.jpg`);
 
-  // 4) Delete the team document itself.
+  // 5) Delete the team document itself.
   await db.collection('teams').doc(teamId).delete();
+}
+
+// ------------------------------------------------------------------
+// Helper: remove user-authored artefacts within a team they don't own
+// ------------------------------------------------------------------
+async function wipeUserContributionsInTeam(teamId, uid) {
+  // Team-level join requests created by this user
+  await deleteQueryInPages(
+    db.collection(`teams/${teamId}/joinRequests`).where('userId', '==', uid)
+  );
+
+  // Team-level timeline entries created by this user
+  await deleteQueryInPages(
+    db.collection(`teams/${teamId}/timeline`).where('createdBy', '==', uid)
+  );
+
+  // Event-level artefacts
+  const eventsSnap = await db.collection(`teams/${teamId}/events`).get();
+  for (const evt of eventsSnap.docs) {
+    await deleteQueryInPages(evt.ref.collection('testResults').where('userId', '==', uid));
+    await deleteQueryInPages(evt.ref.collection('productTests').where('createdBy', '==', uid));
+    await deleteQueryInPages(evt.ref.collection('timeline').where('createdBy', '==', uid));
+  }
 }
 
 // ------------------------------------------------------------------
@@ -643,8 +680,8 @@ exports.deleteUserAccount = onCall({ secrets: ['STRIPE_SECRET'] }, async (reques
   const userRef = db.collection('users').doc(uid);
   const userDoc = await userRef.get();
 
-  if (!userDoc.exists) throw new HttpsError('not-found', 'User document not found.');
-  const userData = userDoc.data();
+  // Idempotency: if the user doc is already gone, proceed with best-effort cleanup.
+  const userData = userDoc.exists ? (userDoc.data() || {}) : {};
 
   /* --------------------------------------------------------------
      1. Cancel active Stripe subscription (unchanged)
@@ -689,11 +726,60 @@ exports.deleteUserAccount = onCall({ secrets: ['STRIPE_SECRET'] }, async (reques
     // remove only events they created
     await wipeEventsOfTeam(teamId, uid);
 
+    // remove other artefacts authored by the user in this team
+    await wipeUserContributionsInTeam(teamId, uid);
+
     // remove them from the members array
+    const team = teamDoc.data() || {};
+    const members = Array.isArray(team.members) ? team.members : [];
+    const isMember = members.includes(uid);
     await teamDoc.ref.update({
       members: admin.firestore.FieldValue.arrayRemove(uid),
+      mods: admin.firestore.FieldValue.arrayRemove(uid),
+      ...(isMember ? { memberCount: admin.firestore.FieldValue.increment(-1) } : {}),
     });
   }
+
+  /* --------------------------------------------------------------
+     2c. Delete any pending join requests created by this user
+         (these are not covered by membership-based team queries)
+  -------------------------------------------------------------- */
+  try {
+    await deleteQueryInPages(
+      db.collectionGroup('joinRequests').where('userId', '==', uid)
+    );
+  } catch (e) {
+    // Some projects disable collection-group indexes; don't fail account deletion for this.
+    console.warn('Best-effort cleanup failed: collectionGroup(joinRequests)', e?.message || e);
+  }
+
+  /* --------------------------------------------------------------
+     2d. Delete sharing artefacts involving this user
+  -------------------------------------------------------------- */
+  // shareRequests where user is either requester or owner
+  await deleteQueryInPages(db.collection('shareRequests').where('fromUid', '==', uid));
+  await deleteQueryInPages(db.collection('shareRequests').where('toUid', '==', uid));
+
+  // userShares where user is either owner or reader (covers legacy random-id docs too)
+  await deleteQueryInPages(db.collection('userShares').where('ownerUid', '==', uid));
+  await deleteQueryInPages(db.collection('userShares').where('readerUid', '==', uid));
+
+  // shareCodes mapping (best-effort by user field + by uid query)
+  if (userData.shareCode) {
+    const codeUpper = String(userData.shareCode).toUpperCase();
+    const ref = db.collection('shareCodes').doc(codeUpper);
+    const snap = await ref.get();
+    if (snap.exists && snap.data()?.uid === uid) {
+      await ref.delete();
+    }
+  }
+  await deleteQueryInPages(db.collection('shareCodes').where('uid', '==', uid));
+
+  /* --------------------------------------------------------------
+     2e. Team/event artefacts authored by this user
+  -------------------------------------------------------------- */
+    // Note: Avoid collectionGroup() queries here to prevent FAILED_PRECONDITION errors
+    // when collection-group indexes are disabled in a project.
 
   /* --------------------------------------------------------------
      3. Delete user-specific assets & sub-collections
@@ -716,8 +802,10 @@ exports.deleteUserAccount = onCall({ secrets: ['STRIPE_SECRET'] }, async (reques
   /* --------------------------------------------------------------
      4. Delete Auth user & top-level user doc
   -------------------------------------------------------------- */
-  await admin.auth().deleteUser(uid);
-  await userRef.delete();
+    // Delete Firestore profile last (after using it for Stripe/share cleanup)
+    // but before deleting Auth user, so the user can still retry if something fails.
+    await userRef.delete();
+    await admin.auth().deleteUser(uid);
 
   return { message: 'User account and all related data deleted successfully.' };
 });
